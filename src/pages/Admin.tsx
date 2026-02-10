@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import {
@@ -133,11 +134,12 @@ const mockSyncLogs = [
 
 // --- Content panels ---
 function EmployeesPanel() {
+  const navigate = useNavigate();
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
         <h2 className="text-lg font-semibold">Employee Profiles</h2>
-        <Button size="sm"><Plus className="h-4 w-4 mr-2" />Add Employee</Button>
+        <Button size="sm" onClick={() => navigate("/admin/employee/create")}><Plus className="h-4 w-4 mr-2" />Add Employee</Button>
       </div>
       <Card>
         <CardContent className="p-0">
