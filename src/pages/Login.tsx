@@ -30,7 +30,7 @@ export default function Login() {
       setLoading(false);
       localStorage.setItem("isLoggedIn", "true");
       localStorage.setItem("userEmail", email);
-      navigate("/");
+      navigate("/claims");
     }, 600);
   };
 
