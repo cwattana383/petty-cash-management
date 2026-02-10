@@ -30,7 +30,7 @@ const App = () => (
         <BrowserRouter>
           <AppLayout>
             <Routes>
-              <Route path="/" element={<Dashboard />} />
+              <Route path="/" element={<Admin />} />
               <Route path="/upload" element={<UploadDocument />} />
               <Route path="/claims" element={<MyClaims />} />
               <Route path="/claims/create" element={<CreateClaim />} />
