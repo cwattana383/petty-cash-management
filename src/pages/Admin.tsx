@@ -15,6 +15,10 @@ import {
   Plug,
   Clock,
   CalendarClock,
+  Building2,
+  Layers,
+  DollarSign,
+  MapPin,
 } from "lucide-react";
 import {
   Table,
@@ -33,6 +37,16 @@ import { cn } from "@/lib/utils";
 
 // --- Sidebar menu definition ---
 const adminMenu = [
+  {
+    group: "Organization Data",
+    icon: Building2,
+    items: [
+      { key: "entities", label: "Entities", icon: Building2 },
+      { key: "departments", label: "Departments", icon: Layers },
+      { key: "org-costcenters", label: "Cost Centers", icon: DollarSign },
+      { key: "branches", label: "Branches", icon: MapPin },
+    ],
+  },
   {
     group: "User Setup",
     icon: Users,
@@ -131,6 +145,189 @@ const mockSyncLogs = [
   { time: "2026-02-09 03:00:08", job: "Weekly Reconciliation", records: 0, status: "Failed", duration: "0.8s" },
   { time: "2026-02-09 14:00:02", job: "Hourly Claims Push", records: 8, status: "Success", duration: "2.5s" },
 ];
+
+// --- Mock data for Organization Data ---
+const mockEntities = [
+  { code: "CORP-01", name: "บริษัท ABC จำกัด (มหาชน)", type: "Parent Company", status: "Active" },
+  { code: "CORP-02", name: "บริษัท ABC Trading จำกัด", type: "Subsidiary", status: "Active" },
+  { code: "CORP-03", name: "บริษัท ABC Logistics จำกัด", type: "Subsidiary", status: "Active" },
+];
+
+const mockDepartments = [
+  { code: "DEPT-IT", name: "Information Technology", head: "สมศักดิ์ วิชาญ", employees: 25 },
+  { code: "DEPT-MK", name: "Marketing", head: "สมหญิง แก้วใส", employees: 12 },
+  { code: "DEPT-HR", name: "Human Resources", head: "วิภา สุขใจ", employees: 8 },
+  { code: "DEPT-FN", name: "Finance", head: "พิมพ์ ดี", employees: 10 },
+  { code: "DEPT-SL", name: "Sales", head: "สมชาย ใจดี", employees: 30 },
+];
+
+const mockOrgCostCenters = [
+  { code: "CC-100", name: "Sales Operations", entity: "CORP-01", department: "Sales", glAccount: "5100-001" },
+  { code: "CC-200", name: "Marketing Campaigns", entity: "CORP-01", department: "Marketing", glAccount: "5200-001" },
+  { code: "CC-300", name: "R&D", entity: "CORP-01", department: "Engineering", glAccount: "5300-001" },
+  { code: "CC-400", name: "Corporate Finance", entity: "CORP-01", department: "Finance", glAccount: "5400-001" },
+  { code: "CC-500", name: "Trading Ops", entity: "CORP-02", department: "Operations", glAccount: "5500-001" },
+];
+
+const mockBranches = [
+  { code: "BRN-BKK", name: "Bangkok (Head Office)", region: "Central", address: "123 Sukhumvit Rd.", status: "Active" },
+  { code: "BRN-CNX", name: "Chiang Mai", region: "North", address: "456 Nimman Rd.", status: "Active" },
+  { code: "BRN-PKT", name: "Phuket", region: "South", address: "789 Patong Rd.", status: "Active" },
+  { code: "BRN-KKN", name: "Khon Kaen", region: "Northeast", address: "321 Mittraphap Rd.", status: "Inactive" },
+];
+
+// --- Organization Data panels ---
+function EntitiesPanel() {
+  return (
+    <div className="space-y-4">
+      <div className="flex items-center justify-between">
+        <h2 className="text-lg font-semibold">Entities</h2>
+        <Button size="sm"><Plus className="h-4 w-4 mr-2" />Add Entity</Button>
+      </div>
+      <Card>
+        <CardContent className="p-0">
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Code</TableHead>
+                <TableHead>Company Name</TableHead>
+                <TableHead>Type</TableHead>
+                <TableHead>Status</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {mockEntities.map((e) => (
+                <TableRow key={e.code} className="cursor-pointer hover:bg-muted/50">
+                  <TableCell className="font-medium">{e.code}</TableCell>
+                  <TableCell>{e.name}</TableCell>
+                  <TableCell><Badge variant="outline">{e.type}</Badge></TableCell>
+                  <TableCell>
+                    <Badge className={e.status === "Active" ? "bg-green-100 text-green-800" : "bg-gray-100 text-gray-600"}>
+                      {e.status}
+                    </Badge>
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </CardContent>
+      </Card>
+    </div>
+  );
+}
+
+function DepartmentsPanel() {
+  return (
+    <div className="space-y-4">
+      <div className="flex items-center justify-between">
+        <h2 className="text-lg font-semibold">Departments</h2>
+        <Button size="sm"><Plus className="h-4 w-4 mr-2" />Add Department</Button>
+      </div>
+      <Card>
+        <CardContent className="p-0">
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Code</TableHead>
+                <TableHead>Department Name</TableHead>
+                <TableHead>Department Head</TableHead>
+                <TableHead>Employees</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {mockDepartments.map((d) => (
+                <TableRow key={d.code} className="cursor-pointer hover:bg-muted/50">
+                  <TableCell className="font-medium">{d.code}</TableCell>
+                  <TableCell>{d.name}</TableCell>
+                  <TableCell>{d.head}</TableCell>
+                  <TableCell><Badge variant="secondary">{d.employees}</Badge></TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </CardContent>
+      </Card>
+    </div>
+  );
+}
+
+function OrgCostCentersPanel() {
+  return (
+    <div className="space-y-4">
+      <div className="flex items-center justify-between">
+        <h2 className="text-lg font-semibold">Cost Centers</h2>
+        <Button size="sm"><Plus className="h-4 w-4 mr-2" />Add Cost Center</Button>
+      </div>
+      <Card>
+        <CardContent className="p-0">
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Code</TableHead>
+                <TableHead>Name</TableHead>
+                <TableHead>Entity</TableHead>
+                <TableHead>Department</TableHead>
+                <TableHead>GL Account</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {mockOrgCostCenters.map((c) => (
+                <TableRow key={c.code} className="cursor-pointer hover:bg-muted/50">
+                  <TableCell className="font-medium">{c.code}</TableCell>
+                  <TableCell>{c.name}</TableCell>
+                  <TableCell><Badge variant="outline">{c.entity}</Badge></TableCell>
+                  <TableCell>{c.department}</TableCell>
+                  <TableCell><code className="text-xs bg-muted px-1.5 py-0.5 rounded">{c.glAccount}</code></TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </CardContent>
+      </Card>
+    </div>
+  );
+}
+
+function BranchesPanel() {
+  return (
+    <div className="space-y-4">
+      <div className="flex items-center justify-between">
+        <h2 className="text-lg font-semibold">Branches</h2>
+        <Button size="sm"><Plus className="h-4 w-4 mr-2" />Add Branch</Button>
+      </div>
+      <Card>
+        <CardContent className="p-0">
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Code</TableHead>
+                <TableHead>Branch Name</TableHead>
+                <TableHead>Region</TableHead>
+                <TableHead>Address</TableHead>
+                <TableHead>Status</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {mockBranches.map((b) => (
+                <TableRow key={b.code} className="cursor-pointer hover:bg-muted/50">
+                  <TableCell className="font-medium">{b.code}</TableCell>
+                  <TableCell>{b.name}</TableCell>
+                  <TableCell>{b.region}</TableCell>
+                  <TableCell className="text-sm">{b.address}</TableCell>
+                  <TableCell>
+                    <Badge className={b.status === "Active" ? "bg-green-100 text-green-800" : "bg-gray-100 text-gray-600"}>
+                      {b.status}
+                    </Badge>
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </CardContent>
+      </Card>
+    </div>
+  );
+}
 
 // --- Content panels ---
 function EmployeesPanel() {
@@ -425,6 +622,10 @@ function SyncLogsPanel() {
 }
 
 const panelMap: Record<string, () => JSX.Element> = {
+  entities: EntitiesPanel,
+  departments: DepartmentsPanel,
+  "org-costcenters": OrgCostCentersPanel,
+  branches: BranchesPanel,
   employees: EmployeesPanel,
   roles: RolesPanel,
   costcenters: CostCentersPanel,
