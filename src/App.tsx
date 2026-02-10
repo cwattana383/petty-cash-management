@@ -37,7 +37,7 @@ const App = () => (
                 <AuthGuard>
                   <AppLayout>
                     <Routes>
-                      <Route path="/" element={<Admin />} />
+                      <Route path="/" element={<MyClaims />} />
                       <Route path="/upload" element={<UploadDocument />} />
                       <Route path="/claims" element={<MyClaims />} />
                       <Route path="/claims/create" element={<CreateClaim />} />
