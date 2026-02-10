@@ -7,8 +7,12 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { User, LogOut, Settings } from "lucide-react";
+import { useNavigate } from "react-router-dom";
+import { currentUser } from "@/lib/mock-data";
 
 export function TopBar() {
+  const navigate = useNavigate();
+
   return (
     <header className="h-14 border-b border-border bg-background flex items-center justify-between px-4 shrink-0">
       <SidebarTrigger />
@@ -16,13 +20,13 @@ export function TopBar() {
         <DropdownMenuTrigger className="flex items-center gap-2 hover:opacity-80 cursor-pointer">
           <Avatar className="h-8 w-8">
             <AvatarFallback className="bg-primary text-primary-foreground text-xs">
-              U
+              {currentUser.name[0]}
             </AvatarFallback>
           </Avatar>
-          <span className="text-sm font-medium hidden sm:inline">User</span>
+          <span className="text-sm font-medium hidden sm:inline">{currentUser.name}</span>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end">
-          <DropdownMenuItem>
+          <DropdownMenuItem onClick={() => navigate("/profile")}>
             <User className="mr-2 h-4 w-4" />
             Profile
           </DropdownMenuItem>
