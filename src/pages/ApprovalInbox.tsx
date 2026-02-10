@@ -1,16 +1,19 @@
+import { useNavigate } from "react-router-dom";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Check, X, MessageSquare, Eye } from "lucide-react";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-
-const mockApprovals = [
-  { id: "EC-2025-010", requester: "สมชาย ใจดี", dept: "Sales", purpose: "Client visit - Chiang Mai", amount: "฿18,500", submitted: "2025-02-06", priority: "Normal" },
-  { id: "EC-2025-011", requester: "สมหญิง แก้วใส", dept: "Marketing", purpose: "Trade show materials", amount: "฿45,000", submitted: "2025-02-07", priority: "High" },
-  { id: "EC-2025-012", requester: "วิชัย เจริญ", dept: "Engineering", purpose: "Software License Renewal", amount: "฿12,000", submitted: "2025-02-08", priority: "Normal" },
-];
+import { useClaims } from "@/lib/claims-context";
 
 export default function ApprovalInbox() {
+  const navigate = useNavigate();
+  const { claims } = useClaims();
+
+  const pendingClaims = claims.filter((c) => c.status === "Pending Approval");
+  const approvedThisMonth = claims.filter((c) => c.status === "Approved").length;
+  const totalPending = pendingClaims.reduce((s, c) => s + c.totalAmount, 0);
+
   return (
     <div className="space-y-6">
       <div>
@@ -19,9 +22,9 @@ export default function ApprovalInbox() {
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-        <Card><CardContent className="p-4 text-center"><p className="text-2xl font-bold text-primary">3</p><p className="text-sm text-muted-foreground">Pending</p></CardContent></Card>
-        <Card><CardContent className="p-4 text-center"><p className="text-2xl font-bold text-foreground">12</p><p className="text-sm text-muted-foreground">Approved This Month</p></CardContent></Card>
-        <Card><CardContent className="p-4 text-center"><p className="text-2xl font-bold text-foreground">฿175,500</p><p className="text-sm text-muted-foreground">Total Pending Amount</p></CardContent></Card>
+        <Card><CardContent className="p-4 text-center"><p className="text-2xl font-bold text-primary">{pendingClaims.length}</p><p className="text-sm text-muted-foreground">Pending</p></CardContent></Card>
+        <Card><CardContent className="p-4 text-center"><p className="text-2xl font-bold text-foreground">{approvedThisMonth}</p><p className="text-sm text-muted-foreground">Approved This Month</p></CardContent></Card>
+        <Card><CardContent className="p-4 text-center"><p className="text-2xl font-bold text-foreground">฿{totalPending.toLocaleString()}</p><p className="text-sm text-muted-foreground">Total Pending Amount</p></CardContent></Card>
       </div>
 
       <Card>
@@ -39,24 +42,25 @@ export default function ApprovalInbox() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {mockApprovals.map((a) => (
-                <TableRow key={a.id}>
-                  <TableCell className="font-medium">{a.id}</TableCell>
-                  <TableCell>{a.requester}</TableCell>
-                  <TableCell>{a.dept}</TableCell>
-                  <TableCell>{a.purpose}</TableCell>
-                  <TableCell className="text-right font-medium">{a.amount}</TableCell>
-                  <TableCell>{a.submitted}</TableCell>
-                  <TableCell>
-                    <div className="flex gap-1">
-                      <Button variant="ghost" size="icon" className="text-green-600 hover:bg-green-50"><Check className="h-4 w-4" /></Button>
-                      <Button variant="ghost" size="icon" className="text-red-600 hover:bg-red-50"><X className="h-4 w-4" /></Button>
-                      <Button variant="ghost" size="icon"><MessageSquare className="h-4 w-4" /></Button>
-                      <Button variant="ghost" size="icon"><Eye className="h-4 w-4" /></Button>
-                    </div>
-                  </TableCell>
-                </TableRow>
-              ))}
+              {pendingClaims.length === 0 ? (
+                <TableRow><TableCell colSpan={7} className="text-center text-muted-foreground py-8">No pending approvals</TableCell></TableRow>
+              ) : (
+                pendingClaims.map((a) => (
+                  <TableRow key={a.id}>
+                    <TableCell className="font-medium">{a.claimNo}</TableCell>
+                    <TableCell>{a.requesterName}</TableCell>
+                    <TableCell>{a.department}</TableCell>
+                    <TableCell>{a.purpose}</TableCell>
+                    <TableCell className="text-right font-medium">฿{a.totalAmount.toLocaleString()}</TableCell>
+                    <TableCell>{a.submittedDate}</TableCell>
+                    <TableCell>
+                      <Button variant="ghost" size="icon" onClick={() => navigate(`/claims/${a.id}`)}>
+                        <Eye className="h-4 w-4" />
+                      </Button>
+                    </TableCell>
+                  </TableRow>
+                ))
+              )}
             </TableBody>
           </Table>
         </CardContent>

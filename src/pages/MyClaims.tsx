@@ -1,10 +1,13 @@
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Plus, Search, Eye } from "lucide-react";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { useClaims } from "@/lib/claims-context";
 
 const statusColors: Record<string, string> = {
   Draft: "bg-muted text-muted-foreground",
@@ -13,17 +16,23 @@ const statusColors: Record<string, string> = {
   Rejected: "bg-red-100 text-red-800",
   "Need Info": "bg-blue-100 text-blue-800",
   Paid: "bg-emerald-100 text-emerald-800",
+  Reconciled: "bg-purple-100 text-purple-800",
 };
 
-const mockClaims = [
-  { id: "EC-2025-001", date: "2025-01-15", purpose: "Business Travel - Bangkok", amount: "฿15,200", status: "Approved", type: "Travel" },
-  { id: "EC-2025-002", date: "2025-01-20", purpose: "Client Meeting Lunch", amount: "฿2,800", status: "Pending Approval", type: "Meals" },
-  { id: "EC-2025-003", date: "2025-02-01", purpose: "Office Supplies Purchase", amount: "฿4,500", status: "Draft", type: "Office Supplies" },
-  { id: "EC-2025-004", date: "2025-02-05", purpose: "Taxi to Airport", amount: "฿850", status: "Rejected", type: "Transportation" },
-  { id: "EC-2025-005", date: "2025-02-08", purpose: "Conference Registration", amount: "฿25,000", status: "Need Info", type: "Training" },
-];
-
 export default function MyClaims() {
+  const navigate = useNavigate();
+  const { claims } = useClaims();
+  const [search, setSearch] = useState("");
+  const [statusFilter, setStatusFilter] = useState("all");
+  const [typeFilter, setTypeFilter] = useState("all");
+
+  const filtered = claims.filter((c) => {
+    if (search && !c.claimNo.toLowerCase().includes(search.toLowerCase()) && !c.purpose.toLowerCase().includes(search.toLowerCase())) return false;
+    if (statusFilter !== "all" && c.status !== statusFilter) return false;
+    if (typeFilter !== "all" && !c.lines.some((l) => l.expenseType === typeFilter)) return false;
+    return true;
+  });
+
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
@@ -31,7 +40,7 @@ export default function MyClaims() {
           <h1 className="text-2xl font-bold text-foreground">My Claims</h1>
           <p className="text-muted-foreground">Manage your expense claims</p>
         </div>
-        <Button><Plus className="h-4 w-4 mr-2" />New Claim</Button>
+        <Button onClick={() => navigate("/claims/create")}><Plus className="h-4 w-4 mr-2" />New Claim</Button>
       </div>
 
       <Card>
@@ -39,18 +48,20 @@ export default function MyClaims() {
           <div className="flex flex-col sm:flex-row gap-3">
             <div className="relative flex-1">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-              <Input placeholder="Search claims..." className="pl-9" />
+              <Input placeholder="Search claims..." className="pl-9" value={search} onChange={(e) => setSearch(e.target.value)} />
             </div>
-            <Select>
+            <Select value={statusFilter} onValueChange={setStatusFilter}>
               <SelectTrigger className="w-full sm:w-[180px]"><SelectValue placeholder="Status" /></SelectTrigger>
               <SelectContent>
+                <SelectItem value="all">All Status</SelectItem>
                 {Object.keys(statusColors).map((s) => <SelectItem key={s} value={s}>{s}</SelectItem>)}
               </SelectContent>
             </Select>
-            <Select>
+            <Select value={typeFilter} onValueChange={setTypeFilter}>
               <SelectTrigger className="w-full sm:w-[180px]"><SelectValue placeholder="Expense Type" /></SelectTrigger>
               <SelectContent>
-                {["Travel", "Meals", "Office Supplies", "Transportation", "Training"].map((t) => <SelectItem key={t} value={t}>{t}</SelectItem>)}
+                <SelectItem value="all">All Types</SelectItem>
+                {["Travel", "Meals", "Office Supplies", "Transportation", "Training", "Other"].map((t) => <SelectItem key={t} value={t}>{t}</SelectItem>)}
               </SelectContent>
             </Select>
           </div>
@@ -65,24 +76,26 @@ export default function MyClaims() {
                 <TableHead>Claim No.</TableHead>
                 <TableHead>Date</TableHead>
                 <TableHead>Purpose</TableHead>
-                <TableHead>Type</TableHead>
                 <TableHead className="text-right">Amount</TableHead>
                 <TableHead>Status</TableHead>
                 <TableHead></TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
-              {mockClaims.map((c) => (
-                <TableRow key={c.id}>
-                  <TableCell className="font-medium">{c.id}</TableCell>
-                  <TableCell>{c.date}</TableCell>
-                  <TableCell>{c.purpose}</TableCell>
-                  <TableCell>{c.type}</TableCell>
-                  <TableCell className="text-right font-medium">{c.amount}</TableCell>
-                  <TableCell><Badge className={statusColors[c.status]}>{c.status}</Badge></TableCell>
-                  <TableCell><Button variant="ghost" size="icon"><Eye className="h-4 w-4" /></Button></TableCell>
-                </TableRow>
-              ))}
+              {filtered.length === 0 ? (
+                <TableRow><TableCell colSpan={6} className="text-center text-muted-foreground py-8">No claims found</TableCell></TableRow>
+              ) : (
+                filtered.map((c) => (
+                  <TableRow key={c.id} className="cursor-pointer hover:bg-muted/50" onClick={() => navigate(`/claims/${c.id}`)}>
+                    <TableCell className="font-medium">{c.claimNo}</TableCell>
+                    <TableCell>{c.createdDate}</TableCell>
+                    <TableCell>{c.purpose}</TableCell>
+                    <TableCell className="text-right font-medium">฿{c.totalAmount.toLocaleString()}</TableCell>
+                    <TableCell><Badge className={statusColors[c.status]}>{c.status}</Badge></TableCell>
+                    <TableCell><Button variant="ghost" size="icon" onClick={(e) => { e.stopPropagation(); navigate(`/claims/${c.id}`); }}><Eye className="h-4 w-4" /></Button></TableCell>
+                  </TableRow>
+                ))
+              )}
             </TableBody>
           </Table>
         </CardContent>
