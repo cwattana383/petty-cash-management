@@ -15,6 +15,7 @@ import AccountingReview from "./pages/AccountingReview";
 import Reports from "./pages/Reports";
 import Reconcile from "./pages/Reconcile";
 import Admin from "./pages/Admin";
+import EmployeeProfileCreate from "./pages/EmployeeProfileCreate";
 import Profile from "./pages/Profile";
 import NotFound from "./pages/NotFound";
 
@@ -39,6 +40,7 @@ const App = () => (
               <Route path="/reports" element={<Reports />} />
               <Route path="/reconcile" element={<Reconcile />} />
               <Route path="/admin" element={<Admin />} />
+              <Route path="/admin/employee/create" element={<EmployeeProfileCreate />} />
               <Route path="/profile" element={<Profile />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
