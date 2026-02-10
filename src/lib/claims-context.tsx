@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useCallback } from "react";
+import React, { createContext, useContext, useState, useCallback, type ReactNode } from "react";
 import { ClaimHeader, ClaimLine, ClaimStatus } from "./types";
 import { mockClaims } from "./mock-data";
 
@@ -13,7 +13,7 @@ interface ClaimsContextType {
 
 const ClaimsContext = createContext<ClaimsContextType | null>(null);
 
-export function ClaimsProvider({ children }: { children: React.ReactNode }) {
+export function ClaimsProvider({ children }: { children: ReactNode }) {
   const [claims, setClaims] = useState<ClaimHeader[]>(mockClaims);
 
   const addClaim = useCallback((claim: ClaimHeader) => {
