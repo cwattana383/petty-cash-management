@@ -4,8 +4,9 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AppLayout } from "@/components/layout/AppLayout";
+import { AuthGuard } from "@/components/layout/AuthGuard";
 import { ClaimsProvider } from "@/lib/claims-context";
-import Dashboard from "./pages/Dashboard";
+import Login from "./pages/Login";
 import UploadDocument from "./pages/UploadDocument";
 import MyClaims from "./pages/MyClaims";
 import CreateClaim from "./pages/CreateClaim";
@@ -28,23 +29,33 @@ const App = () => (
         <Toaster />
         <Sonner />
         <BrowserRouter>
-          <AppLayout>
-            <Routes>
-              <Route path="/" element={<Admin />} />
-              <Route path="/upload" element={<UploadDocument />} />
-              <Route path="/claims" element={<MyClaims />} />
-              <Route path="/claims/create" element={<CreateClaim />} />
-              <Route path="/claims/:id" element={<ClaimDetail />} />
-              <Route path="/approvals" element={<ApprovalInbox />} />
-              <Route path="/accounting" element={<AccountingReview />} />
-              <Route path="/reports" element={<Reports />} />
-              <Route path="/reconcile" element={<Reconcile />} />
-              <Route path="/admin" element={<Admin />} />
-              <Route path="/admin/employee/create" element={<EmployeeProfileCreate />} />
-              <Route path="/profile" element={<Profile />} />
-              <Route path="*" element={<NotFound />} />
-            </Routes>
-          </AppLayout>
+          <Routes>
+            <Route path="/login" element={<Login />} />
+            <Route
+              path="/*"
+              element={
+                <AuthGuard>
+                  <AppLayout>
+                    <Routes>
+                      <Route path="/" element={<Admin />} />
+                      <Route path="/upload" element={<UploadDocument />} />
+                      <Route path="/claims" element={<MyClaims />} />
+                      <Route path="/claims/create" element={<CreateClaim />} />
+                      <Route path="/claims/:id" element={<ClaimDetail />} />
+                      <Route path="/approvals" element={<ApprovalInbox />} />
+                      <Route path="/accounting" element={<AccountingReview />} />
+                      <Route path="/reports" element={<Reports />} />
+                      <Route path="/reconcile" element={<Reconcile />} />
+                      <Route path="/admin" element={<Admin />} />
+                      <Route path="/admin/employee/create" element={<EmployeeProfileCreate />} />
+                      <Route path="/profile" element={<Profile />} />
+                      <Route path="*" element={<NotFound />} />
+                    </Routes>
+                  </AppLayout>
+                </AuthGuard>
+              }
+            />
+          </Routes>
         </BrowserRouter>
       </ClaimsProvider>
     </TooltipProvider>
