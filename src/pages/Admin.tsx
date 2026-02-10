@@ -10,6 +10,10 @@ import {
   GitBranch,
   Gauge,
   Bell,
+  Receipt,
+  ListChecks,
+  Scale,
+  UserCheck,
   Mail,
   AlertCircle,
   Plug,
@@ -62,6 +66,16 @@ const adminMenu = [
     items: [
       { key: "approval-levels", label: "Approval Levels", icon: GitBranch },
       { key: "approval-limits", label: "Approval Limits", icon: Gauge },
+    ],
+  },
+  {
+    group: "Expense",
+    icon: Receipt,
+    items: [
+      { key: "expense-type", label: "Expense Type", icon: Receipt },
+      { key: "expense-item", label: "Expense Item", icon: ListChecks },
+      { key: "expense-rules", label: "Expense Rules", icon: Scale },
+      { key: "expense-delegates", label: "Expense Delegates", icon: UserCheck },
     ],
   },
   {
@@ -621,6 +635,187 @@ function SyncLogsPanel() {
   );
 }
 
+// --- Expense panels ---
+const mockExpenseTypes = [
+  { code: "TRV", name: "Travel", description: "Business travel expenses", status: "Active" },
+  { code: "MEL", name: "Meals", description: "Business meals & entertainment", status: "Active" },
+  { code: "OFS", name: "Office Supplies", description: "Office supplies & stationery", status: "Active" },
+  { code: "TRN", name: "Transportation", description: "Local transportation", status: "Active" },
+  { code: "TRG", name: "Training", description: "Training & development", status: "Inactive" },
+];
+
+const mockExpenseItems = [
+  { code: "TRV-001", name: "Airfare", type: "Travel", glAccount: "6100-001", limit: 50000 },
+  { code: "TRV-002", name: "Hotel", type: "Travel", glAccount: "6100-002", limit: 5000 },
+  { code: "MEL-001", name: "Client Lunch", type: "Meals", glAccount: "6200-001", limit: 3000 },
+  { code: "OFS-001", name: "Stationery", type: "Office Supplies", glAccount: "6300-001", limit: 2000 },
+];
+
+const mockExpenseRules = [
+  { name: "Receipt Required", condition: "Amount > 500 THB", action: "Require receipt attachment", status: "Active" },
+  { name: "Daily Meal Limit", condition: "Expense Type = Meals", action: "Max 1,500 THB per day", status: "Active" },
+  { name: "Travel Pre-Approval", condition: "Amount > 20,000 THB", action: "Require pre-approval", status: "Active" },
+];
+
+const mockExpenseDelegates = [
+  { delegator: "สมหญิง แก้วใส", delegate: "สมชาย ใจดี", startDate: "2026-02-01", endDate: "2026-02-28", status: "Active" },
+  { delegator: "ธนา พิทักษ์", delegate: "พิมพ์ ดี", startDate: "2026-03-01", endDate: "2026-03-15", status: "Scheduled" },
+];
+
+function ExpenseTypePanel() {
+  return (
+    <div className="space-y-4">
+      <div className="flex items-center justify-between">
+        <h2 className="text-lg font-semibold">Expense Type</h2>
+        <Button size="sm"><Plus className="h-4 w-4 mr-2" />Add Type</Button>
+      </div>
+      <Card>
+        <CardContent className="p-0">
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Code</TableHead>
+                <TableHead>Name</TableHead>
+                <TableHead>Description</TableHead>
+                <TableHead>Status</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {mockExpenseTypes.map((e) => (
+                <TableRow key={e.code} className="cursor-pointer hover:bg-muted/50">
+                  <TableCell className="font-medium">{e.code}</TableCell>
+                  <TableCell>{e.name}</TableCell>
+                  <TableCell className="text-sm text-muted-foreground">{e.description}</TableCell>
+                  <TableCell>
+                    <Badge className={e.status === "Active" ? "bg-green-100 text-green-800" : "bg-gray-100 text-gray-600"}>
+                      {e.status}
+                    </Badge>
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </CardContent>
+      </Card>
+    </div>
+  );
+}
+
+function ExpenseItemPanel() {
+  return (
+    <div className="space-y-4">
+      <div className="flex items-center justify-between">
+        <h2 className="text-lg font-semibold">Expense Item</h2>
+        <Button size="sm"><Plus className="h-4 w-4 mr-2" />Add Item</Button>
+      </div>
+      <Card>
+        <CardContent className="p-0">
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Code</TableHead>
+                <TableHead>Name</TableHead>
+                <TableHead>Expense Type</TableHead>
+                <TableHead>GL Account</TableHead>
+                <TableHead>Limit (THB)</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {mockExpenseItems.map((e) => (
+                <TableRow key={e.code} className="cursor-pointer hover:bg-muted/50">
+                  <TableCell className="font-medium">{e.code}</TableCell>
+                  <TableCell>{e.name}</TableCell>
+                  <TableCell><Badge variant="outline">{e.type}</Badge></TableCell>
+                  <TableCell><code className="text-xs bg-muted px-1.5 py-0.5 rounded">{e.glAccount}</code></TableCell>
+                  <TableCell>{e.limit.toLocaleString()}</TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </CardContent>
+      </Card>
+    </div>
+  );
+}
+
+function ExpenseRulesPanel() {
+  return (
+    <div className="space-y-4">
+      <div className="flex items-center justify-between">
+        <h2 className="text-lg font-semibold">Expense Rules</h2>
+        <Button size="sm"><Plus className="h-4 w-4 mr-2" />Add Rule</Button>
+      </div>
+      <Card>
+        <CardContent className="p-0">
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Rule Name</TableHead>
+                <TableHead>Condition</TableHead>
+                <TableHead>Action</TableHead>
+                <TableHead>Status</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {mockExpenseRules.map((r) => (
+                <TableRow key={r.name} className="cursor-pointer hover:bg-muted/50">
+                  <TableCell className="font-medium">{r.name}</TableCell>
+                  <TableCell className="text-sm">{r.condition}</TableCell>
+                  <TableCell className="text-sm">{r.action}</TableCell>
+                  <TableCell>
+                    <Badge className="bg-green-100 text-green-800">{r.status}</Badge>
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </CardContent>
+      </Card>
+    </div>
+  );
+}
+
+function ExpenseDelegatesPanel() {
+  return (
+    <div className="space-y-4">
+      <div className="flex items-center justify-between">
+        <h2 className="text-lg font-semibold">Expense Delegates</h2>
+        <Button size="sm"><Plus className="h-4 w-4 mr-2" />Add Delegate</Button>
+      </div>
+      <Card>
+        <CardContent className="p-0">
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Delegator</TableHead>
+                <TableHead>Delegate</TableHead>
+                <TableHead>Start Date</TableHead>
+                <TableHead>End Date</TableHead>
+                <TableHead>Status</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {mockExpenseDelegates.map((d, i) => (
+                <TableRow key={i} className="cursor-pointer hover:bg-muted/50">
+                  <TableCell className="font-medium">{d.delegator}</TableCell>
+                  <TableCell>{d.delegate}</TableCell>
+                  <TableCell className="text-sm">{d.startDate}</TableCell>
+                  <TableCell className="text-sm">{d.endDate}</TableCell>
+                  <TableCell>
+                    <Badge className={d.status === "Active" ? "bg-green-100 text-green-800" : "bg-blue-100 text-blue-800"}>
+                      {d.status}
+                    </Badge>
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </CardContent>
+      </Card>
+    </div>
+  );
+}
+
 const panelMap: Record<string, () => JSX.Element> = {
   entities: EntitiesPanel,
   departments: DepartmentsPanel,
@@ -631,6 +826,10 @@ const panelMap: Record<string, () => JSX.Element> = {
   costcenters: CostCentersPanel,
   "approval-levels": ApprovalLevelsPanel,
   "approval-limits": ApprovalLimitsPanel,
+  "expense-type": ExpenseTypePanel,
+  "expense-item": ExpenseItemPanel,
+  "expense-rules": ExpenseRulesPanel,
+  "expense-delegates": ExpenseDelegatesPanel,
   "email-notifications": EmailNotificationsPanel,
   "system-alerts": SystemAlertsPanel,
   "erp-sync": ErpSyncPanel,
