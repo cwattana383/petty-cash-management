@@ -9,6 +9,7 @@ import {
 import { User, LogOut, Settings } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { currentUser } from "@/lib/mock-data";
+import { NotificationCenter } from "@/components/NotificationCenter";
 
 export function TopBar() {
   const navigate = useNavigate();
@@ -16,6 +17,8 @@ export function TopBar() {
   return (
     <header className="h-14 border-b border-border bg-background flex items-center justify-between px-4 shrink-0">
       <SidebarTrigger />
+      <div className="flex items-center gap-2">
+        <NotificationCenter />
       <DropdownMenu>
         <DropdownMenuTrigger className="flex items-center gap-2 hover:opacity-80 cursor-pointer">
           <Avatar className="h-8 w-8">
@@ -40,6 +43,7 @@ export function TopBar() {
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
+      </div>
     </header>
   );
 }
