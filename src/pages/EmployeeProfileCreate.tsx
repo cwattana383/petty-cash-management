@@ -18,12 +18,20 @@ const departments = ["Sales", "Marketing", "Engineering", "Finance", "HR", "Oper
 const branches = ["Bangkok", "Chiang Mai", "Phuket", "Pattaya", "Khon Kaen"];
 const costCenters = ["CC-100", "CC-200", "CC-300", "CC-400", "CC-500"];
 const roles = ["Employee", "Manager", "Accounting", "Admin"];
+const companies = ["ABC Corporation", "XYZ Holdings", "DEF Group"];
+const stores = ["Head Office", "Store Bangkok", "Store Chiang Mai", "Store Phuket"];
+const divisions = ["Division A", "Division B", "Division C", "Division D"];
 
 export default function EmployeeProfileCreate() {
   const navigate = useNavigate();
   const [form, setForm] = useState({
     firstName: "",
     lastName: "",
+    email: "",
+    storeHeadOffice: "",
+    company: "",
+    division: "",
+    telephone: "",
     department: "",
     branch: "",
     costCenter: "",
@@ -83,6 +91,70 @@ export default function EmployeeProfileCreate() {
                   value={form.lastName}
                   onChange={(e) => handleChange("lastName", e.target.value)}
                 />
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="email">อีเมล (Email)</Label>
+                <Input
+                  id="email"
+                  type="email"
+                  placeholder="เช่น somchai@company.com"
+                  value={form.email}
+                  onChange={(e) => handleChange("email", e.target.value)}
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="telephone">โทรศัพท์ (Telephone)</Label>
+                <Input
+                  id="telephone"
+                  placeholder="Type a value"
+                  value={form.telephone}
+                  onChange={(e) => {
+                    const val = e.target.value;
+                    if (val === "" || /^[\d-]*$/.test(val)) handleChange("telephone", val);
+                  }}
+                />
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label>สาขา/สำนักงานใหญ่ (Store / Head Office)</Label>
+                <Select value={form.storeHeadOffice} onValueChange={(v) => handleChange("storeHeadOffice", v)}>
+                  <SelectTrigger><SelectValue placeholder="เลือก Store / Head Office" /></SelectTrigger>
+                  <SelectContent>
+                    {stores.map((s) => (
+                      <SelectItem key={s} value={s}>{s}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="space-y-2">
+                <Label>บริษัท (Company)</Label>
+                <Select value={form.company} onValueChange={(v) => handleChange("company", v)}>
+                  <SelectTrigger><SelectValue placeholder="เลือกบริษัท" /></SelectTrigger>
+                  <SelectContent>
+                    {companies.map((c) => (
+                      <SelectItem key={c} value={c}>{c}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label>ฝ่าย (Division)</Label>
+                <Select value={form.division} onValueChange={(v) => handleChange("division", v)}>
+                  <SelectTrigger><SelectValue placeholder="เลือก Division" /></SelectTrigger>
+                  <SelectContent>
+                    {divisions.map((d) => (
+                      <SelectItem key={d} value={d}>{d}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               </div>
             </div>
 
