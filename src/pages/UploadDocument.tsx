@@ -44,10 +44,23 @@ export default function UploadDocument() {
           </div>
           <h3 className="text-lg font-semibold text-foreground mb-1">Upload documents</h3>
           <p className="text-sm text-muted-foreground mb-4">Drag and drop files or click to browse</p>
-          <label>
-            <Button className="cursor-pointer">Select Files</Button>
-            <input type="file" className="hidden" multiple accept=".pdf,.jpg,.jpeg,.png,.doc,.docx" onChange={handleFileSelect} />
-          </label>
+          <div>
+            <input
+              id="file-upload"
+              type="file"
+              className="hidden"
+              multiple
+              accept=".pdf,.png,.doc,.docx"
+              onChange={handleFileSelect}
+            />
+            <Button
+              type="button"
+              className="cursor-pointer"
+              onClick={() => document.getElementById('file-upload')?.click()}
+            >
+              Select Files
+            </Button>
+          </div>
           <p className="text-xs text-muted-foreground mt-3">Supported: PDF, JPG, PNG, DOC, DOCX (max 10 files)</p>
         </CardContent>
       </Card>
