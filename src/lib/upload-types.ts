@@ -20,9 +20,14 @@ export const mockOcrFields: OcrField[] = [
   { label: "วันเดือนปี", value: "19/12/2025", confidence: 90 },
   { label: "เลขที่", value: "054", confidence: 85 },
   { label: "ชื่อ ผู้มีหน้าที่หักภาษี ณ ที่จ่าย", value: "ห้างหุ้นส่วนจำกัด นาราพาเจริญ", confidence: 95 },
+  { label: "สาขา", value: "สำนักงานใหญ่", confidence: 88 },
   { label: "ประเภทรายได้", value: "ค่าบริการ", confidence: 80 },
   { label: "อัตราภาษี", value: "3", confidence: 90 },
   { label: "จำนวนเงิน", value: "10,000.00", confidence: 95 },
+  { label: "VAT Code", value: "V7", confidence: 92 },
+  { label: "VAT Amount", value: "700.00", confidence: 90 },
+  { label: "WHT Code", value: "W3", confidence: 88 },
+  { label: "WHT Amount", value: "300.00", confidence: 85 },
 ];
 
 export const STATUS_CONFIG: Record<DocStatus, { label: string; dotClass: string; badgeClass: string; animate?: boolean }> = {
