@@ -126,12 +126,6 @@ export default function DocumentTable({
                         </Button>
                       )}
 
-                      {/* Preview: always available except processing */}
-                      {doc.status !== "OCR_PROCESSING" && (
-                        <Button variant="outline" size="sm" className="gap-1 text-xs" onClick={() => onPreview(doc)}>
-                          <Eye className="h-3.5 w-3.5" /> Preview
-                        </Button>
-                      )}
 
                       {/* Delete: always available except processing */}
                       {doc.status !== "OCR_PROCESSING" && (
