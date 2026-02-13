@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { Card, CardContent } from "@/components/ui/card";
 import { FileText, Zap, CheckCircle } from "lucide-react";
 import {
@@ -9,6 +10,7 @@ import { UploadedDoc, OcrField, mockOcrFields } from "@/lib/upload-types";
 import UploadArea from "@/components/upload/UploadArea";
 import DocumentTable from "@/components/upload/DocumentTable";
 import VerifyModal from "@/components/upload/VerifyModal";
+import EligibilityModal from "@/components/upload/EligibilityModal";
 
 const initialDocs: UploadedDoc[] = [
   { id: "1", name: "ตัวอย่าง หัก ณ ที่จ่าย_Part1.pdf", size: 402.1 * 1024, status: "TO_VERIFY", uploadedAt: new Date("2026-02-12T15:03:00"), ocrData: mockOcrFields },
@@ -21,12 +23,16 @@ const initialDocs: UploadedDoc[] = [
 ];
 
 export default function UploadDocument() {
+  const navigate = useNavigate();
   const [files, setFiles] = useState<File[]>([]);
   const [documents, setDocuments] = useState<UploadedDoc[]>(initialDocs);
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const [verifyDoc, setVerifyDoc] = useState<UploadedDoc | null>(null);
   const [previewDoc, setPreviewDoc] = useState<UploadedDoc | null>(null);
   const [isProcessing, setIsProcessing] = useState(false);
+  const [eligibilityModal, setEligibilityModal] = useState(false);
+  const [ineligibleDocs, setIneligibleDocs] = useState<UploadedDoc[]>([]);
+  const [eligibleDocs, setEligibleDocs] = useState<UploadedDoc[]>([]);
 
   const handleFilesSelected = (newFiles: File[]) => {
     setFiles((prev) => [...prev, ...newFiles]);
@@ -116,6 +122,32 @@ export default function UploadDocument() {
     setSelectedIds((prev) => prev.length === documents.length ? [] : documents.map((d) => d.id));
   };
 
+  // Create Claim flow
+  const handleCreateClaim = () => {
+    const selected = documents.filter((d) => selectedIds.includes(d.id));
+    if (selected.length === 0) {
+      toast.error("Please select at least one document.");
+      return;
+    }
+
+    const eligible = selected.filter((d) => d.status === "VERIFIED");
+    const ineligible = selected.filter((d) => d.status !== "VERIFIED");
+
+    if (ineligible.length > 0) {
+      setEligibleDocs(eligible);
+      setIneligibleDocs(ineligible);
+      setEligibilityModal(true);
+      return;
+    }
+
+    navigateWithDocs(eligible);
+  };
+
+  const navigateWithDocs = (docs: UploadedDoc[]) => {
+    setEligibilityModal(false);
+    navigate("/claims/create", { state: { selectedDocs: docs } });
+  };
+
   return (
     <div className="space-y-6 max-w-6xl mx-auto">
       <div>
@@ -139,6 +171,7 @@ export default function UploadDocument() {
         onOcr={handleOcr}
         onPreview={(doc) => setPreviewDoc(doc)}
         onDelete={handleDelete}
+        onCreateClaim={handleCreateClaim}
       />
 
       {/* Info Cards */}
@@ -191,6 +224,15 @@ export default function UploadDocument() {
           </div>
         </DialogContent>
       </Dialog>
+
+      {/* Eligibility Modal */}
+      <EligibilityModal
+        open={eligibilityModal}
+        ineligibleDocs={ineligibleDocs}
+        eligibleCount={eligibleDocs.length}
+        onCancel={() => setEligibilityModal(false)}
+        onContinueWithEligible={() => navigateWithDocs(eligibleDocs)}
+      />
     </div>
   );
 }
