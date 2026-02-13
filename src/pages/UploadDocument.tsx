@@ -12,11 +12,11 @@ import VerifyModal from "@/components/upload/VerifyModal";
 
 const initialDocs: UploadedDoc[] = [
   { id: "1", name: "ตัวอย่าง หัก ณ ที่จ่าย_Part1.pdf", size: 402.1 * 1024, status: "TO_VERIFY", uploadedAt: new Date("2026-02-12T15:03:00"), ocrData: mockOcrFields },
-  { id: "2", name: "ตัวอย่าง หัก ณ ที่จ่าย_Part20.pdf", size: 51.8 * 1024, status: "UPLOADED", uploadedAt: new Date("2026-01-28T14:09:00") },
+  { id: "2", name: "ตัวอย่าง หัก ณ ที่จ่าย_Part20.pdf", size: 51.8 * 1024, status: "FAILED", uploadedAt: new Date("2026-01-28T14:09:00") },
   { id: "3", name: "ตัวอย่าง หัก ณ ที่จ่าย_Part19.pdf", size: 342.9 * 1024, status: "TO_VERIFY", uploadedAt: new Date("2026-01-28T14:09:00"), ocrData: mockOcrFields },
   { id: "4", name: "ตัวอย่าง หัก ณ ที่จ่าย_Part18.pdf", size: 534.0 * 1024, status: "FAILED", uploadedAt: new Date("2026-01-28T14:09:00") },
   { id: "5", name: "ตัวอย่าง หัก ณ ที่จ่าย_Part17.pdf", size: 49.9 * 1024, status: "VERIFIED", uploadedAt: new Date("2026-01-28T14:09:00"), ocrData: mockOcrFields },
-  { id: "6", name: "ตัวอย่าง หัก ณ ที่จ่าย_Part16.pdf", size: 47.0 * 1024, status: "UPLOADED", uploadedAt: new Date("2026-01-28T14:09:00") },
+  { id: "6", name: "ตัวอย่าง หัก ณ ที่จ่าย_Part16.pdf", size: 47.0 * 1024, status: "FAILED", uploadedAt: new Date("2026-01-28T14:09:00") },
   { id: "7", name: "ตัวอย่าง หัก ณ ที่จ่าย_Part15.pdf", size: 46.8 * 1024, status: "OCR_PROCESSING", uploadedAt: new Date("2026-01-28T14:09:00") },
 ];
 
@@ -32,20 +32,37 @@ export default function UploadDocument() {
     setFiles((prev) => [...prev, ...newFiles]);
   };
 
-  // Step 1: Upload files → status = UPLOADED
+  // Upload + auto OCR
   const handleProcess = () => {
     setIsProcessing(true);
     const newDocs: UploadedDoc[] = files.map((f, i) => ({
       id: `new-${Date.now()}-${i}`,
       name: f.name,
       size: f.size,
-      status: "UPLOADED" as const,
+      status: "OCR_PROCESSING" as const,
       uploadedAt: new Date(),
     }));
     setDocuments((prev) => [...newDocs, ...prev]);
     setFiles([]);
     setIsProcessing(false);
-    toast.success(`${newDocs.length} เอกสารถูกอัปโหลดแล้ว (สถานะ: Uploaded)`);
+    toast.success(`${newDocs.length} เอกสารกำลังประมวลผล OCR`);
+
+    // Auto-run OCR for each new doc
+    newDocs.forEach((doc) => {
+      const delay = 2000 + Math.random() * 2000;
+      const willSucceed = Math.random() > 0.15;
+      setTimeout(() => {
+        setDocuments((prev) =>
+          prev.map((d) => {
+            if (d.id !== doc.id) return d;
+            if (willSucceed) return { ...d, status: "TO_VERIFY" as const, ocrData: mockOcrFields };
+            return { ...d, status: "FAILED" as const };
+          })
+        );
+        if (willSucceed) toast.success(`OCR เสร็จสิ้นสำหรับ ${doc.name}`);
+        else toast.error(`OCR ล้มเหลวสำหรับ ${doc.name} — กรุณาลอง Retry`);
+      }, delay);
+    });
   };
 
   // OCR: UPLOADED/FAILED → OCR_PROCESSING → TO_VERIFY or FAILED
