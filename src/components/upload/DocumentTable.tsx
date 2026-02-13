@@ -93,10 +93,10 @@ export default function DocumentTable({
                         </Button>
                       )}
 
-                      {/* OCR: only UPLOADED or FAILED */}
-                      {(doc.status === "UPLOADED" || doc.status === "FAILED") && (
+                      {/* Retry OCR: only FAILED */}
+                      {doc.status === "FAILED" && (
                         <Button variant="outline" size="sm" className="gap-1 text-xs" onClick={() => onOcr(doc)}>
-                          <Zap className="h-3.5 w-3.5" /> {doc.status === "FAILED" ? "Retry OCR" : "Run OCR"}
+                          <Zap className="h-3.5 w-3.5" /> Retry OCR
                         </Button>
                       )}
 
