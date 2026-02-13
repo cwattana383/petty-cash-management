@@ -227,8 +227,8 @@ export default function UploadDocument() {
                 <FileText className="h-5 w-5 text-primary" />
               </div>
               <div>
-                <h3 className="font-semibold text-lg">WHT Documents ({documents.length})</h3>
-                <p className="text-sm text-muted-foreground">All uploaded Withholding Tax documents</p>
+                <h3 className="font-semibold text-lg">Uploaded Documents ({documents.length})</h3>
+                <p className="text-sm text-muted-foreground">All uploaded documents</p>
               </div>
             </div>
             <div className="rounded-md border">
