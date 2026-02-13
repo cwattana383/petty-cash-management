@@ -188,6 +188,10 @@ export default function CreateClaim() {
                     <TableHead>Size</TableHead>
                     <TableHead>OCR Fields</TableHead>
                     <TableHead>Amount</TableHead>
+                    <TableHead>VAT Code</TableHead>
+                    <TableHead>VAT Amount</TableHead>
+                    <TableHead>WHT Code</TableHead>
+                    <TableHead>WHT Amount</TableHead>
                     <TableHead>Status</TableHead>
                   </TableRow>
                 </TableHeader>
@@ -213,6 +217,18 @@ export default function CreateClaim() {
                         </TableCell>
                         <TableCell className="font-medium">
                           {amountField ? amountField.value : "—"}
+                        </TableCell>
+                        <TableCell className="text-sm">
+                          {doc.ocrData?.find((f) => f.label === "VAT Code")?.value || "—"}
+                        </TableCell>
+                        <TableCell className="text-sm font-medium">
+                          {doc.ocrData?.find((f) => f.label === "VAT Amount")?.value || "—"}
+                        </TableCell>
+                        <TableCell className="text-sm">
+                          {doc.ocrData?.find((f) => f.label === "WHT Code")?.value || "—"}
+                        </TableCell>
+                        <TableCell className="text-sm font-medium">
+                          {doc.ocrData?.find((f) => f.label === "WHT Amount")?.value || "—"}
                         </TableCell>
                         <TableCell>
                           <Badge variant="outline" className="border-green-300 bg-green-50 text-green-600">
