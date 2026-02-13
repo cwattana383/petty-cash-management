@@ -5,7 +5,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import {
   Table, TableBody, TableCell, TableHead, TableHeader, TableRow,
 } from "@/components/ui/table";
-import { FileText, Eye, Zap, Trash2, Loader2 } from "lucide-react";
+import { FileText, Eye, Zap, Trash2, Loader2, ClipboardList } from "lucide-react";
 import { UploadedDoc, STATUS_CONFIG, formatFileSize, formatDate } from "@/lib/upload-types";
 
 interface DocumentTableProps {
@@ -17,6 +17,7 @@ interface DocumentTableProps {
   onOcr: (doc: UploadedDoc) => void;
   onPreview: (doc: UploadedDoc) => void;
   onDelete: (id: string) => void;
+  onCreateClaim: () => void;
 }
 
 function StatusBadge({ status }: { status: UploadedDoc["status"] }) {
@@ -31,20 +32,38 @@ function StatusBadge({ status }: { status: UploadedDoc["status"] }) {
 
 export default function DocumentTable({
   documents, selectedIds, onToggleSelect, onToggleSelectAll,
-  onVerify, onOcr, onPreview, onDelete,
+  onVerify, onOcr, onPreview, onDelete, onCreateClaim,
 }: DocumentTableProps) {
   if (documents.length === 0) return null;
+
+  const allSelected = selectedIds.length === documents.length && documents.length > 0;
+  const someSelected = selectedIds.length > 0 && selectedIds.length < documents.length;
 
   return (
     <Card>
       <CardContent className="p-6">
-        <div className="flex items-center gap-3 mb-4">
-          <div className="h-10 w-10 rounded-lg bg-accent flex items-center justify-center">
-            <FileText className="h-5 w-5 text-primary" />
+        <div className="flex items-center justify-between mb-4">
+          <div className="flex items-center gap-3">
+            <div className="h-10 w-10 rounded-lg bg-accent flex items-center justify-center">
+              <FileText className="h-5 w-5 text-primary" />
+            </div>
+            <div>
+              <h3 className="font-semibold text-lg">Uploaded Documents ({documents.length})</h3>
+              <p className="text-sm text-muted-foreground">All uploaded documents</p>
+            </div>
           </div>
-          <div>
-            <h3 className="font-semibold text-lg">Uploaded Documents ({documents.length})</h3>
-            <p className="text-sm text-muted-foreground">All uploaded documents</p>
+          <div className="flex items-center gap-3">
+            <span className="text-sm text-muted-foreground">
+              Selected: {selectedIds.length} / {documents.length}
+            </span>
+            <Button
+              onClick={onCreateClaim}
+              disabled={selectedIds.length === 0}
+              className="gap-1.5"
+            >
+              <ClipboardList className="h-4 w-4" />
+              Create Claim
+            </Button>
           </div>
         </div>
         <div className="rounded-md border">
@@ -53,7 +72,7 @@ export default function DocumentTable({
               <TableRow>
                 <TableHead className="w-10">
                   <Checkbox
-                    checked={selectedIds.length === documents.length && documents.length > 0}
+                    checked={allSelected ? true : someSelected ? "indeterminate" : false}
                     onCheckedChange={onToggleSelectAll}
                   />
                 </TableHead>

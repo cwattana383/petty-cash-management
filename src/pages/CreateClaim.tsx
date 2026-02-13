@@ -1,9 +1,13 @@
 import { useState, useMemo } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, Save, Send } from "lucide-react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Badge } from "@/components/ui/badge";
+import { ArrowLeft, Save, Send, FileText } from "lucide-react";
 import { currentUser } from "@/lib/mock-data";
 import { useToast } from "@/hooks/use-toast";
+import { UploadedDoc, formatFileSize } from "@/lib/upload-types";
 import DocumentHeader from "@/components/claims/DocumentHeader";
 import CreatorInformation from "@/components/claims/CreatorInformation";
 import RequesterInformation, { type RequesterData } from "@/components/claims/RequesterInformation";
@@ -11,7 +15,11 @@ import AdvanceInformation, { type AdvanceData } from "@/components/claims/Advanc
 
 export default function CreateClaim() {
   const navigate = useNavigate();
+  const location = useLocation();
   const { toast } = useToast();
+
+  // Receive selected documents from /upload page
+  const selectedDocs: UploadedDoc[] = (location.state as any)?.selectedDocs || [];
 
   // Document header (read-only for new)
   const advanceNo = useMemo(() => {
@@ -160,6 +168,79 @@ export default function CreateClaim() {
         onChange={setAdvance}
         errors={advanceErrors}
       />
+
+      {/* 5) Attached Document Transactions */}
+      {selectedDocs.length > 0 && (
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-base flex items-center gap-2">
+              <FileText className="h-4 w-4" />
+              Transactions from Documents ({selectedDocs.length})
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="rounded-md border">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead className="w-10">#</TableHead>
+                    <TableHead>Document</TableHead>
+                    <TableHead>Size</TableHead>
+                    <TableHead>OCR Fields</TableHead>
+                    <TableHead>Amount</TableHead>
+                    <TableHead>Status</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {selectedDocs.map((doc, idx) => {
+                    const amountField = doc.ocrData?.find((f) => f.label === "จำนวนเงิน");
+                    return (
+                      <TableRow key={doc.id}>
+                        <TableCell className="text-muted-foreground">{idx + 1}</TableCell>
+                        <TableCell>
+                          <div className="flex items-center gap-2">
+                            <FileText className="h-4 w-4 text-primary shrink-0" />
+                            <span className="text-sm font-medium truncate max-w-[200px]">{doc.name}</span>
+                          </div>
+                        </TableCell>
+                        <TableCell className="text-sm text-muted-foreground">{formatFileSize(doc.size)}</TableCell>
+                        <TableCell>
+                          {doc.ocrData ? (
+                            <span className="text-sm">{doc.ocrData.length} fields extracted</span>
+                          ) : (
+                            <span className="text-sm text-muted-foreground">—</span>
+                          )}
+                        </TableCell>
+                        <TableCell className="font-medium">
+                          {amountField ? amountField.value : "—"}
+                        </TableCell>
+                        <TableCell>
+                          <Badge variant="outline" className="border-green-300 bg-green-50 text-green-600">
+                            Verified
+                          </Badge>
+                        </TableCell>
+                      </TableRow>
+                    );
+                  })}
+                </TableBody>
+              </Table>
+            </div>
+            {selectedDocs.some((d) => d.ocrData?.find((f) => f.label === "จำนวนเงิน")) && (
+              <div className="mt-3 flex justify-end">
+                <div className="text-sm font-semibold">
+                  Total:{" "}
+                  {selectedDocs
+                    .reduce((sum, d) => {
+                      const amt = d.ocrData?.find((f) => f.label === "จำนวนเงิน")?.value;
+                      return sum + (amt ? parseFloat(amt.replace(/,/g, "")) || 0 : 0);
+                    }, 0)
+                    .toLocaleString("en-US", { minimumFractionDigits: 2 })}
+                </div>
+              </div>
+            )}
+          </CardContent>
+        </Card>
+      )}
     </div>
   );
 }
