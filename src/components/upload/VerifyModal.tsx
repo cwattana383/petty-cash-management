@@ -11,7 +11,6 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import ReceiptInformation, { type ReceiptData } from "./verify/ReceiptInformation";
 import AmountBreakdown, { type AmountData } from "./verify/AmountBreakdown";
 import LineItemDetails, { type LineItem } from "./verify/LineItemDetails";
-import AccountingInformation, { type AccountingData } from "./verify/AccountingInformation";
 import DocumentPreviewPanel from "./verify/DocumentPreviewPanel";
 
 interface VerifyModalProps {
@@ -45,16 +44,6 @@ export default function VerifyModal({ doc, onClose, onConfirm }: VerifyModalProp
 
   const [lines, setLines] = useState<LineItem[]>([]);
 
-  const [accounting, setAccounting] = useState<AccountingData>({
-    claimant: currentUser.name,
-    department: currentUser.department,
-    expenseType: "",
-    pettyCashFund: "",
-    reimbursementType: "Reimburse",
-    accountingDate: new Date().toISOString().split("T")[0],
-    description: "",
-    segments: ["ABC", currentUser.department, "", "", "", "", "", "BKK", "", "", ""],
-  });
 
   const [receiptErrors, setReceiptErrors] = useState<Record<string, string>>({});
   const [warnings, setWarnings] = useState<string[]>([]);
@@ -107,10 +96,6 @@ export default function VerifyModal({ doc, onClose, onConfirm }: VerifyModalProp
       projectCode: "",
     }]);
 
-    setAccounting((prev) => ({
-      ...prev,
-      description: getOcrValue(f, "ประเภทรายได้"),
-    }));
   }, [doc]);
 
   // Validation warnings
@@ -181,19 +166,6 @@ export default function VerifyModal({ doc, onClose, onConfirm }: VerifyModalProp
         cost_center: l.costCenter,
         project_code: l.projectCode,
       })),
-      account_combination: {
-        segment1: accounting.segments[0],
-        segment2: accounting.segments[1],
-        segment3: accounting.segments[2],
-        segment4: accounting.segments[3],
-        segment5: accounting.segments[4],
-        segment6: accounting.segments[5],
-        segment7: accounting.segments[6],
-        segment8: accounting.segments[7],
-        segment9: accounting.segments[8],
-        segment10: accounting.segments[9],
-        segment11: accounting.segments[10],
-      },
     };
 
     console.log("Transaction Payload:", JSON.stringify(payload, null, 2));
@@ -204,7 +176,7 @@ export default function VerifyModal({ doc, onClose, onConfirm }: VerifyModalProp
       { label: "วันเดือนปี", value: receipt.receiptDate, confidence: receipt.receiptDateConf },
       { label: "เลขที่", value: receipt.receiptNo, confidence: receipt.receiptNoConf },
       { label: "ชื่อ ผู้มีหน้าที่หักภาษี ณ ที่จ่าย", value: receipt.vendorName, confidence: receipt.vendorNameConf },
-      { label: "ประเภทรายได้", value: accounting.description, confidence: 100 },
+      { label: "ประเภทรายได้", value: lines[0]?.description || "", confidence: 100 },
       { label: "อัตราภาษี", value: amount.vatRate, confidence: 100 },
       { label: "จำนวนเงิน", value: amount.grandTotal.toFixed(2), confidence: 100 },
       { label: "VAT Code", value: `V${amount.vatRate}`, confidence: 100 },
@@ -244,7 +216,7 @@ export default function VerifyModal({ doc, onClose, onConfirm }: VerifyModalProp
               <ReceiptInformation data={receipt} onChange={setReceipt} errors={receiptErrors} />
               <AmountBreakdown data={amount} onChange={setAmount} />
               <LineItemDetails lines={lines} onChange={setLines} />
-              <AccountingInformation data={accounting} onChange={setAccounting} />
+              
             </div>
           </ScrollArea>
 
