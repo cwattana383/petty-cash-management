@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -23,7 +23,15 @@ import {
   Layers,
   DollarSign,
   MapPin,
+  Search,
+  Eye,
+  Pencil,
+  Ban,
+  ChevronLeft,
+  ChevronRight,
 } from "lucide-react";
+import EntityDrawer from "@/components/admin/EntityDrawer";
+import { CompanyIdentity, mockCompanyIdentities } from "@/components/admin/EntityTypes";
 import {
   Table,
   TableBody,
@@ -161,12 +169,6 @@ const mockSyncLogs = [
 ];
 
 // --- Mock data for Organization Data ---
-const mockEntities = [
-  { code: "CORP-01", name: "บริษัท ABC จำกัด (มหาชน)", type: "Parent Company", status: "Active" },
-  { code: "CORP-02", name: "บริษัท ABC Trading จำกัด", type: "Subsidiary", status: "Active" },
-  { code: "CORP-03", name: "บริษัท ABC Logistics จำกัด", type: "Subsidiary", status: "Active" },
-];
-
 const mockDepartments = [
   { code: "DEPT-IT", name: "Information Technology", head: "สมศักดิ์ วิชาญ", employees: 25 },
   { code: "DEPT-MK", name: "Marketing", head: "สมหญิง แก้วใส", employees: 12 },
@@ -190,35 +192,141 @@ const mockBranches = [
   { code: "BRN-KKN", name: "Khon Kaen", region: "Northeast", address: "321 Mittraphap Rd.", status: "Inactive" },
 ];
 
-// --- Organization Data panels ---
 function EntitiesPanel() {
+  const [entities, setEntities] = useState<CompanyIdentity[]>(mockCompanyIdentities);
+  const [search, setSearch] = useState("");
+  const [statusFilter, setStatusFilter] = useState<string>("all");
+  const [page, setPage] = useState(1);
+  const [drawerOpen, setDrawerOpen] = useState(false);
+  const [selectedEntity, setSelectedEntity] = useState<CompanyIdentity | null>(null);
+  const [drawerMode, setDrawerMode] = useState<"view" | "edit" | "create">("view");
+  const pageSize = 10;
+
+  const filtered = useMemo(() => {
+    let list = entities;
+    if (search) {
+      const q = search.toLowerCase();
+      list = list.filter((e) =>
+        e.companyCode.toLowerCase().includes(q) ||
+        e.legalNameTh.toLowerCase().includes(q) ||
+        e.legalNameEn.toLowerCase().includes(q) ||
+        e.taxIds.some((t) => t.taxId.includes(q))
+      );
+    }
+    if (statusFilter !== "all") list = list.filter((e) => e.status === statusFilter);
+    return list;
+  }, [entities, search, statusFilter]);
+
+  const totalPages = Math.max(1, Math.ceil(filtered.length / pageSize));
+  const pageData = filtered.slice((page - 1) * pageSize, page * pageSize);
+
+  const openDrawer = (entity: CompanyIdentity | null, mode: "view" | "edit" | "create") => {
+    setSelectedEntity(entity);
+    setDrawerMode(mode);
+    setDrawerOpen(true);
+  };
+
+  const handleSave = (entity: CompanyIdentity) => {
+    setEntities((prev) => {
+      const idx = prev.findIndex((e) => e.id === entity.id);
+      if (idx >= 0) {
+        const next = [...prev];
+        next[idx] = entity;
+        return next;
+      }
+      return [...prev, entity];
+    });
+  };
+
+  const handleDeactivate = (id: string) => {
+    setEntities((prev) => prev.map((e) => e.id === id ? { ...e, status: e.status === "Active" ? "Inactive" as const : "Active" as const, lastUpdated: new Date().toISOString().split("T")[0] } : e));
+  };
+
+  const existingCodes = entities.map((e) => e.companyCode.toUpperCase());
+  const existingTaxIds = entities.flatMap((e) => e.taxIds.map((t) => t.taxId));
+
+  const getPrimaryTaxId = (e: CompanyIdentity) => e.taxIds.find((t) => t.isPrimary)?.taxId || e.taxIds[0]?.taxId || "-";
+  const getPrimaryBranchType = (e: CompanyIdentity) => {
+    const primary = e.taxIds.find((t) => t.isPrimary) || e.taxIds[0];
+    return primary?.branchType || "-";
+  };
+
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
         <h2 className="text-lg font-semibold">Entities</h2>
-        <Button size="sm"><Plus className="h-4 w-4 mr-2" />Add Entity</Button>
+        <Button size="sm" onClick={() => openDrawer(null, "create")}>
+          <Plus className="h-4 w-4 mr-2" /> Add Company Identity
+        </Button>
       </div>
+
+      {/* Search & Filter */}
+      <div className="flex items-center gap-3">
+        <div className="relative flex-1 max-w-sm">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+          <Input
+            value={search}
+            onChange={(e) => { setSearch(e.target.value); setPage(1); }}
+            placeholder="Search by Code, Name, Tax ID..."
+            className="pl-9"
+          />
+        </div>
+        <Select value={statusFilter} onValueChange={(v) => { setStatusFilter(v); setPage(1); }}>
+          <SelectTrigger className="w-36"><SelectValue placeholder="Status" /></SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">All Status</SelectItem>
+            <SelectItem value="Active">Active</SelectItem>
+            <SelectItem value="Inactive">Inactive</SelectItem>
+          </SelectContent>
+        </Select>
+      </div>
+
       <Card>
         <CardContent className="p-0">
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>Code</TableHead>
-                <TableHead>Company Name</TableHead>
-                <TableHead>Type</TableHead>
+                <TableHead>Company Code</TableHead>
+                <TableHead>Legal Entity Name (TH)</TableHead>
+                <TableHead>Primary Tax ID</TableHead>
+                <TableHead>Branch Type</TableHead>
+                <TableHead>Effective Start</TableHead>
+                <TableHead>Effective End</TableHead>
                 <TableHead>Status</TableHead>
+                <TableHead>Last Updated</TableHead>
+                <TableHead className="text-right">Action</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
-              {mockEntities.map((e) => (
-                <TableRow key={e.code} className="cursor-pointer hover:bg-muted/50">
-                  <TableCell className="font-medium">{e.code}</TableCell>
-                  <TableCell>{e.name}</TableCell>
-                  <TableCell><Badge variant="outline">{e.type}</Badge></TableCell>
+              {pageData.length === 0 && (
+                <TableRow><TableCell colSpan={9} className="text-center text-muted-foreground py-8">No entities found</TableCell></TableRow>
+              )}
+              {pageData.map((e) => (
+                <TableRow key={e.id} className="cursor-pointer hover:bg-muted/50" onClick={() => openDrawer(e, "view")}>
+                  <TableCell className="font-medium">{e.companyCode}</TableCell>
+                  <TableCell>{e.legalNameTh}</TableCell>
+                  <TableCell><code className="text-xs bg-muted px-1.5 py-0.5 rounded">{getPrimaryTaxId(e)}</code></TableCell>
+                  <TableCell><Badge variant="outline">{getPrimaryBranchType(e)}</Badge></TableCell>
+                  <TableCell className="text-sm">{e.effectiveStartDate}</TableCell>
+                  <TableCell className="text-sm">{e.effectiveEndDate || "-"}</TableCell>
                   <TableCell>
                     <Badge className={e.status === "Active" ? "bg-green-100 text-green-800" : "bg-gray-100 text-gray-600"}>
                       {e.status}
                     </Badge>
+                  </TableCell>
+                  <TableCell className="text-sm">{e.lastUpdated}</TableCell>
+                  <TableCell className="text-right">
+                    <div className="flex items-center justify-end gap-1" onClick={(ev) => ev.stopPropagation()}>
+                      <Button size="icon" variant="ghost" className="h-7 w-7" onClick={() => openDrawer(e, "view")} title="View">
+                        <Eye className="h-3.5 w-3.5" />
+                      </Button>
+                      <Button size="icon" variant="ghost" className="h-7 w-7" onClick={() => openDrawer(e, "edit")} title="Edit">
+                        <Pencil className="h-3.5 w-3.5" />
+                      </Button>
+                      <Button size="icon" variant="ghost" className="h-7 w-7" onClick={() => handleDeactivate(e.id)} title={e.status === "Active" ? "Deactivate" : "Activate"}>
+                        <Ban className="h-3.5 w-3.5" />
+                      </Button>
+                    </div>
                   </TableCell>
                 </TableRow>
               ))}
@@ -226,10 +334,35 @@ function EntitiesPanel() {
           </Table>
         </CardContent>
       </Card>
+
+      {/* Pagination */}
+      {totalPages > 1 && (
+        <div className="flex items-center justify-between text-sm">
+          <span className="text-muted-foreground">Showing {(page - 1) * pageSize + 1}–{Math.min(page * pageSize, filtered.length)} of {filtered.length}</span>
+          <div className="flex items-center gap-1">
+            <Button size="icon" variant="outline" className="h-8 w-8" disabled={page === 1} onClick={() => setPage(page - 1)}>
+              <ChevronLeft className="h-4 w-4" />
+            </Button>
+            <span className="px-2">{page} / {totalPages}</span>
+            <Button size="icon" variant="outline" className="h-8 w-8" disabled={page === totalPages} onClick={() => setPage(page + 1)}>
+              <ChevronRight className="h-4 w-4" />
+            </Button>
+          </div>
+        </div>
+      )}
+
+      <EntityDrawer
+        open={drawerOpen}
+        onOpenChange={setDrawerOpen}
+        entity={selectedEntity}
+        mode={drawerMode}
+        onSave={handleSave}
+        existingCodes={existingCodes}
+        existingTaxIds={existingTaxIds}
+      />
     </div>
   );
 }
-
 function DepartmentsPanel() {
   return (
     <div className="space-y-4">
