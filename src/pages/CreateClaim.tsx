@@ -36,7 +36,7 @@ export default function CreateClaim() {
     employee: currentUser.name,
     store: currentUser.branch,
     company: "ABC Co., Ltd.",
-    telephone: "",
+    telephone: currentUser.telephone || "",
     email: currentUser.email,
     division: currentUser.department,
   });
