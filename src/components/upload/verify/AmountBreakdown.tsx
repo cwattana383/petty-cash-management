@@ -108,7 +108,7 @@ export default function AmountBreakdown({ data, onChange }: Props) {
             <Select value={data.whtCode} onValueChange={(v) => set("whtCode", v)}>
               <SelectTrigger className="h-8 text-sm"><SelectValue placeholder="Select" /></SelectTrigger>
               <SelectContent>
-                <SelectItem value="">None</SelectItem>
+                <SelectItem value="none">None</SelectItem>
                 <SelectItem value="W1">W1 - 1%</SelectItem>
                 <SelectItem value="W2">W2 - 2%</SelectItem>
                 <SelectItem value="W3">W3 - 3%</SelectItem>
