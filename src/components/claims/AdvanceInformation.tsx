@@ -122,35 +122,6 @@ export default function AdvanceInformation({ data, onChange, errors }: AdvanceIn
               {errors.payTo && <p className="text-xs text-destructive mt-1">{errors.payTo}</p>}
             </div>
 
-            <div>
-              <Label>Expectation Date *</Label>
-              <Popover>
-                <PopoverTrigger asChild>
-                  <Button
-                    variant="outline"
-                    className={cn(
-                      "w-full justify-start text-left font-normal",
-                      !data.expectationDate && "text-muted-foreground",
-                      errors.expectationDate && "border-destructive"
-                    )}
-                  >
-                    <CalendarIcon className="mr-2 h-4 w-4" />
-                    {data.expectationDate ? format(data.expectationDate, "dd/MM/yyyy") : "Select a date"}
-                  </Button>
-                </PopoverTrigger>
-                <PopoverContent className="w-auto p-0" align="start">
-                  <Calendar
-                    mode="single"
-                    selected={data.expectationDate}
-                    onSelect={(d) => update("expectationDate", d)}
-                    initialFocus
-                    className={cn("p-3 pointer-events-auto")}
-                  />
-                </PopoverContent>
-              </Popover>
-              {errors.expectationDate && <p className="text-xs text-destructive mt-1">{errors.expectationDate}</p>}
-            </div>
-
             {showGiftVoucher && (
               <div>
                 <Label>Number of Gift Voucher (Book)</Label>
@@ -162,56 +133,6 @@ export default function AdvanceInformation({ data, onChange, errors }: AdvanceIn
                 />
               </div>
             )}
-
-            <div>
-              <Label>Division (GL)</Label>
-              <Input value={data.divisionGL || "-"} disabled />
-            </div>
-
-            <div>
-              <Label>Description</Label>
-              <Textarea
-                value={data.description}
-                onChange={(e) => update("description", e.target.value)}
-                placeholder="Type a value"
-                className="min-h-[100px]"
-              />
-            </div>
-
-            <div>
-              <Label>CC</Label>
-              <div className="flex gap-2">
-                <Input
-                  value={data.cc}
-                  onChange={(e) => update("cc", e.target.value)}
-                  placeholder="Type a value"
-                  className="flex-1"
-                />
-                <Popover>
-                  <PopoverTrigger asChild>
-                    <Button variant="outline" size="icon">
-                      <Search className="h-4 w-4" />
-                    </Button>
-                  </PopoverTrigger>
-                  <PopoverContent className="w-[200px] p-2" align="end">
-                    <p className="text-xs text-muted-foreground mb-2">Select Cost Center</p>
-                    <div className="space-y-1 max-h-[200px] overflow-y-auto">
-                      {costCenters.map((cc) => (
-                        <Button
-                          key={cc}
-                          variant="ghost"
-                          size="sm"
-                          className="w-full justify-start text-xs"
-                          onClick={() => update("cc", cc)}
-                        >
-                          {cc}
-                        </Button>
-                      ))}
-                    </div>
-                  </PopoverContent>
-                </Popover>
-              </div>
-            </div>
           </div>
 
           {/* Right column */}

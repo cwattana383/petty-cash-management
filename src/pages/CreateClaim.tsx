@@ -77,7 +77,7 @@ export default function CreateClaim() {
     // Advance validation
     if (!advance.purposeCategory) errors.purposeCategory = "Purpose Category is required";
     if (!advance.payTo) errors.payTo = "Pay To is required";
-    if (!advance.expectationDate) errors.expectationDate = "Expectation Date is required";
+    
     if (!advance.purposeSubCategory) errors.purposeSubCategory = "Purpose Sub Category is required";
     if (!advance.amountIncVat || advance.amountIncVat <= 0) errors.amountIncVat = "Amount must be greater than 0";
 
