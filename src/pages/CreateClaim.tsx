@@ -24,7 +24,7 @@ export default function CreateClaim() {
   // Document header (read-only for new)
   const advanceNo = useMemo(() => {
     const seq = String(Math.floor(Math.random() * 999) + 1).padStart(6, "0");
-    return `ADV-${new Date().getFullYear()}-${seq}`;
+    return `EXP-${new Date().getFullYear()}-${seq}`;
   }, []);
   const createDate = useMemo(() => new Date(), []);
 
@@ -99,7 +99,7 @@ export default function CreateClaim() {
     if (submit && !validate()) return;
     toast({
       title: submit ? "Submitted" : "Saved",
-      description: `Advance ${advanceNo} ${submit ? "submitted for approval" : "saved as draft"}`,
+      description: `Expense ${advanceNo} ${submit ? "submitted for approval" : "saved as draft"}`,
     });
     navigate("/claims");
   };
@@ -120,8 +120,8 @@ export default function CreateClaim() {
             <ArrowLeft className="h-4 w-4" />
           </Button>
           <div>
-            <h1 className="text-2xl font-bold text-foreground">Create Advance Request</h1>
-            <p className="text-muted-foreground text-sm">Fill in advance request details</p>
+            <h1 className="text-2xl font-bold text-foreground">Create Monthly Expense</h1>
+            <p className="text-muted-foreground text-sm">Fill in expense request details</p>
           </div>
         </div>
         <div className="flex gap-2">

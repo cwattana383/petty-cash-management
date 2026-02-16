@@ -86,7 +86,7 @@ export default function AdvanceInformation({ data, onChange, errors }: AdvanceIn
   return (
     <Card>
       <CardHeader>
-        <CardTitle className="text-base">Advance Information</CardTitle>
+        <CardTitle className="text-base">Expense Information</CardTitle>
       </CardHeader>
       <CardContent>
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-x-6 gap-y-4">
