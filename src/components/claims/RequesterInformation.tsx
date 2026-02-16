@@ -4,7 +4,7 @@ import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { User } from "@/lib/types";
-import { users } from "@/lib/mock-data";
+import { users, currentUser } from "@/lib/mock-data";
 import { Search } from "lucide-react";
 
 export type RequestType = "Owner" | "Other";
@@ -43,7 +43,7 @@ export default function RequesterInformation({ data, creatorData, onChange }: Re
         employee: creatorData.employee,
         store: creatorData.store,
         company: creatorData.company,
-        telephone: "",
+        telephone: currentUser.telephone || "",
         email: creatorData.email,
         division: creatorData.division,
       });
@@ -70,17 +70,13 @@ export default function RequesterInformation({ data, creatorData, onChange }: Re
         employee: user.name,
         store: user.branch,
         company: "ABC Co., Ltd.",
+        telephone: user.telephone || "",
         email: user.email,
         division: user.department,
       });
     }
   };
 
-  const handleTelChange = (val: string) => {
-    if (val === "" || /^[\d-]*$/.test(val)) {
-      onChange({ ...data, telephone: val });
-    }
-  };
 
   return (
     <Card>
@@ -140,9 +136,7 @@ export default function RequesterInformation({ data, creatorData, onChange }: Re
             <Label>Telephone</Label>
             <Input
               value={data.telephone}
-              onChange={(e) => handleTelChange(e.target.value)}
-              placeholder="Type a value"
-              disabled={isOwner}
+              disabled
             />
           </div>
           <div>
