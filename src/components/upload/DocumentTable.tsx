@@ -121,7 +121,7 @@ export default function DocumentTable({
                 <TableHead>Filename</TableHead>
                 <TableHead>Size</TableHead>
                 <TableHead>OCR Status</TableHead>
-                <TableHead>Confidence</TableHead>
+                
                 <TableHead>Decision</TableHead>
                 <TableHead>Uploaded</TableHead>
                 <TableHead className="text-right">Action</TableHead>
@@ -146,7 +146,7 @@ export default function DocumentTable({
                   </TableCell>
                   <TableCell className="text-sm text-muted-foreground">{formatFileSize(doc.size)}</TableCell>
                   <TableCell><StatusBadge status={doc.status} /></TableCell>
-                  <TableCell><ConfidenceBar score={doc.ocrConfidenceScore} /></TableCell>
+                  
                   <TableCell><DecisionBadge doc={doc} /></TableCell>
                   <TableCell className="text-sm text-muted-foreground">{formatDate(doc.uploadedAt)}</TableCell>
                   <TableCell>
