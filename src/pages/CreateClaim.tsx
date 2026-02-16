@@ -20,6 +20,7 @@ export default function CreateClaim() {
 
   // Receive selected documents from /upload page
   const selectedDocs: UploadedDoc[] = (location.state as any)?.selectedDocs || [];
+  const isManualExpense: boolean = (location.state as any)?.isManualExpense || false;
 
   // Document header (read-only for new)
   const advanceNo = useMemo(() => {
@@ -120,8 +121,12 @@ export default function CreateClaim() {
             <ArrowLeft className="h-4 w-4" />
           </Button>
           <div>
-            <h1 className="text-2xl font-bold text-foreground">Create Monthly Expense</h1>
-            <p className="text-muted-foreground text-sm">Fill in expense request details</p>
+            <h1 className="text-2xl font-bold text-foreground">
+              {isManualExpense ? "Create Manual Expense" : "Create Monthly Expense"}
+            </h1>
+            <p className="text-muted-foreground text-sm">
+              {isManualExpense ? "กรอกข้อมูลรายการเบิกด้วยตนเอง (ไม่ผูกกับเอกสาร)" : "Fill in expense request details"}
+            </p>
           </div>
         </div>
         <div className="flex gap-2">
