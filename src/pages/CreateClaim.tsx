@@ -28,8 +28,6 @@ export default function CreateClaim() {
   }, []);
   const createDate = useMemo(() => new Date(), []);
 
-  // Creator info
-  const [creatorTel, setCreatorTel] = useState("");
 
   // Requester info
   const [requester, setRequester] = useState<RequesterData>({
@@ -149,10 +147,9 @@ export default function CreateClaim() {
         employee={currentUser.name}
         store={currentUser.branch}
         company="ABC Co., Ltd."
-        telephone={creatorTel}
+        telephone={currentUser.telephone || "-"}
         email={currentUser.email}
         division={currentUser.department}
-        onTelephoneChange={setCreatorTel}
       />
 
       {/* 3) Requester Information */}

@@ -12,6 +12,7 @@ export const currentUser: User = {
   position: "Sales Executive",
   managerId: "u2",
   managerName: "สมหญิง แก้วใส",
+  telephone: "02-123-4567",
 };
 
 export const users: User[] = [

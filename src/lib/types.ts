@@ -17,6 +17,7 @@ export interface User {
   position: string;
   managerId: string | null;
   managerName: string | null;
+  telephone?: string;
   avatar?: string;
 }
 
