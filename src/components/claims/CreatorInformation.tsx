@@ -9,7 +9,6 @@ interface CreatorInfoProps {
   telephone: string;
   email: string;
   division: string;
-  onTelephoneChange: (value: string) => void;
 }
 
 export default function CreatorInformation({
@@ -19,15 +18,7 @@ export default function CreatorInformation({
   telephone,
   email,
   division,
-  onTelephoneChange,
 }: CreatorInfoProps) {
-  const handleTelChange = (val: string) => {
-    // Allow only digits and dashes
-    if (val === "" || /^[\d-]*$/.test(val)) {
-      onTelephoneChange(val);
-    }
-  };
-
   return (
     <Card>
       <CardHeader>
@@ -48,11 +39,7 @@ export default function CreatorInformation({
         </div>
         <div>
           <Label>Telephone</Label>
-          <Input
-            value={telephone}
-            onChange={(e) => handleTelChange(e.target.value)}
-            placeholder="Type a value"
-          />
+          <Input value={telephone} disabled />
         </div>
         <div>
           <Label>Email</Label>
