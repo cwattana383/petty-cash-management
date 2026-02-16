@@ -24,7 +24,7 @@ export default function DocumentHeader({ advanceNo, glNo, status, createDate }: 
     <Card>
       <CardContent className="p-4 grid grid-cols-2 sm:grid-cols-4 gap-4">
         <div>
-          <p className="text-xs text-muted-foreground mb-1">Advance No</p>
+          <p className="text-xs text-muted-foreground mb-1">Expense No</p>
           <p className="font-semibold text-sm">{advanceNo}</p>
         </div>
         <div>
