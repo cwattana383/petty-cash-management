@@ -6,7 +6,7 @@ import { FileText } from "lucide-react";
 
 function confidenceBadge(c: number) {
   const color = c >= 90 ? "bg-green-100 text-green-700" : c >= 80 ? "bg-yellow-100 text-yellow-700" : "bg-red-100 text-red-700";
-  return <span className={`text-xs font-medium px-2 py-0.5 rounded ${color}`}>{c}%</span>;
+  return <span className={`text-xs font-medium px-2 py-0.5 rounded ${color}`}>{c.toFixed(2)}%</span>;
 }
 
 export interface ReceiptData {

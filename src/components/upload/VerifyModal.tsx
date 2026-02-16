@@ -225,7 +225,7 @@ export default function VerifyModal({ doc, onClose, onConfirm, onReject, onRerun
                   <div className="flex flex-wrap gap-1.5">
                     {lowConfFields.map((f) => (
                       <span key={f.label} className="text-xs bg-red-100 text-red-700 px-2 py-0.5 rounded">
-                        {f.label}: {Math.round(f.confidence)}%
+                        {f.label}: {f.confidence.toFixed(2)}%
                       </span>
                     ))}
                   </div>
@@ -257,7 +257,7 @@ export default function VerifyModal({ doc, onClose, onConfirm, onReject, onRerun
                             style={{ width: `${f.confidence}%` }}
                           />
                         </div>
-                        <span className={`font-medium ${f.confidence < 80 ? "text-red-600" : ""}`}>{Math.round(f.confidence)}%</span>
+                        <span className={`font-medium ${f.confidence < 80 ? "text-red-600" : ""}`}>{f.confidence.toFixed(2)}%</span>
                       </div>
                     </div>
                   ))}
