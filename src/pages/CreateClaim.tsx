@@ -4,10 +4,11 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
-import { ArrowLeft, Save, Send, FileText } from "lucide-react";
+import { ArrowLeft, Save, Send, FileText, Plus, Trash2 } from "lucide-react";
 import { currentUser } from "@/lib/mock-data";
 import { useToast } from "@/hooks/use-toast";
 import { UploadedDoc, formatFileSize } from "@/lib/upload-types";
+import { Input } from "@/components/ui/input";
 import DocumentHeader from "@/components/claims/DocumentHeader";
 import CreatorInformation from "@/components/claims/CreatorInformation";
 import RequesterInformation, { type RequesterData } from "@/components/claims/RequesterInformation";
@@ -19,8 +20,34 @@ export default function CreateClaim() {
   const { toast } = useToast();
 
   // Receive selected documents from /upload page
-  const selectedDocs: UploadedDoc[] = (location.state as any)?.selectedDocs || [];
+  const initialDocs: UploadedDoc[] = (location.state as any)?.selectedDocs || [];
   const isManualExpense: boolean = (location.state as any)?.isManualExpense || false;
+
+  // Manual expense lines added by user
+  const [manualLines, setManualLines] = useState<Array<{
+    id: string;
+    description: string;
+    amount: number;
+    vatCode: string;
+    vatAmount: number;
+    whtCode: string;
+    whtAmount: number;
+  }>>([]);
+
+  const addManualLine = () => {
+    setManualLines((prev) => [
+      ...prev,
+      { id: crypto.randomUUID(), description: "", amount: 0, vatCode: "", vatAmount: 0, whtCode: "", whtAmount: 0 },
+    ]);
+  };
+
+  const updateManualLine = (id: string, field: string, value: any) => {
+    setManualLines((prev) => prev.map((l) => (l.id === id ? { ...l, [field]: value } : l)));
+  };
+
+  const removeManualLine = (id: string) => {
+    setManualLines((prev) => prev.filter((l) => l.id !== id));
+  };
 
   // Document header (read-only for new)
   const advanceNo = useMemo(() => {
@@ -171,94 +198,147 @@ export default function CreateClaim() {
         errors={advanceErrors}
       />
 
-      {/* 5) Attached Document Transactions */}
-      {selectedDocs.length > 0 && (
-        <Card>
-          <CardHeader>
+      {/* 5) Expense List */}
+      <Card>
+        <CardHeader>
+          <div className="flex items-center justify-between">
             <CardTitle className="text-base flex items-center gap-2">
               <FileText className="h-4 w-4" />
-              Transactions from Documents ({selectedDocs.length})
+              Expense List ({initialDocs.length + manualLines.length})
             </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="rounded-md border">
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead className="w-10">#</TableHead>
-                    <TableHead>Document</TableHead>
-                    <TableHead>Size</TableHead>
-                    <TableHead>OCR Fields</TableHead>
-                    <TableHead>Amount</TableHead>
-                    <TableHead>VAT Code</TableHead>
-                    <TableHead>VAT Amount</TableHead>
-                    <TableHead>WHT Code</TableHead>
-                    <TableHead>WHT Amount</TableHead>
-                    <TableHead>Status</TableHead>
+            <Button variant="outline" size="sm" onClick={addManualLine}>
+              <Plus className="h-4 w-4 mr-1" />Add Item
+            </Button>
+          </div>
+        </CardHeader>
+        <CardContent>
+          <div className="rounded-md border">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead className="w-10">#</TableHead>
+                  <TableHead>Description / Document</TableHead>
+                  <TableHead>Amount</TableHead>
+                  <TableHead>VAT Code</TableHead>
+                  <TableHead>VAT Amount</TableHead>
+                  <TableHead>WHT Code</TableHead>
+                  <TableHead>WHT Amount</TableHead>
+                  <TableHead>Status</TableHead>
+                  <TableHead className="w-10"></TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {/* Document-based rows */}
+                {initialDocs.map((doc, idx) => {
+                  const amountField = doc.ocrData?.find((f) => f.label === "จำนวนเงิน");
+                  return (
+                    <TableRow key={doc.id}>
+                      <TableCell className="text-muted-foreground">{idx + 1}</TableCell>
+                      <TableCell>
+                        <div className="flex items-center gap-2">
+                          <FileText className="h-4 w-4 text-primary shrink-0" />
+                          <span className="text-sm font-medium truncate max-w-[200px]">{doc.name}</span>
+                        </div>
+                      </TableCell>
+                      <TableCell className="font-medium">{amountField ? amountField.value : "—"}</TableCell>
+                      <TableCell className="text-sm">{doc.ocrData?.find((f) => f.label === "VAT Code")?.value || "—"}</TableCell>
+                      <TableCell className="text-sm font-medium">{doc.ocrData?.find((f) => f.label === "VAT Amount")?.value || "—"}</TableCell>
+                      <TableCell className="text-sm">{doc.ocrData?.find((f) => f.label === "WHT Code")?.value || "—"}</TableCell>
+                      <TableCell className="text-sm font-medium">{doc.ocrData?.find((f) => f.label === "WHT Amount")?.value || "—"}</TableCell>
+                      <TableCell>
+                        <Badge variant="outline" className="border-green-300 bg-green-50 text-green-600">Verified</Badge>
+                      </TableCell>
+                      <TableCell></TableCell>
+                    </TableRow>
+                  );
+                })}
+                {/* Manual rows */}
+                {manualLines.map((line, idx) => (
+                  <TableRow key={line.id}>
+                    <TableCell className="text-muted-foreground">{initialDocs.length + idx + 1}</TableCell>
+                    <TableCell>
+                      <Input
+                        placeholder="รายละเอียด..."
+                        value={line.description}
+                        onChange={(e) => updateManualLine(line.id, "description", e.target.value)}
+                        className="h-8 text-sm"
+                      />
+                    </TableCell>
+                    <TableCell>
+                      <Input
+                        type="number" min={0} step="0.01"
+                        value={line.amount || ""}
+                        onChange={(e) => updateManualLine(line.id, "amount", parseFloat(e.target.value) || 0)}
+                        className="h-8 text-sm w-28"
+                      />
+                    </TableCell>
+                    <TableCell>
+                      <Input
+                        placeholder="—"
+                        value={line.vatCode}
+                        onChange={(e) => updateManualLine(line.id, "vatCode", e.target.value)}
+                        className="h-8 text-sm w-16"
+                      />
+                    </TableCell>
+                    <TableCell>
+                      <Input
+                        type="number" min={0} step="0.01"
+                        value={line.vatAmount || ""}
+                        onChange={(e) => updateManualLine(line.id, "vatAmount", parseFloat(e.target.value) || 0)}
+                        className="h-8 text-sm w-24"
+                      />
+                    </TableCell>
+                    <TableCell>
+                      <Input
+                        placeholder="—"
+                        value={line.whtCode}
+                        onChange={(e) => updateManualLine(line.id, "whtCode", e.target.value)}
+                        className="h-8 text-sm w-16"
+                      />
+                    </TableCell>
+                    <TableCell>
+                      <Input
+                        type="number" min={0} step="0.01"
+                        value={line.whtAmount || ""}
+                        onChange={(e) => updateManualLine(line.id, "whtAmount", parseFloat(e.target.value) || 0)}
+                        className="h-8 text-sm w-24"
+                      />
+                    </TableCell>
+                    <TableCell>
+                      <Badge variant="outline" className="border-blue-300 bg-blue-50 text-blue-600">Manual</Badge>
+                    </TableCell>
+                    <TableCell>
+                      <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => removeManualLine(line.id)}>
+                        <Trash2 className="h-3.5 w-3.5 text-destructive" />
+                      </Button>
+                    </TableCell>
                   </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {selectedDocs.map((doc, idx) => {
-                    const amountField = doc.ocrData?.find((f) => f.label === "จำนวนเงิน");
-                    return (
-                      <TableRow key={doc.id}>
-                        <TableCell className="text-muted-foreground">{idx + 1}</TableCell>
-                        <TableCell>
-                          <div className="flex items-center gap-2">
-                            <FileText className="h-4 w-4 text-primary shrink-0" />
-                            <span className="text-sm font-medium truncate max-w-[200px]">{doc.name}</span>
-                          </div>
-                        </TableCell>
-                        <TableCell className="text-sm text-muted-foreground">{formatFileSize(doc.size)}</TableCell>
-                        <TableCell>
-                          {doc.ocrData ? (
-                            <span className="text-sm">{doc.ocrData.length} fields extracted</span>
-                          ) : (
-                            <span className="text-sm text-muted-foreground">—</span>
-                          )}
-                        </TableCell>
-                        <TableCell className="font-medium">
-                          {amountField ? amountField.value : "—"}
-                        </TableCell>
-                        <TableCell className="text-sm">
-                          {doc.ocrData?.find((f) => f.label === "VAT Code")?.value || "—"}
-                        </TableCell>
-                        <TableCell className="text-sm font-medium">
-                          {doc.ocrData?.find((f) => f.label === "VAT Amount")?.value || "—"}
-                        </TableCell>
-                        <TableCell className="text-sm">
-                          {doc.ocrData?.find((f) => f.label === "WHT Code")?.value || "—"}
-                        </TableCell>
-                        <TableCell className="text-sm font-medium">
-                          {doc.ocrData?.find((f) => f.label === "WHT Amount")?.value || "—"}
-                        </TableCell>
-                        <TableCell>
-                          <Badge variant="outline" className="border-green-300 bg-green-50 text-green-600">
-                            Verified
-                          </Badge>
-                        </TableCell>
-                      </TableRow>
-                    );
-                  })}
-                </TableBody>
-              </Table>
-            </div>
-            {selectedDocs.some((d) => d.ocrData?.find((f) => f.label === "จำนวนเงิน")) && (
-              <div className="mt-3 flex justify-end">
-                <div className="text-sm font-semibold">
-                  Total:{" "}
-                  {selectedDocs
-                    .reduce((sum, d) => {
-                      const amt = d.ocrData?.find((f) => f.label === "จำนวนเงิน")?.value;
-                      return sum + (amt ? parseFloat(amt.replace(/,/g, "")) || 0 : 0);
-                    }, 0)
-                    .toLocaleString("en-US", { minimumFractionDigits: 2 })}
-                </div>
+                ))}
+                {initialDocs.length === 0 && manualLines.length === 0 && (
+                  <TableRow>
+                    <TableCell colSpan={9} className="text-center text-muted-foreground py-8">
+                      ยังไม่มีรายการ — กด "+ Add Item" เพื่อเพิ่มรายการ
+                    </TableCell>
+                  </TableRow>
+                )}
+              </TableBody>
+            </Table>
+          </div>
+          {(initialDocs.length > 0 || manualLines.length > 0) && (
+            <div className="mt-3 flex justify-end">
+              <div className="text-sm font-semibold">
+                Total:{" "}
+                {(
+                  initialDocs.reduce((sum, d) => {
+                    const amt = d.ocrData?.find((f) => f.label === "จำนวนเงิน")?.value;
+                    return sum + (amt ? parseFloat(amt.replace(/,/g, "")) || 0 : 0);
+                  }, 0) + manualLines.reduce((sum, l) => sum + l.amount, 0)
+                ).toLocaleString("en-US", { minimumFractionDigits: 2 })}
               </div>
-            )}
-          </CardContent>
-        </Card>
-      )}
+            </div>
+          )}
+        </CardContent>
+      </Card>
     </div>
   );
 }
