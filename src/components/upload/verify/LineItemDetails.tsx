@@ -24,6 +24,7 @@ interface Props {
 
 const expenseCategories = ["Travel", "Meals", "Office Supplies", "Transportation", "Training", "Entertainment", "Communication", "Other"];
 const costCenters = ["CC-SALES-01", "CC-MKT-01", "CC-ENG-01", "CC-HR-01", "CC-FIN-01"];
+const glAccounts = ["6110-00", "6120-00", "6130-00", "6140-00", "6150-00", "6160-00", "6170-00", "6190-00"];
 
 export default function LineItemDetails({ lines, onChange }: Props) {
   const addLine = () => {
@@ -123,7 +124,15 @@ export default function LineItemDetails({ lines, onChange }: Props) {
                         </SelectContent>
                       </Select>
                     </TableCell>
-                    <TableCell className="text-xs text-muted-foreground">{line.glAccount || "—"}</TableCell>
+                    <TableCell>
+                      <Select value={line.glAccount || "auto"} onValueChange={(v) => updateLine(line.id, "glAccount", v === "auto" ? "" : v)}>
+                        <SelectTrigger className="h-7 text-xs"><SelectValue placeholder="Auto" /></SelectTrigger>
+                        <SelectContent className="bg-background z-50">
+                          <SelectItem value="auto">Auto</SelectItem>
+                          {glAccounts.map((g) => <SelectItem key={g} value={g}>{g}</SelectItem>)}
+                        </SelectContent>
+                      </Select>
+                    </TableCell>
                     <TableCell>
                       <Select value={line.costCenter} onValueChange={(v) => updateLine(line.id, "costCenter", v)}>
                         <SelectTrigger className="h-7 text-xs"><SelectValue placeholder="Select" /></SelectTrigger>
