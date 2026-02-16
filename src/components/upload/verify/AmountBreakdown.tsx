@@ -9,6 +9,7 @@ export interface AmountData {
   subtotal: number;
   vatRate: string;
   vatAmount: number;
+  whtCode: string;
   whtAmount: number;
   grandTotal: number;
 }
@@ -100,15 +101,31 @@ export default function AmountBreakdown({ data, onChange }: Props) {
           </div>
         </div>
 
-        {/* WHT */}
-        <div>
-          <Label className="text-xs text-muted-foreground">Withholding Tax</Label>
-          <Input
-            type="number"
-            value={data.whtAmount || ""}
-            onChange={(e) => set("whtAmount", parseFloat(e.target.value) || 0)}
-            className="h-8 text-sm"
-          />
+        {/* WHT Code + Amount */}
+        <div className="grid grid-cols-2 gap-3">
+          <div>
+            <Label className="text-xs text-muted-foreground">Withholding Tax Code</Label>
+            <Select value={data.whtCode} onValueChange={(v) => set("whtCode", v)}>
+              <SelectTrigger className="h-8 text-sm"><SelectValue placeholder="Select" /></SelectTrigger>
+              <SelectContent>
+                <SelectItem value="">None</SelectItem>
+                <SelectItem value="W1">W1 - 1%</SelectItem>
+                <SelectItem value="W2">W2 - 2%</SelectItem>
+                <SelectItem value="W3">W3 - 3%</SelectItem>
+                <SelectItem value="W5">W5 - 5%</SelectItem>
+                <SelectItem value="W10">W10 - 10%</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+          <div>
+            <Label className="text-xs text-muted-foreground">Withholding Tax Amount</Label>
+            <Input
+              type="number"
+              value={data.whtAmount || ""}
+              onChange={(e) => set("whtAmount", parseFloat(e.target.value) || 0)}
+              className="h-8 text-sm"
+            />
+          </div>
         </div>
 
         {/* Grand Total */}
