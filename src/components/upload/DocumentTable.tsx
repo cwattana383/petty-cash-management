@@ -98,12 +98,6 @@ export default function DocumentTable({
             <span className="text-sm text-muted-foreground">
               Selected: {selectedIds.length} / {documents.length}
             </span>
-            {hasFailedDocs && (
-              <Button variant="outline" onClick={onManualExpense} className="gap-1.5">
-                <PenLine className="h-4 w-4" />
-                สร้างรายการแบบ Manual
-              </Button>
-            )}
             <Button
               onClick={onCreateClaim}
               disabled={selectedIds.length === 0}
