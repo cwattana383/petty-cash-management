@@ -6,19 +6,19 @@ import {
   Dialog, DialogContent, DialogHeader, DialogTitle,
 } from "@/components/ui/dialog";
 import { toast } from "sonner";
-import { UploadedDoc, OcrField, mockOcrFields } from "@/lib/upload-types";
+import { UploadedDoc, OcrField, mockOcrFields, generateMockOcrWithConfidence, runDecisionEngine } from "@/lib/upload-types";
 import UploadArea from "@/components/upload/UploadArea";
 import DocumentTable from "@/components/upload/DocumentTable";
 import VerifyModal from "@/components/upload/VerifyModal";
 import EligibilityModal from "@/components/upload/EligibilityModal";
 
 const initialDocs: UploadedDoc[] = [
-  { id: "1", name: "ตัวอย่าง หัก ณ ที่จ่าย_Part1.pdf", size: 402.1 * 1024, status: "TO_VERIFY", uploadedAt: new Date("2026-02-12T15:03:00"), ocrData: mockOcrFields },
-  { id: "2", name: "ตัวอย่าง หัก ณ ที่จ่าย_Part20.pdf", size: 51.8 * 1024, status: "FAILED", uploadedAt: new Date("2026-01-28T14:09:00") },
-  { id: "3", name: "ตัวอย่าง หัก ณ ที่จ่าย_Part19.pdf", size: 342.9 * 1024, status: "TO_VERIFY", uploadedAt: new Date("2026-01-28T14:09:00"), ocrData: mockOcrFields },
-  { id: "4", name: "ตัวอย่าง หัก ณ ที่จ่าย_Part18.pdf", size: 534.0 * 1024, status: "FAILED", uploadedAt: new Date("2026-01-28T14:09:00") },
-  { id: "5", name: "ตัวอย่าง หัก ณ ที่จ่าย_Part17.pdf", size: 49.9 * 1024, status: "VERIFIED", uploadedAt: new Date("2026-01-28T14:09:00"), ocrData: mockOcrFields },
-  { id: "6", name: "ตัวอย่าง หัก ณ ที่จ่าย_Part16.pdf", size: 47.0 * 1024, status: "FAILED", uploadedAt: new Date("2026-01-28T14:09:00") },
+  { id: "1", name: "ตัวอย่าง หัก ณ ที่จ่าย_Part1.pdf", size: 402.1 * 1024, status: "TO_VERIFY", uploadedAt: new Date("2026-02-12T15:03:00"), ocrData: mockOcrFields, ocrConfidenceScore: 82, autoDecisionStatus: "NEED_VERIFY" },
+  { id: "2", name: "ตัวอย่าง หัก ณ ที่จ่าย_Part20.pdf", size: 51.8 * 1024, status: "OCR_FAILED", uploadedAt: new Date("2026-01-28T14:09:00"), ocrConfidenceScore: 45, autoDecisionStatus: "AUTO_REJECT", errorType: "OCR_UNREADABLE" },
+  { id: "3", name: "ตัวอย่าง หัก ณ ที่จ่าย_Part19.pdf", size: 342.9 * 1024, status: "TO_VERIFY", uploadedAt: new Date("2026-01-28T14:09:00"), ocrData: mockOcrFields, ocrConfidenceScore: 78, autoDecisionStatus: "NEED_VERIFY" },
+  { id: "4", name: "ตัวอย่าง หัก ณ ที่จ่าย_Part18.pdf", size: 534.0 * 1024, status: "OCR_FAILED", uploadedAt: new Date("2026-01-28T14:09:00"), ocrConfidenceScore: 55, autoDecisionStatus: "AUTO_REJECT", errorType: "MISSING_REQUIRED_FIELD" },
+  { id: "5", name: "ตัวอย่าง หัก ณ ที่จ่าย_Part17.pdf", size: 49.9 * 1024, status: "VERIFIED", uploadedAt: new Date("2026-01-28T14:09:00"), ocrData: mockOcrFields, ocrConfidenceScore: 95, autoDecisionStatus: "AUTO_ACCEPT" },
+  { id: "6", name: "ตัวอย่าง หัก ณ ที่จ่าย_Part16.pdf", size: 47.0 * 1024, status: "OCR_FAILED", uploadedAt: new Date("2026-01-28T14:09:00"), ocrConfidenceScore: 35, autoDecisionStatus: "AUTO_REJECT", errorType: "FILE_CORRUPT" },
   { id: "7", name: "ตัวอย่าง หัก ณ ที่จ่าย_Part15.pdf", size: 46.8 * 1024, status: "OCR_PROCESSING", uploadedAt: new Date("2026-01-28T14:09:00") },
 ];
 
@@ -38,6 +38,29 @@ export default function UploadDocument() {
     setFiles((prev) => [...prev, ...newFiles]);
   };
 
+  // Apply decision engine after OCR completes
+  const applyDecisionEngine = (doc: UploadedDoc): UploadedDoc => {
+    const { fields, avgConfidence } = generateMockOcrWithConfidence();
+    const { autoDecision, docStatus } = runDecisionEngine(avgConfidence);
+
+    const fieldConf: Record<string, number> = {};
+    fields.forEach((f) => { fieldConf[f.label] = f.confidence; });
+
+    const errorType = docStatus === "OCR_FAILED"
+      ? (avgConfidence < 50 ? "OCR_UNREADABLE" as const : "MISSING_REQUIRED_FIELD" as const)
+      : undefined;
+
+    return {
+      ...doc,
+      status: docStatus,
+      ocrData: docStatus !== "OCR_FAILED" ? fields : undefined,
+      ocrConfidenceScore: avgConfidence,
+      autoDecisionStatus: autoDecision,
+      fieldLevelConfidence: fieldConf,
+      errorType,
+    };
+  };
+
   // Upload + auto OCR
   const handleProcess = () => {
     setIsProcessing(true);
@@ -53,59 +76,79 @@ export default function UploadDocument() {
     setIsProcessing(false);
     toast.success(`${newDocs.length} เอกสารกำลังประมวลผล OCR`);
 
-    // Auto-run OCR for each new doc
+    // Auto-run OCR with decision engine for each new doc
     newDocs.forEach((doc) => {
       const delay = 2000 + Math.random() * 2000;
-      const willSucceed = Math.random() > 0.15;
       setTimeout(() => {
         setDocuments((prev) =>
           prev.map((d) => {
             if (d.id !== doc.id) return d;
-            if (willSucceed) return { ...d, status: "TO_VERIFY" as const, ocrData: mockOcrFields };
-            return { ...d, status: "FAILED" as const };
+            const result = applyDecisionEngine(d);
+            if (result.autoDecisionStatus === "AUTO_ACCEPT") {
+              toast.success(`${doc.name}: Auto-Accept (Confidence: ${result.ocrConfidenceScore}%)`);
+            } else if (result.autoDecisionStatus === "NEED_VERIFY") {
+              toast.info(`${doc.name}: ต้องการตรวจสอบ (Confidence: ${result.ocrConfidenceScore}%)`);
+            } else {
+              toast.error(`${doc.name}: OCR Failed (Confidence: ${result.ocrConfidenceScore}%)`);
+            }
+            return result;
           })
         );
-        if (willSucceed) toast.success(`OCR เสร็จสิ้นสำหรับ ${doc.name}`);
-        else toast.error(`OCR ล้มเหลวสำหรับ ${doc.name} — กรุณาลอง Retry`);
       }, delay);
     });
   };
 
-  // OCR: UPLOADED/FAILED → OCR_PROCESSING → TO_VERIFY or FAILED
+  // OCR Retry: FAILED/OCR_FAILED → OCR_PROCESSING → Decision Engine
   const handleOcr = (doc: UploadedDoc) => {
     setDocuments((prev) =>
       prev.map((d) => (d.id === doc.id ? { ...d, status: "OCR_PROCESSING" as const } : d))
     );
 
-    // Simulate async OCR job (2-4 seconds)
     const delay = 2000 + Math.random() * 2000;
-    const willSucceed = Math.random() > 0.15; // 85% success rate
-
     setTimeout(() => {
       setDocuments((prev) =>
         prev.map((d) => {
           if (d.id !== doc.id) return d;
-          if (willSucceed) {
-            return { ...d, status: "TO_VERIFY" as const, ocrData: mockOcrFields };
+          const result = applyDecisionEngine(d);
+          if (result.status === "OCR_FAILED") {
+            toast.error(`OCR ล้มเหลวสำหรับ ${doc.name}`);
+          } else {
+            toast.success(`OCR เสร็จสิ้นสำหรับ ${doc.name} (Confidence: ${result.ocrConfidenceScore}%)`);
           }
-          return { ...d, status: "FAILED" as const };
+          return result;
         })
       );
-      if (willSucceed) {
-        toast.success(`OCR เสร็จสิ้นสำหรับ ${doc.name}`);
-      } else {
-        toast.error(`OCR ล้มเหลวสำหรับ ${doc.name} — กรุณาลอง Retry`);
-      }
     }, delay);
   };
 
   // Verify confirm: TO_VERIFY → VERIFIED
   const handleVerifyConfirm = (docId: string, fields: OcrField[]) => {
     setDocuments((prev) =>
-      prev.map((d) => (d.id === docId ? { ...d, status: "VERIFIED" as const, ocrData: fields } : d))
+      prev.map((d) => (d.id === docId ? { ...d, status: "VERIFIED" as const, ocrData: fields, autoDecisionStatus: "AUTO_ACCEPT" as const } : d))
     );
     toast.success("ยืนยันข้อมูล OCR แล้ว");
     setVerifyDoc(null);
+  };
+
+  // Reject from verify modal
+  const handleVerifyReject = (docId: string) => {
+    setDocuments((prev) =>
+      prev.map((d) => (d.id === docId ? { ...d, status: "REJECTED" as const } : d))
+    );
+    toast.info("เอกสารถูกปฏิเสธ");
+    setVerifyDoc(null);
+  };
+
+  // Re-run OCR from verify modal
+  const handleVerifyRerunOcr = (docId: string) => {
+    setVerifyDoc(null);
+    const doc = documents.find((d) => d.id === docId);
+    if (doc) handleOcr(doc);
+  };
+
+  // Manual expense creation for OCR_FAILED docs
+  const handleManualExpense = () => {
+    navigate("/claims/create", { state: { isManualExpense: true } });
   };
 
   const handleDelete = (id: string) => {
@@ -122,7 +165,7 @@ export default function UploadDocument() {
     setSelectedIds((prev) => prev.length === documents.length ? [] : documents.map((d) => d.id));
   };
 
-  // Create Claim flow
+  // Create Claim flow with eligibility check
   const handleCreateClaim = () => {
     const selected = documents.filter((d) => selectedIds.includes(d.id));
     if (selected.length === 0) {
@@ -130,6 +173,21 @@ export default function UploadDocument() {
       return;
     }
 
+    // Check for already-used documents
+    const usedDocs = selected.filter((d) => d.status === "USED_IN_CLAIM");
+    if (usedDocs.length > 0) {
+      toast.error("เอกสารบางรายการถูกใช้ใน Claim แล้ว กรุณายกเลิกการเลือก");
+      return;
+    }
+
+    // Check for rejected documents
+    const rejectedDocs = selected.filter((d) => d.status === "REJECTED");
+    if (rejectedDocs.length > 0) {
+      toast.error("เอกสารที่ถูก Reject ไม่สามารถนำไปสร้าง Claim ได้");
+      return;
+    }
+
+    // Only VERIFIED and AUTO_ACCEPT are eligible
     const eligible = selected.filter((d) => d.status === "VERIFIED");
     const ineligible = selected.filter((d) => d.status !== "VERIFIED");
 
@@ -144,6 +202,11 @@ export default function UploadDocument() {
   };
 
   const navigateWithDocs = (docs: UploadedDoc[]) => {
+    // Mark docs as USED_IN_CLAIM
+    const docIds = docs.map((d) => d.id);
+    setDocuments((prev) =>
+      prev.map((d) => docIds.includes(d.id) ? { ...d, status: "USED_IN_CLAIM" as const, linkedClaimId: `CLM-${Date.now()}` } : d)
+    );
     setEligibilityModal(false);
     navigate("/claims/create", { state: { selectedDocs: docs } });
   };
@@ -172,14 +235,15 @@ export default function UploadDocument() {
         onPreview={(doc) => setPreviewDoc(doc)}
         onDelete={handleDelete}
         onCreateClaim={handleCreateClaim}
+        onManualExpense={handleManualExpense}
       />
 
       {/* Info Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
         {[
           { icon: FileText, title: "Supported Formats", desc: "PDF, JPG, PNG files up to 20MB each" },
-          { icon: Zap, title: "AI Extraction", desc: "Documents are automatically processed for data extraction" },
-          { icon: CheckCircle, title: "Review & Export", desc: "Review extracted data and export to Excel or JSON" },
+          { icon: Zap, title: "AI Extraction", desc: "Documents are automatically processed with confidence scoring" },
+          { icon: CheckCircle, title: "Decision Engine", desc: "Auto-accept ≥90%, Verify 70-89%, Reject <70% confidence" },
         ].map((item) => (
           <Card key={item.title}>
             <CardContent className="p-4 flex items-start gap-3">
@@ -207,7 +271,13 @@ export default function UploadDocument() {
       </Card>
 
       {/* Verify Modal */}
-      <VerifyModal doc={verifyDoc} onClose={() => setVerifyDoc(null)} onConfirm={handleVerifyConfirm} />
+      <VerifyModal
+        doc={verifyDoc}
+        onClose={() => setVerifyDoc(null)}
+        onConfirm={handleVerifyConfirm}
+        onReject={handleVerifyReject}
+        onRerunOcr={handleVerifyRerunOcr}
+      />
 
       {/* Preview Modal */}
       <Dialog open={!!previewDoc} onOpenChange={(open) => !open && setPreviewDoc(null)}>

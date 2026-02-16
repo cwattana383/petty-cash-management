@@ -5,8 +5,9 @@ import { Checkbox } from "@/components/ui/checkbox";
 import {
   Table, TableBody, TableCell, TableHead, TableHeader, TableRow,
 } from "@/components/ui/table";
-import { FileText, Eye, Zap, Trash2, Loader2, ClipboardList } from "lucide-react";
+import { FileText, Eye, Zap, Trash2, Loader2, ClipboardList, PenLine, ShieldCheck, ShieldX, ShieldAlert } from "lucide-react";
 import { UploadedDoc, STATUS_CONFIG, formatFileSize, formatDate } from "@/lib/upload-types";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 
 interface DocumentTableProps {
   documents: UploadedDoc[];
@@ -18,6 +19,7 @@ interface DocumentTableProps {
   onPreview: (doc: UploadedDoc) => void;
   onDelete: (id: string) => void;
   onCreateClaim: () => void;
+  onManualExpense: () => void;
 }
 
 function StatusBadge({ status }: { status: UploadedDoc["status"] }) {
@@ -30,14 +32,54 @@ function StatusBadge({ status }: { status: UploadedDoc["status"] }) {
   );
 }
 
+function DecisionBadge({ doc }: { doc: UploadedDoc }) {
+  if (!doc.autoDecisionStatus) return null;
+  const config = {
+    AUTO_ACCEPT: { icon: ShieldCheck, label: "Auto Accept", className: "text-green-600" },
+    NEED_VERIFY: { icon: ShieldAlert, label: "Need Verify", className: "text-orange-600" },
+    AUTO_REJECT: { icon: ShieldX, label: "Auto Reject", className: "text-red-600" },
+  };
+  const c = config[doc.autoDecisionStatus];
+  return (
+    <TooltipProvider>
+      <Tooltip>
+        <TooltipTrigger>
+          <div className={`flex items-center gap-1 text-xs ${c.className}`}>
+            <c.icon className="h-3.5 w-3.5" />
+            <span>{c.label}</span>
+          </div>
+        </TooltipTrigger>
+        <TooltipContent>
+          <p>Confidence: {doc.ocrConfidenceScore ?? "N/A"}%</p>
+          {doc.errorType && <p>Error: {doc.errorType}</p>}
+        </TooltipContent>
+      </Tooltip>
+    </TooltipProvider>
+  );
+}
+
+function ConfidenceBar({ score }: { score?: number }) {
+  if (score == null) return <span className="text-xs text-muted-foreground">—</span>;
+  const color = score >= 90 ? "bg-green-500" : score >= 70 ? "bg-orange-500" : "bg-red-500";
+  return (
+    <div className="flex items-center gap-2">
+      <div className="w-16 h-1.5 bg-muted rounded-full overflow-hidden">
+        <div className={`h-full rounded-full ${color}`} style={{ width: `${score}%` }} />
+      </div>
+      <span className="text-xs font-medium">{score}%</span>
+    </div>
+  );
+}
+
 export default function DocumentTable({
   documents, selectedIds, onToggleSelect, onToggleSelectAll,
-  onVerify, onOcr, onPreview, onDelete, onCreateClaim,
+  onVerify, onOcr, onPreview, onDelete, onCreateClaim, onManualExpense,
 }: DocumentTableProps) {
   if (documents.length === 0) return null;
 
   const allSelected = selectedIds.length === documents.length && documents.length > 0;
   const someSelected = selectedIds.length > 0 && selectedIds.length < documents.length;
+  const hasFailedDocs = documents.some((d) => d.status === "OCR_FAILED" || d.status === "FAILED");
 
   return (
     <Card>
@@ -56,6 +98,12 @@ export default function DocumentTable({
             <span className="text-sm text-muted-foreground">
               Selected: {selectedIds.length} / {documents.length}
             </span>
+            {hasFailedDocs && (
+              <Button variant="outline" onClick={onManualExpense} className="gap-1.5">
+                <PenLine className="h-4 w-4" />
+                สร้างรายการแบบ Manual
+              </Button>
+            )}
             <Button
               onClick={onCreateClaim}
               disabled={selectedIds.length === 0}
@@ -79,6 +127,8 @@ export default function DocumentTable({
                 <TableHead>Filename</TableHead>
                 <TableHead>Size</TableHead>
                 <TableHead>OCR Status</TableHead>
+                <TableHead>Confidence</TableHead>
+                <TableHead>Decision</TableHead>
                 <TableHead>Uploaded</TableHead>
                 <TableHead className="text-right">Action</TableHead>
               </TableRow>
@@ -102,6 +152,8 @@ export default function DocumentTable({
                   </TableCell>
                   <TableCell className="text-sm text-muted-foreground">{formatFileSize(doc.size)}</TableCell>
                   <TableCell><StatusBadge status={doc.status} /></TableCell>
+                  <TableCell><ConfidenceBar score={doc.ocrConfidenceScore} /></TableCell>
+                  <TableCell><DecisionBadge doc={doc} /></TableCell>
                   <TableCell className="text-sm text-muted-foreground">{formatDate(doc.uploadedAt)}</TableCell>
                   <TableCell>
                     <div className="flex items-center justify-end gap-1">
@@ -112,8 +164,8 @@ export default function DocumentTable({
                         </Button>
                       )}
 
-                      {/* Retry OCR: only FAILED */}
-                      {doc.status === "FAILED" && (
+                      {/* Retry OCR: FAILED or OCR_FAILED */}
+                      {(doc.status === "FAILED" || doc.status === "OCR_FAILED") && (
                         <Button variant="outline" size="sm" className="gap-1 text-xs" onClick={() => onOcr(doc)}>
                           <Zap className="h-3.5 w-3.5" /> Retry OCR
                         </Button>
@@ -126,9 +178,8 @@ export default function DocumentTable({
                         </Button>
                       )}
 
-
-                      {/* Delete: always available except processing */}
-                      {doc.status !== "OCR_PROCESSING" && (
+                      {/* Delete: always available except processing and used */}
+                      {doc.status !== "OCR_PROCESSING" && doc.status !== "USED_IN_CLAIM" && (
                         <Button variant="outline" size="sm" className="gap-1 text-xs text-destructive hover:text-destructive" onClick={() => onDelete(doc.id)}>
                           <Trash2 className="h-3.5 w-3.5" /> Delete
                         </Button>

@@ -2,8 +2,8 @@ import {
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { AlertTriangle } from "lucide-react";
-import { UploadedDoc } from "@/lib/upload-types";
+import { AlertTriangle, ShieldX } from "lucide-react";
+import { UploadedDoc, STATUS_CONFIG } from "@/lib/upload-types";
 
 interface EligibilityModalProps {
   open: boolean;
@@ -25,17 +25,25 @@ export default function EligibilityModal({
             Ineligible Documents
           </DialogTitle>
           <DialogDescription>
-            Some selected documents are not VERIFIED and cannot be included in a claim.
+            กรุณายืนยันเอกสารให้เรียบร้อยก่อนสร้างรายการเบิก เฉพาะเอกสารที่ผ่านการ Verify แล้วเท่านั้นที่สามารถใช้ได้
           </DialogDescription>
         </DialogHeader>
 
         <div className="space-y-2 max-h-40 overflow-y-auto">
-          {ineligibleDocs.map((doc) => (
-            <div key={doc.id} className="flex items-center justify-between text-sm p-2 rounded bg-muted">
-              <span className="truncate max-w-[250px]">{doc.name}</span>
-              <span className="text-xs text-muted-foreground uppercase">{doc.status}</span>
-            </div>
-          ))}
+          {ineligibleDocs.map((doc) => {
+            const cfg = STATUS_CONFIG[doc.status];
+            return (
+              <div key={doc.id} className="flex items-center justify-between text-sm p-2 rounded bg-muted">
+                <span className="truncate max-w-[200px]">{doc.name}</span>
+                <div className="flex items-center gap-2">
+                  <span className={`text-xs px-2 py-0.5 rounded ${cfg.badgeClass}`}>{cfg.label}</span>
+                  {doc.ocrConfidenceScore != null && (
+                    <span className="text-xs text-muted-foreground">{doc.ocrConfidenceScore}%</span>
+                  )}
+                </div>
+              </div>
+            );
+          })}
         </div>
 
         <DialogFooter className="flex-col sm:flex-row gap-2">
