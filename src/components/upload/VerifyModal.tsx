@@ -40,7 +40,7 @@ export default function VerifyModal({ doc, onClose, onConfirm, onReject, onRerun
   });
 
   const [amount, setAmount] = useState<AmountData>({
-    subtotal: 0, vatRate: "7", vatAmount: 0, whtAmount: 0, grandTotal: 0,
+    subtotal: 0, vatRate: "7", vatAmount: 0, whtCode: "", whtAmount: 0, grandTotal: 0,
   });
 
   const [lines, setLines] = useState<LineItem[]>([]);
@@ -71,6 +71,7 @@ export default function VerifyModal({ doc, onClose, onConfirm, onReject, onRerun
     const subtotal = parseNum(getOcrValue(f, "จำนวนเงิน"));
     const taxRate = parseFloat(getOcrValue(f, "อัตราภาษี")) || 0;
     const vatAmt = parseNum(getOcrValue(f, "VAT Amount"));
+    const whtCode = getOcrValue(f, "WHT Code");
     const whtAmt = parseNum(getOcrValue(f, "WHT Amount"));
     const calcVat = taxRate > 0 ? Math.round(subtotal * (taxRate / 100) * 100) / 100 : vatAmt;
 
@@ -78,6 +79,7 @@ export default function VerifyModal({ doc, onClose, onConfirm, onReject, onRerun
       subtotal,
       vatRate: taxRate === 7 ? "7" : taxRate === 0 ? "0" : "7",
       vatAmount: vatAmt || calcVat,
+      whtCode: whtCode || "",
       whtAmount: whtAmt,
       grandTotal: Math.round((subtotal + (vatAmt || calcVat) - whtAmt) * 100) / 100,
     });
