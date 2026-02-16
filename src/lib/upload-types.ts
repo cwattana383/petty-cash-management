@@ -45,7 +45,7 @@ export const mockOcrFields: OcrField[] = [
 export function generateMockOcrWithConfidence(): { fields: OcrField[]; avgConfidence: number } {
   const baseFields = mockOcrFields.map((f) => ({
     ...f,
-    confidence: Math.min(100, Math.max(40, f.confidence + (Math.random() * 30 - 15))),
+    confidence: parseFloat(Math.min(100, Math.max(40, f.confidence + (Math.random() * 30 - 15))).toFixed(2)),
   }));
   const avg = Math.round(baseFields.reduce((sum, f) => sum + f.confidence, 0) / baseFields.length);
   return { fields: baseFields, avgConfidence: avg };
