@@ -66,7 +66,7 @@ export default function CreateClaim() {
     company: "ABC Co., Ltd.",
     telephone: currentUser.telephone || "",
     email: currentUser.email,
-    division: currentUser.department,
+    division: "92029 : Finance & Accounting",
   });
 
   // Advance info
@@ -137,7 +137,7 @@ export default function CreateClaim() {
     store: currentUser.branch,
     company: "ABC Co., Ltd.",
     email: currentUser.email,
-    division: currentUser.department,
+    division: "92029 : Finance & Accounting",
   };
 
   return (
@@ -181,7 +181,7 @@ export default function CreateClaim() {
         company="ABC Co., Ltd."
         telephone={currentUser.telephone || "-"}
         email={currentUser.email}
-        division={currentUser.department}
+        division="92029 : Finance & Accounting"
       />
 
       {/* 3) Requester Information */}
