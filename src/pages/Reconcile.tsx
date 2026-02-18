@@ -129,6 +129,48 @@ export default function Reconcile() {
     toast.success("Matched successfully!");
   };
 
+  const handleAutoReconcile = useCallback(() => {
+    const unmatchedBank = bankLines.filter((b) => b.reconciliationStatus === "Unmatched");
+    const unmatchedSys = systemTxns.filter((s) => s.reconciliationStatus === "Unmatched");
+    const usedSysIds = new Set<string>();
+    const newLinks: ReconciliationLink[] = [];
+    const matchedBankIdSet = new Set<string>();
+    const matchedSysIdSet = new Set<string>();
+
+    for (const bank of unmatchedBank) {
+      const match = unmatchedSys.find((sys) =>
+        !usedSysIds.has(sys.id) &&
+        sys.transactionDate === bank.transactionDate &&
+        sys.merchantName.toLowerCase() === bank.merchantName.toLowerCase() &&
+        sys.amount === bank.amount
+      );
+      if (match) {
+        usedSysIds.add(match.id);
+        matchedBankIdSet.add(bank.id);
+        matchedSysIdSet.add(match.id);
+        newLinks.push({
+          id: `LINK-${Date.now()}-${bank.id}`,
+          bankStatementLineId: bank.id,
+          systemTransactionId: match.id,
+          matchedAt: new Date().toISOString(),
+          matchedBy: "Auto Reconcile",
+          status: "Matched",
+          varianceAmount: 0,
+        });
+      }
+    }
+
+    if (newLinks.length === 0) {
+      toast.info("ไม่พบรายการที่ตรงกัน (วันที่, Merchant, Amount ต้องตรงกันทั้งหมด)");
+      return;
+    }
+
+    setLinks((prev) => [...prev, ...newLinks]);
+    setBankLines((prev) => prev.map((b) => matchedBankIdSet.has(b.id) ? { ...b, reconciliationStatus: "Matched" as const } : b));
+    setSystemTxns((prev) => prev.map((s) => matchedSysIdSet.has(s.id) ? { ...s, reconciliationStatus: "Matched" as const } : s));
+    toast.success(`Auto Reconcile สำเร็จ! จับคู่ได้ ${newLinks.length} รายการ`);
+  }, [bankLines, systemTxns]);
+
   const handleUnmatch = (link: ReconciliationLink) => {
     if (!window.confirm("Are you sure you want to unmatch this pair? This will be recorded in the audit trail.")) return;
     setLinks((prev) => prev.filter((l) => l.id !== link.id));
@@ -187,7 +229,7 @@ export default function Reconcile() {
         </TabsList>
 
         <div className="mt-4">
-          <ReconciliationFilterPanel filters={filters} onChange={setFilters} />
+          <ReconciliationFilterPanel filters={filters} onChange={setFilters} onAutoReconcile={handleAutoReconcile} />
         </div>
 
         <TabsContent value="unreconciled">
