@@ -210,6 +210,10 @@ export default function CreateClaim() {
               <TableHeader>
                 <TableRow>
                   <TableHead className="w-10">#</TableHead>
+                  <TableHead>Invoice Date</TableHead>
+                  <TableHead>Invoice Number</TableHead>
+                  <TableHead>Supplier Name</TableHead>
+                  <TableHead>Account Code</TableHead>
                   <TableHead>Description</TableHead>
                   <TableHead>Expense Type</TableHead>
                   <TableHead>Total Amount</TableHead>
@@ -229,6 +233,10 @@ export default function CreateClaim() {
                   return (
                     <TableRow key={doc.id}>
                       <TableCell className="text-muted-foreground">{idx + 1}</TableCell>
+                      <TableCell className="text-sm">—</TableCell>
+                      <TableCell className="text-sm">—</TableCell>
+                      <TableCell className="text-sm">—</TableCell>
+                      <TableCell className="text-sm">—</TableCell>
                       <TableCell>
                         <div className="flex items-center gap-2">
                           <FileText className="h-4 w-4 text-primary shrink-0" />
@@ -253,6 +261,18 @@ export default function CreateClaim() {
                 {manualLines.map((line, idx) => (
                   <TableRow key={line.id}>
                     <TableCell className="text-muted-foreground">{initialDocs.length + idx + 1}</TableCell>
+                    <TableCell>
+                      <Input placeholder="วันที่..." className="h-8 text-sm w-24" />
+                    </TableCell>
+                    <TableCell>
+                      <Input placeholder="เลขที่..." className="h-8 text-sm w-24" />
+                    </TableCell>
+                    <TableCell>
+                      <Input placeholder="ชื่อผู้ขาย..." className="h-8 text-sm w-28" />
+                    </TableCell>
+                    <TableCell>
+                      <Input placeholder="รหัสบัญชี..." className="h-8 text-sm w-24" />
+                    </TableCell>
                     <TableCell>
                       <Input
                         placeholder="รายละเอียด..."
@@ -332,7 +352,7 @@ export default function CreateClaim() {
                 ))}
                 {initialDocs.length === 0 && manualLines.length === 0 && (
                   <TableRow>
-                    <TableCell colSpan={11} className="text-center text-muted-foreground py-8">
+                    <TableCell colSpan={15} className="text-center text-muted-foreground py-8">
                       ยังไม่มีรายการ — กด "+ Add Item" เพื่อเพิ่มรายการ
                     </TableCell>
                   </TableRow>
