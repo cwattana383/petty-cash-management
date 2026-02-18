@@ -155,7 +155,7 @@ export default function CreateClaim() {
           </Button>
           <div>
             <h1 className="text-2xl font-bold text-foreground">
-              {isManualExpense ? "Create Manual Expense" : "Create Monthly Expense"}
+              {isManualExpense ? "Create Manual Expense" : "Create Expense"}
             </h1>
             <p className="text-muted-foreground text-sm">
               {isManualExpense ? "กรอกข้อมูลรายการเบิกด้วยตนเอง (ไม่ผูกกับเอกสาร)" : "Fill in expense request details"}
