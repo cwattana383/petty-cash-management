@@ -228,6 +228,7 @@ export default function CreateClaim() {
                   <TableHead className="w-10">#</TableHead>
                   <TableHead>Invoice Date</TableHead>
                   <TableHead>Invoice Number</TableHead>
+                  <TableHead>Attached File</TableHead>
                   <TableHead>Payment Method</TableHead>
                   <TableHead>Supplier Name</TableHead>
                   <TableHead>Account Code</TableHead>
@@ -254,6 +255,12 @@ export default function CreateClaim() {
                       <TableCell className="text-sm">—</TableCell>
                       <TableCell className="text-sm">—</TableCell>
                       <TableCell className="text-sm">—</TableCell>
+                      <TableCell>
+                        <div className="flex items-center gap-2">
+                          <FileText className="h-4 w-4 text-primary shrink-0" />
+                          <span className="text-sm text-blue-600 underline truncate max-w-[120px]">{doc.name}</span>
+                        </div>
+                      </TableCell>
                       <TableCell className="text-sm">—</TableCell>
                       <TableCell>
                         <div className="flex items-center gap-2">
@@ -304,6 +311,9 @@ export default function CreateClaim() {
                     </TableCell>
                     <TableCell>
                       <Input placeholder="เลขที่..." className="h-8 text-sm w-24" />
+                    </TableCell>
+                    <TableCell>
+                      <span className="text-sm text-muted-foreground">—</span>
                     </TableCell>
                     <TableCell>
                       <Select value={line.paymentMethod} onValueChange={(v) => updateManualLine(line.id, "paymentMethod", v)}>
@@ -424,7 +434,7 @@ export default function CreateClaim() {
                 ))}
                 {initialDocs.length === 0 && manualLines.length === 0 && (
                   <TableRow>
-                    <TableCell colSpan={16} className="text-center text-muted-foreground py-8">
+                    <TableCell colSpan={17} className="text-center text-muted-foreground py-8">
                       ยังไม่มีรายการ — กด "+ Add Item" เพื่อเพิ่มรายการ
                     </TableCell>
                   </TableRow>
@@ -432,6 +442,7 @@ export default function CreateClaim() {
                 {/* Totals row */}
                 {(initialDocs.length > 0 || manualLines.length > 0) && (
                   <TableRow className="bg-muted/50 font-semibold">
+                    <TableCell></TableCell>
                     <TableCell></TableCell>
                     <TableCell></TableCell>
                     <TableCell></TableCell>
