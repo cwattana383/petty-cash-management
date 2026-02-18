@@ -224,9 +224,9 @@ export default function CreateClaim() {
                   <TableHead>Account Code</TableHead>
                   <TableHead>Description</TableHead>
                   <TableHead>Expense Type</TableHead>
-                  <TableHead>Total Amount</TableHead>
                   <TableHead>Amount</TableHead>
                   <TableHead>VAT Code</TableHead>
+                  <TableHead>Total Amount</TableHead>
                   <TableHead>VAT Amount</TableHead>
                   <TableHead>WHT Code</TableHead>
                   <TableHead>WHT Amount</TableHead>
@@ -252,9 +252,9 @@ export default function CreateClaim() {
                         </div>
                       </TableCell>
                       <TableCell className="text-sm">—</TableCell>
-                      <TableCell className="font-medium">—</TableCell>
                       <TableCell className="font-medium">{amountField ? amountField.value : "—"}</TableCell>
                       <TableCell className="text-sm">{doc.ocrData?.find((f) => f.label === "VAT Code")?.value || "—"}</TableCell>
+                      <TableCell className="font-medium">—</TableCell>
                       <TableCell className="text-sm font-medium">{doc.ocrData?.find((f) => f.label === "VAT Amount")?.value || "—"}</TableCell>
                       <TableCell className="text-sm">{doc.ocrData?.find((f) => f.label === "WHT Code")?.value || "—"}</TableCell>
                       <TableCell className="text-sm font-medium">{doc.ocrData?.find((f) => f.label === "WHT Amount")?.value || "—"}</TableCell>
@@ -313,13 +313,6 @@ export default function CreateClaim() {
                     <TableCell>
                       <Input
                         type="number" min={0} step="0.01"
-                        placeholder="—"
-                        className="h-8 text-sm w-28"
-                      />
-                    </TableCell>
-                    <TableCell>
-                      <Input
-                        type="number" min={0} step="0.01"
                         value={line.amount || ""}
                         onChange={(e) => updateManualLine(line.id, "amount", parseFloat(e.target.value) || 0)}
                         className="h-8 text-sm w-28"
@@ -331,6 +324,13 @@ export default function CreateClaim() {
                         value={line.vatCode}
                         onChange={(e) => updateManualLine(line.id, "vatCode", e.target.value)}
                         className="h-8 text-sm w-16"
+                      />
+                    </TableCell>
+                    <TableCell>
+                      <Input
+                        type="number" min={0} step="0.01"
+                        placeholder="—"
+                        className="h-8 text-sm w-28"
                       />
                     </TableCell>
                     <TableCell>
