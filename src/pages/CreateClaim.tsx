@@ -189,12 +189,7 @@ export default function CreateClaim() {
         onChange={setRequester}
       />
 
-      {/* 4) Advance Information */}
-      <AdvanceInformation
-        data={advance}
-        onChange={setAdvance}
-        errors={advanceErrors}
-      />
+      {/* 4) Advance Information - hidden */}
 
       {/* 5) Expense List */}
       <Card>
