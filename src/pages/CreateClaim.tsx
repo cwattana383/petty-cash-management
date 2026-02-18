@@ -61,12 +61,12 @@ export default function CreateClaim() {
   const [requester, setRequester] = useState<RequesterData>({
     requestType: "Owner",
     employeeId: "",
-    employee: currentUser.name,
+    employee: "สมชาย ใจดี",
     store: currentUser.branch,
-    company: "ABC Co., Ltd.",
-    telephone: currentUser.telephone || "",
-    email: currentUser.email,
-    division: "92029 : Finance & Accounting",
+    company: "บริษัท ซีพี แอ็กซ์ตร้า จำกัด (มหาชน)",
+    telephone: "0657778899",
+    email: "somchai@cpaxtra.co.th",
+    division: "92029 – Accounting",
   });
 
   // Advance info
