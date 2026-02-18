@@ -227,8 +227,8 @@ export default function CreateClaim() {
                   <TableHead>Expense Type</TableHead>
                   <TableHead>Amount</TableHead>
                   <TableHead>VAT Code</TableHead>
-                  <TableHead>Total Amount</TableHead>
                   <TableHead>VAT Amount</TableHead>
+                  <TableHead>Total Amount</TableHead>
                   <TableHead>WHT Code</TableHead>
                   <TableHead>WHT Amount</TableHead>
                   <TableHead>Status</TableHead>
@@ -255,8 +255,8 @@ export default function CreateClaim() {
                       <TableCell className="text-sm">—</TableCell>
                       <TableCell className="font-medium">{amountField ? amountField.value : "—"}</TableCell>
                       <TableCell className="text-sm">{doc.ocrData?.find((f) => f.label === "VAT Code")?.value || "—"}</TableCell>
-                      <TableCell className="font-medium">—</TableCell>
                       <TableCell className="text-sm font-medium">{doc.ocrData?.find((f) => f.label === "VAT Amount")?.value || "—"}</TableCell>
+                      <TableCell className="font-medium">—</TableCell>
                       <TableCell className="text-sm">{doc.ocrData?.find((f) => f.label === "WHT Code")?.value || "—"}</TableCell>
                       <TableCell className="text-sm font-medium">{doc.ocrData?.find((f) => f.label === "WHT Amount")?.value || "—"}</TableCell>
                       <TableCell>
@@ -328,16 +328,16 @@ export default function CreateClaim() {
                     </TableCell>
                     <TableCell>
                       <CurrencyInput
-                        value={0}
-                        onChange={() => {}}
-                        placeholder="—"
+                        value={line.vatAmount}
+                        onChange={(v) => updateManualLine(line.id, "vatAmount", v)}
                         className="h-8 text-sm w-28"
                       />
                     </TableCell>
                     <TableCell>
                       <CurrencyInput
-                        value={line.vatAmount}
-                        onChange={(v) => updateManualLine(line.id, "vatAmount", v)}
+                        value={0}
+                        onChange={() => {}}
+                        placeholder="—"
                         className="h-8 text-sm w-28"
                       />
                     </TableCell>
