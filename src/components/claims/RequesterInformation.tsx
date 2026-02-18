@@ -84,23 +84,6 @@ export default function RequesterInformation({ data, creatorData, onChange }: Re
         <CardTitle className="text-base">Requester Information</CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
-        <div>
-          <Label>Request Type *</Label>
-          <RadioGroup
-            value={data.requestType}
-            onValueChange={(v) => handleTypeChange(v as RequestType)}
-            className="flex gap-6 mt-2"
-          >
-            <div className="flex items-center space-x-2">
-              <RadioGroupItem value="Owner" id="req-owner" />
-              <Label htmlFor="req-owner" className="font-normal cursor-pointer">Owner</Label>
-            </div>
-            <div className="flex items-center space-x-2">
-              <RadioGroupItem value="Other" id="req-other" />
-              <Label htmlFor="req-other" className="font-normal cursor-pointer">Other</Label>
-            </div>
-          </RadioGroup>
-        </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
           <div>
