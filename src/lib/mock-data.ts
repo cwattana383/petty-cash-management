@@ -26,7 +26,7 @@ export const users: User[] = [
 export const mockClaims: ClaimHeader[] = [
   {
     id: "c1", claimNo: "EC-2025-001", requesterId: "u1", requesterName: "สมชาย ใจดี",
-    company: "ABC Co., Ltd.", branch: "Bangkok", department: "Sales", costCenter: "CC-SALES-01",
+    company: "ABC Co., Ltd.", branch: "Bangkok", department: "9993010460 Finance and Accounting", costCenter: "CC-SALES-01",
     purpose: "Business Travel - Bangkok to Chiang Mai", currency: "THB", paymentMethod: "Corporate Card",
     totalAmount: 15200, totalVat: 1065, status: "Approved", createdDate: "2025-01-15", submittedDate: "2025-01-15",
     lines: [
@@ -41,7 +41,7 @@ export const mockClaims: ClaimHeader[] = [
   },
   {
     id: "c2", claimNo: "EC-2025-002", requesterId: "u1", requesterName: "สมชาย ใจดี",
-    company: "ABC Co., Ltd.", branch: "Bangkok", department: "Sales", costCenter: "CC-SALES-01",
+    company: "ABC Co., Ltd.", branch: "Bangkok", department: "9993010460 Finance and Accounting", costCenter: "CC-SALES-01",
     purpose: "Client Meeting Lunch", currency: "THB", paymentMethod: "Cash",
     totalAmount: 2800, totalVat: 196, status: "Pending Approval", createdDate: "2025-01-20", submittedDate: "2025-01-20",
     lines: [
@@ -54,7 +54,7 @@ export const mockClaims: ClaimHeader[] = [
   },
   {
     id: "c3", claimNo: "EC-2025-003", requesterId: "u1", requesterName: "สมชาย ใจดี",
-    company: "ABC Co., Ltd.", branch: "Bangkok", department: "Sales", costCenter: "CC-SALES-01",
+    company: "ABC Co., Ltd.", branch: "Bangkok", department: "9993010460 Finance and Accounting", costCenter: "CC-SALES-01",
     purpose: "Office Supplies Purchase", currency: "THB", paymentMethod: "Personal Card",
     totalAmount: 4500, totalVat: 315, status: "Draft", createdDate: "2025-02-01", submittedDate: null,
     lines: [
@@ -66,7 +66,7 @@ export const mockClaims: ClaimHeader[] = [
   },
   {
     id: "c4", claimNo: "EC-2025-004", requesterId: "u1", requesterName: "สมชาย ใจดี",
-    company: "ABC Co., Ltd.", branch: "Bangkok", department: "Sales", costCenter: "CC-SALES-01",
+    company: "ABC Co., Ltd.", branch: "Bangkok", department: "9993010460 Finance and Accounting", costCenter: "CC-SALES-01",
     purpose: "Taxi to Airport", currency: "THB", paymentMethod: "Cash",
     totalAmount: 850, totalVat: 0, status: "Rejected", createdDate: "2025-02-05", submittedDate: "2025-02-05",
     lines: [
@@ -79,7 +79,7 @@ export const mockClaims: ClaimHeader[] = [
   },
   {
     id: "c5", claimNo: "EC-2025-005", requesterId: "u1", requesterName: "สมชาย ใจดี",
-    company: "ABC Co., Ltd.", branch: "Bangkok", department: "Sales", costCenter: "CC-SALES-01",
+    company: "ABC Co., Ltd.", branch: "Bangkok", department: "9993010460 Finance and Accounting", costCenter: "CC-SALES-01",
     purpose: "Conference Registration", currency: "THB", paymentMethod: "Bank Transfer",
     totalAmount: 25000, totalVat: 1750, status: "Need Info", createdDate: "2025-02-08", submittedDate: "2025-02-08",
     lines: [
@@ -92,7 +92,7 @@ export const mockClaims: ClaimHeader[] = [
   },
   {
     id: "c6", claimNo: "EC-2025-006", requesterId: "u3", requesterName: "วิชัย เจริญ",
-    company: "ABC Co., Ltd.", branch: "Chiang Mai", department: "Engineering", costCenter: "CC-ENG-01",
+    company: "ABC Co., Ltd.", branch: "Chiang Mai", department: "9993010460 Finance and Accounting", costCenter: "CC-ENG-01",
     purpose: "Software License Renewal", currency: "THB", paymentMethod: "Corporate Card",
     totalAmount: 12000, totalVat: 840, status: "Pending Approval", accountingStatus: "Pending Review", createdDate: "2025-02-08", submittedDate: "2025-02-08",
     lines: [
