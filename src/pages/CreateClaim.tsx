@@ -210,7 +210,7 @@ export default function CreateClaim() {
               <TableHeader>
                 <TableRow>
                   <TableHead className="w-10">#</TableHead>
-                  <TableHead>Description / Document</TableHead>
+                  <TableHead>Description</TableHead>
                   <TableHead>Expense Type</TableHead>
                   <TableHead>Total Amount</TableHead>
                   <TableHead>Amount</TableHead>
