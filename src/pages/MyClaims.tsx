@@ -1,299 +1,255 @@
-import { useState, useMemo } from "react";
-import { useNavigate } from "react-router-dom";
-import { Card, CardContent } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Plus, Search, Eye, ChevronDown, CreditCard, FileText, AlertTriangle, Link2, CheckCircle2, Clock, Upload } from "lucide-react";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
-import { useClaims } from "@/lib/claims-context";
-import { getUnifiedExpenses, UnifiedExpenseItem, mockCorpCardTransactions } from "@/lib/unified-expenses";
-import TransactionDrawer from "@/components/claims/TransactionDrawer";
-import SelectTransactionModal from "@/components/claims/SelectTransactionModal";
-
-const statusColors: Record<string, string> = {
-  Draft: "bg-muted text-muted-foreground",
-  "Pending Submit": "bg-orange-100 text-orange-800",
-  "Pending Approval": "bg-yellow-100 text-yellow-800",
-  Approved: "bg-green-100 text-green-800",
-  Rejected: "bg-red-100 text-red-800",
-  "Need Info": "bg-blue-100 text-blue-800",
-  "Payroll Deduction": "bg-indigo-100 text-indigo-800",
-  Reconciled: "bg-purple-100 text-purple-800",
-  Paid: "bg-emerald-100 text-emerald-800",
-};
-
-const reconcileColors: Record<string, string> = {
-  "Not Submitted": "bg-muted text-muted-foreground",
-  "Pending Reconcile": "bg-yellow-100 text-yellow-800",
-  Matched: "bg-green-100 text-green-800",
-  "Amount Mismatch": "bg-red-100 text-red-800",
-  "Employee Payable": "bg-orange-100 text-orange-800",
-  "—": "bg-transparent text-muted-foreground",
-};
+import { useState, useMemo, useCallback } from "react";
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
+import { toast } from "sonner";
+import { BankStatementLine, SystemTransaction, ReconciliationLink, ReconciliationFilters, defaultFilters } from "@/lib/reconciliation-types";
+import { mockBankStatementLines, mockSystemTransactions, mockReconciliationLinks } from "@/lib/reconciliation-mock-data";
+import ReconciliationFilterPanel from "@/components/reconciliation/ReconciliationFilterPanel";
+import BankStatementTable from "@/components/reconciliation/BankStatementTable";
+import SystemTransactionTable from "@/components/reconciliation/SystemTransactionTable";
+import MatchBar from "@/components/reconciliation/MatchBar";
+import MatchedPairsTable from "@/components/reconciliation/MatchedPairsTable";
+import ReconciliationDetailDrawer from "@/components/reconciliation/ReconciliationDetailDrawer";
 
 export default function MyClaims() {
-  const navigate = useNavigate();
-  const { claims } = useClaims();
-  const [search, setSearch] = useState("");
-  const [statusFilter, setStatusFilter] = useState("all");
-  const [typeFilter, setTypeFilter] = useState("all");
-  const [billingCycleFilter, setBillingCycleFilter] = useState("all");
-  const [cardFilter, setCardFilter] = useState("all");
-  const [drawerItem, setDrawerItem] = useState<UnifiedExpenseItem | null>(null);
-  const [selectTxnOpen, setSelectTxnOpen] = useState(false);
+  const [tab, setTab] = useState<"unreconciled" | "reconciled">("unreconciled");
+  const [filters, setFilters] = useState<ReconciliationFilters>(defaultFilters);
 
-  const unified = useMemo(() => getUnifiedExpenses(claims), [claims]);
+  // State data (mutable for match/unmatch)
+  const [bankLines, setBankLines] = useState<BankStatementLine[]>(mockBankStatementLines);
+  const [systemTxns, setSystemTxns] = useState<SystemTransaction[]>(mockSystemTransactions);
+  const [links, setLinks] = useState<ReconciliationLink[]>(mockReconciliationLinks);
 
-  // Summary counts
-  const counts = useMemo(() => ({
-    pendingSubmit: unified.filter((i) => i.status === "Pending Submit").length,
-    pendingApproval: unified.filter((i) => i.status === "Pending Approval").length,
-    needAction: unified.filter((i) => ["Rejected", "Need Info"].includes(i.status) || i.reconcile_status === "Amount Mismatch").length,
-    unreconciled: unified.filter((i) => i.item_type === "CORP_CARD" && !["Matched"].includes(i.reconcile_status) && i.reconcile_status !== "—").length,
-    reconciled: unified.filter((i) => i.reconcile_status === "Matched").length,
-  }), [unified]);
+  // Selection
+  const [selectedBankId, setSelectedBankId] = useState<string | null>(null);
+  const [selectedSysTxnId, setSelectedSysTxnId] = useState<string | null>(null);
 
-  // Unique billing cycles & cards
-  const billingCycles = useMemo(() => [...new Set(mockCorpCardTransactions.map((t) => t.billing_cycle))].sort(), []);
-  const cards = useMemo(() => [...new Set(mockCorpCardTransactions.map((t) => t.card_last4))].sort(), []);
+  // Drawer
+  const [drawerOpen, setDrawerOpen] = useState(false);
+  const [drawerBank, setDrawerBank] = useState<BankStatementLine | null>(null);
+  const [drawerSys, setDrawerSys] = useState<SystemTransaction | null>(null);
+  const [drawerLink, setDrawerLink] = useState<ReconciliationLink | null>(null);
 
-  // Quick filter from summary cards
-  const [quickFilter, setQuickFilter] = useState<string | null>(null);
+  // Matched IDs
+  const matchedBankIds = useMemo(() => new Set(links.map((l) => l.bankStatementLineId)), [links]);
+  const matchedSysIds = useMemo(() => new Set(links.map((l) => l.systemTransactionId)), [links]);
 
-  const filtered = useMemo(() => {
-    return unified.filter((item) => {
-      // Quick filter
-      if (quickFilter === "pendingSubmit" && item.status !== "Pending Submit") return false;
-      if (quickFilter === "pendingApproval" && item.status !== "Pending Approval") return false;
-      if (quickFilter === "needAction" && !["Rejected", "Need Info"].includes(item.status) && item.reconcile_status !== "Amount Mismatch") return false;
-      if (quickFilter === "unreconciled" && (item.item_type !== "CORP_CARD" || item.reconcile_status === "Matched" || item.reconcile_status === "—")) return false;
-      if (quickFilter === "reconciled" && item.reconcile_status !== "Matched") return false;
-
-      // Search
-      if (search) {
-        const s = search.toLowerCase();
-        const match = item.item_no.toLowerCase().includes(s)
-          || item.merchant_vendor.toLowerCase().includes(s)
-          || (item.purpose || "").toLowerCase().includes(s)
-          || (item.transaction_id || "").toLowerCase().includes(s);
-        if (!match) return false;
+  // Filter logic
+  const applyFilters = useCallback(<T extends { transactionDate: string; amount: number; merchantName: string }>(items: T[]): T[] => {
+    return items.filter((item) => {
+      if (filters.dateFrom && item.transactionDate < filters.dateFrom) return false;
+      if (filters.dateTo && item.transactionDate > filters.dateTo) return false;
+      if (filters.amountMin && item.amount < Number(filters.amountMin)) return false;
+      if (filters.amountMax && item.amount > Number(filters.amountMax)) return false;
+      if (filters.keyword) {
+        const kw = filters.keyword.toLowerCase();
+        const searchable = [
+          item.merchantName,
+          (item as any).reference || "",
+          (item as any).description || "",
+          (item as any).purpose || "",
+          (item as any).claimId || "",
+          (item as any).id || "",
+          (item as any).authorizationCode || "",
+        ].join(" ").toLowerCase();
+        if (!searchable.includes(kw)) return false;
       }
-
-      // Status dropdown
-      if (statusFilter !== "all" && item.status !== statusFilter) return false;
-
-      // Type dropdown
-      if (typeFilter === "CORP_CARD" && item.item_type !== "CORP_CARD") return false;
-      if (typeFilter === "MANUAL" && item.item_type !== "MANUAL") return false;
-
-      // Billing cycle
-      if (billingCycleFilter !== "all" && item.billing_cycle !== billingCycleFilter) return false;
-
-      // Card
-      if (cardFilter !== "all" && item.card_last4 !== cardFilter) return false;
-
       return true;
     });
-  }, [unified, search, statusFilter, typeFilter, billingCycleFilter, cardFilter, quickFilter]);
+  }, [filters]);
 
-  const handleQuickFilter = (key: string) => {
-    setQuickFilter((prev) => (prev === key ? null : key));
-    setStatusFilter("all");
-    setTypeFilter("all");
-    setBillingCycleFilter("all");
-    setCardFilter("all");
-  };
+  // Unreconciled data
+  const unreconciledBank = useMemo(() =>
+    applyFilters(bankLines.filter((b) => b.reconciliationStatus === "Unmatched")),
+  [bankLines, matchedBankIds, applyFilters]);
 
-  const handleRowClick = (item: UnifiedExpenseItem) => {
-    if (item.item_type === "MANUAL" && item.claim_id) {
-      navigate(`/claims/${item.claim_id}`);
-    } else {
-      setDrawerItem(item);
+  const unreconciledSys = useMemo(() => {
+    let items = systemTxns.filter((s) => s.reconciliationStatus === "Unmatched");
+    if (filters.transactionType !== "all") items = items.filter((s) => s.type === filters.transactionType);
+    if (filters.transactionSource !== "all") items = items.filter((s) => s.source === filters.transactionSource);
+    return applyFilters(items);
+  }, [systemTxns, matchedSysIds, filters, applyFilters]);
+
+  // Reconciled data
+  const reconciledBank = useMemo(() =>
+    applyFilters(bankLines.filter((b) => b.reconciliationStatus === "Matched")),
+  [bankLines, matchedBankIds, applyFilters]);
+
+  const reconciledSys = useMemo(() => {
+    let items = systemTxns.filter((s) => s.reconciliationStatus === "Matched");
+    if (filters.transactionType !== "all") items = items.filter((s) => s.type === filters.transactionType);
+    if (filters.transactionSource !== "all") items = items.filter((s) => s.source === filters.transactionSource);
+    return applyFilters(items);
+  }, [systemTxns, matchedSysIds, filters, applyFilters]);
+
+  // Auto-suggest: when bank line is selected, sort system txns by relevance
+  const suggestedSysTxns = useMemo(() => {
+    if (!selectedBankId || tab !== "unreconciled") return unreconciledSys;
+    const bank = bankLines.find((b) => b.id === selectedBankId);
+    if (!bank) return unreconciledSys;
+    return [...unreconciledSys].sort((a, b) => {
+      const aDiff = Math.abs(a.amount - bank.amount);
+      const bDiff = Math.abs(b.amount - bank.amount);
+      if (aDiff !== bDiff) return aDiff - bDiff;
+      const aDateDiff = Math.abs(new Date(a.transactionDate).getTime() - new Date(bank.transactionDate).getTime());
+      const bDateDiff = Math.abs(new Date(b.transactionDate).getTime() - new Date(bank.transactionDate).getTime());
+      return aDateDiff - bDateDiff;
+    });
+  }, [selectedBankId, unreconciledSys, bankLines, tab]);
+
+  // Match validation
+  const matchWarning = useMemo(() => {
+    if (!selectedBankId || !selectedSysTxnId) return null;
+    const bank = bankLines.find((b) => b.id === selectedBankId);
+    const sys = systemTxns.find((s) => s.id === selectedSysTxnId);
+    if (!bank || !sys) return null;
+    const warnings: string[] = [];
+    const pctDiff = Math.abs(bank.amount - sys.amount) / Math.max(bank.amount, sys.amount) * 100;
+    if (pctDiff > 5) warnings.push(`Amount variance: ฿${Math.abs(bank.amount - sys.amount).toLocaleString()} (${pctDiff.toFixed(1)}%)`);
+    const daysDiff = Math.abs(new Date(bank.transactionDate).getTime() - new Date(sys.transactionDate).getTime()) / (1000 * 60 * 60 * 24);
+    if (daysDiff > 7) warnings.push(`Date gap: ${daysDiff.toFixed(0)} days apart`);
+    return warnings.length ? warnings.join(" | ") : null;
+  }, [selectedBankId, selectedSysTxnId, bankLines, systemTxns]);
+
+  const handleMatch = () => {
+    if (!selectedBankId || !selectedSysTxnId) return;
+    const bank = bankLines.find((b) => b.id === selectedBankId)!;
+    const sys = systemTxns.find((s) => s.id === selectedSysTxnId)!;
+
+    if (matchWarning) {
+      const proceed = window.confirm(`Warning:\n${matchWarning}\n\nProceed with match?`);
+      if (!proceed) return;
     }
+
+    const newLink: ReconciliationLink = {
+      id: `LINK-${Date.now()}`,
+      bankStatementLineId: selectedBankId,
+      systemTransactionId: selectedSysTxnId,
+      matchedAt: new Date().toISOString(),
+      matchedBy: "สมชาย ใจดี",
+      status: "Matched",
+      varianceAmount: bank.amount - sys.amount,
+    };
+
+    setLinks((prev) => [...prev, newLink]);
+    setBankLines((prev) => prev.map((b) => b.id === selectedBankId ? { ...b, reconciliationStatus: "Matched" as const } : b));
+    setSystemTxns((prev) => prev.map((s) => s.id === selectedSysTxnId ? { ...s, reconciliationStatus: "Matched" as const } : s));
+    setSelectedBankId(null);
+    setSelectedSysTxnId(null);
+    toast.success("Matched successfully!");
   };
 
-  const handleSelectTxn = (txnId: string) => {
-    setSelectTxnOpen(false);
-    navigate(`/claims/create?transaction_id=${txnId}`);
+  const handleUnmatch = (link: ReconciliationLink) => {
+    if (!window.confirm("Are you sure you want to unmatch this pair? This will be recorded in the audit trail.")) return;
+    setLinks((prev) => prev.filter((l) => l.id !== link.id));
+    setBankLines((prev) => prev.map((b) => b.id === link.bankStatementLineId ? { ...b, reconciliationStatus: "Unmatched" as const } : b));
+    setSystemTxns((prev) => prev.map((s) => s.id === link.systemTransactionId ? { ...s, reconciliationStatus: "Unmatched" as const } : s));
+    toast.info("Pair unmatched. Audit trail recorded.");
   };
 
-  const summaryCards = [
-    { key: "pendingSubmit", label: "Pending Submit", count: counts.pendingSubmit, icon: Clock, color: "text-orange-600 bg-orange-50 border-orange-200" },
-    { key: "pendingApproval", label: "Pending Approval", count: counts.pendingApproval, icon: FileText, color: "text-yellow-700 bg-yellow-50 border-yellow-200" },
-    { key: "needAction", label: "Need Action", count: counts.needAction, icon: AlertTriangle, color: "text-red-600 bg-red-50 border-red-200" },
-    { key: "unreconciled", label: "Unreconciled", count: counts.unreconciled, icon: Link2, color: "text-blue-600 bg-blue-50 border-blue-200" },
-    { key: "reconciled", label: "Reconciled", count: counts.reconciled, icon: CheckCircle2, color: "text-green-600 bg-green-50 border-green-200" },
-  ];
+  const handleViewPair = (link: ReconciliationLink) => {
+    setDrawerBank(bankLines.find((b) => b.id === link.bankStatementLineId) || null);
+    setDrawerSys(systemTxns.find((s) => s.id === link.systemTransactionId) || null);
+    setDrawerLink(link);
+    setDrawerOpen(true);
+  };
+
+  const handleBankRowClick = (line: BankStatementLine) => {
+    setDrawerBank(line);
+    const link = links.find((l) => l.bankStatementLineId === line.id);
+    setDrawerSys(link ? systemTxns.find((s) => s.id === link.systemTransactionId) || null : null);
+    setDrawerLink(link || null);
+    setDrawerOpen(true);
+  };
+
+  const handleSysRowClick = (txn: SystemTransaction) => {
+    setDrawerSys(txn);
+    const link = links.find((l) => l.systemTransactionId === txn.id);
+    setDrawerBank(link ? bankLines.find((b) => b.id === link.bankStatementLineId) || null : null);
+    setDrawerLink(link || null);
+    setDrawerOpen(true);
+  };
+
+  const selectedBank = selectedBankId ? bankLines.find((b) => b.id === selectedBankId) || null : null;
+  const selectedSys = selectedSysTxnId ? systemTxns.find((s) => s.id === selectedSysTxnId) || null : null;
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4">
       {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold text-foreground">My Expenses & Corporate Card Transactions</h1>
-          <p className="text-muted-foreground">Manage your expenses and corporate card transactions in one place</p>
+      <div>
+        <h1 className="text-2xl font-bold text-foreground">My Expenses & Corporate Card Transactions</h1>
+        <p className="text-muted-foreground">จับคู่รายการ Bank Statement กับรายการในระบบ</p>
+      </div>
+
+      {/* Tabs */}
+      <Tabs value={tab} onValueChange={(v) => { setTab(v as any); setSelectedBankId(null); setSelectedSysTxnId(null); }}>
+        <TabsList>
+          <TabsTrigger value="unreconciled">
+            Unreconciled
+            <span className="ml-1.5 text-xs bg-orange-100 text-orange-700 px-1.5 py-0.5 rounded-full font-medium">
+              {bankLines.filter((b) => b.reconciliationStatus === "Unmatched").length}
+            </span>
+          </TabsTrigger>
+          <TabsTrigger value="reconciled">
+            Reconciled
+            <span className="ml-1.5 text-xs bg-green-100 text-green-700 px-1.5 py-0.5 rounded-full font-medium">
+              {links.length}
+            </span>
+          </TabsTrigger>
+        </TabsList>
+
+        {/* Filters */}
+        <div className="mt-4">
+          <ReconciliationFilterPanel filters={filters} onChange={setFilters} />
         </div>
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button><Plus className="h-4 w-4 mr-2" />New Claim<ChevronDown className="h-4 w-4 ml-2" /></Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end">
-            <DropdownMenuItem onClick={() => navigate("/claims/create")}>
-              <FileText className="h-4 w-4 mr-2" />New Manual Claim
-            </DropdownMenuItem>
-            <DropdownMenuItem onClick={() => setSelectTxnOpen(true)}>
-              <CreditCard className="h-4 w-4 mr-2" />Select Corporate Card Transaction
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
-      </div>
 
-      {/* Summary Cards */}
-      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
-        {summaryCards.map((sc) => (
-          <Card
-            key={sc.key}
-            className={`cursor-pointer transition-all border-2 ${quickFilter === sc.key ? sc.color + " ring-2 ring-offset-1" : "hover:shadow-md"}`}
-            onClick={() => handleQuickFilter(sc.key)}
-          >
-            <CardContent className="p-4 flex items-center gap-3">
-              <sc.icon className={`h-5 w-5 ${quickFilter === sc.key ? "" : "text-muted-foreground"}`} />
-              <div>
-                <div className="text-2xl font-bold">{sc.count}</div>
-                <div className="text-xs text-muted-foreground">{sc.label}</div>
-              </div>
-            </CardContent>
-          </Card>
-        ))}
-      </div>
-
-      {/* Filters */}
-      <Card>
-        <CardContent className="p-4">
-          <div className="flex flex-col sm:flex-row gap-3 flex-wrap">
-            <div className="relative flex-1 min-w-[200px]">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-              <Input placeholder="Search merchant, purpose, claim no, txn id..." className="pl-9" value={search} onChange={(e) => setSearch(e.target.value)} />
-            </div>
-            <Select value={statusFilter} onValueChange={(v) => { setStatusFilter(v); setQuickFilter(null); }}>
-              <SelectTrigger className="w-full sm:w-[180px]"><SelectValue placeholder="Status" /></SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All Status</SelectItem>
-                {Object.keys(statusColors).map((s) => <SelectItem key={s} value={s}>{s}</SelectItem>)}
-              </SelectContent>
-            </Select>
-            <Select value={typeFilter} onValueChange={(v) => { setTypeFilter(v); setQuickFilter(null); }}>
-              <SelectTrigger className="w-full sm:w-[170px]"><SelectValue placeholder="Type" /></SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All Types</SelectItem>
-                <SelectItem value="CORP_CARD">Corporate Card</SelectItem>
-                <SelectItem value="MANUAL">Manual Claim</SelectItem>
-              </SelectContent>
-            </Select>
-            <Select value={billingCycleFilter} onValueChange={(v) => { setBillingCycleFilter(v); setQuickFilter(null); }}>
-              <SelectTrigger className="w-full sm:w-[160px]"><SelectValue placeholder="Billing Cycle" /></SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All Cycles</SelectItem>
-                {billingCycles.map((b) => <SelectItem key={b} value={b}>{b}</SelectItem>)}
-              </SelectContent>
-            </Select>
-            <Select value={cardFilter} onValueChange={(v) => { setCardFilter(v); setQuickFilter(null); }}>
-              <SelectTrigger className="w-full sm:w-[150px]"><SelectValue placeholder="Card" /></SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All Cards</SelectItem>
-                {cards.map((c) => <SelectItem key={c} value={c}>xxxx-{c}</SelectItem>)}
-              </SelectContent>
-            </Select>
+        {/* Unreconciled Tab */}
+        <TabsContent value="unreconciled">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mt-2">
+            <BankStatementTable
+              lines={unreconciledBank}
+              selectedId={selectedBankId}
+              onSelect={setSelectedBankId}
+              onRowClick={handleBankRowClick}
+            />
+            <SystemTransactionTable
+              transactions={suggestedSysTxns}
+              selectedId={selectedSysTxnId}
+              onSelect={setSelectedSysTxnId}
+              onRowClick={handleSysRowClick}
+            />
           </div>
-        </CardContent>
-      </Card>
 
-      {/* Table */}
-      <Card>
-        <CardContent className="p-0">
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Item No.</TableHead>
-                <TableHead>Date</TableHead>
-                <TableHead>Merchant / Vendor</TableHead>
-                <TableHead>Purpose</TableHead>
-                <TableHead>Card</TableHead>
-                <TableHead>Billing Cycle</TableHead>
-                <TableHead className="text-right">Amount</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead>Reconciliation</TableHead>
-                <TableHead>Action</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {filtered.length === 0 ? (
-                <TableRow><TableCell colSpan={10} className="text-center text-muted-foreground py-8">No items found</TableCell></TableRow>
-              ) : (
-                filtered.map((item) => (
-                  <TableRow key={`${item.item_type}-${item.item_no}`} className="cursor-pointer hover:bg-muted/50" onClick={() => handleRowClick(item)}>
-                    <TableCell className="font-medium text-sm">
-                      <div className="flex items-center gap-1.5">
-                        {item.item_type === "CORP_CARD" ? <CreditCard className="h-3.5 w-3.5 text-muted-foreground" /> : <FileText className="h-3.5 w-3.5 text-muted-foreground" />}
-                        {item.item_no}
-                      </div>
-                    </TableCell>
-                    <TableCell className="text-sm">{item.date}</TableCell>
-                    <TableCell className="text-sm max-w-[180px] truncate">{item.merchant_vendor}</TableCell>
-                    <TableCell className="text-sm max-w-[150px] truncate">{item.purpose || "—"}</TableCell>
-                    <TableCell className="text-sm">{item.card_last4 ? `xxxx-${item.card_last4}` : "—"}</TableCell>
-                    <TableCell className="text-sm">{item.billing_cycle || "—"}</TableCell>
-                    <TableCell className="text-right font-medium text-sm">฿{item.amount.toLocaleString()}</TableCell>
-                    <TableCell><Badge className={statusColors[item.status] || "bg-muted text-muted-foreground"}>{item.status}</Badge></TableCell>
-                    <TableCell><Badge className={reconcileColors[item.reconcile_status] || "bg-muted text-muted-foreground"}>{item.reconcile_status}</Badge></TableCell>
-                    <TableCell>
-                      <div className="flex items-center gap-1" onClick={(e) => e.stopPropagation()}>
-                        {item.item_type === "CORP_CARD" && item.status === "Pending Submit" && (
-                          <>
-                            <Button variant="outline" size="sm" className="text-xs h-7" onClick={() => navigate(`/claims/create?transaction_id=${item.transaction_id}`)}>
-                              Create Claim
-                            </Button>
-                            <Button variant="ghost" size="sm" className="text-xs h-7" onClick={() => navigate("/upload")}>
-                              <Upload className="h-3 w-3" />
-                            </Button>
-                          </>
-                        )}
-                        {item.status === "Pending Approval" && (
-                          <Button variant="ghost" size="sm" className="text-xs h-7" onClick={() => item.claim_id && navigate(`/claims/${item.claim_id}`)}>
-                            <Eye className="h-3.5 w-3.5 mr-1" />View
-                          </Button>
-                        )}
-                        {(item.status === "Rejected" || item.status === "Need Info") && (
-                          <Button variant="outline" size="sm" className="text-xs h-7" onClick={() => item.claim_id && navigate(`/claims/${item.claim_id}`)}>
-                            View / Resubmit
-                          </Button>
-                        )}
-                        {item.reconcile_status === "Matched" && (
-                          <Button variant="ghost" size="sm" className="text-xs h-7" onClick={() => setDrawerItem(item)}>
-                            <Eye className="h-3.5 w-3.5 mr-1" />Detail
-                          </Button>
-                        )}
-                        {!["Pending Submit", "Pending Approval", "Rejected", "Need Info"].includes(item.status) && item.reconcile_status !== "Matched" && item.item_type === "MANUAL" && (
-                          <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => item.claim_id && navigate(`/claims/${item.claim_id}`)}>
-                            <Eye className="h-3.5 w-3.5" />
-                          </Button>
-                        )}
-                      </div>
-                    </TableCell>
-                  </TableRow>
-                ))
-              )}
-            </TableBody>
-          </Table>
-        </CardContent>
-      </Card>
+          <MatchBar
+            bankLine={selectedBank}
+            systemTxn={selectedSys}
+            onMatch={handleMatch}
+            onClear={() => { setSelectedBankId(null); setSelectedSysTxnId(null); }}
+            warning={matchWarning}
+          />
+        </TabsContent>
 
-      {/* Drawers & Modals */}
-      <TransactionDrawer item={drawerItem} open={!!drawerItem} onClose={() => setDrawerItem(null)} />
-      <SelectTransactionModal open={selectTxnOpen} onClose={() => setSelectTxnOpen(false)} onSelect={handleSelectTxn} />
+        {/* Reconciled Tab */}
+        <TabsContent value="reconciled">
+          <div className="mt-2">
+            <MatchedPairsTable
+              links={links}
+              bankLines={bankLines}
+              systemTxns={systemTxns}
+              onViewPair={handleViewPair}
+              onUnmatch={handleUnmatch}
+            />
+          </div>
+        </TabsContent>
+      </Tabs>
+
+      {/* Detail Drawer */}
+      <ReconciliationDetailDrawer
+        open={drawerOpen}
+        onClose={() => setDrawerOpen(false)}
+        bankLine={drawerBank}
+        systemTxn={drawerSys}
+        link={drawerLink}
+      />
     </div>
   );
 }
