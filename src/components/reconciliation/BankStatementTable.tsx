@@ -59,13 +59,13 @@ export default function BankStatementTable({ lines, selectedId, onSelect, onRowC
               <TableHead className="text-right cursor-pointer" onClick={() => toggleSort("amount")}>
                 <span className="flex items-center justify-end gap-1">Amount <ArrowUpDown className="h-3 w-3" /></span>
               </TableHead>
-              <TableHead>Reference</TableHead>
+              
               <TableHead>Statement</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {sorted.length === 0 ? (
-              <TableRow><TableCell colSpan={8} className="text-center text-muted-foreground py-6">No bank statement lines</TableCell></TableRow>
+              <TableRow><TableCell colSpan={7} className="text-center text-muted-foreground py-6">No bank statement lines</TableCell></TableRow>
             ) : sorted.map((line) => {
               const isSelected = selectedId === line.id;
               const isHighlighted = highlightIds?.has(line.id);
@@ -86,7 +86,7 @@ export default function BankStatementTable({ lines, selectedId, onSelect, onRowC
                   <TableCell className="text-muted-foreground">{line.mcc}</TableCell>
                   <TableCell className="text-muted-foreground">{mccDescriptions[line.mcc] || line.mcc}</TableCell>
                   <TableCell className="text-right font-medium">฿{line.amount.toLocaleString()}</TableCell>
-                  <TableCell className="text-muted-foreground">{line.reference}</TableCell>
+                  
                   <TableCell className="text-muted-foreground">{line.statementId}</TableCell>
                 </TableRow>
               );
