@@ -1,0 +1,99 @@
+import { SystemTransaction } from "@/lib/reconciliation-types";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Eye, RotateCcw } from "lucide-react";
+import { useNavigate } from "react-router-dom";
+
+const statusColors: Record<string, string> = {
+  Draft: "bg-muted text-muted-foreground",
+  "Pending Submit": "bg-orange-100 text-orange-800",
+  "Pending Approval": "bg-yellow-100 text-yellow-800",
+  Approved: "bg-green-100 text-green-800",
+  Rejected: "bg-red-100 text-red-800",
+  "Need Info": "bg-blue-100 text-blue-800",
+};
+
+interface Props {
+  transactions: SystemTransaction[];
+  selectedId: string | null;
+  onSelect: (id: string | null) => void;
+  onRowClick: (txn: SystemTransaction) => void;
+  highlightIds?: Set<string>;
+}
+
+export default function SystemTransactionTable({ transactions, selectedId, onSelect, onRowClick, highlightIds }: Props) {
+  const navigate = useNavigate();
+
+  return (
+    <div className="border rounded-lg overflow-hidden">
+      <div className="bg-muted/50 px-4 py-2 text-sm font-semibold text-foreground border-b flex items-center gap-2">
+        System Transactions ▶
+        <Badge variant="secondary" className="ml-auto text-xs">{transactions.length}</Badge>
+      </div>
+      <div className="overflow-auto max-h-[500px]">
+        <Table>
+          <TableHeader>
+            <TableRow className="text-xs">
+              <TableHead className="w-10"></TableHead>
+              <TableHead>Reference</TableHead>
+              <TableHead>Date</TableHead>
+              <TableHead>Merchant / Vendor</TableHead>
+              <TableHead className="text-right">Amount</TableHead>
+              <TableHead>Type</TableHead>
+              <TableHead>Source</TableHead>
+              <TableHead>Status</TableHead>
+              <TableHead>Action</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {transactions.length === 0 ? (
+              <TableRow><TableCell colSpan={9} className="text-center text-muted-foreground py-6">No system transactions</TableCell></TableRow>
+            ) : transactions.map((txn) => {
+              const isSelected = selectedId === txn.id;
+              const isHighlighted = highlightIds?.has(txn.id);
+              return (
+                <TableRow
+                  key={txn.id}
+                  className={`cursor-pointer text-xs ${isSelected ? "bg-primary/10 ring-1 ring-primary/30" : isHighlighted ? "bg-green-50" : "hover:bg-muted/50"}`}
+                  onClick={() => onRowClick(txn)}
+                >
+                  <TableCell className="text-center" onClick={(e) => e.stopPropagation()}>
+                    <Checkbox
+                      checked={isSelected}
+                      onCheckedChange={(checked) => onSelect(checked ? txn.id : null)}
+                    />
+                  </TableCell>
+                  <TableCell className="font-medium">{txn.claimId || txn.id}</TableCell>
+                  <TableCell>{txn.transactionDate}</TableCell>
+                  <TableCell className="max-w-[150px] truncate">{txn.merchantName}</TableCell>
+                  <TableCell className="text-right font-medium">฿{txn.amount.toLocaleString()}</TableCell>
+                  <TableCell className="capitalize">{txn.type}</TableCell>
+                  <TableCell>{txn.source}</TableCell>
+                  <TableCell>
+                    <Badge className={statusColors[txn.status] || "bg-muted text-muted-foreground"}>{txn.status}</Badge>
+                  </TableCell>
+                  <TableCell onClick={(e) => e.stopPropagation()}>
+                    <div className="flex gap-1">
+                      {txn.claimId && (
+                        <Button variant="ghost" size="sm" className="h-6 px-2 text-xs" onClick={() => navigate(`/claims/${txn.claimId}`)}>
+                          <Eye className="h-3 w-3 mr-1" />View
+                        </Button>
+                      )}
+                      {txn.status === "Rejected" && (
+                        <Button variant="outline" size="sm" className="h-6 px-2 text-xs" onClick={() => txn.claimId && navigate(`/claims/${txn.claimId}`)}>
+                          <RotateCcw className="h-3 w-3 mr-1" />Resubmit
+                        </Button>
+                      )}
+                    </div>
+                  </TableCell>
+                </TableRow>
+              );
+            })}
+          </TableBody>
+        </Table>
+      </div>
+    </div>
+  );
+}
