@@ -229,7 +229,7 @@ export default function Reconcile() {
         </TabsList>
 
         <div className="mt-4">
-          <ReconciliationFilterPanel filters={filters} onChange={setFilters} onAutoReconcile={handleAutoReconcile} />
+          <ReconciliationFilterPanel filters={filters} onChange={setFilters} onAutoReconcile={tab === "unreconciled" ? handleAutoReconcile : undefined} />
         </div>
 
         <TabsContent value="unreconciled">
