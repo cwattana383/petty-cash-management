@@ -147,28 +147,6 @@ export default function ClaimDetail() {
         </CardContent>
       </Card>
 
-      {/* Header Info */}
-      <Card>
-        <CardHeader><CardTitle className="text-base">Claim Information</CardTitle></CardHeader>
-        <CardContent className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 text-sm">
-          {[
-            ["Requester", claim.requesterName],
-            ["Company", claim.company],
-            ["Branch", claim.branch],
-            ["Department", claim.department],
-            ["Cost Center", claim.costCenter],
-            ["Payment Method", claim.paymentMethod],
-            ["Currency", claim.currency],
-            ["Created", claim.createdDate],
-            ["Submitted", claim.submittedDate || "-"],
-          ].map(([label, value]) => (
-            <div key={label}>
-              <p className="text-muted-foreground">{label}</p>
-              <p className="font-medium">{value}</p>
-            </div>
-          ))}
-        </CardContent>
-      </Card>
 
       {/* Lines */}
       <Card>
