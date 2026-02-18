@@ -1,255 +1,120 @@
-import { useState, useMemo, useCallback } from "react";
-import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
-import { toast } from "sonner";
-import { BankStatementLine, SystemTransaction, ReconciliationLink, ReconciliationFilters, defaultFilters } from "@/lib/reconciliation-types";
-import { mockBankStatementLines, mockSystemTransactions, mockReconciliationLinks } from "@/lib/reconciliation-mock-data";
-import ReconciliationFilterPanel from "@/components/reconciliation/ReconciliationFilterPanel";
-import BankStatementTable from "@/components/reconciliation/BankStatementTable";
-import SystemTransactionTable from "@/components/reconciliation/SystemTransactionTable";
-import MatchBar from "@/components/reconciliation/MatchBar";
-import MatchedPairsTable from "@/components/reconciliation/MatchedPairsTable";
-import ReconciliationDetailDrawer from "@/components/reconciliation/ReconciliationDetailDrawer";
+import { useState, useMemo } from "react";
+import { useNavigate } from "react-router-dom";
+import { Search, Eye, Plus } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { mockClaims } from "@/lib/mock-data";
+import { ClaimStatus } from "@/lib/types";
+
+const statusVariant: Record<ClaimStatus, string> = {
+  "Draft": "bg-muted text-muted-foreground",
+  "Pending Approval": "bg-yellow-100 text-yellow-800",
+  "Approved": "bg-green-100 text-green-800",
+  "Rejected": "bg-red-100 text-red-800",
+  "Need Info": "bg-blue-100 text-blue-800",
+  "Paid": "bg-emerald-100 text-emerald-800",
+  "Reconciled": "bg-purple-100 text-purple-800",
+};
 
 export default function MyClaims() {
-  const [tab, setTab] = useState<"unreconciled" | "reconciled">("unreconciled");
-  const [filters, setFilters] = useState<ReconciliationFilters>(defaultFilters);
+  const navigate = useNavigate();
+  const [search, setSearch] = useState("");
+  const [statusFilter, setStatusFilter] = useState("all");
+  const [typeFilter, setTypeFilter] = useState("all");
 
-  // State data (mutable for match/unmatch)
-  const [bankLines, setBankLines] = useState<BankStatementLine[]>(mockBankStatementLines);
-  const [systemTxns, setSystemTxns] = useState<SystemTransaction[]>(mockSystemTransactions);
-  const [links, setLinks] = useState<ReconciliationLink[]>(mockReconciliationLinks);
-
-  // Selection
-  const [selectedBankId, setSelectedBankId] = useState<string | null>(null);
-  const [selectedSysTxnId, setSelectedSysTxnId] = useState<string | null>(null);
-
-  // Drawer
-  const [drawerOpen, setDrawerOpen] = useState(false);
-  const [drawerBank, setDrawerBank] = useState<BankStatementLine | null>(null);
-  const [drawerSys, setDrawerSys] = useState<SystemTransaction | null>(null);
-  const [drawerLink, setDrawerLink] = useState<ReconciliationLink | null>(null);
-
-  // Matched IDs
-  const matchedBankIds = useMemo(() => new Set(links.map((l) => l.bankStatementLineId)), [links]);
-  const matchedSysIds = useMemo(() => new Set(links.map((l) => l.systemTransactionId)), [links]);
-
-  // Filter logic
-  const applyFilters = useCallback(<T extends { transactionDate: string; amount: number; merchantName: string }>(items: T[]): T[] => {
-    return items.filter((item) => {
-      if (filters.dateFrom && item.transactionDate < filters.dateFrom) return false;
-      if (filters.dateTo && item.transactionDate > filters.dateTo) return false;
-      if (filters.amountMin && item.amount < Number(filters.amountMin)) return false;
-      if (filters.amountMax && item.amount > Number(filters.amountMax)) return false;
-      if (filters.keyword) {
-        const kw = filters.keyword.toLowerCase();
-        const searchable = [
-          item.merchantName,
-          (item as any).reference || "",
-          (item as any).description || "",
-          (item as any).purpose || "",
-          (item as any).claimId || "",
-          (item as any).id || "",
-          (item as any).authorizationCode || "",
-        ].join(" ").toLowerCase();
+  const filtered = useMemo(() => {
+    return mockClaims.filter((c) => {
+      if (statusFilter !== "all" && c.status !== statusFilter) return false;
+      if (typeFilter !== "all" && c.paymentMethod !== typeFilter) return false;
+      if (search) {
+        const kw = search.toLowerCase();
+        const searchable = [c.claimNo, c.purpose, c.requesterName].join(" ").toLowerCase();
         if (!searchable.includes(kw)) return false;
       }
       return true;
     });
-  }, [filters]);
-
-  // Unreconciled data
-  const unreconciledBank = useMemo(() =>
-    applyFilters(bankLines.filter((b) => b.reconciliationStatus === "Unmatched")),
-  [bankLines, matchedBankIds, applyFilters]);
-
-  const unreconciledSys = useMemo(() => {
-    let items = systemTxns.filter((s) => s.reconciliationStatus === "Unmatched");
-    if (filters.transactionType !== "all") items = items.filter((s) => s.type === filters.transactionType);
-    if (filters.transactionSource !== "all") items = items.filter((s) => s.source === filters.transactionSource);
-    return applyFilters(items);
-  }, [systemTxns, matchedSysIds, filters, applyFilters]);
-
-  // Reconciled data
-  const reconciledBank = useMemo(() =>
-    applyFilters(bankLines.filter((b) => b.reconciliationStatus === "Matched")),
-  [bankLines, matchedBankIds, applyFilters]);
-
-  const reconciledSys = useMemo(() => {
-    let items = systemTxns.filter((s) => s.reconciliationStatus === "Matched");
-    if (filters.transactionType !== "all") items = items.filter((s) => s.type === filters.transactionType);
-    if (filters.transactionSource !== "all") items = items.filter((s) => s.source === filters.transactionSource);
-    return applyFilters(items);
-  }, [systemTxns, matchedSysIds, filters, applyFilters]);
-
-  // Auto-suggest: when bank line is selected, sort system txns by relevance
-  const suggestedSysTxns = useMemo(() => {
-    if (!selectedBankId || tab !== "unreconciled") return unreconciledSys;
-    const bank = bankLines.find((b) => b.id === selectedBankId);
-    if (!bank) return unreconciledSys;
-    return [...unreconciledSys].sort((a, b) => {
-      const aDiff = Math.abs(a.amount - bank.amount);
-      const bDiff = Math.abs(b.amount - bank.amount);
-      if (aDiff !== bDiff) return aDiff - bDiff;
-      const aDateDiff = Math.abs(new Date(a.transactionDate).getTime() - new Date(bank.transactionDate).getTime());
-      const bDateDiff = Math.abs(new Date(b.transactionDate).getTime() - new Date(bank.transactionDate).getTime());
-      return aDateDiff - bDateDiff;
-    });
-  }, [selectedBankId, unreconciledSys, bankLines, tab]);
-
-  // Match validation
-  const matchWarning = useMemo(() => {
-    if (!selectedBankId || !selectedSysTxnId) return null;
-    const bank = bankLines.find((b) => b.id === selectedBankId);
-    const sys = systemTxns.find((s) => s.id === selectedSysTxnId);
-    if (!bank || !sys) return null;
-    const warnings: string[] = [];
-    const pctDiff = Math.abs(bank.amount - sys.amount) / Math.max(bank.amount, sys.amount) * 100;
-    if (pctDiff > 5) warnings.push(`Amount variance: ฿${Math.abs(bank.amount - sys.amount).toLocaleString()} (${pctDiff.toFixed(1)}%)`);
-    const daysDiff = Math.abs(new Date(bank.transactionDate).getTime() - new Date(sys.transactionDate).getTime()) / (1000 * 60 * 60 * 24);
-    if (daysDiff > 7) warnings.push(`Date gap: ${daysDiff.toFixed(0)} days apart`);
-    return warnings.length ? warnings.join(" | ") : null;
-  }, [selectedBankId, selectedSysTxnId, bankLines, systemTxns]);
-
-  const handleMatch = () => {
-    if (!selectedBankId || !selectedSysTxnId) return;
-    const bank = bankLines.find((b) => b.id === selectedBankId)!;
-    const sys = systemTxns.find((s) => s.id === selectedSysTxnId)!;
-
-    if (matchWarning) {
-      const proceed = window.confirm(`Warning:\n${matchWarning}\n\nProceed with match?`);
-      if (!proceed) return;
-    }
-
-    const newLink: ReconciliationLink = {
-      id: `LINK-${Date.now()}`,
-      bankStatementLineId: selectedBankId,
-      systemTransactionId: selectedSysTxnId,
-      matchedAt: new Date().toISOString(),
-      matchedBy: "สมชาย ใจดี",
-      status: "Matched",
-      varianceAmount: bank.amount - sys.amount,
-    };
-
-    setLinks((prev) => [...prev, newLink]);
-    setBankLines((prev) => prev.map((b) => b.id === selectedBankId ? { ...b, reconciliationStatus: "Matched" as const } : b));
-    setSystemTxns((prev) => prev.map((s) => s.id === selectedSysTxnId ? { ...s, reconciliationStatus: "Matched" as const } : s));
-    setSelectedBankId(null);
-    setSelectedSysTxnId(null);
-    toast.success("Matched successfully!");
-  };
-
-  const handleUnmatch = (link: ReconciliationLink) => {
-    if (!window.confirm("Are you sure you want to unmatch this pair? This will be recorded in the audit trail.")) return;
-    setLinks((prev) => prev.filter((l) => l.id !== link.id));
-    setBankLines((prev) => prev.map((b) => b.id === link.bankStatementLineId ? { ...b, reconciliationStatus: "Unmatched" as const } : b));
-    setSystemTxns((prev) => prev.map((s) => s.id === link.systemTransactionId ? { ...s, reconciliationStatus: "Unmatched" as const } : s));
-    toast.info("Pair unmatched. Audit trail recorded.");
-  };
-
-  const handleViewPair = (link: ReconciliationLink) => {
-    setDrawerBank(bankLines.find((b) => b.id === link.bankStatementLineId) || null);
-    setDrawerSys(systemTxns.find((s) => s.id === link.systemTransactionId) || null);
-    setDrawerLink(link);
-    setDrawerOpen(true);
-  };
-
-  const handleBankRowClick = (line: BankStatementLine) => {
-    setDrawerBank(line);
-    const link = links.find((l) => l.bankStatementLineId === line.id);
-    setDrawerSys(link ? systemTxns.find((s) => s.id === link.systemTransactionId) || null : null);
-    setDrawerLink(link || null);
-    setDrawerOpen(true);
-  };
-
-  const handleSysRowClick = (txn: SystemTransaction) => {
-    setDrawerSys(txn);
-    const link = links.find((l) => l.systemTransactionId === txn.id);
-    setDrawerBank(link ? bankLines.find((b) => b.id === link.bankStatementLineId) || null : null);
-    setDrawerLink(link || null);
-    setDrawerOpen(true);
-  };
-
-  const selectedBank = selectedBankId ? bankLines.find((b) => b.id === selectedBankId) || null : null;
-  const selectedSys = selectedSysTxnId ? systemTxns.find((s) => s.id === selectedSysTxnId) || null : null;
+  }, [search, statusFilter, typeFilter]);
 
   return (
-    <div className="space-y-4">
-      {/* Header */}
-      <div>
-        <h1 className="text-2xl font-bold text-foreground">My Expenses & Corporate Card Transactions</h1>
-        <p className="text-muted-foreground">จับคู่รายการ Bank Statement กับรายการในระบบ</p>
+    <div className="space-y-6">
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-2xl font-bold text-foreground">My Claims</h1>
+          <p className="text-muted-foreground">Manage your expense claims</p>
+        </div>
+        <Button onClick={() => navigate("/claims/create")} className="gap-2">
+          <Plus className="h-4 w-4" /> New Claim
+        </Button>
       </div>
 
-      {/* Tabs */}
-      <Tabs value={tab} onValueChange={(v) => { setTab(v as any); setSelectedBankId(null); setSelectedSysTxnId(null); }}>
-        <TabsList>
-          <TabsTrigger value="unreconciled">
-            Unreconciled
-            <span className="ml-1.5 text-xs bg-orange-100 text-orange-700 px-1.5 py-0.5 rounded-full font-medium">
-              {bankLines.filter((b) => b.reconciliationStatus === "Unmatched").length}
-            </span>
-          </TabsTrigger>
-          <TabsTrigger value="reconciled">
-            Reconciled
-            <span className="ml-1.5 text-xs bg-green-100 text-green-700 px-1.5 py-0.5 rounded-full font-medium">
-              {links.length}
-            </span>
-          </TabsTrigger>
-        </TabsList>
-
-        {/* Filters */}
-        <div className="mt-4">
-          <ReconciliationFilterPanel filters={filters} onChange={setFilters} />
+      {/* Filters */}
+      <div className="flex flex-col sm:flex-row gap-3 p-4 border rounded-lg bg-card">
+        <div className="relative flex-1">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+          <Input placeholder="Search claims..." value={search} onChange={(e) => setSearch(e.target.value)} className="pl-9" />
         </div>
+        <Select value={statusFilter} onValueChange={setStatusFilter}>
+          <SelectTrigger className="w-[160px]"><SelectValue placeholder="All Status" /></SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">All Status</SelectItem>
+            <SelectItem value="Draft">Draft</SelectItem>
+            <SelectItem value="Pending Approval">Pending Approval</SelectItem>
+            <SelectItem value="Approved">Approved</SelectItem>
+            <SelectItem value="Rejected">Rejected</SelectItem>
+            <SelectItem value="Need Info">Need Info</SelectItem>
+            <SelectItem value="Paid">Paid</SelectItem>
+          </SelectContent>
+        </Select>
+        <Select value={typeFilter} onValueChange={setTypeFilter}>
+          <SelectTrigger className="w-[160px]"><SelectValue placeholder="All Types" /></SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">All Types</SelectItem>
+            <SelectItem value="Cash">Cash</SelectItem>
+            <SelectItem value="Corporate Card">Corporate Card</SelectItem>
+            <SelectItem value="Personal Card">Personal Card</SelectItem>
+            <SelectItem value="Bank Transfer">Bank Transfer</SelectItem>
+          </SelectContent>
+        </Select>
+      </div>
 
-        {/* Unreconciled Tab */}
-        <TabsContent value="unreconciled">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mt-2">
-            <BankStatementTable
-              lines={unreconciledBank}
-              selectedId={selectedBankId}
-              onSelect={setSelectedBankId}
-              onRowClick={handleBankRowClick}
-            />
-            <SystemTransactionTable
-              transactions={suggestedSysTxns}
-              selectedId={selectedSysTxnId}
-              onSelect={setSelectedSysTxnId}
-              onRowClick={handleSysRowClick}
-            />
-          </div>
-
-          <MatchBar
-            bankLine={selectedBank}
-            systemTxn={selectedSys}
-            onMatch={handleMatch}
-            onClear={() => { setSelectedBankId(null); setSelectedSysTxnId(null); }}
-            warning={matchWarning}
-          />
-        </TabsContent>
-
-        {/* Reconciled Tab */}
-        <TabsContent value="reconciled">
-          <div className="mt-2">
-            <MatchedPairsTable
-              links={links}
-              bankLines={bankLines}
-              systemTxns={systemTxns}
-              onViewPair={handleViewPair}
-              onUnmatch={handleUnmatch}
-            />
-          </div>
-        </TabsContent>
-      </Tabs>
-
-      {/* Detail Drawer */}
-      <ReconciliationDetailDrawer
-        open={drawerOpen}
-        onClose={() => setDrawerOpen(false)}
-        bankLine={drawerBank}
-        systemTxn={drawerSys}
-        link={drawerLink}
-      />
+      {/* Table */}
+      <div className="border rounded-lg bg-card overflow-hidden">
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead>Claim No.</TableHead>
+              <TableHead>Date</TableHead>
+              <TableHead>Purpose</TableHead>
+              <TableHead className="text-right">Amount</TableHead>
+              <TableHead>Status</TableHead>
+              <TableHead className="w-10" />
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {filtered.length === 0 ? (
+              <TableRow><TableCell colSpan={6} className="text-center text-muted-foreground py-8">No claims found</TableCell></TableRow>
+            ) : (
+              filtered.map((c) => (
+                <TableRow key={c.id} className="cursor-pointer hover:bg-muted/50" onClick={() => navigate(`/claims/${c.id}`)}>
+                  <TableCell className="font-medium">{c.claimNo}</TableCell>
+                  <TableCell>{c.createdDate}</TableCell>
+                  <TableCell>{c.purpose}</TableCell>
+                  <TableCell className="text-right">฿{c.totalAmount.toLocaleString()}</TableCell>
+                  <TableCell>
+                    <Badge variant="outline" className={statusVariant[c.status]}>{c.status}</Badge>
+                  </TableCell>
+                  <TableCell>
+                    <Eye className="h-4 w-4 text-muted-foreground" />
+                  </TableCell>
+                </TableRow>
+              ))
+            )}
+          </TableBody>
+        </Table>
+      </div>
     </div>
   );
 }
