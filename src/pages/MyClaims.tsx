@@ -42,11 +42,11 @@ export default function MyClaims() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-foreground">My Claims</h1>
-          <p className="text-muted-foreground">Manage your expense claims</p>
+          <h1 className="text-2xl font-bold text-foreground">My Expenses</h1>
+          <p className="text-muted-foreground">Manage your expenses</p>
         </div>
         <Button onClick={() => navigate("/claims/create")} className="gap-2">
-          <Plus className="h-4 w-4" /> New Claim
+          <Plus className="h-4 w-4" /> New Expense
         </Button>
       </div>
 
@@ -54,7 +54,7 @@ export default function MyClaims() {
       <div className="flex flex-col sm:flex-row gap-3 p-4 border rounded-lg bg-card">
         <div className="relative flex-1">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-          <Input placeholder="Search claims..." value={search} onChange={(e) => setSearch(e.target.value)} className="pl-9" />
+          <Input placeholder="Search expenses..." value={search} onChange={(e) => setSearch(e.target.value)} className="pl-9" />
         </div>
         <Select value={statusFilter} onValueChange={setStatusFilter}>
           <SelectTrigger className="w-[160px]"><SelectValue placeholder="All Status" /></SelectTrigger>
@@ -85,7 +85,7 @@ export default function MyClaims() {
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead>Claim No.</TableHead>
+              <TableHead>Expense No.</TableHead>
               <TableHead>Date</TableHead>
               <TableHead>Purpose</TableHead>
               <TableHead className="text-right">Amount</TableHead>
@@ -95,7 +95,7 @@ export default function MyClaims() {
           </TableHeader>
           <TableBody>
             {filtered.length === 0 ? (
-              <TableRow><TableCell colSpan={6} className="text-center text-muted-foreground py-8">No claims found</TableCell></TableRow>
+              <TableRow><TableCell colSpan={6} className="text-center text-muted-foreground py-8">No expenses found</TableCell></TableRow>
             ) : (
               filtered.map((c) => (
                 <TableRow key={c.id} className="cursor-pointer hover:bg-muted/50" onClick={() => navigate(`/claims/${c.id}`)}>
