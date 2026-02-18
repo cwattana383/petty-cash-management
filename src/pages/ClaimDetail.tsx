@@ -4,11 +4,14 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Textarea } from "@/components/ui/textarea";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { ArrowLeft, Check, X, MessageSquare, Clock, CheckCircle, XCircle, AlertCircle, Send } from "lucide-react";
 import { useClaims } from "@/lib/claims-context";
 import { useToast } from "@/hooks/use-toast";
 import { useState } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
+import DocumentHeader from "@/components/claims/DocumentHeader";
 
 const statusConfig: Record<string, { color: string; icon: React.ElementType }> = {
   Draft: { color: "bg-muted text-muted-foreground", icon: Clock },
@@ -100,6 +103,49 @@ export default function ClaimDetail() {
           </div>
         )}
       </div>
+
+      {/* Document Header */}
+      <DocumentHeader
+        advanceNo={claim.claimNo}
+        glNo="-"
+        status={claim.status === "Pending Approval" ? "Approver" : claim.status === "Approved" ? "Completed" : claim.status === "Rejected" ? "Rejected" : "Requester"}
+        createDate={new Date(claim.createdDate)}
+      />
+
+      {/* Requester Information (read-only) */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-base">Requester Information</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            <div>
+              <Label>Employee</Label>
+              <Input value={claim.requesterName} disabled />
+            </div>
+            <div>
+              <Label>Telephone</Label>
+              <Input value="0657778899" disabled />
+            </div>
+            <div>
+              <Label>Email</Label>
+              <Input value={`${claim.requesterName.split(" ")[0].toLowerCase()}@cpaxtra.co.th`} disabled />
+            </div>
+            <div>
+              <Label>แผนก (Department)</Label>
+              <Input value={claim.department} disabled />
+            </div>
+            <div>
+              <Label>Division</Label>
+              <Input value={claim.costCenter} disabled />
+            </div>
+            <div>
+              <Label>สาขา (Branch)</Label>
+              <Input value={claim.branch} disabled />
+            </div>
+          </div>
+        </CardContent>
+      </Card>
 
       {/* Header Info */}
       <Card>
