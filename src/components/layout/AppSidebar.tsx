@@ -23,7 +23,7 @@ import {
 } from "@/components/ui/sidebar";
 
 const mainNav = [
-  { title: "My Claims", url: "/claims", icon: FileText },
+  { title: "My Expense", url: "/claims", icon: FileText },
   { title: "Upload Document", url: "/upload", icon: Upload },
   { title: "Approval Inbox", url: "/approvals", icon: CheckSquare },
   { title: "Accounting Review", url: "/accounting", icon: ClipboardList },
