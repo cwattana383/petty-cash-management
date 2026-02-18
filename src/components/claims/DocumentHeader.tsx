@@ -22,14 +22,10 @@ const statusColors: Record<AdvanceStatus, string> = {
 export default function DocumentHeader({ advanceNo, glNo, status, createDate }: DocumentHeaderProps) {
   return (
     <Card>
-      <CardContent className="p-4 grid grid-cols-2 sm:grid-cols-4 gap-4">
+      <CardContent className="p-4 grid grid-cols-2 sm:grid-cols-3 gap-4">
         <div>
           <p className="text-xs text-muted-foreground mb-1">Expense No</p>
           <p className="font-semibold text-sm">{advanceNo}</p>
-        </div>
-        <div>
-          <p className="text-xs text-muted-foreground mb-1">GL No</p>
-          <p className="font-semibold text-sm">{glNo || "-"}</p>
         </div>
         <div>
           <p className="text-xs text-muted-foreground mb-1">Status</p>
