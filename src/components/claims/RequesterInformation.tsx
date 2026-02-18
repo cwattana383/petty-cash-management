@@ -122,12 +122,12 @@ export default function RequesterInformation({ data, creatorData, onChange }: Re
             <Input value={data.email} disabled />
           </div>
           <div>
-            <Label>Division</Label>
-            <Input value={data.division} disabled />
-          </div>
-          <div>
             <Label>แผนก (Department)</Label>
             <Input value={data.department} disabled />
+          </div>
+          <div>
+            <Label>Division</Label>
+            <Input value={data.division} disabled />
           </div>
           <div>
             <Label>สาขา (Branch)</Label>
