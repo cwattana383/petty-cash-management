@@ -320,12 +320,17 @@ export default function CreateClaim() {
                       />
                     </TableCell>
                     <TableCell>
-                      <Input
-                        placeholder="—"
-                        value={line.vatCode}
-                        onChange={(e) => updateManualLine(line.id, "vatCode", e.target.value)}
-                        className="h-8 text-sm w-16"
-                      />
+                      <Select value={line.vatCode} onValueChange={(v) => updateManualLine(line.id, "vatCode", v)}>
+                        <SelectTrigger className="h-8 text-sm w-32">
+                          <SelectValue placeholder="เลือก VAT" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="AVG">AVG</SelectItem>
+                          <SelectItem value="Claim 100%">Claim 100%</SelectItem>
+                          <SelectItem value="No.vat">No.vat</SelectItem>
+                          <SelectItem value="Unclaim 10%">Unclaim 10%</SelectItem>
+                        </SelectContent>
+                      </Select>
                     </TableCell>
                     <TableCell>
                       <CurrencyInput
