@@ -9,6 +9,7 @@ import { currentUser } from "@/lib/mock-data";
 import { useToast } from "@/hooks/use-toast";
 import { UploadedDoc, formatFileSize } from "@/lib/upload-types";
 import { Input } from "@/components/ui/input";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import DocumentHeader from "@/components/claims/DocumentHeader";
 import CreatorInformation from "@/components/claims/CreatorInformation";
 import RequesterInformation, { type RequesterData } from "@/components/claims/RequesterInformation";
@@ -24,9 +25,12 @@ export default function CreateClaim() {
   const isManualExpense: boolean = (location.state as any)?.isManualExpense || false;
 
   // Manual expense lines added by user
+  const expenseTypes = ["Traveling Expenses", "Gasoline", "Toll Fee", "Entertainment", "Staff Meeting", "Parking Fee"];
+
   const [manualLines, setManualLines] = useState<Array<{
     id: string;
     description: string;
+    expenseType: string;
     amount: number;
     vatCode: string;
     vatAmount: number;
@@ -37,7 +41,7 @@ export default function CreateClaim() {
   const addManualLine = () => {
     setManualLines((prev) => [
       ...prev,
-      { id: crypto.randomUUID(), description: "", amount: 0, vatCode: "", vatAmount: 0, whtCode: "", whtAmount: 0 },
+      { id: crypto.randomUUID(), description: "", expenseType: "", amount: 0, vatCode: "", vatAmount: 0, whtCode: "", whtAmount: 0 },
     ]);
   };
 
@@ -212,6 +216,7 @@ export default function CreateClaim() {
                 <TableRow>
                   <TableHead className="w-10">#</TableHead>
                   <TableHead>Description / Document</TableHead>
+                  <TableHead>Expense Type</TableHead>
                   <TableHead>Amount</TableHead>
                   <TableHead>VAT Code</TableHead>
                   <TableHead>VAT Amount</TableHead>
@@ -234,6 +239,7 @@ export default function CreateClaim() {
                           <span className="text-sm font-medium truncate max-w-[200px]">{doc.name}</span>
                         </div>
                       </TableCell>
+                      <TableCell className="text-sm">—</TableCell>
                       <TableCell className="font-medium">{amountField ? amountField.value : "—"}</TableCell>
                       <TableCell className="text-sm">{doc.ocrData?.find((f) => f.label === "VAT Code")?.value || "—"}</TableCell>
                       <TableCell className="text-sm font-medium">{doc.ocrData?.find((f) => f.label === "VAT Amount")?.value || "—"}</TableCell>
@@ -257,6 +263,18 @@ export default function CreateClaim() {
                         onChange={(e) => updateManualLine(line.id, "description", e.target.value)}
                         className="h-8 text-sm"
                       />
+                    </TableCell>
+                    <TableCell>
+                      <Select value={line.expenseType} onValueChange={(v) => updateManualLine(line.id, "expenseType", v)}>
+                        <SelectTrigger className="h-8 text-sm w-40">
+                          <SelectValue placeholder="Select type" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {expenseTypes.map((t) => (
+                            <SelectItem key={t} value={t}>{t}</SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
                     </TableCell>
                     <TableCell>
                       <Input
@@ -310,7 +328,7 @@ export default function CreateClaim() {
                 ))}
                 {initialDocs.length === 0 && manualLines.length === 0 && (
                   <TableRow>
-                    <TableCell colSpan={9} className="text-center text-muted-foreground py-8">
+                    <TableCell colSpan={10} className="text-center text-muted-foreground py-8">
                       ยังไม่มีรายการ — กด "+ Add Item" เพื่อเพิ่มรายการ
                     </TableCell>
                   </TableRow>
