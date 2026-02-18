@@ -14,28 +14,28 @@ import {
 import { ArrowLeft, Save, UserPlus } from "lucide-react";
 import { toast } from "sonner";
 
-const departments = ["Sales", "Marketing", "Engineering", "Finance", "HR", "Operations"];
-const branches = ["Bangkok", "Chiang Mai", "Phuket", "Pattaya", "Khon Kaen"];
-const costCenters = ["CC-100", "CC-200", "CC-300", "CC-400", "CC-500"];
-const roles = ["Employee", "Manager", "Accounting", "Admin"];
-const companies = ["ABC Corporation", "XYZ Holdings", "DEF Group"];
+const departments = ["9993010460 Finance and Accounting", "Sales", "Marketing", "Engineering", "Finance", "HR", "Operations"];
+const branches = ["099999 – HO", "Bangkok", "Chiang Mai", "Phuket", "Pattaya", "Khon Kaen"];
+const costCenters = ["9999", "CC-100", "CC-200", "CC-300", "CC-400", "CC-500"];
+const roles = ["Director - Accounting", "Employee", "Manager", "Accounting", "Admin"];
+const companies = ["บริษัท ซีพี แอ็กซ์ตร้า จำกัด (มหาชน)", "ABC Corporation", "XYZ Holdings", "DEF Group"];
 const stores = ["Head Office", "Store Bangkok", "Store Chiang Mai", "Store Phuket"];
-const divisions = ["Division A", "Division B", "Division C", "Division D"];
+const divisions = ["92029 – Accounting", "Division A", "Division B", "Division C", "Division D"];
 
 export default function EmployeeProfileCreate() {
   const navigate = useNavigate();
   const [form, setForm] = useState({
-    firstName: "",
-    lastName: "",
-    email: "",
+    firstName: "สมชาย",
+    lastName: "ใจดี",
+    email: "somchai@cpaxtra.co.th",
     storeHeadOffice: "",
-    company: "",
-    division: "",
-    telephone: "",
-    department: "",
-    branch: "",
-    costCenter: "",
-    role: "",
+    company: "บริษัท ซีพี แอ็กซ์ตร้า จำกัด (มหาชน)",
+    division: "92029 – Accounting",
+    telephone: "0657778899",
+    department: "9993010460 Finance and Accounting",
+    branch: "099999 – HO",
+    costCenter: "9999",
+    role: "Director - Accounting",
   });
 
   const handleChange = (field: string, value: string) => {
