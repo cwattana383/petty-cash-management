@@ -5,6 +5,15 @@ import { Badge } from "@/components/ui/badge";
 import { ArrowUpDown } from "lucide-react";
 import { useState } from "react";
 
+const mccDescriptions: Record<string, string> = {
+  "3000": "Airlines",
+  "4121": "Taxicabs / Rideshares",
+  "5812": "Eating Places / Restaurants",
+  "5943": "Stationery / Office Supplies",
+  "7011": "Hotels / Lodging",
+  "7372": "Computer Software",
+};
+
 interface Props {
   lines: BankStatementLine[];
   selectedId: string | null;
@@ -44,7 +53,9 @@ export default function BankStatementTable({ lines, selectedId, onSelect, onRowC
               <TableHead className="cursor-pointer" onClick={() => toggleSort("transactionDate")}>
                 <span className="flex items-center gap-1">Date <ArrowUpDown className="h-3 w-3" /></span>
               </TableHead>
-              <TableHead>Merchant / Description</TableHead>
+              <TableHead>Merchant</TableHead>
+              <TableHead>MCC Code</TableHead>
+              <TableHead>MCC Description</TableHead>
               <TableHead className="text-right cursor-pointer" onClick={() => toggleSort("amount")}>
                 <span className="flex items-center justify-end gap-1">Amount <ArrowUpDown className="h-3 w-3" /></span>
               </TableHead>
@@ -54,7 +65,7 @@ export default function BankStatementTable({ lines, selectedId, onSelect, onRowC
           </TableHeader>
           <TableBody>
             {sorted.length === 0 ? (
-              <TableRow><TableCell colSpan={6} className="text-center text-muted-foreground py-6">No bank statement lines</TableCell></TableRow>
+              <TableRow><TableCell colSpan={8} className="text-center text-muted-foreground py-6">No bank statement lines</TableCell></TableRow>
             ) : sorted.map((line) => {
               const isSelected = selectedId === line.id;
               const isHighlighted = highlightIds?.has(line.id);
@@ -72,6 +83,8 @@ export default function BankStatementTable({ lines, selectedId, onSelect, onRowC
                   </TableCell>
                   <TableCell>{line.transactionDate}</TableCell>
                   <TableCell className="max-w-[180px] truncate" title={line.description}>{line.merchantName}</TableCell>
+                  <TableCell className="text-muted-foreground">{line.mcc}</TableCell>
+                  <TableCell className="text-muted-foreground">{mccDescriptions[line.mcc] || line.mcc}</TableCell>
                   <TableCell className="text-right font-medium">฿{line.amount.toLocaleString()}</TableCell>
                   <TableCell className="text-muted-foreground">{line.reference}</TableCell>
                   <TableCell className="text-muted-foreground">{line.statementId}</TableCell>
