@@ -414,45 +414,51 @@ export default function CreateClaim() {
                     </TableCell>
                   </TableRow>
                 )}
-              <tfoot>
-                <TableRow className="bg-muted/50 font-semibold">
-                  {/* #, Invoice Date, Invoice Number, Supplier Name, Account Code, Description, Expense Type = 7 empty cells */}
-                  <TableCell colSpan={7} className="text-right text-sm">Total</TableCell>
-                  <TableCell className="text-right text-sm">
-                    {(initialDocs.reduce((sum, d) => {
-                      const amt = d.ocrData?.find((f) => f.label === "จำนวนเงิน")?.value;
-                      return sum + (amt ? parseFloat(amt.replace(/,/g, "")) || 0 : 0);
-                    }, 0) + manualLines.reduce((sum, l) => sum + l.amount, 0)).toLocaleString("en-US", { minimumFractionDigits: 2 })}
-                  </TableCell>
-                  {/* VAT Code */}
-                  <TableCell></TableCell>
-                  {/* VAT Amount */}
-                  <TableCell className="text-right text-sm">
-                    {(initialDocs.reduce((sum, d) => {
-                      const v = d.ocrData?.find((f) => f.label === "VAT Amount")?.value;
-                      return sum + (v ? parseFloat(v.replace(/,/g, "")) || 0 : 0);
-                    }, 0) + manualLines.reduce((sum, l) => sum + l.vatAmount, 0)).toLocaleString("en-US", { minimumFractionDigits: 2 })}
-                  </TableCell>
-                  {/* Total Amount */}
-                  <TableCell className="text-right text-sm">
-                    {manualLines.reduce((sum, l) => sum + l.totalAmount, 0).toLocaleString("en-US", { minimumFractionDigits: 2 })}
-                  </TableCell>
-                  {/* WHT Code */}
-                  <TableCell></TableCell>
-                  {/* WHT Amount */}
-                  <TableCell className="text-right text-sm">
-                    {(initialDocs.reduce((sum, d) => {
-                      const v = d.ocrData?.find((f) => f.label === "WHT Amount")?.value;
-                      return sum + (v ? parseFloat(v.replace(/,/g, "")) || 0 : 0);
-                    }, 0) + manualLines.reduce((sum, l) => sum + l.whtAmount, 0)).toLocaleString("en-US", { minimumFractionDigits: 2 })}
-                  </TableCell>
-                  {/* Status + delete = 2 cells */}
-                  <TableCell colSpan={2}></TableCell>
-                </TableRow>
-              </tfoot>
               </TableBody>
             </Table>
           </div>
+          {(initialDocs.length > 0 || manualLines.length > 0) && (
+            <div className="rounded-md border mt-0 border-t-0">
+              <Table>
+                <TableBody>
+                  <TableRow className="bg-muted/50 font-semibold">
+                    <TableHead className="w-10"></TableHead>
+                    <TableHead></TableHead>
+                    <TableHead></TableHead>
+                    <TableHead></TableHead>
+                    <TableHead></TableHead>
+                    <TableHead></TableHead>
+                    <TableHead className="text-right text-sm font-semibold text-foreground">Total</TableHead>
+                    <TableHead className="text-right text-sm font-semibold text-foreground">
+                      {(initialDocs.reduce((sum, d) => {
+                        const amt = d.ocrData?.find((f) => f.label === "จำนวนเงิน")?.value;
+                        return sum + (amt ? parseFloat(amt.replace(/,/g, "")) || 0 : 0);
+                      }, 0) + manualLines.reduce((sum, l) => sum + l.amount, 0)).toLocaleString("en-US", { minimumFractionDigits: 2 })}
+                    </TableHead>
+                    <TableHead></TableHead>
+                    <TableHead className="text-right text-sm font-semibold text-foreground">
+                      {(initialDocs.reduce((sum, d) => {
+                        const v = d.ocrData?.find((f) => f.label === "VAT Amount")?.value;
+                        return sum + (v ? parseFloat(v.replace(/,/g, "")) || 0 : 0);
+                      }, 0) + manualLines.reduce((sum, l) => sum + l.vatAmount, 0)).toLocaleString("en-US", { minimumFractionDigits: 2 })}
+                    </TableHead>
+                    <TableHead className="text-right text-sm font-semibold text-foreground">
+                      {manualLines.reduce((sum, l) => sum + l.totalAmount, 0).toLocaleString("en-US", { minimumFractionDigits: 2 })}
+                    </TableHead>
+                    <TableHead></TableHead>
+                    <TableHead className="text-right text-sm font-semibold text-foreground">
+                      {(initialDocs.reduce((sum, d) => {
+                        const v = d.ocrData?.find((f) => f.label === "WHT Amount")?.value;
+                        return sum + (v ? parseFloat(v.replace(/,/g, "")) || 0 : 0);
+                      }, 0) + manualLines.reduce((sum, l) => sum + l.whtAmount, 0)).toLocaleString("en-US", { minimumFractionDigits: 2 })}
+                    </TableHead>
+                    <TableHead></TableHead>
+                    <TableHead className="w-10"></TableHead>
+                  </TableRow>
+                </TableBody>
+              </Table>
+            </div>
+          )}
         </CardContent>
       </Card>
     </div>
