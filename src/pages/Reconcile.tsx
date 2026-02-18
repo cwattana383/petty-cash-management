@@ -57,7 +57,7 @@ export default function Reconcile() {
   [bankLines, matchedBankIds, applyFilters]);
 
   const unreconciledSys = useMemo(() => {
-    let items = systemTxns.filter((s) => s.reconciliationStatus === "Unmatched");
+    let items = systemTxns.filter((s) => s.reconciliationStatus === "Unmatched" && s.status === "Approved");
     if (filters.transactionType !== "all") items = items.filter((s) => s.type === filters.transactionType);
     if (filters.transactionSource !== "all") items = items.filter((s) => s.source === filters.transactionSource);
     return applyFilters(items);
