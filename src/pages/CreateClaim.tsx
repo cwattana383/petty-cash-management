@@ -9,6 +9,7 @@ import { currentUser } from "@/lib/mock-data";
 import { useToast } from "@/hooks/use-toast";
 import { UploadedDoc, formatFileSize } from "@/lib/upload-types";
 import { Input } from "@/components/ui/input";
+import { CurrencyInput } from "@/components/ui/currency-input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import DocumentHeader from "@/components/claims/DocumentHeader";
 import CreatorInformation from "@/components/claims/CreatorInformation";
@@ -311,10 +312,9 @@ export default function CreateClaim() {
                       </Select>
                     </TableCell>
                     <TableCell>
-                      <Input
-                        type="number" min={0} step="0.01"
-                        value={line.amount || ""}
-                        onChange={(e) => updateManualLine(line.id, "amount", parseFloat(e.target.value) || 0)}
+                      <CurrencyInput
+                        value={line.amount}
+                        onChange={(v) => updateManualLine(line.id, "amount", v)}
                         className="h-8 text-sm w-28"
                       />
                     </TableCell>
@@ -327,18 +327,18 @@ export default function CreateClaim() {
                       />
                     </TableCell>
                     <TableCell>
-                      <Input
-                        type="number" min={0} step="0.01"
+                      <CurrencyInput
+                        value={0}
+                        onChange={() => {}}
                         placeholder="—"
                         className="h-8 text-sm w-28"
                       />
                     </TableCell>
                     <TableCell>
-                      <Input
-                        type="number" min={0} step="0.01"
-                        value={line.vatAmount || ""}
-                        onChange={(e) => updateManualLine(line.id, "vatAmount", parseFloat(e.target.value) || 0)}
-                        className="h-8 text-sm w-24"
+                      <CurrencyInput
+                        value={line.vatAmount}
+                        onChange={(v) => updateManualLine(line.id, "vatAmount", v)}
+                        className="h-8 text-sm w-28"
                       />
                     </TableCell>
                     <TableCell>
@@ -350,11 +350,10 @@ export default function CreateClaim() {
                       />
                     </TableCell>
                     <TableCell>
-                      <Input
-                        type="number" min={0} step="0.01"
-                        value={line.whtAmount || ""}
-                        onChange={(e) => updateManualLine(line.id, "whtAmount", parseFloat(e.target.value) || 0)}
-                        className="h-8 text-sm w-24"
+                      <CurrencyInput
+                        value={line.whtAmount}
+                        onChange={(v) => updateManualLine(line.id, "whtAmount", v)}
+                        className="h-8 text-sm w-28"
                       />
                     </TableCell>
                     <TableCell>
