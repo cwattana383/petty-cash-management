@@ -40,6 +40,7 @@ export default function SystemTransactionTable({ transactions, selectedId, onSel
               
               <TableHead>Date</TableHead>
               <TableHead>Merchant / Vendor</TableHead>
+              <TableHead>Description</TableHead>
               <TableHead className="text-right">Amount</TableHead>
               <TableHead>Type</TableHead>
               <TableHead>Source</TableHead>
@@ -47,7 +48,7 @@ export default function SystemTransactionTable({ transactions, selectedId, onSel
           </TableHeader>
           <TableBody>
             {transactions.length === 0 ? (
-              <TableRow><TableCell colSpan={6} className="text-center text-muted-foreground py-6">No system transactions</TableCell></TableRow>
+              <TableRow><TableCell colSpan={7} className="text-center text-muted-foreground py-6">No system transactions</TableCell></TableRow>
             ) : transactions.map((txn) => {
               const isSelected = selectedId === txn.id;
               const isHighlighted = highlightIds?.has(txn.id);
@@ -66,6 +67,7 @@ export default function SystemTransactionTable({ transactions, selectedId, onSel
                   
                   <TableCell>{txn.transactionDate}</TableCell>
                   <TableCell className="max-w-[150px] truncate">{txn.merchantName}</TableCell>
+                  <TableCell className="max-w-[150px] truncate text-muted-foreground">{txn.purpose}</TableCell>
                   <TableCell className="text-right font-medium">฿{txn.amount.toLocaleString()}</TableCell>
                   <TableCell className="capitalize">{txn.type}</TableCell>
                   <TableCell>{txn.source}</TableCell>
