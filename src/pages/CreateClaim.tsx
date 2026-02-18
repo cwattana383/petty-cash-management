@@ -414,51 +414,46 @@ export default function CreateClaim() {
                     </TableCell>
                   </TableRow>
                 )}
-              </TableBody>
-            </Table>
-          </div>
-          {(initialDocs.length > 0 || manualLines.length > 0) && (
-            <div className="rounded-md border mt-0 border-t-0">
-              <Table>
-                <TableBody>
+                {/* Totals row */}
+                {(initialDocs.length > 0 || manualLines.length > 0) && (
                   <TableRow className="bg-muted/50 font-semibold">
-                    <TableHead className="w-10"></TableHead>
-                    <TableHead></TableHead>
-                    <TableHead></TableHead>
-                    <TableHead></TableHead>
-                    <TableHead></TableHead>
-                    <TableHead></TableHead>
-                    <TableHead className="text-right text-sm font-semibold text-foreground">Total</TableHead>
-                    <TableHead className="text-right text-sm font-semibold text-foreground">
+                    <TableCell></TableCell>
+                    <TableCell></TableCell>
+                    <TableCell></TableCell>
+                    <TableCell></TableCell>
+                    <TableCell></TableCell>
+                    <TableCell></TableCell>
+                    <TableCell className="text-right text-sm">Total</TableCell>
+                    <TableCell className="text-right text-sm">
                       {(initialDocs.reduce((sum, d) => {
                         const amt = d.ocrData?.find((f) => f.label === "จำนวนเงิน")?.value;
                         return sum + (amt ? parseFloat(amt.replace(/,/g, "")) || 0 : 0);
                       }, 0) + manualLines.reduce((sum, l) => sum + l.amount, 0)).toLocaleString("en-US", { minimumFractionDigits: 2 })}
-                    </TableHead>
-                    <TableHead></TableHead>
-                    <TableHead className="text-right text-sm font-semibold text-foreground">
+                    </TableCell>
+                    <TableCell></TableCell>
+                    <TableCell className="text-right text-sm">
                       {(initialDocs.reduce((sum, d) => {
                         const v = d.ocrData?.find((f) => f.label === "VAT Amount")?.value;
                         return sum + (v ? parseFloat(v.replace(/,/g, "")) || 0 : 0);
                       }, 0) + manualLines.reduce((sum, l) => sum + l.vatAmount, 0)).toLocaleString("en-US", { minimumFractionDigits: 2 })}
-                    </TableHead>
-                    <TableHead className="text-right text-sm font-semibold text-foreground">
+                    </TableCell>
+                    <TableCell className="text-right text-sm">
                       {manualLines.reduce((sum, l) => sum + l.totalAmount, 0).toLocaleString("en-US", { minimumFractionDigits: 2 })}
-                    </TableHead>
-                    <TableHead></TableHead>
-                    <TableHead className="text-right text-sm font-semibold text-foreground">
+                    </TableCell>
+                    <TableCell></TableCell>
+                    <TableCell className="text-right text-sm">
                       {(initialDocs.reduce((sum, d) => {
                         const v = d.ocrData?.find((f) => f.label === "WHT Amount")?.value;
                         return sum + (v ? parseFloat(v.replace(/,/g, "")) || 0 : 0);
                       }, 0) + manualLines.reduce((sum, l) => sum + l.whtAmount, 0)).toLocaleString("en-US", { minimumFractionDigits: 2 })}
-                    </TableHead>
-                    <TableHead></TableHead>
-                    <TableHead className="w-10"></TableHead>
+                    </TableCell>
+                    <TableCell></TableCell>
+                    <TableCell></TableCell>
                   </TableRow>
-                </TableBody>
-              </Table>
-            </div>
-          )}
+                )}
+              </TableBody>
+            </Table>
+          </div>
         </CardContent>
       </Card>
     </div>
