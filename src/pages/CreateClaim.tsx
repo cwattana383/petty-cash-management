@@ -217,6 +217,7 @@ export default function CreateClaim() {
                   <TableHead className="w-10">#</TableHead>
                   <TableHead>Description / Document</TableHead>
                   <TableHead>Expense Type</TableHead>
+                  <TableHead>Total Amount</TableHead>
                   <TableHead>Amount</TableHead>
                   <TableHead>VAT Code</TableHead>
                   <TableHead>VAT Amount</TableHead>
@@ -240,6 +241,7 @@ export default function CreateClaim() {
                         </div>
                       </TableCell>
                       <TableCell className="text-sm">—</TableCell>
+                      <TableCell className="font-medium">—</TableCell>
                       <TableCell className="font-medium">{amountField ? amountField.value : "—"}</TableCell>
                       <TableCell className="text-sm">{doc.ocrData?.find((f) => f.label === "VAT Code")?.value || "—"}</TableCell>
                       <TableCell className="text-sm font-medium">{doc.ocrData?.find((f) => f.label === "VAT Amount")?.value || "—"}</TableCell>
@@ -275,6 +277,13 @@ export default function CreateClaim() {
                           ))}
                         </SelectContent>
                       </Select>
+                    </TableCell>
+                    <TableCell>
+                      <Input
+                        type="number" min={0} step="0.01"
+                        placeholder="—"
+                        className="h-8 text-sm w-28"
+                      />
                     </TableCell>
                     <TableCell>
                       <Input
@@ -328,7 +337,7 @@ export default function CreateClaim() {
                 ))}
                 {initialDocs.length === 0 && manualLines.length === 0 && (
                   <TableRow>
-                    <TableCell colSpan={10} className="text-center text-muted-foreground py-8">
+                    <TableCell colSpan={11} className="text-center text-muted-foreground py-8">
                       ยังไม่มีรายการ — กด "+ Add Item" เพื่อเพิ่มรายการ
                     </TableCell>
                   </TableRow>
