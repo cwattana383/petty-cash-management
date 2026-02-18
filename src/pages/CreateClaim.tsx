@@ -347,12 +347,23 @@ export default function CreateClaim() {
                       />
                     </TableCell>
                     <TableCell>
-                      <Input
-                        placeholder="—"
-                        value={line.whtCode}
-                        onChange={(e) => updateManualLine(line.id, "whtCode", e.target.value)}
-                        className="h-8 text-sm w-16"
-                      />
+                      <Select value={line.whtCode} onValueChange={(v) => updateManualLine(line.id, "whtCode", v)}>
+                        <SelectTrigger className="h-8 text-sm w-36">
+                          <SelectValue placeholder="เลือก WHT" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="Advertising 3">Advertising 3</SelectItem>
+                          <SelectItem value="Advertising 53">Advertising 53</SelectItem>
+                          <SelectItem value="Delivery 3">Delivery 3</SelectItem>
+                          <SelectItem value="Delivery 53">Delivery 53</SelectItem>
+                          <SelectItem value="Rental/Prize 3">Rental/Prize 3</SelectItem>
+                          <SelectItem value="Rental/Prize 53">Rental/Prize 53</SelectItem>
+                          <SelectItem value="Service (1.5) 3">Service (1.5) 3</SelectItem>
+                          <SelectItem value="Service (1.5) 53">Service (1.5) 53</SelectItem>
+                          <SelectItem value="Service 3">Service 3</SelectItem>
+                          <SelectItem value="Service 53">Service 53</SelectItem>
+                        </SelectContent>
+                      </Select>
                     </TableCell>
                     <TableCell>
                       <CurrencyInput
