@@ -9,9 +9,10 @@ import { ReconciliationFilters, defaultFilters } from "@/lib/reconciliation-type
 interface Props {
   filters: ReconciliationFilters;
   onChange: (f: ReconciliationFilters) => void;
+  onAutoReconcile?: () => void;
 }
 
-export default function ReconciliationFilterPanel({ filters, onChange }: Props) {
+export default function ReconciliationFilterPanel({ filters, onChange, onAutoReconcile }: Props) {
   const [collapsed, setCollapsed] = useState(false);
 
   const update = (key: keyof ReconciliationFilters, val: string) =>
@@ -82,6 +83,13 @@ export default function ReconciliationFilterPanel({ filters, onChange }: Props) 
               <span className="text-muted-foreground text-xs">-</span>
               <Input type="number" placeholder="Max ฿" value={filters.amountMax} onChange={(e) => update("amountMax", e.target.value)} className="text-xs" />
             </div>
+
+            {/* Auto Reconcile */}
+            {onAutoReconcile && (
+              <Button size="sm" variant="default" onClick={onAutoReconcile} className="h-9">
+                Auto Reconcile
+              </Button>
+            )}
           </div>
         )}
       </CardContent>
