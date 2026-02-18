@@ -26,6 +26,14 @@ export default function CreateClaim() {
 
   // Manual expense lines added by user
   const expenseTypes = ["Traveling Expenses", "Gasoline", "Toll Fee", "Entertainment", "Staff Meeting", "Parking Fee"];
+  const accountCodes = [
+    { code: "2186101", name: "Other Personnel Cost-Other" },
+    { code: "21862011", name: "Entertainment" },
+    { code: "21862012", name: "Staff Meeting and Refreshment" },
+    { code: "21862021", name: "Local Traveling" },
+    { code: "21863011", name: "Vehicle Running Cost-Fuel" },
+    { code: "21863091", name: "Vehicle Running Cost-Other" },
+  ];
 
   const [manualLines, setManualLines] = useState<Array<{
     id: string;
@@ -271,7 +279,16 @@ export default function CreateClaim() {
                       <Input placeholder="ชื่อผู้ขาย..." className="h-8 text-sm w-28" />
                     </TableCell>
                     <TableCell>
-                      <Input placeholder="รหัสบัญชี..." className="h-8 text-sm w-24" />
+                      <Select onValueChange={(v) => updateManualLine(line.id, "accountCode", v)}>
+                        <SelectTrigger className="h-8 text-sm w-44">
+                          <SelectValue placeholder="เลือกรหัสบัญชี" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {accountCodes.map((ac) => (
+                            <SelectItem key={ac.code} value={ac.code}>{ac.code} - {ac.name}</SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
                     </TableCell>
                     <TableCell>
                       <Input
