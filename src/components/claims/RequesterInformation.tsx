@@ -122,10 +122,6 @@ export default function RequesterInformation({ data, creatorData, onChange }: Re
             <Input value={data.email} disabled />
           </div>
           <div>
-            <Label>Store / Head Office *</Label>
-            <Input value={data.store} disabled />
-          </div>
-          <div>
             <Label>Division</Label>
             <Input value={data.division} disabled />
           </div>
