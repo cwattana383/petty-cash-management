@@ -45,6 +45,7 @@ export default function CreateClaim() {
     invoiceDate?: Date;
     description: string;
     expenseType: string;
+    paymentMethod: string;
     amount: number;
     vatCode: string;
     vatAmount: number;
@@ -56,7 +57,7 @@ export default function CreateClaim() {
   const addManualLine = () => {
     setManualLines((prev) => [
       ...prev,
-      { id: crypto.randomUUID(), description: "", expenseType: "", amount: 0, vatCode: "", vatAmount: 0, totalAmount: 0, whtCode: "", whtAmount: 0 },
+      { id: crypto.randomUUID(), description: "", expenseType: "", paymentMethod: "Credit Card", amount: 0, vatCode: "", vatAmount: 0, totalAmount: 0, whtCode: "", whtAmount: 0 },
     ]);
   };
 
@@ -227,6 +228,7 @@ export default function CreateClaim() {
                   <TableHead className="w-10">#</TableHead>
                   <TableHead>Invoice Date</TableHead>
                   <TableHead>Invoice Number</TableHead>
+                  <TableHead>Payment Method</TableHead>
                   <TableHead>Supplier Name</TableHead>
                   <TableHead>Account Code</TableHead>
                   <TableHead>Description</TableHead>
@@ -248,6 +250,7 @@ export default function CreateClaim() {
                   return (
                     <TableRow key={doc.id}>
                       <TableCell className="text-muted-foreground">{idx + 1}</TableCell>
+                      <TableCell className="text-sm">—</TableCell>
                       <TableCell className="text-sm">—</TableCell>
                       <TableCell className="text-sm">—</TableCell>
                       <TableCell className="text-sm">—</TableCell>
@@ -301,6 +304,18 @@ export default function CreateClaim() {
                     </TableCell>
                     <TableCell>
                       <Input placeholder="เลขที่..." className="h-8 text-sm w-24" />
+                    </TableCell>
+                    <TableCell>
+                      <Select value={line.paymentMethod} onValueChange={(v) => updateManualLine(line.id, "paymentMethod", v)}>
+                        <SelectTrigger className="h-8 text-sm w-32">
+                          <SelectValue placeholder="Select" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="Credit Card">Credit Card</SelectItem>
+                          <SelectItem value="Cash">Cash</SelectItem>
+                          <SelectItem value="Bank Transfer">Bank Transfer</SelectItem>
+                        </SelectContent>
+                      </Select>
                     </TableCell>
                     <TableCell>
                       <Input placeholder="ชื่อผู้ขาย..." className="h-8 text-sm w-28" />
@@ -409,7 +424,7 @@ export default function CreateClaim() {
                 ))}
                 {initialDocs.length === 0 && manualLines.length === 0 && (
                   <TableRow>
-                    <TableCell colSpan={15} className="text-center text-muted-foreground py-8">
+                    <TableCell colSpan={16} className="text-center text-muted-foreground py-8">
                       ยังไม่มีรายการ — กด "+ Add Item" เพื่อเพิ่มรายการ
                     </TableCell>
                   </TableRow>
@@ -417,6 +432,7 @@ export default function CreateClaim() {
                 {/* Totals row */}
                 {(initialDocs.length > 0 || manualLines.length > 0) && (
                   <TableRow className="bg-muted/50 font-semibold">
+                    <TableCell></TableCell>
                     <TableCell></TableCell>
                     <TableCell></TableCell>
                     <TableCell></TableCell>
