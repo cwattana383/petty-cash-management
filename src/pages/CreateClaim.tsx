@@ -43,6 +43,7 @@ export default function CreateClaim() {
     amount: number;
     vatCode: string;
     vatAmount: number;
+    totalAmount: number;
     whtCode: string;
     whtAmount: number;
   }>>([]);
@@ -50,7 +51,7 @@ export default function CreateClaim() {
   const addManualLine = () => {
     setManualLines((prev) => [
       ...prev,
-      { id: crypto.randomUUID(), description: "", expenseType: "", amount: 0, vatCode: "", vatAmount: 0, whtCode: "", whtAmount: 0 },
+      { id: crypto.randomUUID(), description: "", expenseType: "", amount: 0, vatCode: "", vatAmount: 0, totalAmount: 0, whtCode: "", whtAmount: 0 },
     ]);
   };
 
@@ -335,9 +336,8 @@ export default function CreateClaim() {
                     </TableCell>
                     <TableCell>
                       <CurrencyInput
-                        value={0}
-                        onChange={() => {}}
-                        placeholder="—"
+                        value={line.totalAmount}
+                        onChange={(v) => updateManualLine(line.id, "totalAmount", v)}
                         className="h-8 text-sm w-28"
                       />
                     </TableCell>
