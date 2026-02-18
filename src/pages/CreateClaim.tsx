@@ -1,10 +1,11 @@
 import { useState, useMemo } from "react";
+import { format, subMonths, addMonths } from "date-fns";
 import { useNavigate, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
-import { ArrowLeft, Save, Send, FileText, Plus, Trash2 } from "lucide-react";
+import { ArrowLeft, Save, Send, FileText, Plus, Trash2, CalendarIcon } from "lucide-react";
 import { currentUser } from "@/lib/mock-data";
 import { useToast } from "@/hooks/use-toast";
 import { UploadedDoc, formatFileSize } from "@/lib/upload-types";
@@ -12,6 +13,9 @@ import { Input } from "@/components/ui/input";
 import { CurrencyInput } from "@/components/ui/currency-input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import DocumentHeader from "@/components/claims/DocumentHeader";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Calendar } from "@/components/ui/calendar";
+import { cn } from "@/lib/utils";
 import CreatorInformation from "@/components/claims/CreatorInformation";
 import RequesterInformation, { type RequesterData } from "@/components/claims/RequesterInformation";
 import AdvanceInformation, { type AdvanceData } from "@/components/claims/AdvanceInformation";
@@ -38,6 +42,7 @@ export default function CreateClaim() {
 
   const [manualLines, setManualLines] = useState<Array<{
     id: string;
+    invoiceDate?: Date;
     description: string;
     expenseType: string;
     amount: number;
@@ -272,7 +277,27 @@ export default function CreateClaim() {
                   <TableRow key={line.id}>
                     <TableCell className="text-muted-foreground">{initialDocs.length + idx + 1}</TableCell>
                     <TableCell>
-                      <Input placeholder="วันที่..." className="h-8 text-sm w-24" />
+                      <Popover>
+                        <PopoverTrigger asChild>
+                          <Button
+                            variant="outline"
+                            className={cn("h-8 text-sm w-32 justify-start text-left font-normal", !line.invoiceDate && "text-muted-foreground")}
+                          >
+                            <CalendarIcon className="mr-1 h-3.5 w-3.5" />
+                            {line.invoiceDate ? format(line.invoiceDate, "dd/MM/yyyy") : "วันที่..."}
+                          </Button>
+                        </PopoverTrigger>
+                        <PopoverContent className="w-auto p-0" align="start">
+                          <Calendar
+                            mode="single"
+                            selected={line.invoiceDate}
+                            onSelect={(d) => updateManualLine(line.id, "invoiceDate", d)}
+                            disabled={(date) => date < subMonths(new Date(), 1) || date > addMonths(new Date(), 1)}
+                            initialFocus
+                            className={cn("p-3 pointer-events-auto")}
+                          />
+                        </PopoverContent>
+                      </Popover>
                     </TableCell>
                     <TableCell>
                       <Input placeholder="เลขที่..." className="h-8 text-sm w-24" />
