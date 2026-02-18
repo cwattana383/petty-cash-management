@@ -18,6 +18,8 @@ export interface RequesterData {
   telephone: string;
   email: string;
   division: string;
+  department: string;
+  branch: string;
 }
 
 interface RequesterInfoProps {
@@ -46,6 +48,8 @@ export default function RequesterInformation({ data, creatorData, onChange }: Re
         telephone: currentUser.telephone || "",
         email: creatorData.email,
         division: creatorData.division,
+        department: "9993010460 Finance and Accounting",
+        branch: "099999 – HO",
       });
     } else {
       onChange({
@@ -57,6 +61,8 @@ export default function RequesterInformation({ data, creatorData, onChange }: Re
         telephone: "",
         email: "",
         division: "",
+        department: "",
+        branch: "",
       });
     }
   };
@@ -122,6 +128,14 @@ export default function RequesterInformation({ data, creatorData, onChange }: Re
           <div>
             <Label>Division</Label>
             <Input value={data.division} disabled />
+          </div>
+          <div>
+            <Label>แผนก (Department)</Label>
+            <Input value={data.department} disabled />
+          </div>
+          <div>
+            <Label>สาขา (Branch)</Label>
+            <Input value={data.branch} disabled />
           </div>
         </div>
       </CardContent>

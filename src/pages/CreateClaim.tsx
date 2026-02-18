@@ -67,6 +67,8 @@ export default function CreateClaim() {
     telephone: "0657778899",
     email: "somchai@cpaxtra.co.th",
     division: "92029 – Accounting",
+    department: "9993010460 Finance and Accounting",
+    branch: "099999 – HO",
   });
 
   // Advance info
