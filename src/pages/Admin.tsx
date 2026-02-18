@@ -107,9 +107,6 @@ const adminMenu = [
 // --- Mock data ---
 const mockEmployees = [
   { name: "สมชาย ใจดี", code: "EMP001", dept: "9993010460 Finance and Accounting", role: "Director - Accounting", branch: "099999 – HO", costCenter: "9999" },
-  { name: "สมหญิง แก้วใส", code: "EMP002", dept: "Marketing", role: "Manager", branch: "Bangkok", costCenter: "CC-200" },
-  { name: "วิชัย เจริญ", code: "EMP003", dept: "Engineering", role: "Employee", branch: "Chiang Mai", costCenter: "CC-300" },
-  { name: "พิมพ์ ดี", code: "ACC001", dept: "Finance", role: "Accounting", branch: "Bangkok", costCenter: "CC-400" },
 ];
 
 const roleColors: Record<string, string> = {
