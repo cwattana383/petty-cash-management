@@ -174,15 +174,7 @@ export default function CreateClaim() {
         createDate={createDate}
       />
 
-      {/* 2) Creator Information */}
-      <CreatorInformation
-        employee={currentUser.name}
-        store={currentUser.branch}
-        company="ABC Co., Ltd."
-        telephone={currentUser.telephone || "-"}
-        email={currentUser.email}
-        division="92029 : Finance & Accounting"
-      />
+      {/* 2) Creator Information - hidden */}
 
       {/* 3) Requester Information */}
       <RequesterInformation
