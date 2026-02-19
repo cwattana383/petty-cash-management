@@ -10,16 +10,20 @@ function confidenceBadge(c: number) {
 }
 
 export interface ReceiptData {
-  vendorName: string;
-  vendorNameConf: number;
-  vendorTaxId: string;
-  vendorTaxIdConf: number;
-  vendorBranch: string;
-  vendorBranchConf: number;
-  receiptNo: string;
-  receiptNoConf: number;
-  receiptDate: string;
-  receiptDateConf: number;
+  buyerTaxId: string;
+  buyerTaxIdConf: number;
+  buyerNameAddress: string;
+  buyerNameAddressConf: number;
+  invoiceNumber: string;
+  invoiceNumberConf: number;
+  invoiceDate: string;
+  invoiceDateConf: number;
+  totalAmount: string;
+  totalAmountConf: number;
+  vatAmount: string;
+  vatAmountConf: number;
+  vendorSellerInfo: string;
+  vendorSellerInfoConf: number;
   paymentMethod: string;
   currency: string;
   country: string;
@@ -38,62 +42,83 @@ export default function ReceiptInformation({ data, onChange, errors }: Props) {
     <Card>
       <CardHeader className="pb-3">
         <CardTitle className="text-sm flex items-center gap-2">
-          <FileText className="h-4 w-4" /> Receipt Information
+          <FileText className="h-4 w-4" /> Document Information
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-3">
-        {/* Vendor Name */}
+        {/* Buyer Tax ID */}
         <div>
           <div className="flex items-center justify-between mb-1">
-            <Label className="text-xs text-muted-foreground">Vendor Name</Label>
-            {confidenceBadge(data.vendorNameConf)}
+            <Label className="text-xs text-muted-foreground">Buyer Tax ID (เลขประจำตัวผู้เสียภาษี)</Label>
+            {confidenceBadge(data.buyerTaxIdConf)}
           </div>
-          <Input value={data.vendorName} onChange={(e) => set("vendorName", e.target.value)} className={`h-8 text-sm ${data.vendorNameConf < 80 ? "border-yellow-400 bg-yellow-50" : ""}`} />
-          {errors.vendorName && <p className="text-xs text-destructive mt-0.5">{errors.vendorName}</p>}
+          <Input value={data.buyerTaxId} onChange={(e) => set("buyerTaxId", e.target.value)} className={`h-8 text-sm ${data.buyerTaxIdConf < 80 ? "border-yellow-400 bg-yellow-50" : ""}`} />
+          {errors.buyerTaxId && <p className="text-xs text-destructive mt-0.5">{errors.buyerTaxId}</p>}
         </div>
 
-        {/* Vendor Tax ID */}
+        {/* Buyer Name and Address */}
         <div>
           <div className="flex items-center justify-between mb-1">
-            <Label className="text-xs text-muted-foreground">Vendor Tax ID</Label>
-            {confidenceBadge(data.vendorTaxIdConf)}
+            <Label className="text-xs text-muted-foreground">Buyer Name and Address</Label>
+            {confidenceBadge(data.buyerNameAddressConf)}
           </div>
-          <Input value={data.vendorTaxId} onChange={(e) => set("vendorTaxId", e.target.value)} className={`h-8 text-sm ${data.vendorTaxIdConf < 80 ? "border-yellow-400 bg-yellow-50" : ""}`} />
-          {errors.vendorTaxId && <p className="text-xs text-destructive mt-0.5">{errors.vendorTaxId}</p>}
+          <Input value={data.buyerNameAddress} onChange={(e) => set("buyerNameAddress", e.target.value)} className={`h-8 text-sm ${data.buyerNameAddressConf < 80 ? "border-yellow-400 bg-yellow-50" : ""}`} />
+          {errors.buyerNameAddress && <p className="text-xs text-destructive mt-0.5">{errors.buyerNameAddress}</p>}
         </div>
 
         <div className="grid grid-cols-2 gap-3">
-          {/* Vendor Branch */}
+          {/* Invoice Number */}
           <div>
             <div className="flex items-center justify-between mb-1">
-              <Label className="text-xs text-muted-foreground">Vendor Branch</Label>
-              {confidenceBadge(data.vendorBranchConf)}
+              <Label className="text-xs text-muted-foreground">Invoice Number</Label>
+              {confidenceBadge(data.invoiceNumberConf)}
             </div>
-            <Input value={data.vendorBranch} onChange={(e) => set("vendorBranch", e.target.value)} className={`h-8 text-sm ${data.vendorBranchConf < 80 ? "border-yellow-400 bg-yellow-50" : ""}`} />
+            <Input value={data.invoiceNumber} onChange={(e) => set("invoiceNumber", e.target.value)} className={`h-8 text-sm ${data.invoiceNumberConf < 80 ? "border-yellow-400 bg-yellow-50" : ""}`} />
+            {errors.invoiceNumber && <p className="text-xs text-destructive mt-0.5">{errors.invoiceNumber}</p>}
           </div>
 
-          {/* Receipt No */}
+          {/* Invoice Date */}
           <div>
             <div className="flex items-center justify-between mb-1">
-              <Label className="text-xs text-muted-foreground">Receipt No.</Label>
-              {confidenceBadge(data.receiptNoConf)}
+              <Label className="text-xs text-muted-foreground">Invoice Date</Label>
+              {confidenceBadge(data.invoiceDateConf)}
             </div>
-            <Input value={data.receiptNo} onChange={(e) => set("receiptNo", e.target.value)} className={`h-8 text-sm ${data.receiptNoConf < 80 ? "border-yellow-400 bg-yellow-50" : ""}`} />
-            {errors.receiptNo && <p className="text-xs text-destructive mt-0.5">{errors.receiptNo}</p>}
+            <Input type="date" value={data.invoiceDate} onChange={(e) => set("invoiceDate", e.target.value)} className={`h-8 text-sm ${data.invoiceDateConf < 80 ? "border-yellow-400 bg-yellow-50" : ""}`} />
+            {errors.invoiceDate && <p className="text-xs text-destructive mt-0.5">{errors.invoiceDate}</p>}
           </div>
         </div>
 
         <div className="grid grid-cols-2 gap-3">
-          {/* Receipt Date */}
+          {/* Total Amount */}
           <div>
             <div className="flex items-center justify-between mb-1">
-              <Label className="text-xs text-muted-foreground">Receipt Date</Label>
-              {confidenceBadge(data.receiptDateConf)}
+              <Label className="text-xs text-muted-foreground">Total Amount</Label>
+              {confidenceBadge(data.totalAmountConf)}
             </div>
-            <Input type="date" value={data.receiptDate} onChange={(e) => set("receiptDate", e.target.value)} className={`h-8 text-sm ${data.receiptDateConf < 80 ? "border-yellow-400 bg-yellow-50" : ""}`} />
-            {errors.receiptDate && <p className="text-xs text-destructive mt-0.5">{errors.receiptDate}</p>}
+            <Input value={data.totalAmount} onChange={(e) => set("totalAmount", e.target.value)} className={`h-8 text-sm ${data.totalAmountConf < 80 ? "border-yellow-400 bg-yellow-50" : ""}`} />
           </div>
 
+          {/* VAT Amount */}
+          <div>
+            <div className="flex items-center justify-between mb-1">
+              <Label className="text-xs text-muted-foreground">VAT Amount</Label>
+              {confidenceBadge(data.vatAmountConf)}
+            </div>
+            <Input value={data.vatAmount} onChange={(e) => set("vatAmount", e.target.value)} className={`h-8 text-sm ${data.vatAmountConf < 80 ? "border-yellow-400 bg-yellow-50" : ""}`} />
+          </div>
+        </div>
+
+        {/* Vendor/Seller Information */}
+        <div>
+          <div className="flex items-center justify-between mb-1">
+            <Label className="text-xs text-muted-foreground">Vendor/Seller Information</Label>
+            {confidenceBadge(data.vendorSellerInfoConf)}
+          </div>
+          <Input value={data.vendorSellerInfo} onChange={(e) => set("vendorSellerInfo", e.target.value)} className={`h-8 text-sm ${data.vendorSellerInfoConf < 80 ? "border-yellow-400 bg-yellow-50" : ""}`} />
+          {errors.vendorSellerInfo && <p className="text-xs text-destructive mt-0.5">{errors.vendorSellerInfo}</p>}
+        </div>
+
+        <div className="grid grid-cols-3 gap-3">
           {/* Payment Method */}
           <div>
             <Label className="text-xs text-muted-foreground mb-1 block">Payment Method</Label>
@@ -106,9 +131,7 @@ export default function ReceiptInformation({ data, onChange, errors }: Props) {
               </SelectContent>
             </Select>
           </div>
-        </div>
 
-        <div className="grid grid-cols-2 gap-3">
           {/* Currency */}
           <div>
             <Label className="text-xs text-muted-foreground mb-1 block">Currency</Label>

@@ -31,11 +31,13 @@ export default function VerifyModal({ doc, onClose, onConfirm, onReject, onRerun
   const ocrFields = doc?.ocrData || [];
 
   const [receipt, setReceipt] = useState<ReceiptData>({
-    vendorName: "", vendorNameConf: 75,
-    vendorTaxId: "", vendorTaxIdConf: 75,
-    vendorBranch: "", vendorBranchConf: 75,
-    receiptNo: "", receiptNoConf: 75,
-    receiptDate: "", receiptDateConf: 75,
+    buyerTaxId: "", buyerTaxIdConf: 75,
+    buyerNameAddress: "", buyerNameAddressConf: 75,
+    invoiceNumber: "", invoiceNumberConf: 75,
+    invoiceDate: "", invoiceDateConf: 75,
+    totalAmount: "", totalAmountConf: 75,
+    vatAmount: "", vatAmountConf: 75,
+    vendorSellerInfo: "", vendorSellerInfoConf: 75,
     paymentMethod: "Cash", currency: "THB", country: "TH",
   });
 
@@ -53,16 +55,20 @@ export default function VerifyModal({ doc, onClose, onConfirm, onReject, onRerun
     const f = doc.ocrData;
 
     setReceipt({
-      vendorName: getOcrValue(f, "ชื่อ ผู้มีหน้าที่หักภาษี ณ ที่จ่าย"),
-      vendorNameConf: getOcrConf(f, "ชื่อ ผู้มีหน้าที่หักภาษี ณ ที่จ่าย"),
-      vendorTaxId: getOcrValue(f, "เลขประจำตัวผู้เสียภาษี"),
-      vendorTaxIdConf: getOcrConf(f, "เลขประจำตัวผู้เสียภาษี"),
-      vendorBranch: getOcrValue(f, "สาขา") || "สำนักงานใหญ่",
-      vendorBranchConf: getOcrConf(f, "สาขา") || 80,
-      receiptNo: getOcrValue(f, "เลขที่"),
-      receiptNoConf: getOcrConf(f, "เลขที่"),
-      receiptDate: convertThaiDate(getOcrValue(f, "วันเดือนปี")),
-      receiptDateConf: getOcrConf(f, "วันเดือนปี"),
+      buyerTaxId: getOcrValue(f, "เลขประจำตัวผู้เสียภาษี"),
+      buyerTaxIdConf: getOcrConf(f, "เลขประจำตัวผู้เสียภาษี"),
+      buyerNameAddress: getOcrValue(f, "ชื่อ ผู้มีหน้าที่หักภาษี ณ ที่จ่าย"),
+      buyerNameAddressConf: getOcrConf(f, "ชื่อ ผู้มีหน้าที่หักภาษี ณ ที่จ่าย"),
+      invoiceNumber: getOcrValue(f, "เลขที่"),
+      invoiceNumberConf: getOcrConf(f, "เลขที่"),
+      invoiceDate: convertThaiDate(getOcrValue(f, "วันเดือนปี")),
+      invoiceDateConf: getOcrConf(f, "วันเดือนปี"),
+      totalAmount: getOcrValue(f, "จำนวนเงิน"),
+      totalAmountConf: getOcrConf(f, "จำนวนเงิน"),
+      vatAmount: getOcrValue(f, "VAT Amount"),
+      vatAmountConf: getOcrConf(f, "VAT Amount"),
+      vendorSellerInfo: getOcrValue(f, "สาขา") || "สำนักงานใหญ่",
+      vendorSellerInfoConf: getOcrConf(f, "สาขา") || 80,
       paymentMethod: "Cash",
       currency: "THB",
       country: "TH",
@@ -101,17 +107,17 @@ export default function VerifyModal({ doc, onClose, onConfirm, onReject, onRerun
   useEffect(() => {
     const w: string[] = [];
 
-    if (receipt.receiptDate) {
-      const rDate = new Date(receipt.receiptDate);
+    if (receipt.invoiceDate) {
+      const rDate = new Date(receipt.invoiceDate);
       const daysDiff = Math.floor((Date.now() - rDate.getTime()) / (1000 * 60 * 60 * 24));
-      if (daysDiff > 60) w.push(`Receipt date is ${daysDiff} days old (policy: max 60 days)`);
+      if (daysDiff > 60) w.push(`Invoice date is ${daysDiff} days old (policy: max 60 days)`);
     }
 
     // Low confidence fields
     const confFields = [
-      { name: "Vendor Name", conf: receipt.vendorNameConf },
-      { name: "Tax ID", conf: receipt.vendorTaxIdConf },
-      { name: "Receipt No", conf: receipt.receiptNoConf },
+      { name: "Buyer Name", conf: receipt.buyerNameAddressConf },
+      { name: "Tax ID", conf: receipt.buyerTaxIdConf },
+      { name: "Invoice No", conf: receipt.invoiceNumberConf },
     ];
     confFields.forEach((cf) => {
       if (cf.conf < 80) w.push(`${cf.name} has low confidence (${cf.conf}%) — กรุณาตรวจสอบ`);
@@ -127,10 +133,10 @@ export default function VerifyModal({ doc, onClose, onConfirm, onReject, onRerun
 
   const handleConfirm = () => {
     const errs: Record<string, string> = {};
-    if (!receipt.vendorName) errs.vendorName = "Required";
-    if (!receipt.vendorTaxId) errs.vendorTaxId = "Required";
-    if (!receipt.receiptNo) errs.receiptNo = "Required";
-    if (!receipt.receiptDate) errs.receiptDate = "Required";
+    if (!receipt.buyerTaxId) errs.buyerTaxId = "Required";
+    if (!receipt.buyerNameAddress) errs.buyerNameAddress = "Required";
+    if (!receipt.invoiceNumber) errs.invoiceNumber = "Required";
+    if (!receipt.invoiceDate) errs.invoiceDate = "Required";
 
     setReceiptErrors(errs);
     if (Object.keys(errs).length > 0) {
@@ -142,10 +148,11 @@ export default function VerifyModal({ doc, onClose, onConfirm, onReject, onRerun
     const payload = {
       transaction_id: transactionId,
       transaction_type: "PETTY_CASH",
-      receipt_no: receipt.receiptNo,
-      receipt_date: receipt.receiptDate,
-      vendor_name: receipt.vendorName,
-      vendor_tax_id: receipt.vendorTaxId,
+      invoice_no: receipt.invoiceNumber,
+      invoice_date: receipt.invoiceDate,
+      buyer_name: receipt.buyerNameAddress,
+      buyer_tax_id: receipt.buyerTaxId,
+      vendor_seller_info: receipt.vendorSellerInfo,
       subtotal: amount.subtotal,
       vat_amount: amount.vatAmount,
       wht_amount: amount.whtAmount,
@@ -166,10 +173,10 @@ export default function VerifyModal({ doc, onClose, onConfirm, onReject, onRerun
     console.log("Transaction Payload:", JSON.stringify(payload, null, 2));
 
     const updatedFields: OcrField[] = [
-      { label: "เลขประจำตัวผู้เสียภาษี", value: receipt.vendorTaxId, confidence: receipt.vendorTaxIdConf },
-      { label: "วันเดือนปี", value: receipt.receiptDate, confidence: receipt.receiptDateConf },
-      { label: "เลขที่", value: receipt.receiptNo, confidence: receipt.receiptNoConf },
-      { label: "ชื่อ ผู้มีหน้าที่หักภาษี ณ ที่จ่าย", value: receipt.vendorName, confidence: receipt.vendorNameConf },
+      { label: "เลขประจำตัวผู้เสียภาษี", value: receipt.buyerTaxId, confidence: receipt.buyerTaxIdConf },
+      { label: "วันเดือนปี", value: receipt.invoiceDate, confidence: receipt.invoiceDateConf },
+      { label: "เลขที่", value: receipt.invoiceNumber, confidence: receipt.invoiceNumberConf },
+      { label: "ชื่อ ผู้มีหน้าที่หักภาษี ณ ที่จ่าย", value: receipt.buyerNameAddress, confidence: receipt.buyerNameAddressConf },
       { label: "ประเภทรายได้", value: lines[0]?.description || "", confidence: 100 },
       { label: "อัตราภาษี", value: amount.vatRate, confidence: 100 },
       { label: "จำนวนเงิน", value: amount.grandTotal.toFixed(2), confidence: 100 },
