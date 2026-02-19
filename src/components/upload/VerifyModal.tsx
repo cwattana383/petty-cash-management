@@ -99,7 +99,7 @@ export default function VerifyModal({ doc, onClose, onConfirm, onReject, onRerun
     if (receipt.invoiceDate) {
       const rDate = new Date(receipt.invoiceDate);
       const daysDiff = Math.floor((Date.now() - rDate.getTime()) / (1000 * 60 * 60 * 24));
-      if (daysDiff > 60) w.push(`Invoice date is ${daysDiff} days old (policy: max 60 days)`);
+      if (daysDiff > 30) w.push(`Invoice date is ${daysDiff} days old (policy: max 30 days)`);
     }
 
     // Low confidence fields
