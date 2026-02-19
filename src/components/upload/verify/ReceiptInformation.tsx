@@ -12,6 +12,10 @@ function confidenceBadge(c: number) {
 export interface ReceiptData {
   buyerTaxId: string;
   buyerTaxIdConf: number;
+  buyerName: string;
+  buyerNameConf: number;
+  buyerAddress: string;
+  buyerAddressConf: number;
   buyerNameAddress: string;
   buyerNameAddressConf: number;
   invoiceNumber: string;
@@ -54,14 +58,24 @@ export default function ReceiptInformation({ data, onChange, errors }: Props) {
           {errors.buyerTaxId && <p className="text-xs text-destructive mt-0.5">{errors.buyerTaxId}</p>}
         </div>
 
-        {/* Buyer Name and Address */}
+        {/* Buyer Name */}
         <div>
           <div className="flex items-center justify-between mb-1">
-            <Label className="text-xs text-muted-foreground">Buyer Name and Address</Label>
-            {confidenceBadge(data.buyerNameAddressConf)}
+            <Label className="text-xs text-muted-foreground">Buyer Name</Label>
+            {confidenceBadge(data.buyerNameConf)}
           </div>
-          <Input value={data.buyerNameAddress} onChange={(e) => set("buyerNameAddress", e.target.value)} className={`h-8 text-sm ${data.buyerNameAddressConf < 80 ? "border-yellow-400 bg-yellow-50" : ""}`} />
-          {errors.buyerNameAddress && <p className="text-xs text-destructive mt-0.5">{errors.buyerNameAddress}</p>}
+          <Input value={data.buyerName} onChange={(e) => set("buyerName", e.target.value)} className={`h-8 text-sm ${data.buyerNameConf < 80 ? "border-yellow-400 bg-yellow-50" : ""}`} />
+          {errors.buyerName && <p className="text-xs text-destructive mt-0.5">{errors.buyerName}</p>}
+        </div>
+
+        {/* Buyer Address */}
+        <div>
+          <div className="flex items-center justify-between mb-1">
+            <Label className="text-xs text-muted-foreground">Buyer Address</Label>
+            {confidenceBadge(data.buyerAddressConf)}
+          </div>
+          <Input value={data.buyerAddress} onChange={(e) => set("buyerAddress", e.target.value)} className={`h-8 text-sm ${data.buyerAddressConf < 80 ? "border-yellow-400 bg-yellow-50" : ""}`} />
+          {errors.buyerAddress && <p className="text-xs text-destructive mt-0.5">{errors.buyerAddress}</p>}
         </div>
 
         <div className="grid grid-cols-2 gap-3">

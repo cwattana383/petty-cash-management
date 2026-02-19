@@ -31,6 +31,8 @@ export default function VerifyModal({ doc, onClose, onConfirm, onReject, onRerun
 
   const [receipt, setReceipt] = useState<ReceiptData>({
     buyerTaxId: "", buyerTaxIdConf: 75,
+    buyerName: "", buyerNameConf: 75,
+    buyerAddress: "", buyerAddressConf: 75,
     buyerNameAddress: "", buyerNameAddressConf: 75,
     invoiceNumber: "", invoiceNumberConf: 75,
     invoiceDate: "", invoiceDateConf: 75,
@@ -54,6 +56,10 @@ export default function VerifyModal({ doc, onClose, onConfirm, onReject, onRerun
     setReceipt({
       buyerTaxId: getOcrValue(f, "เลขประจำตัวผู้เสียภาษี"),
       buyerTaxIdConf: getOcrConf(f, "เลขประจำตัวผู้เสียภาษี"),
+      buyerName: getOcrValue(f, "ชื่อ ผู้มีหน้าที่หักภาษี ณ ที่จ่าย"),
+      buyerNameConf: getOcrConf(f, "ชื่อ ผู้มีหน้าที่หักภาษี ณ ที่จ่าย"),
+      buyerAddress: "",
+      buyerAddressConf: 75,
       buyerNameAddress: getOcrValue(f, "ชื่อ ผู้มีหน้าที่หักภาษี ณ ที่จ่าย"),
       buyerNameAddressConf: getOcrConf(f, "ชื่อ ผู้มีหน้าที่หักภาษี ณ ที่จ่าย"),
       invoiceNumber: getOcrValue(f, "เลขที่"),
