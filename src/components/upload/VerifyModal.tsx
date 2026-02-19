@@ -38,7 +38,7 @@ export default function VerifyModal({ doc, onClose, onConfirm, onReject, onRerun
     totalAmount: "", totalAmountConf: 75,
     vatAmount: "", vatAmountConf: 75,
     vendorSellerInfo: "", vendorSellerInfoConf: 75,
-    paymentMethod: "Cash", currency: "THB", country: "TH",
+    paymentMethod: "Credit Card", currency: "THB", country: "TH",
   });
 
   const [amount, setAmount] = useState<AmountData>({
@@ -69,7 +69,7 @@ export default function VerifyModal({ doc, onClose, onConfirm, onReject, onRerun
       vatAmountConf: getOcrConf(f, "VAT Amount"),
       vendorSellerInfo: getOcrValue(f, "สาขา") || "สำนักงานใหญ่",
       vendorSellerInfoConf: getOcrConf(f, "สาขา") || 80,
-      paymentMethod: "Cash",
+      paymentMethod: "Credit Card",
       currency: "THB",
       country: "TH",
     });
