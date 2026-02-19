@@ -13,13 +13,13 @@ import VerifyModal from "@/components/upload/VerifyModal";
 import EligibilityModal from "@/components/upload/EligibilityModal";
 
 const initialDocs: UploadedDoc[] = [
-  { id: "1", name: "ตัวอย่าง หัก ณ ที่จ่าย_Part1.pdf", size: 402.1 * 1024, status: "TO_VERIFY", uploadedAt: new Date("2026-02-12T15:03:00"), ocrData: mockOcrFields, ocrConfidenceScore: 82, autoDecisionStatus: "NEED_VERIFY" },
-  { id: "2", name: "ตัวอย่าง หัก ณ ที่จ่าย_Part20.pdf", size: 51.8 * 1024, status: "OCR_FAILED", uploadedAt: new Date("2026-01-28T14:09:00"), ocrConfidenceScore: 45, autoDecisionStatus: "AUTO_REJECT", errorType: "OCR_UNREADABLE" },
-  { id: "3", name: "ตัวอย่าง หัก ณ ที่จ่าย_Part19.pdf", size: 342.9 * 1024, status: "TO_VERIFY", uploadedAt: new Date("2026-01-28T14:09:00"), ocrData: mockOcrFields, ocrConfidenceScore: 78, autoDecisionStatus: "NEED_VERIFY" },
-  { id: "4", name: "ตัวอย่าง หัก ณ ที่จ่าย_Part18.pdf", size: 534.0 * 1024, status: "OCR_FAILED", uploadedAt: new Date("2026-01-28T14:09:00"), ocrConfidenceScore: 55, autoDecisionStatus: "AUTO_REJECT", errorType: "MISSING_REQUIRED_FIELD" },
-  { id: "5", name: "ตัวอย่าง หัก ณ ที่จ่าย_Part17.pdf", size: 49.9 * 1024, status: "VERIFIED", uploadedAt: new Date("2026-01-28T14:09:00"), ocrData: mockOcrFields, ocrConfidenceScore: 95, autoDecisionStatus: "AUTO_ACCEPT" },
-  { id: "6", name: "ตัวอย่าง หัก ณ ที่จ่าย_Part16.pdf", size: 47.0 * 1024, status: "OCR_FAILED", uploadedAt: new Date("2026-01-28T14:09:00"), ocrConfidenceScore: 35, autoDecisionStatus: "AUTO_REJECT", errorType: "FILE_CORRUPT" },
-  { id: "7", name: "ตัวอย่าง หัก ณ ที่จ่าย_Part15.pdf", size: 46.8 * 1024, status: "OCR_PROCESSING", uploadedAt: new Date("2026-01-28T14:09:00") },
+  { id: "1", name: "ตัวอย่าง ใบเสร็จ/ใบกำกับภาษี_Part1.pdf", size: 402.1 * 1024, status: "TO_VERIFY", uploadedAt: new Date("2026-02-12T15:03:00"), ocrData: mockOcrFields, ocrConfidenceScore: 82, autoDecisionStatus: "NEED_VERIFY" },
+  { id: "2", name: "ตัวอย่าง ใบเสร็จ/ใบกำกับภาษี_Part20.pdf", size: 51.8 * 1024, status: "OCR_FAILED", uploadedAt: new Date("2026-01-28T14:09:00"), ocrConfidenceScore: 45, autoDecisionStatus: "AUTO_REJECT", errorType: "OCR_UNREADABLE" },
+  { id: "3", name: "ตัวอย่าง ใบเสร็จ/ใบกำกับภาษี_Part19.pdf", size: 342.9 * 1024, status: "TO_VERIFY", uploadedAt: new Date("2026-01-28T14:09:00"), ocrData: mockOcrFields, ocrConfidenceScore: 78, autoDecisionStatus: "NEED_VERIFY" },
+  { id: "4", name: "ตัวอย่าง ใบเสร็จ/ใบกำกับภาษี_Part18.pdf", size: 534.0 * 1024, status: "OCR_FAILED", uploadedAt: new Date("2026-01-28T14:09:00"), ocrConfidenceScore: 55, autoDecisionStatus: "AUTO_REJECT", errorType: "MISSING_REQUIRED_FIELD" },
+  { id: "5", name: "ตัวอย่าง ใบเสร็จ/ใบกำกับภาษี_Part17.pdf", size: 49.9 * 1024, status: "VERIFIED", uploadedAt: new Date("2026-01-28T14:09:00"), ocrData: mockOcrFields, ocrConfidenceScore: 95, autoDecisionStatus: "AUTO_ACCEPT" },
+  { id: "6", name: "ตัวอย่าง ใบเสร็จ/ใบกำกับภาษี_Part16.pdf", size: 47.0 * 1024, status: "OCR_FAILED", uploadedAt: new Date("2026-01-28T14:09:00"), ocrConfidenceScore: 35, autoDecisionStatus: "AUTO_REJECT", errorType: "FILE_CORRUPT" },
+  { id: "7", name: "ตัวอย่าง ใบเสร็จ/ใบกำกับภาษี_Part15.pdf", size: 46.8 * 1024, status: "OCR_PROCESSING", uploadedAt: new Date("2026-01-28T14:09:00") },
 ];
 
 export default function UploadDocument() {
