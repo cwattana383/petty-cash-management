@@ -40,7 +40,7 @@ export default function VerifyModal({ doc, onClose, onConfirm, onReject, onRerun
   });
 
   const [amount, setAmount] = useState<AmountData>({
-    description: "", subtotal: 0, totalAmount: "", totalAmountConf: 75, vatRate: "7", vatAmount: 0, whtCode: "", whtAmount: 0, grandTotal: 0,
+    description: "", subtotal: 0, subtotalConf: 75, totalAmount: "", totalAmountConf: 75, vatRate: "7", vatAmount: 0, vatAmountConf: 75, whtCode: "", whtAmount: 0, whtAmountConf: 75, grandTotal: 0,
   });
 
   const [receiptErrors, setReceiptErrors] = useState<Record<string, string>>({});
@@ -79,12 +79,15 @@ export default function VerifyModal({ doc, onClose, onConfirm, onReject, onRerun
     setAmount({
       description: getOcrValue(f, "ประเภทรายได้") || "Expense item",
       subtotal,
+      subtotalConf: getOcrConf(f, "จำนวนเงิน"),
       totalAmount: getOcrValue(f, "จำนวนเงิน"),
       totalAmountConf: getOcrConf(f, "จำนวนเงิน"),
       vatRate: taxRate === 7 ? "7" : taxRate === 0 ? "0" : "7",
       vatAmount: vatAmt || calcVat,
+      vatAmountConf: getOcrConf(f, "VAT Amount"),
       whtCode: whtCode || "",
       whtAmount: whtAmt,
+      whtAmountConf: getOcrConf(f, "WHT Amount"),
       grandTotal: Math.round((subtotal + (vatAmt || calcVat) - whtAmt) * 100) / 100,
     });
   }, [doc]);
