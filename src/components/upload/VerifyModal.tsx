@@ -228,29 +228,6 @@ export default function VerifyModal({ doc, onClose, onConfirm, onReject, onRerun
           {/* RIGHT PANEL (40%) */}
           <div className="col-span-2 p-5 flex flex-col">
             <DocumentPreviewPanel docName={doc.name} />
-
-            {/* OCR Field Confidence Summary */}
-            {doc.ocrData && doc.ocrData.length > 0 && (
-              <div className="mt-4 border rounded-lg p-3">
-                <h4 className="text-xs font-semibold mb-2">Field-level Confidence</h4>
-                <div className="space-y-1.5 max-h-[200px] overflow-y-auto">
-                  {doc.ocrData.map((f) => (
-                    <div key={f.label} className={`flex items-center justify-between text-xs px-2 py-1 rounded ${f.confidence < 80 ? "bg-red-50 border border-red-200" : "bg-muted/50"}`}>
-                      <span className="truncate max-w-[180px]">{f.label}</span>
-                      <div className="flex items-center gap-2">
-                        <div className="w-12 h-1.5 bg-muted rounded-full overflow-hidden">
-                          <div
-                            className={`h-full rounded-full ${f.confidence >= 90 ? "bg-green-500" : f.confidence >= 80 ? "bg-yellow-500" : "bg-red-500"}`}
-                            style={{ width: `${f.confidence}%` }}
-                          />
-                        </div>
-                        <span className={`font-medium ${f.confidence < 80 ? "text-red-600" : ""}`}>{f.confidence.toFixed(2)}%</span>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
           </div>
         </div>
 
