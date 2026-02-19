@@ -93,13 +93,8 @@ export default function VerifyModal({ doc, onClose, onConfirm, onReject, onRerun
     setLines([{
       id: `line-${Date.now()}`,
       description: getOcrValue(f, "ประเภทรายได้") || "Expense item",
-      quantity: 1,
-      unitPrice: subtotal,
       lineAmount: subtotal,
       expenseCategory: "",
-      glAccount: "",
-      costCenter: "",
-      projectCode: "",
     }]);
   }, [doc]);
 
@@ -161,13 +156,8 @@ export default function VerifyModal({ doc, onClose, onConfirm, onReject, onRerun
       payment_method: receipt.paymentMethod,
       lines: lines.map((l) => ({
         description: l.description,
-        quantity: l.quantity,
-        unit_price: l.unitPrice,
         amount: l.lineAmount,
         expense_category: l.expenseCategory,
-        gl_account: l.glAccount,
-        cost_center: l.costCenter,
-        project_code: l.projectCode,
       })),
     };
     console.log("Transaction Payload:", JSON.stringify(payload, null, 2));
