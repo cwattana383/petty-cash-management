@@ -8,6 +8,8 @@ import { AlertTriangle, FileText } from "lucide-react";
 export interface AmountData {
   description: string;
   subtotal: number;
+  totalAmount: string;
+  totalAmountConf: number;
   vatRate: string;
   vatAmount: number;
   whtCode: string;
@@ -66,14 +68,29 @@ export default function AmountBreakdown({ data, onChange }: Props) {
           />
         </div>
 
-        {/* Subtotal */}
+        {/* Subtotal Amount */}
         <div>
-          <Label className="text-xs text-muted-foreground">Subtotal</Label>
+          <Label className="text-xs text-muted-foreground">Subtotal Amount</Label>
           <Input
             type="number"
             value={data.subtotal || ""}
             onChange={(e) => set("subtotal", parseFloat(e.target.value) || 0)}
             className="h-8 text-sm"
+          />
+        </div>
+
+        {/* Total Amount */}
+        <div>
+          <div className="flex items-center justify-between mb-1">
+            <Label className="text-xs text-muted-foreground">Total Amount</Label>
+            {data.totalAmountConf > 0 && (
+              <span className={`text-xs font-medium px-2 py-0.5 rounded ${data.totalAmountConf >= 90 ? "bg-green-100 text-green-700" : data.totalAmountConf >= 80 ? "bg-yellow-100 text-yellow-700" : "bg-red-100 text-red-700"}`}>{data.totalAmountConf.toFixed(2)}%</span>
+            )}
+          </div>
+          <Input
+            value={data.totalAmount || ""}
+            onChange={(e) => onChange({ ...data, totalAmount: e.target.value })}
+            className={`h-8 text-sm ${data.totalAmountConf < 80 ? "border-yellow-400 bg-yellow-50" : ""}`}
           />
         </div>
 

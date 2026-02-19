@@ -34,14 +34,13 @@ export default function VerifyModal({ doc, onClose, onConfirm, onReject, onRerun
     buyerNameAddress: "", buyerNameAddressConf: 75,
     invoiceNumber: "", invoiceNumberConf: 75,
     invoiceDate: "", invoiceDateConf: 75,
-    totalAmount: "", totalAmountConf: 75,
     vatAmount: "", vatAmountConf: 75,
     vendorSellerInfo: "", vendorSellerInfoConf: 75,
     paymentMethod: "Credit Card", currency: "THB", country: "TH",
   });
 
   const [amount, setAmount] = useState<AmountData>({
-    description: "", subtotal: 0, vatRate: "7", vatAmount: 0, whtCode: "", whtAmount: 0, grandTotal: 0,
+    description: "", subtotal: 0, totalAmount: "", totalAmountConf: 75, vatRate: "7", vatAmount: 0, whtCode: "", whtAmount: 0, grandTotal: 0,
   });
 
   const [receiptErrors, setReceiptErrors] = useState<Record<string, string>>({});
@@ -61,8 +60,6 @@ export default function VerifyModal({ doc, onClose, onConfirm, onReject, onRerun
       invoiceNumberConf: getOcrConf(f, "เลขที่"),
       invoiceDate: convertThaiDate(getOcrValue(f, "วันเดือนปี")),
       invoiceDateConf: getOcrConf(f, "วันเดือนปี"),
-      totalAmount: getOcrValue(f, "จำนวนเงิน"),
-      totalAmountConf: getOcrConf(f, "จำนวนเงิน"),
       vatAmount: getOcrValue(f, "VAT Amount"),
       vatAmountConf: getOcrConf(f, "VAT Amount"),
       vendorSellerInfo: getOcrValue(f, "สาขา") || "สำนักงานใหญ่",
@@ -82,6 +79,8 @@ export default function VerifyModal({ doc, onClose, onConfirm, onReject, onRerun
     setAmount({
       description: getOcrValue(f, "ประเภทรายได้") || "Expense item",
       subtotal,
+      totalAmount: getOcrValue(f, "จำนวนเงิน"),
+      totalAmountConf: getOcrConf(f, "จำนวนเงิน"),
       vatRate: taxRate === 7 ? "7" : taxRate === 0 ? "0" : "7",
       vatAmount: vatAmt || calcVat,
       whtCode: whtCode || "",

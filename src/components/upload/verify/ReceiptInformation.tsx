@@ -18,8 +18,6 @@ export interface ReceiptData {
   invoiceNumberConf: number;
   invoiceDate: string;
   invoiceDateConf: number;
-  totalAmount: string;
-  totalAmountConf: number;
   vatAmount: string;
   vatAmountConf: number;
   vendorSellerInfo: string;
@@ -86,15 +84,6 @@ export default function ReceiptInformation({ data, onChange, errors }: Props) {
             <Input type="date" value={data.invoiceDate} onChange={(e) => set("invoiceDate", e.target.value)} className={`h-8 text-sm ${data.invoiceDateConf < 80 ? "border-yellow-400 bg-yellow-50" : ""}`} />
             {errors.invoiceDate && <p className="text-xs text-destructive mt-0.5">{errors.invoiceDate}</p>}
           </div>
-        </div>
-
-        {/* Total Amount */}
-        <div>
-          <div className="flex items-center justify-between mb-1">
-            <Label className="text-xs text-muted-foreground">Total Amount</Label>
-            {confidenceBadge(data.totalAmountConf)}
-          </div>
-          <Input value={data.totalAmount} onChange={(e) => set("totalAmount", e.target.value)} className={`h-8 text-sm ${data.totalAmountConf < 80 ? "border-yellow-400 bg-yellow-50" : ""}`} />
         </div>
 
         {/* Vendor/Seller Information */}
