@@ -255,14 +255,7 @@ export default function VerifyModal({ doc, onClose, onConfirm, onReject, onRerun
         </div>
 
         {/* Footer */}
-        <div className="flex items-center justify-between gap-3 px-6 py-4 border-t bg-muted/20">
-          <div className="flex gap-2">
-            {onRerunOcr && (
-              <Button variant="outline" onClick={() => onRerunOcr(doc.id)} className="gap-2">
-                <RefreshCw className="h-4 w-4" /> Re-run OCR
-              </Button>
-            )}
-          </div>
+        <div className="flex items-center justify-end gap-3 px-6 py-4 border-t bg-muted/20">
           <div className="flex gap-2">
             <Button variant="outline" onClick={onClose}>Cancel</Button>
             {onReject && (
