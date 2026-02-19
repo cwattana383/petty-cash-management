@@ -151,10 +151,10 @@ export default function DocumentTable({
                   <TableCell className="text-sm text-muted-foreground">{formatDate(doc.uploadedAt)}</TableCell>
                   <TableCell>
                     <div className="flex items-center justify-end gap-1">
-                      {/* Verify: only TO_VERIFY */}
-                      {doc.status === "TO_VERIFY" && (
+                      {/* Verify: TO_VERIFY or VERIFIED (view/edit) */}
+                      {(doc.status === "TO_VERIFY" || doc.status === "VERIFIED") && (
                         <Button variant="outline" size="sm" className="gap-1 text-xs" onClick={() => onVerify(doc)}>
-                          <Eye className="h-3.5 w-3.5" /> Verify
+                          <Eye className="h-3.5 w-3.5" /> {doc.status === "VERIFIED" ? "View" : "Verify"}
                         </Button>
                       )}
 
