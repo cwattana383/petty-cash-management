@@ -3,9 +3,10 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { AlertTriangle, DollarSign } from "lucide-react";
+import { AlertTriangle, FileText } from "lucide-react";
 
 export interface AmountData {
+  description: string;
   subtotal: number;
   vatRate: string;
   vatAmount: number;
@@ -50,10 +51,21 @@ export default function AmountBreakdown({ data, onChange }: Props) {
     <Card>
       <CardHeader className="pb-3">
         <CardTitle className="text-sm flex items-center gap-2">
-          <DollarSign className="h-4 w-4" /> Amount Breakdown
+          <FileText className="h-4 w-4" /> Document Details
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-3">
+        {/* Description */}
+        <div>
+          <Label className="text-xs text-muted-foreground">Description</Label>
+          <Input
+            value={data.description || ""}
+            onChange={(e) => onChange({ ...data, description: e.target.value })}
+            className="h-8 text-sm"
+            placeholder="Enter description"
+          />
+        </div>
+
         {/* Subtotal */}
         <div>
           <Label className="text-xs text-muted-foreground">Subtotal</Label>
