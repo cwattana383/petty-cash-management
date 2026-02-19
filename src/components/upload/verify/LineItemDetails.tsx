@@ -8,13 +8,8 @@ import { Plus, Trash2, ListOrdered } from "lucide-react";
 export interface LineItem {
   id: string;
   description: string;
-  quantity: number;
-  unitPrice: number;
   lineAmount: number;
   expenseCategory: string;
-  glAccount: string;
-  costCenter: string;
-  projectCode: string;
 }
 
 interface Props {
@@ -23,8 +18,6 @@ interface Props {
 }
 
 const expenseCategories = ["Travel", "Meals", "Office Supplies", "Transportation", "Training", "Entertainment", "Communication", "Other"];
-const costCenters = ["CC-SALES-01", "CC-MKT-01", "CC-ENG-01", "CC-HR-01", "CC-FIN-01"];
-const glAccounts = ["6110-00", "6120-00", "6130-00", "6140-00", "6150-00", "6160-00", "6170-00", "6190-00"];
 
 export default function LineItemDetails({ lines, onChange }: Props) {
   const addLine = () => {
@@ -33,13 +26,8 @@ export default function LineItemDetails({ lines, onChange }: Props) {
       {
         id: `line-${Date.now()}`,
         description: "",
-        quantity: 1,
-        unitPrice: 0,
         lineAmount: 0,
         expenseCategory: "",
-        glAccount: "",
-        costCenter: "",
-        projectCode: "",
       },
     ]);
   };
@@ -50,20 +38,7 @@ export default function LineItemDetails({ lines, onChange }: Props) {
     onChange(
       lines.map((l) => {
         if (l.id !== id) return l;
-        const updated = { ...l, [key]: val };
-        if (key === "quantity" || key === "unitPrice") {
-          updated.lineAmount = Math.round(updated.quantity * updated.unitPrice * 100) / 100;
-        }
-        // Auto-map GL account based on expense category
-        if (key === "expenseCategory") {
-          const glMap: Record<string, string> = {
-            Travel: "6110-00", Meals: "6120-00", "Office Supplies": "6130-00",
-            Transportation: "6140-00", Training: "6150-00", Entertainment: "6160-00",
-            Communication: "6170-00", Other: "6190-00",
-          };
-          updated.glAccount = glMap[val as string] || "";
-        }
-        return updated;
+        return { ...l, [key]: val };
       })
     );
   };
@@ -91,14 +66,9 @@ export default function LineItemDetails({ lines, onChange }: Props) {
               <TableHeader>
                 <TableRow>
                   <TableHead className="text-xs w-8">#</TableHead>
-                  <TableHead className="text-xs min-w-[140px]">Description</TableHead>
-                  <TableHead className="text-xs w-16">Qty</TableHead>
-                  <TableHead className="text-xs w-24">Unit Price</TableHead>
-                  <TableHead className="text-xs w-24">Amount</TableHead>
-                  <TableHead className="text-xs min-w-[110px]">Expense Cat.</TableHead>
-                  <TableHead className="text-xs w-20">GL Acct</TableHead>
-                  <TableHead className="text-xs min-w-[110px]">Cost Center</TableHead>
-                  <TableHead className="text-xs w-20">Project</TableHead>
+                  <TableHead className="text-xs min-w-[180px]">Description</TableHead>
+                  <TableHead className="text-xs w-28">Amount</TableHead>
+                  <TableHead className="text-xs min-w-[130px]">Expense Category</TableHead>
                   <TableHead className="text-xs w-8"></TableHead>
                 </TableRow>
               </TableHeader>
@@ -110,12 +80,8 @@ export default function LineItemDetails({ lines, onChange }: Props) {
                       <Input className="h-7 text-xs" value={line.description} onChange={(e) => updateLine(line.id, "description", e.target.value)} />
                     </TableCell>
                     <TableCell>
-                      <Input className="h-7 text-xs" type="number" value={line.quantity || ""} onChange={(e) => updateLine(line.id, "quantity", parseFloat(e.target.value) || 0)} />
+                      <Input className="h-7 text-xs" type="number" value={line.lineAmount || ""} onChange={(e) => updateLine(line.id, "lineAmount", parseFloat(e.target.value) || 0)} />
                     </TableCell>
-                    <TableCell>
-                      <Input className="h-7 text-xs" type="number" value={line.unitPrice || ""} onChange={(e) => updateLine(line.id, "unitPrice", parseFloat(e.target.value) || 0)} />
-                    </TableCell>
-                    <TableCell className="text-xs font-medium">{line.lineAmount.toLocaleString("en-US", { minimumFractionDigits: 2 })}</TableCell>
                     <TableCell>
                       <Select value={line.expenseCategory} onValueChange={(v) => updateLine(line.id, "expenseCategory", v)}>
                         <SelectTrigger className="h-7 text-xs"><SelectValue placeholder="Select" /></SelectTrigger>
@@ -123,26 +89,6 @@ export default function LineItemDetails({ lines, onChange }: Props) {
                           {expenseCategories.map((c) => <SelectItem key={c} value={c}>{c}</SelectItem>)}
                         </SelectContent>
                       </Select>
-                    </TableCell>
-                    <TableCell>
-                      <Select value={line.glAccount || "auto"} onValueChange={(v) => updateLine(line.id, "glAccount", v === "auto" ? "" : v)}>
-                        <SelectTrigger className="h-7 text-xs"><SelectValue placeholder="Auto" /></SelectTrigger>
-                        <SelectContent className="bg-background z-50">
-                          <SelectItem value="auto">Auto</SelectItem>
-                          {glAccounts.map((g) => <SelectItem key={g} value={g}>{g}</SelectItem>)}
-                        </SelectContent>
-                      </Select>
-                    </TableCell>
-                    <TableCell>
-                      <Select value={line.costCenter} onValueChange={(v) => updateLine(line.id, "costCenter", v)}>
-                        <SelectTrigger className="h-7 text-xs"><SelectValue placeholder="Select" /></SelectTrigger>
-                        <SelectContent>
-                          {costCenters.map((c) => <SelectItem key={c} value={c}>{c}</SelectItem>)}
-                        </SelectContent>
-                      </Select>
-                    </TableCell>
-                    <TableCell>
-                      <Input className="h-7 text-xs" value={line.projectCode} onChange={(e) => updateLine(line.id, "projectCode", e.target.value)} placeholder="Optional" />
                     </TableCell>
                     <TableCell>
                       <Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => removeLine(line.id)}>
