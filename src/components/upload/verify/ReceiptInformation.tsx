@@ -88,24 +88,13 @@ export default function ReceiptInformation({ data, onChange, errors }: Props) {
           </div>
         </div>
 
-        <div className="grid grid-cols-2 gap-3">
-          {/* Total Amount */}
-          <div>
-            <div className="flex items-center justify-between mb-1">
-              <Label className="text-xs text-muted-foreground">Total Amount</Label>
-              {confidenceBadge(data.totalAmountConf)}
-            </div>
-            <Input value={data.totalAmount} onChange={(e) => set("totalAmount", e.target.value)} className={`h-8 text-sm ${data.totalAmountConf < 80 ? "border-yellow-400 bg-yellow-50" : ""}`} />
+        {/* Total Amount */}
+        <div>
+          <div className="flex items-center justify-between mb-1">
+            <Label className="text-xs text-muted-foreground">Total Amount</Label>
+            {confidenceBadge(data.totalAmountConf)}
           </div>
-
-          {/* VAT Amount */}
-          <div>
-            <div className="flex items-center justify-between mb-1">
-              <Label className="text-xs text-muted-foreground">VAT Amount</Label>
-              {confidenceBadge(data.vatAmountConf)}
-            </div>
-            <Input value={data.vatAmount} onChange={(e) => set("vatAmount", e.target.value)} className={`h-8 text-sm ${data.vatAmountConf < 80 ? "border-yellow-400 bg-yellow-50" : ""}`} />
-          </div>
+          <Input value={data.totalAmount} onChange={(e) => set("totalAmount", e.target.value)} className={`h-8 text-sm ${data.totalAmountConf < 80 ? "border-yellow-400 bg-yellow-50" : ""}`} />
         </div>
 
         {/* Vendor/Seller Information */}
