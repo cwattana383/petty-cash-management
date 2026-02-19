@@ -6,7 +6,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { User, LogOut, Settings } from "lucide-react";
+import { User, LogOut, Settings, Lock } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { currentUser } from "@/lib/mock-data";
 import { NotificationCenter } from "@/components/NotificationCenter";
@@ -36,6 +36,10 @@ export function TopBar() {
           <DropdownMenuItem>
             <Settings className="mr-2 h-4 w-4" />
             Settings
+          </DropdownMenuItem>
+          <DropdownMenuItem>
+            <Lock className="mr-2 h-4 w-4" />
+            Password
           </DropdownMenuItem>
           <DropdownMenuItem>
             <LogOut className="mr-2 h-4 w-4" />
