@@ -9,7 +9,6 @@ import { toast } from "sonner";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import ReceiptInformation, { type ReceiptData } from "./verify/ReceiptInformation";
 import AmountBreakdown, { type AmountData } from "./verify/AmountBreakdown";
-import LineItemDetails, { type LineItem } from "./verify/LineItemDetails";
 import DocumentPreviewPanel from "./verify/DocumentPreviewPanel";
 
 interface VerifyModalProps {
@@ -42,10 +41,9 @@ export default function VerifyModal({ doc, onClose, onConfirm, onReject, onRerun
   });
 
   const [amount, setAmount] = useState<AmountData>({
-    subtotal: 0, vatRate: "7", vatAmount: 0, whtCode: "", whtAmount: 0, grandTotal: 0,
+    description: "", subtotal: 0, vatRate: "7", vatAmount: 0, whtCode: "", whtAmount: 0, grandTotal: 0,
   });
 
-  const [lines, setLines] = useState<LineItem[]>([]);
   const [receiptErrors, setReceiptErrors] = useState<Record<string, string>>({});
   const [warnings, setWarnings] = useState<string[]>([]);
 
@@ -82,6 +80,7 @@ export default function VerifyModal({ doc, onClose, onConfirm, onReject, onRerun
     const calcVat = taxRate > 0 ? Math.round(subtotal * (taxRate / 100) * 100) / 100 : vatAmt;
 
     setAmount({
+      description: getOcrValue(f, "ประเภทรายได้") || "Expense item",
       subtotal,
       vatRate: taxRate === 7 ? "7" : taxRate === 0 ? "0" : "7",
       vatAmount: vatAmt || calcVat,
@@ -89,13 +88,6 @@ export default function VerifyModal({ doc, onClose, onConfirm, onReject, onRerun
       whtAmount: whtAmt,
       grandTotal: Math.round((subtotal + (vatAmt || calcVat) - whtAmt) * 100) / 100,
     });
-
-    setLines([{
-      id: `line-${Date.now()}`,
-      description: getOcrValue(f, "ประเภทรายได้") || "Expense item",
-      lineAmount: subtotal,
-      expenseCategory: "",
-    }]);
   }, [doc]);
 
   // Validation warnings
@@ -154,11 +146,7 @@ export default function VerifyModal({ doc, onClose, onConfirm, onReject, onRerun
       total: amount.grandTotal,
       currency: receipt.currency,
       payment_method: receipt.paymentMethod,
-      lines: lines.map((l) => ({
-        description: l.description,
-        amount: l.lineAmount,
-        expense_category: l.expenseCategory,
-      })),
+      description: amount.description,
     };
     console.log("Transaction Payload:", JSON.stringify(payload, null, 2));
 
@@ -167,7 +155,7 @@ export default function VerifyModal({ doc, onClose, onConfirm, onReject, onRerun
       { label: "วันเดือนปี", value: receipt.invoiceDate, confidence: receipt.invoiceDateConf },
       { label: "เลขที่", value: receipt.invoiceNumber, confidence: receipt.invoiceNumberConf },
       { label: "ชื่อ ผู้มีหน้าที่หักภาษี ณ ที่จ่าย", value: receipt.buyerNameAddress, confidence: receipt.buyerNameAddressConf },
-      { label: "ประเภทรายได้", value: lines[0]?.description || "", confidence: 100 },
+      { label: "ประเภทรายได้", value: amount.description || "", confidence: 100 },
       { label: "อัตราภาษี", value: amount.vatRate, confidence: 100 },
       { label: "จำนวนเงิน", value: amount.grandTotal.toFixed(2), confidence: 100 },
       { label: "VAT Code", value: `V${amount.vatRate}`, confidence: 100 },
@@ -233,7 +221,7 @@ export default function VerifyModal({ doc, onClose, onConfirm, onReject, onRerun
 
               <ReceiptInformation data={receipt} onChange={setReceipt} errors={receiptErrors} />
               <AmountBreakdown data={amount} onChange={setAmount} />
-              <LineItemDetails lines={lines} onChange={setLines} />
+              
             </div>
           </ScrollArea>
 
