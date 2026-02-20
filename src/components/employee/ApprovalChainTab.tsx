@@ -163,20 +163,13 @@ export default function ApprovalChainTab() {
             <DialogTitle>{editId ? "Edit" : "Add"} Approval Level</DialogTitle>
           </DialogHeader>
           <div className="space-y-4">
-            <div className="grid grid-cols-2 gap-3">
-              <div className="space-y-1">
-                <Label>Level</Label>
-                <Input type="number" min={1} value={form.level} onChange={(e) => set("level", Number(e.target.value))} />
-                {errors.level && <p className="text-xs text-destructive">{errors.level}</p>}
-              </div>
-              <div className="space-y-1">
-                <Label>Approver <span className="text-destructive">*</span></Label>
-                <Select value={form.approverName} onValueChange={(v) => set("approverName", v)}>
-                  <SelectTrigger><SelectValue placeholder="เลือก Approver" /></SelectTrigger>
-                  <SelectContent>{mockApprovers.map((a) => <SelectItem key={a} value={a}>{a}</SelectItem>)}</SelectContent>
-                </Select>
-                {errors.approverName && <p className="text-xs text-destructive">{errors.approverName}</p>}
-              </div>
+            <div className="space-y-1">
+              <Label>Approver <span className="text-destructive">*</span></Label>
+              <Select value={form.approverName} onValueChange={(v) => set("approverName", v)}>
+                <SelectTrigger><SelectValue placeholder="เลือก Approver" /></SelectTrigger>
+                <SelectContent>{mockApprovers.map((a) => <SelectItem key={a} value={a}>{a}</SelectItem>)}</SelectContent>
+              </Select>
+              {errors.approverName && <p className="text-xs text-destructive">{errors.approverName}</p>}
             </div>
             <div className="grid grid-cols-2 gap-3">
               <div className="space-y-1">
