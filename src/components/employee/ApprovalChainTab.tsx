@@ -103,15 +103,15 @@ export default function ApprovalChainTab() {
       <CardHeader className="flex flex-row items-center justify-between">
         <CardTitle className="flex items-center gap-2 text-base">
           <ShieldCheck className="h-5 w-5 text-primary" />
-          Approval Chain
+          Approval Information
         </CardTitle>
         <Button size="sm" onClick={openAdd}>
-          <Plus className="h-4 w-4 mr-1" /> Add Approval Level
+          <Plus className="h-4 w-4 mr-1" /> Add Approver
         </Button>
       </CardHeader>
       <CardContent>
         {levels.length === 0 ? (
-          <p className="text-sm text-muted-foreground text-center py-8">ยังไม่มี Approval Chain กดปุ่ม + Add Approval Level เพื่อเพิ่ม</p>
+          <p className="text-sm text-muted-foreground text-center py-8">ยังไม่มี Approval Information กดปุ่ม + Add Approver เพื่อเพิ่ม</p>
         ) : (
           <Table>
             <TableHeader>
