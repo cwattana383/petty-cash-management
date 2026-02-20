@@ -181,10 +181,13 @@ export const STATUS_CONFIG: Record<DocStatus, { label: string; dotClass: string;
   BUYER_MISMATCH: { label: "Buyer Mismatch", dotClass: "bg-pink-500", badgeClass: "border-pink-400 bg-pink-50 text-pink-700" },
 };
 
-// Statuses that cannot be selected for Create Claim
-export const NON_SELECTABLE_STATUSES: DocStatus[] = [
-  "OCR_PROCESSING", "OCR_FAILED", "FAILED", "REJECTED", "USED_IN_CLAIM", "DUPLICATE_BLOCKED", "BUYER_MISMATCH"
-];
+// Only VERIFIED documents can be selected for Create Claim
+export const SELECTABLE_STATUSES: DocStatus[] = ["VERIFIED"];
+
+// Legacy helper — non-selectable means anything NOT in SELECTABLE_STATUSES
+export const NON_SELECTABLE_STATUSES: DocStatus[] = (
+  ["UPLOADED", "OCR_PROCESSING", "OCR_FAILED", "TO_VERIFY", "REJECTED", "USED_IN_CLAIM", "FAILED", "DUPLICATE_BLOCKED", "BUYER_MISMATCH"] as DocStatus[]
+);
 
 export const MAX_UPLOAD_FILES = 10;
 export const MAX_FILE_SIZE_MB = 20;
