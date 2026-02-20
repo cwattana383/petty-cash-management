@@ -58,7 +58,7 @@ export default function ApprovalChainTab() {
 
   const validate = (): boolean => {
     const e: Record<string, string> = {};
-    if (!form.approverName && form.approverType === "Specific User") e.approverName = "กรุณาเลือก Approver";
+    if (!form.approverName) e.approverName = "กรุณาเลือก Approver";
     if (!form.effectiveFrom) e.effectiveFrom = "กรุณาระบุ";
     if (form.effectiveTo && form.effectiveTo <= form.effectiveFrom) e.effectiveTo = "ต้องมากกว่า Effective From";
     if (form.conditionType === "Amount Threshold") {
@@ -165,28 +165,12 @@ export default function ApprovalChainTab() {
           <div className="space-y-4">
             <div className="grid grid-cols-2 gap-3">
               <div className="space-y-1">
-                <Label>Approval Type</Label>
-                <Select value={form.approvalType} onValueChange={(v) => set("approvalType", v)}>
-                  <SelectTrigger><SelectValue /></SelectTrigger>
-                  <SelectContent>{approvalTypes.map((t) => <SelectItem key={t} value={t}>{t}</SelectItem>)}</SelectContent>
-                </Select>
-              </div>
-              <div className="space-y-1">
                 <Label>Level</Label>
                 <Input type="number" min={1} value={form.level} onChange={(e) => set("level", Number(e.target.value))} />
                 {errors.level && <p className="text-xs text-destructive">{errors.level}</p>}
               </div>
-            </div>
-            <div className="grid grid-cols-2 gap-3">
               <div className="space-y-1">
-                <Label>Approver Type</Label>
-                <Select value={form.approverType} onValueChange={(v) => set("approverType", v)}>
-                  <SelectTrigger><SelectValue /></SelectTrigger>
-                  <SelectContent>{approverTypes.map((t) => <SelectItem key={t} value={t}>{t}</SelectItem>)}</SelectContent>
-                </Select>
-              </div>
-              <div className="space-y-1">
-                <Label>Approver {form.approverType === "Specific User" && <span className="text-destructive">*</span>}</Label>
+                <Label>Approver <span className="text-destructive">*</span></Label>
                 <Select value={form.approverName} onValueChange={(v) => set("approverName", v)}>
                   <SelectTrigger><SelectValue placeholder="เลือก Approver" /></SelectTrigger>
                   <SelectContent>{mockApprovers.map((a) => <SelectItem key={a} value={a}>{a}</SelectItem>)}</SelectContent>
@@ -194,49 +178,6 @@ export default function ApprovalChainTab() {
                 {errors.approverName && <p className="text-xs text-destructive">{errors.approverName}</p>}
               </div>
             </div>
-            <div className="space-y-1">
-              <Label>Backup Approver</Label>
-              <Select value={form.backupApprover} onValueChange={(v) => set("backupApprover", v)}>
-                <SelectTrigger><SelectValue placeholder="เลือก (optional)" /></SelectTrigger>
-                <SelectContent>{mockApprovers.map((a) => <SelectItem key={a} value={a}>{a}</SelectItem>)}</SelectContent>
-              </Select>
-            </div>
-            <div className="space-y-1">
-              <Label>Condition Type</Label>
-              <Select value={form.conditionType} onValueChange={(v) => set("conditionType", v)}>
-                <SelectTrigger><SelectValue /></SelectTrigger>
-                <SelectContent>{conditionTypes.map((t) => <SelectItem key={t} value={t}>{t}</SelectItem>)}</SelectContent>
-              </Select>
-            </div>
-            {form.conditionType === "Amount Threshold" && (
-              <div className="grid grid-cols-2 gap-3">
-                <div className="space-y-1">
-                  <Label>Amount From</Label>
-                  <Input type="number" value={form.amountFrom || ""} onChange={(e) => set("amountFrom", Number(e.target.value))} />
-                  {errors.amountFrom && <p className="text-xs text-destructive">{errors.amountFrom}</p>}
-                </div>
-                <div className="space-y-1">
-                  <Label>Amount To</Label>
-                  <Input type="number" value={form.amountTo || ""} onChange={(e) => set("amountTo", Number(e.target.value))} />
-                </div>
-              </div>
-            )}
-            {form.conditionType === "Category Based" && (
-              <div className="space-y-2">
-                <Label>Expense Categories</Label>
-                <div className="grid grid-cols-2 gap-2">
-                  {expenseCategoryOptions.map((cat) => (
-                    <div key={cat} className="flex items-center gap-2">
-                      <Checkbox
-                        checked={form.expenseCategories.includes(cat)}
-                        onCheckedChange={() => toggleCategory(cat)}
-                      />
-                      <span className="text-sm">{cat}</span>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
             <div className="grid grid-cols-2 gap-3">
               <div className="space-y-1">
                 <Label>Effective From <span className="text-destructive">*</span></Label>
@@ -252,14 +193,6 @@ export default function ApprovalChainTab() {
             <div className="flex items-center justify-between">
               <Label>Active</Label>
               <Switch checked={form.active} onCheckedChange={(v) => set("active", v)} />
-            </div>
-            <div className="flex items-center justify-between">
-              <Label>Parallel Approval</Label>
-              <Switch checked={form.parallelApproval} onCheckedChange={(v) => set("parallelApproval", v)} />
-            </div>
-            <div className="flex items-center justify-between">
-              <Label>Require All Approvers</Label>
-              <Switch checked={form.requireAllApprovers} onCheckedChange={(v) => set("requireAllApprovers", v)} />
             </div>
           </div>
           <DialogFooter>
