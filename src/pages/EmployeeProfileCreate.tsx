@@ -11,8 +11,11 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { ArrowLeft, Save, UserPlus } from "lucide-react";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { ArrowLeft, Save, UserPlus, CreditCard, ShieldCheck } from "lucide-react";
 import { toast } from "sonner";
+import CreditCardTab from "@/components/employee/CreditCardTab";
+import ApprovalChainTab from "@/components/employee/ApprovalChainTab";
 
 const departments = ["9993010460 Finance and Accounting", "Sales", "Marketing", "Engineering", "Finance", "HR", "Operations"];
 const branches = ["099999 – HO", "Bangkok", "Chiang Mai", "Phuket", "Pattaya", "Khon Kaen"];
@@ -52,8 +55,10 @@ export default function EmployeeProfileCreate() {
     navigate("/admin");
   };
 
+  const employeeName = `${form.firstName} ${form.lastName}`;
+
   return (
-    <div className="max-w-2xl mx-auto space-y-6">
+    <div className="max-w-4xl mx-auto space-y-6">
       <div className="flex items-center gap-3">
         <Button variant="ghost" size="icon" onClick={() => navigate("/admin")}>
           <ArrowLeft className="h-5 w-5" />
@@ -64,162 +69,132 @@ export default function EmployeeProfileCreate() {
         </div>
       </div>
 
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2 text-base">
-            <UserPlus className="h-5 w-5 text-primary" />
+      <Tabs defaultValue="employee" className="w-full">
+        <TabsList className="grid w-full grid-cols-3">
+          <TabsTrigger value="employee" className="flex items-center gap-2">
+            <UserPlus className="h-4 w-4" />
             Employee Information
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <form onSubmit={handleSubmit} className="space-y-5">
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label htmlFor="firstName">ชื่อ (First Name) <span className="text-destructive">*</span></Label>
-                <Input
-                  id="firstName"
-                  placeholder="เช่น สมชาย"
-                  value={form.firstName}
-                  onChange={(e) => handleChange("firstName", e.target.value)}
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="lastName">นามสกุล (Last Name) <span className="text-destructive">*</span></Label>
-                <Input
-                  id="lastName"
-                  placeholder="เช่น ใจดี"
-                  value={form.lastName}
-                  onChange={(e) => handleChange("lastName", e.target.value)}
-                />
-              </div>
-            </div>
+          </TabsTrigger>
+          <TabsTrigger value="creditcard" className="flex items-center gap-2">
+            <CreditCard className="h-4 w-4" />
+            Credit Card
+          </TabsTrigger>
+          <TabsTrigger value="approval" className="flex items-center gap-2">
+            <ShieldCheck className="h-4 w-4" />
+            Approval Chain
+          </TabsTrigger>
+        </TabsList>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label htmlFor="email">อีเมล (Email)</Label>
-                <Input
-                  id="email"
-                  type="email"
-                  placeholder="เช่น somchai@company.com"
-                  value={form.email}
-                  onChange={(e) => handleChange("email", e.target.value)}
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="telephone">โทรศัพท์ (Telephone)</Label>
-                <Input
-                  id="telephone"
-                  placeholder="Type a value"
-                  value={form.telephone}
-                  onChange={(e) => {
-                    const val = e.target.value;
-                    if (val === "" || /^[\d-]*$/.test(val)) handleChange("telephone", val);
-                  }}
-                />
-              </div>
-            </div>
+        <TabsContent value="employee">
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2 text-base">
+                <UserPlus className="h-5 w-5 text-primary" />
+                Employee Information
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <form onSubmit={handleSubmit} className="space-y-5">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="firstName">ชื่อ (First Name) <span className="text-destructive">*</span></Label>
+                    <Input id="firstName" placeholder="เช่น สมชาย" value={form.firstName} onChange={(e) => handleChange("firstName", e.target.value)} />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="lastName">นามสกุล (Last Name) <span className="text-destructive">*</span></Label>
+                    <Input id="lastName" placeholder="เช่น ใจดี" value={form.lastName} onChange={(e) => handleChange("lastName", e.target.value)} />
+                  </div>
+                </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label>สาขา/สำนักงานใหญ่ (Store / Head Office)</Label>
-                <Select value={form.storeHeadOffice} onValueChange={(v) => handleChange("storeHeadOffice", v)}>
-                  <SelectTrigger><SelectValue placeholder="เลือก Store / Head Office" /></SelectTrigger>
-                  <SelectContent>
-                    {stores.map((s) => (
-                      <SelectItem key={s} value={s}>{s}</SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-              <div className="space-y-2">
-                <Label>บริษัท (Company)</Label>
-                <Select value={form.company} onValueChange={(v) => handleChange("company", v)}>
-                  <SelectTrigger><SelectValue placeholder="เลือกบริษัท" /></SelectTrigger>
-                  <SelectContent>
-                    {companies.map((c) => (
-                      <SelectItem key={c} value={c}>{c}</SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-            </div>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="email">อีเมล (Email)</Label>
+                    <Input id="email" type="email" placeholder="เช่น somchai@company.com" value={form.email} onChange={(e) => handleChange("email", e.target.value)} />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="telephone">โทรศัพท์ (Telephone)</Label>
+                    <Input id="telephone" placeholder="Type a value" value={form.telephone} onChange={(e) => { const val = e.target.value; if (val === "" || /^[\d-]*$/.test(val)) handleChange("telephone", val); }} />
+                  </div>
+                </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label>ฝ่าย (Division)</Label>
-                <Select value={form.division} onValueChange={(v) => handleChange("division", v)}>
-                  <SelectTrigger><SelectValue placeholder="เลือก Division" /></SelectTrigger>
-                  <SelectContent>
-                    {divisions.map((d) => (
-                      <SelectItem key={d} value={d}>{d}</SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-            </div>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label>สาขา/สำนักงานใหญ่ (Store / Head Office)</Label>
+                    <Select value={form.storeHeadOffice} onValueChange={(v) => handleChange("storeHeadOffice", v)}>
+                      <SelectTrigger><SelectValue placeholder="เลือก Store / Head Office" /></SelectTrigger>
+                      <SelectContent>{stores.map((s) => <SelectItem key={s} value={s}>{s}</SelectItem>)}</SelectContent>
+                    </Select>
+                  </div>
+                  <div className="space-y-2">
+                    <Label>บริษัท (Company)</Label>
+                    <Select value={form.company} onValueChange={(v) => handleChange("company", v)}>
+                      <SelectTrigger><SelectValue placeholder="เลือกบริษัท" /></SelectTrigger>
+                      <SelectContent>{companies.map((c) => <SelectItem key={c} value={c}>{c}</SelectItem>)}</SelectContent>
+                    </Select>
+                  </div>
+                </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label>แผนก (Department) <span className="text-destructive">*</span></Label>
-                <Select value={form.department} onValueChange={(v) => handleChange("department", v)}>
-                  <SelectTrigger><SelectValue placeholder="เลือกแผนก" /></SelectTrigger>
-                  <SelectContent>
-                    {departments.map((d) => (
-                      <SelectItem key={d} value={d}>{d}</SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-              <div className="space-y-2">
-                <Label>สาขา (Branch) <span className="text-destructive">*</span></Label>
-                <Select value={form.branch} onValueChange={(v) => handleChange("branch", v)}>
-                  <SelectTrigger><SelectValue placeholder="เลือกสาขา" /></SelectTrigger>
-                  <SelectContent>
-                    {branches.map((b) => (
-                      <SelectItem key={b} value={b}>{b}</SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-            </div>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label>ฝ่าย (Division)</Label>
+                    <Select value={form.division} onValueChange={(v) => handleChange("division", v)}>
+                      <SelectTrigger><SelectValue placeholder="เลือก Division" /></SelectTrigger>
+                      <SelectContent>{divisions.map((d) => <SelectItem key={d} value={d}>{d}</SelectItem>)}</SelectContent>
+                    </Select>
+                  </div>
+                </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label>ศูนย์ต้นทุน (Cost Center) <span className="text-destructive">*</span></Label>
-                <Select value={form.costCenter} onValueChange={(v) => handleChange("costCenter", v)}>
-                  <SelectTrigger><SelectValue placeholder="เลือก Cost Center" /></SelectTrigger>
-                  <SelectContent>
-                    {costCenters.map((c) => (
-                      <SelectItem key={c} value={c}>{c}</SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-              <div className="space-y-2">
-                <Label>บทบาท (Role) <span className="text-destructive">*</span></Label>
-                <Select value={form.role} onValueChange={(v) => handleChange("role", v)}>
-                  <SelectTrigger><SelectValue placeholder="เลือก Role" /></SelectTrigger>
-                  <SelectContent>
-                    {roles.map((r) => (
-                      <SelectItem key={r} value={r}>{r}</SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-            </div>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label>แผนก (Department) <span className="text-destructive">*</span></Label>
+                    <Select value={form.department} onValueChange={(v) => handleChange("department", v)}>
+                      <SelectTrigger><SelectValue placeholder="เลือกแผนก" /></SelectTrigger>
+                      <SelectContent>{departments.map((d) => <SelectItem key={d} value={d}>{d}</SelectItem>)}</SelectContent>
+                    </Select>
+                  </div>
+                  <div className="space-y-2">
+                    <Label>สาขา (Branch) <span className="text-destructive">*</span></Label>
+                    <Select value={form.branch} onValueChange={(v) => handleChange("branch", v)}>
+                      <SelectTrigger><SelectValue placeholder="เลือกสาขา" /></SelectTrigger>
+                      <SelectContent>{branches.map((b) => <SelectItem key={b} value={b}>{b}</SelectItem>)}</SelectContent>
+                    </Select>
+                  </div>
+                </div>
 
-            <div className="flex justify-end gap-3 pt-4 border-t">
-              <Button type="button" variant="outline" onClick={() => navigate("/admin")}>
-                ยกเลิก
-              </Button>
-              <Button type="submit">
-                <Save className="h-4 w-4 mr-2" />
-                บันทึก
-              </Button>
-            </div>
-          </form>
-        </CardContent>
-      </Card>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label>ศูนย์ต้นทุน (Cost Center) <span className="text-destructive">*</span></Label>
+                    <Select value={form.costCenter} onValueChange={(v) => handleChange("costCenter", v)}>
+                      <SelectTrigger><SelectValue placeholder="เลือก Cost Center" /></SelectTrigger>
+                      <SelectContent>{costCenters.map((c) => <SelectItem key={c} value={c}>{c}</SelectItem>)}</SelectContent>
+                    </Select>
+                  </div>
+                  <div className="space-y-2">
+                    <Label>บทบาท (Role) <span className="text-destructive">*</span></Label>
+                    <Select value={form.role} onValueChange={(v) => handleChange("role", v)}>
+                      <SelectTrigger><SelectValue placeholder="เลือก Role" /></SelectTrigger>
+                      <SelectContent>{roles.map((r) => <SelectItem key={r} value={r}>{r}</SelectItem>)}</SelectContent>
+                    </Select>
+                  </div>
+                </div>
+
+                <div className="flex justify-end gap-3 pt-4 border-t">
+                  <Button type="button" variant="outline" onClick={() => navigate("/admin")}>ยกเลิก</Button>
+                  <Button type="submit"><Save className="h-4 w-4 mr-2" />บันทึก</Button>
+                </div>
+              </form>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="creditcard">
+          <CreditCardTab employeeName={employeeName} />
+        </TabsContent>
+
+        <TabsContent value="approval">
+          <ApprovalChainTab />
+        </TabsContent>
+      </Tabs>
     </div>
   );
 }
