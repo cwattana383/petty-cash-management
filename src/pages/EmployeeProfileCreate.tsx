@@ -78,7 +78,7 @@ export default function EmployeeProfileCreate() {
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <form onSubmit={handleSubmit} className="space-y-5">
+          <div className="space-y-5">
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
               <div className="space-y-2">
                 <Label htmlFor="firstName">ชื่อ (First Name) <span className="text-destructive">*</span></Label>
@@ -155,12 +155,7 @@ export default function EmployeeProfileCreate() {
                 </Select>
               </div>
             </div>
-
-            <div className="flex justify-end gap-3 pt-4 border-t">
-              <Button type="button" variant="outline" onClick={() => navigate("/admin")}>ยกเลิก</Button>
-              <Button type="submit"><Save className="h-4 w-4 mr-2" />บันทึก</Button>
-            </div>
-          </form>
+          </div>
         </CardContent>
       </Card>
 
@@ -169,6 +164,12 @@ export default function EmployeeProfileCreate() {
 
       {/* Section 3: Approval Chain */}
       <ApprovalChainTab />
+
+      {/* Footer Buttons */}
+      <div className="flex justify-end gap-3 pt-4 border-t">
+        <Button type="button" variant="outline" onClick={() => navigate("/admin")}>ยกเลิก</Button>
+        <Button onClick={handleSubmit}><Save className="h-4 w-4 mr-2" />บันทึก</Button>
+      </div>
     </div>
   );
 }
