@@ -116,12 +116,7 @@ export default function ApprovalChainTab() {
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>Level</TableHead>
-                <TableHead>Approval Type</TableHead>
-                <TableHead>Approver Type</TableHead>
                 <TableHead>Approver</TableHead>
-                <TableHead>Backup</TableHead>
-                <TableHead>Condition</TableHead>
                 <TableHead>Effective From</TableHead>
                 <TableHead>Effective To</TableHead>
                 <TableHead>Status</TableHead>
@@ -131,16 +126,7 @@ export default function ApprovalChainTab() {
             <TableBody>
               {levels.map((l) => (
                 <TableRow key={l.id}>
-                  <TableCell>{l.level}</TableCell>
-                  <TableCell>{l.approvalType}</TableCell>
-                  <TableCell>{l.approverType}</TableCell>
                   <TableCell>{l.approverName || "-"}</TableCell>
-                  <TableCell>{l.backupApprover || "-"}</TableCell>
-                  <TableCell>
-                    {l.conditionType === "Amount Threshold"
-                      ? `${l.amountFrom.toLocaleString()} - ${l.amountTo.toLocaleString()}`
-                      : l.conditionType}
-                  </TableCell>
                   <TableCell>{l.effectiveFrom}</TableCell>
                   <TableCell>{l.effectiveTo || "-"}</TableCell>
                   <TableCell>
