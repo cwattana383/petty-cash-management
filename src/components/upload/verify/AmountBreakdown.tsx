@@ -38,6 +38,27 @@ function parseFormattedNumber(val: string): number {
   return parseFloat(val.replace(/,/g, "")) || 0;
 }
 
+const VAT_RATE_OPTIONS = [
+  { value: "AVG", label: "AVG" },
+  { value: "Claim 100%", label: "Claim 100%" },
+  { value: "No VAT", label: "No VAT" },
+  { value: "Unclaim 100%", label: "Unclaim 100%" },
+];
+
+const WHT_CODE_OPTIONS = [
+  { value: "none", label: "None" },
+  { value: "Advertising 3", label: "Advertising 3" },
+  { value: "Advertising 53", label: "Advertising 53" },
+  { value: "Delivery 3", label: "Delivery 3" },
+  { value: "Delivery 53", label: "Delivery 53" },
+  { value: "Rental/Prize 3", label: "Rental/Prize 3" },
+  { value: "Rental/Prize 53", label: "Rental/Prize 53" },
+  { value: "Service (1.5) 3", label: "Service (1.5) 3" },
+  { value: "Service (1.5) 53", label: "Service (1.5) 53" },
+  { value: "Service 3", label: "Service 3" },
+  { value: "Service 53", label: "Service 53" },
+];
+
 export default function AmountBreakdown({ data, onChange }: Props) {
   const [subtotalDisplay, setSubtotalDisplay] = useState(data.subtotal ? formatNumber(data.subtotal) : "");
   const [vatDisplay, setVatDisplay] = useState(data.vatAmount ? formatNumber(data.vatAmount) : "");
@@ -49,11 +70,12 @@ export default function AmountBreakdown({ data, onChange }: Props) {
     if (key === "subtotal" || key === "vatRate") {
       const sub = key === "subtotal" ? (val as number) : next.subtotal;
       const rate = key === "vatRate" ? (val as string) : next.vatRate;
-      if (rate === "7") {
+
+      // VAT calculation based on rate
+      if (rate === "AVG" || rate === "Claim 100%") {
         next.vatAmount = Math.round(sub * 0.07 * 100) / 100;
         setVatDisplay(formatNumber(next.vatAmount));
-      }
-      if (rate === "0" || rate === "Exempt" || rate === "Non-VAT") {
+      } else if (rate === "No VAT" || rate === "Unclaim 100%") {
         next.vatAmount = 0;
         setVatDisplay("0.00");
       }
@@ -65,7 +87,7 @@ export default function AmountBreakdown({ data, onChange }: Props) {
     onChange(next);
   };
 
-  const expectedVat = data.vatRate === "7" ? Math.round(data.subtotal * 0.07 * 100) / 100 : null;
+  const expectedVat = (data.vatRate === "AVG" || data.vatRate === "Claim 100%") ? Math.round(data.subtotal * 0.07 * 100) / 100 : null;
   const vatMismatch = expectedVat !== null && Math.abs(data.vatAmount - expectedVat) > 0.01;
 
   // Sync display values when data changes externally (e.g. OCR init)
@@ -133,10 +155,9 @@ export default function AmountBreakdown({ data, onChange }: Props) {
             <Select value={data.vatRate} onValueChange={(v) => set("vatRate", v)}>
               <SelectTrigger className="h-8 text-sm"><SelectValue /></SelectTrigger>
               <SelectContent>
-                <SelectItem value="7">7%</SelectItem>
-                <SelectItem value="0">0%</SelectItem>
-                <SelectItem value="Exempt">Exempt</SelectItem>
-                <SelectItem value="Non-VAT">Non-VAT</SelectItem>
+                {VAT_RATE_OPTIONS.map((opt) => (
+                  <SelectItem key={opt.value} value={opt.value}>{opt.label}</SelectItem>
+                ))}
               </SelectContent>
             </Select>
           </div>
@@ -174,12 +195,9 @@ export default function AmountBreakdown({ data, onChange }: Props) {
             <Select value={data.whtCode} onValueChange={(v) => set("whtCode", v)}>
               <SelectTrigger className="h-8 text-sm"><SelectValue placeholder="Select" /></SelectTrigger>
               <SelectContent>
-                <SelectItem value="none">None</SelectItem>
-                <SelectItem value="W1">W1 - 1%</SelectItem>
-                <SelectItem value="W2">W2 - 2%</SelectItem>
-                <SelectItem value="W3">W3 - 3%</SelectItem>
-                <SelectItem value="W5">W5 - 5%</SelectItem>
-                <SelectItem value="W10">W10 - 10%</SelectItem>
+                {WHT_CODE_OPTIONS.map((opt) => (
+                  <SelectItem key={opt.value} value={opt.value}>{opt.label}</SelectItem>
+                ))}
               </SelectContent>
             </Select>
           </div>
