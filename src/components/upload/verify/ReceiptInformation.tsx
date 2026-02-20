@@ -3,6 +3,7 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { FileText } from "lucide-react";
+import { toThaiDateDisplay } from "@/lib/upload-types";
 
 function confidenceBadge(c: number) {
   const color = c >= 90 ? "bg-green-100 text-green-700" : c >= 80 ? "bg-yellow-100 text-yellow-700" : "bg-red-100 text-red-700";
@@ -22,6 +23,7 @@ export interface ReceiptData {
   invoiceNumberConf: number;
   invoiceDate: string;
   invoiceDateConf: number;
+  invoiceDateDisplay?: string;
   vatAmount: string;
   vatAmountConf: number;
   vendorSellerInfo: string;
@@ -38,7 +40,14 @@ interface Props {
 }
 
 export default function ReceiptInformation({ data, onChange, errors }: Props) {
-  const set = (key: keyof ReceiptData, val: string) => onChange({ ...data, [key]: val });
+  const set = (key: keyof ReceiptData, val: string) => {
+    const updated = { ...data, [key]: val };
+    // Update Thai date display when invoiceDate changes
+    if (key === "invoiceDate") {
+      updated.invoiceDateDisplay = toThaiDateDisplay(val);
+    }
+    onChange(updated);
+  };
 
   return (
     <Card>
@@ -51,7 +60,7 @@ export default function ReceiptInformation({ data, onChange, errors }: Props) {
         {/* Buyer Tax ID */}
         <div>
           <div className="flex items-center justify-between mb-1">
-            <Label className="text-xs text-muted-foreground">Buyer Tax ID (เลขประจำตัวผู้เสียภาษี)</Label>
+            <Label className="text-xs text-muted-foreground">Buyer Tax ID (เลขประจำตัวผู้เสียภาษี) <span className="text-destructive">*</span></Label>
             {confidenceBadge(data.buyerTaxIdConf)}
           </div>
           <Input value={data.buyerTaxId} onChange={(e) => set("buyerTaxId", e.target.value)} className={`h-8 text-sm ${data.buyerTaxIdConf < 80 ? "border-yellow-400 bg-yellow-50" : ""}`} />
@@ -61,7 +70,7 @@ export default function ReceiptInformation({ data, onChange, errors }: Props) {
         {/* Buyer Name */}
         <div>
           <div className="flex items-center justify-between mb-1">
-            <Label className="text-xs text-muted-foreground">Buyer Name</Label>
+            <Label className="text-xs text-muted-foreground">Buyer Name <span className="text-destructive">*</span></Label>
             {confidenceBadge(data.buyerNameConf)}
           </div>
           <Input value={data.buyerName} onChange={(e) => set("buyerName", e.target.value)} className={`h-8 text-sm ${data.buyerNameConf < 80 ? "border-yellow-400 bg-yellow-50" : ""}`} />
@@ -71,7 +80,7 @@ export default function ReceiptInformation({ data, onChange, errors }: Props) {
         {/* Buyer Address */}
         <div>
           <div className="flex items-center justify-between mb-1">
-            <Label className="text-xs text-muted-foreground">Buyer Address</Label>
+            <Label className="text-xs text-muted-foreground">Buyer Address <span className="text-destructive">*</span></Label>
             {confidenceBadge(data.buyerAddressConf)}
           </div>
           <Input value={data.buyerAddress} onChange={(e) => set("buyerAddress", e.target.value)} className={`h-8 text-sm ${data.buyerAddressConf < 80 ? "border-yellow-400 bg-yellow-50" : ""}`} />
@@ -82,7 +91,7 @@ export default function ReceiptInformation({ data, onChange, errors }: Props) {
           {/* Invoice Number */}
           <div>
             <div className="flex items-center justify-between mb-1">
-              <Label className="text-xs text-muted-foreground">Invoice Number</Label>
+              <Label className="text-xs text-muted-foreground">Invoice Number <span className="text-destructive">*</span></Label>
               {confidenceBadge(data.invoiceNumberConf)}
             </div>
             <Input value={data.invoiceNumber} onChange={(e) => set("invoiceNumber", e.target.value)} className={`h-8 text-sm ${data.invoiceNumberConf < 80 ? "border-yellow-400 bg-yellow-50" : ""}`} />
@@ -92,10 +101,13 @@ export default function ReceiptInformation({ data, onChange, errors }: Props) {
           {/* Invoice Date */}
           <div>
             <div className="flex items-center justify-between mb-1">
-              <Label className="text-xs text-muted-foreground">Invoice Date</Label>
+              <Label className="text-xs text-muted-foreground">Invoice Date <span className="text-destructive">*</span></Label>
               {confidenceBadge(data.invoiceDateConf)}
             </div>
             <Input type="date" value={data.invoiceDate} onChange={(e) => set("invoiceDate", e.target.value)} className={`h-8 text-sm ${data.invoiceDateConf < 80 ? "border-yellow-400 bg-yellow-50" : ""}`} />
+            {data.invoiceDateDisplay && (
+              <p className="text-xs text-muted-foreground mt-0.5">แสดงเป็น พ.ศ.: {data.invoiceDateDisplay}</p>
+            )}
             {errors.invoiceDate && <p className="text-xs text-destructive mt-0.5">{errors.invoiceDate}</p>}
           </div>
         </div>
@@ -107,7 +119,6 @@ export default function ReceiptInformation({ data, onChange, errors }: Props) {
             {confidenceBadge(data.vendorSellerInfoConf)}
           </div>
           <Input value={data.vendorSellerInfo} onChange={(e) => set("vendorSellerInfo", e.target.value)} className={`h-8 text-sm ${data.vendorSellerInfoConf < 80 ? "border-yellow-400 bg-yellow-50" : ""}`} />
-          {errors.vendorSellerInfo && <p className="text-xs text-destructive mt-0.5">{errors.vendorSellerInfo}</p>}
         </div>
 
         <div className="grid grid-cols-3 gap-3">
@@ -117,9 +128,9 @@ export default function ReceiptInformation({ data, onChange, errors }: Props) {
             <Select value={data.paymentMethod} onValueChange={(v) => set("paymentMethod", v)}>
               <SelectTrigger className="h-8 text-sm"><SelectValue /></SelectTrigger>
               <SelectContent>
-                <SelectItem value="Cash">Cash</SelectItem>
-                <SelectItem value="Transfer">Transfer</SelectItem>
                 <SelectItem value="Credit Card">Credit Card</SelectItem>
+                <SelectItem value="Cash">Cash</SelectItem>
+                <SelectItem value="Bank Transfer">Bank Transfer</SelectItem>
               </SelectContent>
             </Select>
           </div>
@@ -133,7 +144,6 @@ export default function ReceiptInformation({ data, onChange, errors }: Props) {
                 <SelectItem value="THB">THB</SelectItem>
                 <SelectItem value="USD">USD</SelectItem>
                 <SelectItem value="EUR">EUR</SelectItem>
-                <SelectItem value="JPY">JPY</SelectItem>
               </SelectContent>
             </Select>
           </div>

@@ -3,8 +3,8 @@ import { Button } from "@/components/ui/button";
 import {
   Dialog, DialogContent, DialogHeader, DialogTitle,
 } from "@/components/ui/dialog";
-import { AlertTriangle, CheckCircle, X, RefreshCw } from "lucide-react";
-import { UploadedDoc, OcrField } from "@/lib/upload-types";
+import { AlertTriangle, CheckCircle, X } from "lucide-react";
+import { UploadedDoc, OcrField, toThaiDateDisplay } from "@/lib/upload-types";
 import { toast } from "sonner";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import ReceiptInformation, { type ReceiptData } from "./verify/ReceiptInformation";
@@ -36,13 +36,14 @@ export default function VerifyModal({ doc, onClose, onConfirm, onReject, onRerun
     buyerNameAddress: "", buyerNameAddressConf: 75,
     invoiceNumber: "", invoiceNumberConf: 75,
     invoiceDate: "", invoiceDateConf: 75,
+    invoiceDateDisplay: "",
     vatAmount: "", vatAmountConf: 75,
     vendorSellerInfo: "", vendorSellerInfoConf: 75,
     paymentMethod: "Credit Card", currency: "THB", country: "TH",
   });
 
   const [amount, setAmount] = useState<AmountData>({
-    description: "", subtotal: 0, subtotalConf: 75, totalAmount: "", totalAmountConf: 75, vatRate: "7", vatAmount: 0, vatAmountConf: 75, whtCode: "", whtAmount: 0, whtAmountConf: 75, grandTotal: 0,
+    description: "", subtotal: 0, subtotalConf: 75, totalAmount: "", totalAmountConf: 75, vatRate: "AVG", vatAmount: 0, vatAmountConf: 75, whtCode: "", whtAmount: 0, whtAmountConf: 75, grandTotal: 0,
   });
 
   const [receiptErrors, setReceiptErrors] = useState<Record<string, string>>({});
@@ -53,19 +54,23 @@ export default function VerifyModal({ doc, onClose, onConfirm, onReject, onRerun
     if (!doc?.ocrData) return;
     const f = doc.ocrData;
 
+    const convertedDate = convertThaiDate(getOcrValue(f, "วันเดือนปี"));
+    const displayDate = toThaiDateDisplay(convertedDate);
+
     setReceipt({
       buyerTaxId: getOcrValue(f, "เลขประจำตัวผู้เสียภาษี"),
       buyerTaxIdConf: getOcrConf(f, "เลขประจำตัวผู้เสียภาษี"),
       buyerName: getOcrValue(f, "ชื่อ ผู้มีหน้าที่หักภาษี ณ ที่จ่าย"),
       buyerNameConf: getOcrConf(f, "ชื่อ ผู้มีหน้าที่หักภาษี ณ ที่จ่าย"),
-      buyerAddress: "",
-      buyerAddressConf: 75,
+      buyerAddress: getOcrValue(f, "ที่อยู่ผู้ซื้อ"),
+      buyerAddressConf: getOcrConf(f, "ที่อยู่ผู้ซื้อ"),
       buyerNameAddress: getOcrValue(f, "ชื่อ ผู้มีหน้าที่หักภาษี ณ ที่จ่าย"),
       buyerNameAddressConf: getOcrConf(f, "ชื่อ ผู้มีหน้าที่หักภาษี ณ ที่จ่าย"),
       invoiceNumber: getOcrValue(f, "เลขที่"),
       invoiceNumberConf: getOcrConf(f, "เลขที่"),
-      invoiceDate: convertThaiDate(getOcrValue(f, "วันเดือนปี")),
+      invoiceDate: convertedDate,
       invoiceDateConf: getOcrConf(f, "วันเดือนปี"),
+      invoiceDateDisplay: displayDate,
       vatAmount: getOcrValue(f, "VAT Amount"),
       vatAmountConf: getOcrConf(f, "VAT Amount"),
       vendorSellerInfo: getOcrValue(f, "สาขา") || "สำนักงานใหญ่",
@@ -76,11 +81,10 @@ export default function VerifyModal({ doc, onClose, onConfirm, onReject, onRerun
     });
 
     const subtotal = parseNum(getOcrValue(f, "จำนวนเงิน"));
-    const taxRate = parseFloat(getOcrValue(f, "อัตราภาษี")) || 0;
     const vatAmt = parseNum(getOcrValue(f, "VAT Amount"));
     const whtCode = getOcrValue(f, "WHT Code");
     const whtAmt = parseNum(getOcrValue(f, "WHT Amount"));
-    const calcVat = taxRate > 0 ? Math.round(subtotal * (taxRate / 100) * 100) / 100 : vatAmt;
+    const calcVat = Math.round(subtotal * 0.07 * 100) / 100;
 
     setAmount({
       description: getOcrValue(f, "ประเภทรายได้") || "Expense item",
@@ -88,7 +92,7 @@ export default function VerifyModal({ doc, onClose, onConfirm, onReject, onRerun
       subtotalConf: getOcrConf(f, "จำนวนเงิน"),
       totalAmount: getOcrValue(f, "จำนวนเงิน"),
       totalAmountConf: getOcrConf(f, "จำนวนเงิน"),
-      vatRate: taxRate === 7 ? "7" : taxRate === 0 ? "0" : "7",
+      vatRate: "AVG",
       vatAmount: vatAmt || calcVat,
       vatAmountConf: getOcrConf(f, "VAT Amount"),
       whtCode: whtCode || "",
@@ -108,9 +112,8 @@ export default function VerifyModal({ doc, onClose, onConfirm, onReject, onRerun
       if (daysDiff > 30) w.push(`Invoice date is ${daysDiff} days old (policy: max 30 days)`);
     }
 
-    // Low confidence fields
     const confFields = [
-      { name: "Buyer Name", conf: receipt.buyerNameAddressConf },
+      { name: "Buyer Name", conf: receipt.buyerNameConf },
       { name: "Tax ID", conf: receipt.buyerTaxIdConf },
       { name: "Invoice No", conf: receipt.invoiceNumberConf },
     ];
@@ -118,7 +121,6 @@ export default function VerifyModal({ doc, onClose, onConfirm, onReject, onRerun
       if (cf.conf < 80) w.push(`${cf.name} has low confidence (${cf.conf}%) — กรุณาตรวจสอบ`);
     });
 
-    // Overall doc confidence warning
     if (doc?.ocrConfidenceScore != null && doc.ocrConfidenceScore < 80) {
       w.push(`Overall OCR confidence is low: ${doc.ocrConfidenceScore}%`);
     }
@@ -129,7 +131,8 @@ export default function VerifyModal({ doc, onClose, onConfirm, onReject, onRerun
   const handleConfirm = () => {
     const errs: Record<string, string> = {};
     if (!receipt.buyerTaxId) errs.buyerTaxId = "Required";
-    if (!receipt.buyerNameAddress) errs.buyerNameAddress = "Required";
+    if (!receipt.buyerName) errs.buyerName = "Required";
+    if (!receipt.buyerAddress) errs.buyerAddress = "Required";
     if (!receipt.invoiceNumber) errs.invoiceNumber = "Required";
     if (!receipt.invoiceDate) errs.invoiceDate = "Required";
 
@@ -145,7 +148,8 @@ export default function VerifyModal({ doc, onClose, onConfirm, onReject, onRerun
       transaction_type: "PETTY_CASH",
       invoice_no: receipt.invoiceNumber,
       invoice_date: receipt.invoiceDate,
-      buyer_name: receipt.buyerNameAddress,
+      buyer_name: receipt.buyerName,
+      buyer_address: receipt.buyerAddress,
       buyer_tax_id: receipt.buyerTaxId,
       vendor_seller_info: receipt.vendorSellerInfo,
       subtotal: amount.subtotal,
@@ -162,13 +166,14 @@ export default function VerifyModal({ doc, onClose, onConfirm, onReject, onRerun
       { label: "เลขประจำตัวผู้เสียภาษี", value: receipt.buyerTaxId, confidence: receipt.buyerTaxIdConf },
       { label: "วันเดือนปี", value: receipt.invoiceDate, confidence: receipt.invoiceDateConf },
       { label: "เลขที่", value: receipt.invoiceNumber, confidence: receipt.invoiceNumberConf },
-      { label: "ชื่อ ผู้มีหน้าที่หักภาษี ณ ที่จ่าย", value: receipt.buyerNameAddress, confidence: receipt.buyerNameAddressConf },
+      { label: "ชื่อ ผู้มีหน้าที่หักภาษี ณ ที่จ่าย", value: receipt.buyerName, confidence: receipt.buyerNameConf },
+      { label: "ที่อยู่ผู้ซื้อ", value: receipt.buyerAddress, confidence: receipt.buyerAddressConf },
       { label: "ประเภทรายได้", value: amount.description || "", confidence: 100 },
       { label: "อัตราภาษี", value: amount.vatRate, confidence: 100 },
       { label: "จำนวนเงิน", value: amount.grandTotal.toFixed(2), confidence: 100 },
       { label: "VAT Code", value: `V${amount.vatRate}`, confidence: 100 },
       { label: "VAT Amount", value: amount.vatAmount.toFixed(2), confidence: 100 },
-      { label: "WHT Code", value: amount.whtAmount > 0 ? "W3" : "", confidence: 100 },
+      { label: "WHT Code", value: amount.whtAmount > 0 ? amount.whtCode : "", confidence: 100 },
       { label: "WHT Amount", value: amount.whtAmount.toFixed(2), confidence: 100 },
     ];
 
@@ -178,7 +183,6 @@ export default function VerifyModal({ doc, onClose, onConfirm, onReject, onRerun
 
   if (!doc) return null;
 
-  // Field-level confidence summary for right panel
   const lowConfFields = doc.ocrData?.filter((f) => f.confidence < 80) || [];
 
   return (
@@ -191,7 +195,7 @@ export default function VerifyModal({ doc, onClose, onConfirm, onReject, onRerun
               {doc.ocrConfidenceScore != null && (
                 <p className="text-xs text-muted-foreground mt-1">
                   Overall Confidence: <span className={`font-semibold ${doc.ocrConfidenceScore >= 90 ? "text-green-600" : doc.ocrConfidenceScore >= 70 ? "text-orange-600" : "text-red-600"}`}>{doc.ocrConfidenceScore}%</span>
-                  {doc.autoDecisionStatus && <span className="ml-2">• Decision: {doc.autoDecisionStatus.replace("_", " ")}</span>}
+                  {doc.autoDecisionStatus && <span className="ml-2">• Decision: {doc.autoDecisionStatus.replace(/_/g, " ")}</span>}
                 </p>
               )}
             </div>
@@ -199,10 +203,8 @@ export default function VerifyModal({ doc, onClose, onConfirm, onReject, onRerun
         </DialogHeader>
 
         <div className="grid grid-cols-5 gap-0 flex-1 overflow-hidden" style={{ height: "calc(92vh - 160px)" }}>
-          {/* LEFT PANEL (60%) */}
           <ScrollArea className="col-span-3 border-r">
             <div className="p-5 space-y-4">
-              {/* Warnings */}
               {warnings.length > 0 && (
                 <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-3 space-y-1">
                   {warnings.map((w, i) => (
@@ -213,7 +215,6 @@ export default function VerifyModal({ doc, onClose, onConfirm, onReject, onRerun
                 </div>
               )}
 
-              {/* Low confidence fields highlight */}
               {lowConfFields.length > 0 && (
                 <div className="bg-red-50 border border-red-200 rounded-lg p-3">
                   <p className="text-xs font-semibold text-red-700 mb-1">⚠️ Fields with low confidence (&lt;80%):</p>
@@ -229,17 +230,14 @@ export default function VerifyModal({ doc, onClose, onConfirm, onReject, onRerun
 
               <ReceiptInformation data={receipt} onChange={setReceipt} errors={receiptErrors} />
               <AmountBreakdown data={amount} onChange={setAmount} />
-              
             </div>
           </ScrollArea>
 
-          {/* RIGHT PANEL (40%) */}
           <div className="col-span-2 p-5 flex flex-col">
-            <DocumentPreviewPanel docName={doc.name} />
+            <DocumentPreviewPanel docName={doc.name} totalPages={1} />
           </div>
         </div>
 
-        {/* Footer */}
         <div className="flex items-center justify-end gap-3 px-6 py-4 border-t bg-muted/20">
           <div className="flex gap-2">
             <Button variant="outline" onClick={onClose}>Cancel</Button>
@@ -258,7 +256,6 @@ export default function VerifyModal({ doc, onClose, onConfirm, onReject, onRerun
   );
 }
 
-// Helpers
 function parseNum(s: string): number {
   return parseFloat((s || "0").replace(/,/g, "")) || 0;
 }

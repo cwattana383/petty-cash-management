@@ -1,19 +1,53 @@
 import { useState, useCallback } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Upload, FileText } from "lucide-react";
+import { Upload, FileText, X } from "lucide-react";
+import { toast } from "sonner";
+import { MAX_UPLOAD_FILES, MAX_FILE_SIZE_BYTES, MAX_FILE_SIZE_MB, ACCEPTED_MIME_TYPES } from "@/lib/upload-types";
 
 interface UploadAreaProps {
   onFilesSelected: (files: File[]) => void;
   selectedFiles: File[];
   onProcess: () => void;
   isProcessing: boolean;
+  onRemoveFile?: (index: number) => void;
 }
 
 const ACCEPTED_TYPES = ".pdf,.jpg,.jpeg,.png";
 
-export default function UploadArea({ onFilesSelected, selectedFiles, onProcess, isProcessing }: UploadAreaProps) {
+function validateFiles(newFiles: File[], existingCount: number): { valid: File[]; errors: string[] } {
+  const errors: string[] = [];
+  const valid: File[] = [];
+
+  const totalAfter = existingCount + newFiles.length;
+  if (totalAfter > MAX_UPLOAD_FILES) {
+    errors.push(`Maximum ${MAX_UPLOAD_FILES} files per upload session. You already have ${existingCount} file(s).`);
+    return { valid: [], errors };
+  }
+
+  for (const file of newFiles) {
+    if (!ACCEPTED_MIME_TYPES.includes(file.type)) {
+      errors.push(`Unsupported file type: "${file.name}". Please upload PDF, JPG, or PNG.`);
+      continue;
+    }
+    if (file.size > MAX_FILE_SIZE_BYTES) {
+      errors.push(`File "${file.name}" is too large. Maximum size is ${MAX_FILE_SIZE_MB} MB.`);
+      continue;
+    }
+    valid.push(file);
+  }
+
+  return { valid, errors };
+}
+
+export default function UploadArea({ onFilesSelected, selectedFiles, onProcess, isProcessing, onRemoveFile }: UploadAreaProps) {
   const [isDragging, setIsDragging] = useState(false);
+
+  const handleFiles = useCallback((files: File[]) => {
+    const { valid, errors } = validateFiles(files, selectedFiles.length);
+    errors.forEach((err) => toast.error(err));
+    if (valid.length > 0) onFilesSelected(valid);
+  }, [onFilesSelected, selectedFiles.length]);
 
   const handleDragOver = useCallback((e: React.DragEvent) => {
     e.preventDefault();
@@ -25,11 +59,12 @@ export default function UploadArea({ onFilesSelected, selectedFiles, onProcess, 
   const handleDrop = useCallback((e: React.DragEvent) => {
     e.preventDefault();
     setIsDragging(false);
-    onFilesSelected(Array.from(e.dataTransfer.files));
-  }, [onFilesSelected]);
+    handleFiles(Array.from(e.dataTransfer.files));
+  }, [handleFiles]);
 
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files) onFilesSelected(Array.from(e.target.files));
+    if (e.target.files) handleFiles(Array.from(e.target.files));
+    e.target.value = "";
   };
 
   return (
@@ -63,7 +98,7 @@ export default function UploadArea({ onFilesSelected, selectedFiles, onProcess, 
               Select Files
             </Button>
           </div>
-          <p className="text-xs text-muted-foreground mt-3">Supported: PDF, JPG, PNG (max 10 files)</p>
+          <p className="text-xs text-muted-foreground mt-3">Supported: PDF, JPG, PNG (max {MAX_UPLOAD_FILES} files, {MAX_FILE_SIZE_MB}MB each)</p>
         </CardContent>
       </Card>
 
@@ -77,6 +112,11 @@ export default function UploadArea({ onFilesSelected, selectedFiles, onProcess, 
                   <FileText className="h-4 w-4 text-primary" />
                   <span className="text-sm flex-1 truncate">{file.name}</span>
                   <span className="text-xs text-muted-foreground">{(file.size / 1024).toFixed(0)} KB</span>
+                  {onRemoveFile && (
+                    <Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => onRemoveFile(i)}>
+                      <X className="h-3 w-3" />
+                    </Button>
+                  )}
                 </div>
               ))}
             </div>
