@@ -39,6 +39,8 @@ export default function EmployeeProfileCreate() {
     branch: "099999 – HO",
     costCenter: "9999",
     role: "Director - Accounting",
+    creditCardLast4: "",
+    cardHolderName: "",
   });
 
   const handleChange = (field: string, value: string) => {
@@ -160,7 +162,13 @@ export default function EmployeeProfileCreate() {
       </Card>
 
       {/* Section 2: Credit Card */}
-      <CreditCardTab employeeName={employeeName} />
+      <CreditCardTab
+        employeeName={employeeName}
+        last4Digit={form.creditCardLast4}
+        cardHolderName={form.cardHolderName || employeeName}
+        onChangeLast4={(v) => handleChange("creditCardLast4", v)}
+        onChangeHolder={(v) => handleChange("cardHolderName", v)}
+      />
 
       {/* Section 3: Approval Chain */}
       <ApprovalChainTab />
