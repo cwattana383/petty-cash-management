@@ -1,6 +1,6 @@
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
-import { format } from "date-fns";
+import { formatBEDateTime } from "@/lib/utils";
 
 export type AdvanceStatus = "Requester" | "Approver" | "Accounting" | "Completed" | "Rejected";
 
@@ -35,7 +35,7 @@ export default function DocumentHeader({ advanceNo, glNo, status, createDate }: 
         </div>
         <div>
           <p className="text-xs text-muted-foreground mb-1">Create Date</p>
-          <p className="font-semibold text-sm">{format(createDate, "dd/MM/yyyy HH:mm:ss")}</p>
+          <p className="font-semibold text-sm">{formatBEDateTime(createDate)}</p>
         </div>
       </CardContent>
     </Card>

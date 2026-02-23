@@ -2,6 +2,7 @@ import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sh
 import { Separator } from "@/components/ui/separator";
 import { Badge } from "@/components/ui/badge";
 import { BankStatementLine, SystemTransaction, ReconciliationLink } from "@/lib/reconciliation-types";
+import { formatBEDate, formatBEDateTime } from "@/lib/utils";
 
 interface Props {
   open: boolean;
@@ -41,8 +42,8 @@ export default function ReconciliationDetailDrawer({ open, onClose, bankLine, sy
           {bankLine && (
             <Section title="Bank Statement Line">
               <Row label="Statement ID" value={bankLine.statementId} />
-              <Row label="Transaction Date" value={bankLine.transactionDate} />
-              <Row label="Posting Date" value={bankLine.postingDate} />
+              <Row label="Transaction Date" value={formatBEDate(bankLine.transactionDate)} />
+              <Row label="Posting Date" value={formatBEDate(bankLine.postingDate)} />
               <Row label="Merchant" value={bankLine.merchantName} />
               <Row label="Description" value={bankLine.description} />
               <Row label="Amount" value={`฿${bankLine.amount.toLocaleString()}`} />
@@ -62,7 +63,7 @@ export default function ReconciliationDetailDrawer({ open, onClose, bankLine, sy
             <Section title="System Transaction">
               <Row label="ID" value={systemTxn.claimId || systemTxn.id} />
               <Row label="Type" value={systemTxn.type} />
-              <Row label="Date" value={systemTxn.transactionDate} />
+              <Row label="Date" value={formatBEDate(systemTxn.transactionDate)} />
               <Row label="Merchant" value={systemTxn.merchantName} />
               <Row label="Purpose" value={systemTxn.purpose} />
               <Row label="Amount" value={`฿${systemTxn.amount.toLocaleString()}`} />
@@ -86,7 +87,7 @@ export default function ReconciliationDetailDrawer({ open, onClose, bankLine, sy
               <Separator />
               <Section title="Audit Trail">
                 <Row label="Matched By" value={link.matchedBy} />
-                <Row label="Matched At" value={new Date(link.matchedAt).toLocaleString()} />
+                <Row label="Matched At" value={formatBEDateTime(link.matchedAt)} />
                 <Row label="Variance" value={`฿${link.varianceAmount.toLocaleString()}`} />
                 <Row label="Status" />
                 <Badge className="bg-green-100 text-green-800">{link.status}</Badge>

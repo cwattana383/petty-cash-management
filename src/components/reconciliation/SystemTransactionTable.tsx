@@ -1,4 +1,5 @@
 import { SystemTransaction } from "@/lib/reconciliation-types";
+import { formatBEDate } from "@/lib/utils";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Badge } from "@/components/ui/badge";
@@ -64,7 +65,7 @@ export default function SystemTransactionTable({ transactions, selectedId, onSel
                     />
                   </TableCell>
                   
-                  <TableCell>{txn.transactionDate}</TableCell>
+                  <TableCell>{formatBEDate(txn.transactionDate)}</TableCell>
                   <TableCell className="max-w-[150px] truncate">{txn.merchantName}</TableCell>
                   <TableCell className="max-w-[150px] truncate text-muted-foreground">{txn.purpose}</TableCell>
                   <TableCell className="text-right font-medium">฿{txn.amount.toLocaleString()}</TableCell>

@@ -1,5 +1,6 @@
 import { useState, useMemo } from "react";
 import { format, subMonths, addMonths } from "date-fns";
+import { formatBEDate } from "@/lib/utils";
 import { useNavigate, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -278,7 +279,7 @@ export default function CreateClaim() {
                         <PopoverTrigger asChild>
                           <Button variant="outline" className={cn("h-8 text-sm w-32 justify-start text-left font-normal", !line.invoiceDate && "text-muted-foreground")}>
                             <CalendarIcon className="mr-1 h-3.5 w-3.5" />
-                            {line.invoiceDate ? format(line.invoiceDate, "dd/MM/yyyy") : "วันที่..."}
+                            {line.invoiceDate ? formatBEDate(line.invoiceDate) : "วันที่..."}
                           </Button>
                         </PopoverTrigger>
                         <PopoverContent className="w-auto p-0" align="start">
@@ -385,7 +386,7 @@ export default function CreateClaim() {
                             className={cn("h-8 text-sm w-32 justify-start text-left font-normal", !line.invoiceDate && "text-muted-foreground")}
                           >
                             <CalendarIcon className="mr-1 h-3.5 w-3.5" />
-                            {line.invoiceDate ? format(line.invoiceDate, "dd/MM/yyyy") : "วันที่..."}
+                            {line.invoiceDate ? formatBEDate(line.invoiceDate) : "วันที่..."}
                           </Button>
                         </PopoverTrigger>
                         <PopoverContent className="w-auto p-0" align="start">

@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Check, X, MessageSquare, Eye } from "lucide-react";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { useClaims } from "@/lib/claims-context";
+import { formatBEDate } from "@/lib/utils";
 
 export default function ApprovalInbox() {
   const navigate = useNavigate();
@@ -52,7 +53,7 @@ export default function ApprovalInbox() {
                     <TableCell>{a.department}</TableCell>
                     <TableCell>{a.purpose}</TableCell>
                     <TableCell className="text-right font-medium">฿{a.totalAmount.toLocaleString()}</TableCell>
-                    <TableCell>{a.submittedDate}</TableCell>
+                    <TableCell>{formatBEDate(a.submittedDate)}</TableCell>
                     <TableCell>
                       <Button variant="ghost" size="icon" onClick={() => navigate(`/claims/${a.id}`)}>
                         <Eye className="h-4 w-4" />
