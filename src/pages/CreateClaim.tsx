@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
-import { ArrowLeft, Save, Send, FileText, Plus, Trash2, CalendarIcon } from "lucide-react";
+import { ArrowLeft, Save, Send, FileText, Plus, Trash2, CalendarIcon, Paperclip } from "lucide-react";
 import { currentUser } from "@/lib/mock-data";
 import { useToast } from "@/hooks/use-toast";
 import { UploadedDoc, formatFileSize } from "@/lib/upload-types";
@@ -93,6 +93,7 @@ export default function CreateClaim() {
     totalAmount: number;
     whtCode: string;
     whtAmount: number;
+    attachedFile?: File;
   }>>([]);
 
   const addManualLine = () => {
@@ -403,7 +404,30 @@ export default function CreateClaim() {
                       <Input placeholder="เลขที่..." className="h-8 text-sm w-24" />
                     </TableCell>
                     <TableCell>
-                      <span className="text-sm text-muted-foreground">—</span>
+                      {line.attachedFile ? (
+                        <div className="flex items-center gap-1">
+                          <Paperclip className="h-3.5 w-3.5 text-primary shrink-0" />
+                          <span className="text-xs text-primary truncate max-w-[100px]" title={line.attachedFile.name}>{line.attachedFile.name}</span>
+                          <Button variant="ghost" size="icon" className="h-5 w-5" onClick={() => updateManualLine(line.id, "attachedFile", undefined)}>
+                            <Trash2 className="h-3 w-3 text-destructive" />
+                          </Button>
+                        </div>
+                      ) : (
+                        <label className="cursor-pointer">
+                          <input
+                            type="file"
+                            accept=".pdf,.jpg,.jpeg,.png"
+                            className="hidden"
+                            onChange={(e) => {
+                              const file = e.target.files?.[0];
+                              if (file) updateManualLine(line.id, "attachedFile", file);
+                            }}
+                          />
+                          <span className="inline-flex items-center gap-1 text-xs text-primary hover:underline">
+                            <Paperclip className="h-3.5 w-3.5" /> แนบไฟล์
+                          </span>
+                        </label>
+                      )}
                     </TableCell>
                     <TableCell>
                       <Select value={line.paymentMethod} onValueChange={(v) => updateManualLine(line.id, "paymentMethod", v)}>
