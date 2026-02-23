@@ -158,6 +158,8 @@ export default function ClaimDetail() {
                 <TableHead>#</TableHead>
                 <TableHead>Invoice Date</TableHead>
                 <TableHead>Invoice Number</TableHead>
+                <TableHead>Attached File</TableHead>
+                <TableHead>Payment Method</TableHead>
                 <TableHead>Supplier Name</TableHead>
                 <TableHead>Account Code</TableHead>
                 <TableHead>Description</TableHead>
@@ -177,6 +179,8 @@ export default function ClaimDetail() {
                   <TableCell>{i + 1}</TableCell>
                   <TableCell>{l.invoiceDate || "-"}</TableCell>
                   <TableCell>{l.taxInvoiceNo || "-"}</TableCell>
+                  <TableCell>{l.attachmentUrl ? <a href={l.attachmentUrl} target="_blank" rel="noopener noreferrer" className="text-primary hover:underline text-sm">📎 ดูไฟล์</a> : <span className="text-muted-foreground">-</span>}</TableCell>
+                  <TableCell>{l.paymentMethod || "-"}</TableCell>
                   <TableCell>{l.vendor || "-"}</TableCell>
                   <TableCell>{"-"}</TableCell>
                   <TableCell>{l.description}</TableCell>
@@ -191,7 +195,7 @@ export default function ClaimDetail() {
                 </TableRow>
               ))}
               <TableRow className="bg-muted/50 font-bold">
-                <TableCell colSpan={7} className="text-right">Total</TableCell>
+                <TableCell colSpan={9} className="text-right">Total</TableCell>
                 <TableCell className="text-right text-primary">฿{claim.totalAmount.toLocaleString()}</TableCell>
                 <TableCell />
                 <TableCell className="text-right">฿{claim.totalVat.toLocaleString()}</TableCell>
