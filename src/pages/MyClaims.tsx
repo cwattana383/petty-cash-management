@@ -8,6 +8,7 @@ import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { mockClaims } from "@/lib/mock-data";
 import { ClaimStatus } from "@/lib/types";
+import { formatBEDate } from "@/lib/utils";
 
 const statusVariant: Record<ClaimStatus, string> = {
   "Draft": "bg-muted text-muted-foreground",
@@ -100,7 +101,7 @@ export default function MyClaims() {
               filtered.map((c) => (
                 <TableRow key={c.id} className="cursor-pointer hover:bg-muted/50" onClick={() => navigate(`/claims/${c.id}`)}>
                   <TableCell className="font-medium">{c.claimNo}</TableCell>
-                  <TableCell>{c.createdDate}</TableCell>
+                  <TableCell>{formatBEDate(c.createdDate)}</TableCell>
                   <TableCell>{c.purpose}</TableCell>
                   <TableCell className="text-right">฿{c.totalAmount.toLocaleString()}</TableCell>
                   <TableCell>

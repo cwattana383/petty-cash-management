@@ -1,4 +1,5 @@
 import { ReconciliationLink, BankStatementLine, SystemTransaction } from "@/lib/reconciliation-types";
+import { formatBEDate, formatBEDateTime } from "@/lib/utils";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -45,11 +46,11 @@ export default function MatchedPairsTable({ links, bankLines, systemTxns, onView
               return (
                 <TableRow key={link.id} className="text-xs hover:bg-muted/50">
                   <TableCell className="font-medium">{bank?.merchantName || link.bankStatementLineId}</TableCell>
-                  <TableCell>{bank?.transactionDate}</TableCell>
+                  <TableCell>{formatBEDate(bank?.transactionDate)}</TableCell>
                   <TableCell className="font-medium">฿{bank?.amount.toLocaleString()}</TableCell>
                   <TableCell className="text-center text-green-600 font-bold">⇄</TableCell>
                   <TableCell className="font-medium">{sys?.merchantName || link.systemTransactionId}</TableCell>
-                  <TableCell>{sys?.transactionDate}</TableCell>
+                  <TableCell>{formatBEDate(sys?.transactionDate)}</TableCell>
                   <TableCell className="font-medium">฿{sys?.amount.toLocaleString()}</TableCell>
                   <TableCell>
                     <Badge className={link.varianceAmount === 0 ? "bg-green-100 text-green-800" : "bg-orange-100 text-orange-800"}>
@@ -57,7 +58,7 @@ export default function MatchedPairsTable({ links, bankLines, systemTxns, onView
                     </Badge>
                   </TableCell>
                   <TableCell>{link.matchedBy}</TableCell>
-                  <TableCell>{new Date(link.matchedAt).toLocaleDateString()}</TableCell>
+                  <TableCell>{formatBEDateTime(link.matchedAt)}</TableCell>
                   <TableCell>
                     <div className="flex gap-1">
                       <Button variant="ghost" size="sm" className="h-6 px-2 text-xs" onClick={() => onViewPair(link)}>

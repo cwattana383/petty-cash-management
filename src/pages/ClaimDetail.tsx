@@ -7,6 +7,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { ArrowLeft, Check, X, MessageSquare, Clock, CheckCircle, XCircle, AlertCircle, Send } from "lucide-react";
+import { formatBEDate } from "@/lib/utils";
 import { useClaims } from "@/lib/claims-context";
 import { useToast } from "@/hooks/use-toast";
 import { useState } from "react";
@@ -177,7 +178,7 @@ export default function ClaimDetail() {
               {claim.lines.map((l, i) => (
                 <TableRow key={l.id}>
                   <TableCell>{i + 1}</TableCell>
-                  <TableCell>{l.invoiceDate || "-"}</TableCell>
+                  <TableCell>{formatBEDate(l.invoiceDate) || "-"}</TableCell>
                   <TableCell>{l.taxInvoiceNo || "-"}</TableCell>
                   <TableCell>{l.attachmentUrl ? <a href={l.attachmentUrl} target="_blank" rel="noopener noreferrer" className="text-primary hover:underline text-sm">📎 ดูไฟล์</a> : <span className="text-muted-foreground">-</span>}</TableCell>
                   <TableCell>{l.paymentMethod || "-"}</TableCell>
@@ -224,7 +225,7 @@ export default function ClaimDetail() {
                       <Icon className="h-4 w-4" />
                       <span className="font-medium">Step {step.stepNo}: {step.approverName}</span>
                       <Badge variant="outline">{step.action}</Badge>
-                      {step.actionDate && <span className="text-xs text-muted-foreground ml-auto">{step.actionDate}</span>}
+                      {step.actionDate && <span className="text-xs text-muted-foreground ml-auto">{formatBEDate(step.actionDate)}</span>}
                     </div>
                     {step.comment && <p className="text-sm text-muted-foreground mt-1">{step.comment}</p>}
                   </div>
@@ -244,7 +245,7 @@ export default function ClaimDetail() {
               <div key={c.id} className="border rounded-lg p-3">
                 <div className="flex items-center justify-between">
                   <span className="font-medium text-sm">{c.userName}</span>
-                  <span className="text-xs text-muted-foreground">{c.date}</span>
+                  <span className="text-xs text-muted-foreground">{formatBEDate(c.date)}</span>
                 </div>
                 <p className="text-sm mt-1">{c.text}</p>
               </div>

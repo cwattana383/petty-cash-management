@@ -2,6 +2,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Eye, Edit } from "lucide-react";
+import { formatBEDate } from "@/lib/utils";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
@@ -54,7 +55,7 @@ export default function AccountingReview() {
                       <TableCell>{item.requester}</TableCell>
                       <TableCell className="text-right font-medium">{item.amount}</TableCell>
                       <TableCell>{item.accountCode}</TableCell>
-                      <TableCell>{item.date}</TableCell>
+                      <TableCell>{formatBEDate(item.date)}</TableCell>
                       <TableCell><Badge className={queueColors[item.status]}>{item.status}</Badge></TableCell>
                       <TableCell>
                         <div className="flex gap-1">

@@ -1,4 +1,5 @@
 import { BankStatementLine } from "@/lib/reconciliation-types";
+import { formatBEDate } from "@/lib/utils";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Badge } from "@/components/ui/badge";
@@ -81,7 +82,7 @@ export default function BankStatementTable({ lines, selectedId, onSelect, onRowC
                       onCheckedChange={(checked) => onSelect(checked ? line.id : null)}
                     />
                   </TableCell>
-                  <TableCell>{line.transactionDate}</TableCell>
+                  <TableCell>{formatBEDate(line.transactionDate)}</TableCell>
                   <TableCell className="max-w-[180px] truncate" title={line.description}>{line.merchantName}</TableCell>
                   <TableCell className="text-muted-foreground">{line.mcc}</TableCell>
                   <TableCell className="text-muted-foreground">{mccDescriptions[line.mcc] || line.mcc}</TableCell>
