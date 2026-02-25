@@ -15,13 +15,11 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "
 import DocumentHeader from "@/components/claims/DocumentHeader";
 
 const statusConfig: Record<string, { color: string; icon: React.ElementType }> = {
-  Draft: { color: "bg-muted text-muted-foreground", icon: Clock },
+  "Pending Invoice": { color: "bg-orange-100 text-orange-800", icon: Clock },
   "Pending Approval": { color: "bg-yellow-100 text-yellow-800", icon: Clock },
-  Approved: { color: "bg-green-100 text-green-800", icon: CheckCircle },
-  Rejected: { color: "bg-red-100 text-red-800", icon: XCircle },
-  "Need Info": { color: "bg-blue-100 text-blue-800", icon: AlertCircle },
-  Paid: { color: "bg-emerald-100 text-emerald-800", icon: CheckCircle },
-  Reconciled: { color: "bg-purple-100 text-purple-800", icon: CheckCircle },
+  "Final Rejected": { color: "bg-red-100 text-red-800", icon: XCircle },
+  "Auto Approved": { color: "bg-green-100 text-green-800", icon: CheckCircle },
+  "Reimbursed": { color: "bg-emerald-100 text-emerald-800", icon: CheckCircle },
 };
 
 const actionConfig: Record<string, { color: string; icon: React.ElementType }> = {
@@ -51,11 +49,11 @@ export default function ClaimDetail() {
     );
   }
 
-  const sc = statusConfig[claim.status] || statusConfig.Draft;
+  const sc = statusConfig[claim.status] || statusConfig["Pending Invoice"];
   const StatusIcon = sc.icon;
 
   const handleAction = (type: "approve" | "reject" | "info") => {
-    const newStatus = type === "approve" ? "Approved" : type === "reject" ? "Rejected" : "Need Info";
+    const newStatus = type === "approve" ? "Auto Approved" : type === "reject" ? "Final Rejected" : "Pending Approval";
     const actionLabel = type === "approve" ? "Approved" : type === "reject" ? "Rejected" : "Request Info";
 
     updateClaim(claim.id, {
@@ -109,7 +107,7 @@ export default function ClaimDetail() {
       <DocumentHeader
         advanceNo={claim.claimNo}
         glNo="-"
-        status={claim.status === "Pending Approval" ? "Approver" : claim.status === "Approved" ? "Completed" : claim.status === "Rejected" ? "Rejected" : "Requester"}
+        status={claim.status === "Pending Approval" ? "Approver" : claim.status === "Auto Approved" ? "Completed" : claim.status === "Final Rejected" ? "Rejected" : "Requester"}
         createDate={new Date(claim.createdDate)}
       />
 

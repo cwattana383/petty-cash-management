@@ -8,12 +8,12 @@ import { Eye, RotateCcw } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
 const statusColors: Record<string, string> = {
-  Draft: "bg-muted text-muted-foreground",
+  "Pending Invoice": "bg-orange-100 text-orange-800",
   "Pending Submit": "bg-orange-100 text-orange-800",
   "Pending Approval": "bg-yellow-100 text-yellow-800",
-  Approved: "bg-green-100 text-green-800",
-  Rejected: "bg-red-100 text-red-800",
-  "Need Info": "bg-blue-100 text-blue-800",
+  "Auto Approved": "bg-green-100 text-green-800",
+  "Final Rejected": "bg-red-100 text-red-800",
+  "Reimbursed": "bg-emerald-100 text-emerald-800",
 };
 
 interface Props {
