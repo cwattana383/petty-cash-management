@@ -148,7 +148,7 @@ export default function PolicyManagement() {
         </Select>
         <div className="flex-1" />
         <Button size="sm" onClick={openAdd}><Plus className="mr-1 h-3.5 w-3.5" />Add MCC Policy</Button>
-        <Button variant="outline" size="sm" onClick={() => setBulkOpen(true)}><Upload className="mr-1 h-3.5 w-3.5" />Bulk Import (CSV)</Button>
+        {/* Bulk Import button removed */}
       </div>
 
       {/* Table */}
