@@ -44,7 +44,7 @@ export default function MyClaims() {
           <h1 className="text-2xl font-bold text-foreground">My Expenses</h1>
           <p className="text-muted-foreground">Manage your expenses</p>
         </div>
-        <Button onClick={() => navigate("/claims/create")} className="gap-2">
+        <Button variant="outline" onClick={() => navigate("/claims/create")} className="gap-2 bg-white text-primary border-primary hover:bg-primary/5">
           <Plus className="h-4 w-4" /> New Expense
         </Button>
       </div>
