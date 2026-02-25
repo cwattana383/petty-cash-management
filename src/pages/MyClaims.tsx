@@ -11,7 +11,7 @@ import { Calendar } from "@/components/ui/calendar";
 import { mockClaims } from "@/lib/mock-data";
 import { ClaimStatus } from "@/lib/types";
 import { formatBEDate, cn } from "@/lib/utils";
-import { format, subDays, parse, isWithinInterval } from "date-fns";
+import { format, subDays } from "date-fns";
 
 const statusVariant: Record<ClaimStatus, string> = {
   "Pending Invoice": "bg-orange-100 text-orange-800",
