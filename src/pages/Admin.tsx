@@ -1,6 +1,7 @@
 import { useState, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import PolicyManagement from "./PolicyManagement";
+import PendingInvoiceNotificationPanel from "@/components/admin/PendingInvoiceNotificationPanel";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import {
@@ -81,6 +82,7 @@ const adminMenu = [
     icon: Bell,
     items: [
       { key: "email-notifications", label: "Email Notifications", icon: Mail },
+      { key: "pending-invoice-email", label: "Pending Invoice Email", icon: Receipt },
       { key: "system-alerts", label: "System Alerts", icon: AlertCircle },
     ],
   },
@@ -951,6 +953,7 @@ const panelMap: Record<string, () => JSX.Element> = {
   "expense-rules": ExpenseRulesPanel,
   "expense-delegates": ExpenseDelegatesPanel,
   "email-notifications": EmailNotificationsPanel,
+  "pending-invoice-email": PendingInvoiceNotificationPanel,
   "system-alerts": SystemAlertsPanel,
   "erp-sync": ErpSyncPanel,
   "sync-logs": SyncLogsPanel,
