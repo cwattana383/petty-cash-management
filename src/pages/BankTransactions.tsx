@@ -111,7 +111,6 @@ export default function BankTransactions() {
       {/* Header */}
       <div>
         <h1 className="text-2xl font-bold">Imported Bank Transactions</h1>
-        <p className="text-sm text-muted-foreground">View transactions imported from bank files. One row = one transaction.</p>
       </div>
 
       {/* Filters */}
