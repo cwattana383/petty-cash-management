@@ -107,7 +107,7 @@ export default function ClaimDetail() {
       <DocumentHeader
         advanceNo={claim.claimNo}
         glNo="-"
-        status={claim.status === "Pending Approval" ? "Approver" : claim.status === "Auto Approved" ? "Completed" : claim.status === "Final Rejected" ? "Rejected" : "Requester"}
+        status={claim.status === "Pending Invoice" ? "Requester" : claim.status === "Pending Approval" ? "Approver" : claim.status === "Auto Approved" ? "Completed" : claim.status === "Final Rejected" ? "Rejected" : "Requester"}
         createDate={new Date(claim.createdDate)}
       />
 
