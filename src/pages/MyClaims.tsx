@@ -117,12 +117,12 @@ export default function MyClaims() {
               <TableHead>Description</TableHead>
               <TableHead className="text-right">Amount</TableHead>
               <TableHead>Status</TableHead>
-              <TableHead className="w-10" />
+              
             </TableRow>
           </TableHeader>
           <TableBody>
             {filtered.length === 0 ? (
-              <TableRow><TableCell colSpan={7} className="text-center text-muted-foreground py-8">No expenses found</TableCell></TableRow>
+              <TableRow><TableCell colSpan={6} className="text-center text-muted-foreground py-8">No expenses found</TableCell></TableRow>
             ) : (
               filtered.map((c) => (
                 <TableRow key={c.id} className="cursor-pointer hover:bg-muted/50" onClick={() => navigate(`/claims/${c.id}`)}>
@@ -134,9 +134,6 @@ export default function MyClaims() {
                   <TableCell className="text-right">฿{c.totalAmount.toLocaleString()}</TableCell>
                   <TableCell>
                     <Badge variant="outline" className={statusVariant[c.status]}>{c.status}</Badge>
-                  </TableCell>
-                  <TableCell>
-                    <Eye className="h-4 w-4 text-muted-foreground" />
                   </TableCell>
                 </TableRow>
               ))
