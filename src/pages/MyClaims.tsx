@@ -24,12 +24,12 @@ export default function MyClaims() {
   const navigate = useNavigate();
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
-  const [typeFilter, setTypeFilter] = useState("all");
+  
 
   const filtered = useMemo(() => {
     return mockClaims.filter((c) => {
       if (statusFilter !== "all" && c.status !== statusFilter) return false;
-      if (typeFilter !== "all" && c.paymentMethod !== typeFilter) return false;
+      
       if (search) {
         const kw = search.toLowerCase();
         const searchable = [c.claimNo, c.purpose, c.requesterName].join(" ").toLowerCase();
@@ -37,7 +37,7 @@ export default function MyClaims() {
       }
       return true;
     });
-  }, [search, statusFilter, typeFilter]);
+  }, [search, statusFilter]);
 
   return (
     <div className="space-y-6">
@@ -67,16 +67,6 @@ export default function MyClaims() {
             <SelectItem value="Rejected">Rejected</SelectItem>
             <SelectItem value="Need Info">Need Info</SelectItem>
             <SelectItem value="Paid">Paid</SelectItem>
-          </SelectContent>
-        </Select>
-        <Select value={typeFilter} onValueChange={setTypeFilter}>
-          <SelectTrigger className="w-[160px]"><SelectValue placeholder="All Types" /></SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">All Types</SelectItem>
-            <SelectItem value="Cash">Cash</SelectItem>
-            <SelectItem value="Corporate Card">Corporate Card</SelectItem>
-            <SelectItem value="Personal Card">Personal Card</SelectItem>
-            <SelectItem value="Bank Transfer">Bank Transfer</SelectItem>
           </SelectContent>
         </Select>
       </div>
