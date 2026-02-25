@@ -111,7 +111,34 @@ export default function ClaimDetail() {
         createDate={new Date(claim.createdDate)}
       />
 
-
+      {/* Transaction Details */}
+      <Card>
+        <CardHeader><CardTitle className="text-base">Transaction Details</CardTitle></CardHeader>
+        <CardContent>
+          <div className="border rounded-lg overflow-hidden">
+            <Table>
+              <TableHeader>
+                <TableRow className="bg-primary">
+                  <TableHead className="text-primary-foreground font-semibold">Transaction No.</TableHead>
+                  <TableHead className="text-primary-foreground font-semibold">Transaction Date</TableHead>
+                  <TableHead className="text-primary-foreground font-semibold">Merchant Name</TableHead>
+                  <TableHead className="text-primary-foreground font-semibold">Description</TableHead>
+                  <TableHead className="text-primary-foreground font-semibold text-right">Amount</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                <TableRow>
+                  <TableCell className="font-medium">{claim.claimNo}</TableCell>
+                  <TableCell>{formatBEDate(claim.createdDate)}</TableCell>
+                  <TableCell>{claim.merchantName || "—"}</TableCell>
+                  <TableCell>{claim.purpose}</TableCell>
+                  <TableCell className="text-right">{claim.totalAmount.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</TableCell>
+                </TableRow>
+              </TableBody>
+            </Table>
+          </div>
+        </CardContent>
+      </Card>
 
       {/* Approval Timeline */}
       {claim.approvalHistory.length > 0 && (
