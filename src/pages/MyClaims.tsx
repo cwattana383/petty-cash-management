@@ -21,7 +21,7 @@ const statusVariant: Record<ClaimStatus, string> = {
 export default function MyClaims() {
   const navigate = useNavigate();
   const [search, setSearch] = useState("");
-  const [statusFilter, setStatusFilter] = useState("all");
+  const [statusFilter, setStatusFilter] = useState("Pending Invoice");
   
 
   const filtered = useMemo(() => {
