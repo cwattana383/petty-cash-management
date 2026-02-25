@@ -217,7 +217,7 @@ export default function CreateClaim() {
       <DocumentHeader
         advanceNo={advanceNo}
         glNo="-"
-        status="Requester"
+        status="Pending Invoice"
         createDate={createDate}
       />
 

@@ -2,7 +2,7 @@ import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { formatBEDateTime } from "@/lib/utils";
 
-export type AdvanceStatus = "Requester" | "Approver" | "Accounting" | "Completed" | "Rejected";
+export type AdvanceStatus = "Pending Invoice" | "Pending Approval" | "Final Rejected" | "Auto Approved" | "Reimbursed";
 
 interface DocumentHeaderProps {
   advanceNo: string;
@@ -12,11 +12,11 @@ interface DocumentHeaderProps {
 }
 
 const statusColors: Record<AdvanceStatus, string> = {
-  Requester: "bg-blue-100 text-blue-800 border-blue-200",
-  Approver: "bg-amber-100 text-amber-800 border-amber-200",
-  Accounting: "bg-purple-100 text-purple-800 border-purple-200",
-  Completed: "bg-green-100 text-green-800 border-green-200",
-  Rejected: "bg-red-100 text-red-800 border-red-200",
+  "Pending Invoice": "bg-orange-100 text-orange-800 border-orange-200",
+  "Pending Approval": "bg-amber-100 text-amber-800 border-amber-200",
+  "Auto Approved": "bg-green-100 text-green-800 border-green-200",
+  "Reimbursed": "bg-emerald-100 text-emerald-800 border-emerald-200",
+  "Final Rejected": "bg-red-100 text-red-800 border-red-200",
 };
 
 export default function DocumentHeader({ advanceNo, glNo, status, createDate }: DocumentHeaderProps) {
