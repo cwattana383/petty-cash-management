@@ -113,67 +113,6 @@ export default function ClaimDetail() {
 
 
 
-      {/* Lines */}
-      <Card>
-        <CardHeader><CardTitle className="text-base">Expense Lines ({claim.lines.length})</CardTitle></CardHeader>
-        <CardContent className="p-0 overflow-x-auto">
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>#</TableHead>
-                <TableHead>Invoice Date</TableHead>
-                <TableHead>Invoice Number</TableHead>
-                <TableHead>Attached File</TableHead>
-                <TableHead>Payment Method</TableHead>
-                <TableHead>Supplier Name</TableHead>
-                <TableHead>Account Code</TableHead>
-                <TableHead>Description</TableHead>
-                <TableHead>Expense Type</TableHead>
-                <TableHead className="text-right">Amount</TableHead>
-                <TableHead>VAT Code</TableHead>
-                <TableHead className="text-right">VAT Amount</TableHead>
-                <TableHead className="text-right">Total Amount</TableHead>
-                <TableHead>WHT Code</TableHead>
-                <TableHead className="text-right">WHT Amount</TableHead>
-                <TableHead>Status</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {claim.lines.map((l, i) => (
-                <TableRow key={l.id}>
-                  <TableCell>{i + 1}</TableCell>
-                  <TableCell>{formatBEDate(l.invoiceDate) || "-"}</TableCell>
-                  <TableCell>{l.taxInvoiceNo || "-"}</TableCell>
-                  <TableCell>{l.attachmentUrl ? <a href={l.attachmentUrl} target="_blank" rel="noopener noreferrer" className="text-primary hover:underline text-sm">📎 ดูไฟล์</a> : <span className="text-muted-foreground">-</span>}</TableCell>
-                  <TableCell>{l.paymentMethod || "-"}</TableCell>
-                  <TableCell>{l.vendor || "-"}</TableCell>
-                  <TableCell>{"-"}</TableCell>
-                  <TableCell>{l.description}</TableCell>
-                  <TableCell><Badge variant="outline">{l.expenseType}</Badge></TableCell>
-                  <TableCell className="text-right font-medium">฿{l.amount.toLocaleString()}</TableCell>
-                  <TableCell>{"-"}</TableCell>
-                  <TableCell className="text-right">฿{l.vat.toLocaleString()}</TableCell>
-                  <TableCell className="text-right">฿{(l.amount + l.vat).toLocaleString()}</TableCell>
-                  <TableCell>{"-"}</TableCell>
-                  <TableCell className="text-right">฿0</TableCell>
-                  <TableCell>{"-"}</TableCell>
-                </TableRow>
-              ))}
-              <TableRow className="bg-muted/50 font-bold">
-                <TableCell colSpan={9} className="text-right">Total</TableCell>
-                <TableCell className="text-right text-primary">฿{claim.totalAmount.toLocaleString()}</TableCell>
-                <TableCell />
-                <TableCell className="text-right">฿{claim.totalVat.toLocaleString()}</TableCell>
-                <TableCell className="text-right">฿{(claim.totalAmount + claim.totalVat).toLocaleString()}</TableCell>
-                <TableCell />
-                <TableCell className="text-right">฿0</TableCell>
-                <TableCell />
-              </TableRow>
-            </TableBody>
-          </Table>
-        </CardContent>
-      </Card>
-
       {/* Approval Timeline */}
       {claim.approvalHistory.length > 0 && (
         <Card>
