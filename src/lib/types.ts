@@ -55,6 +55,7 @@ export interface ClaimHeader {
   department: string;
   costCenter: string;
   purpose: string;
+  merchantName?: string;
   currency: string;
   paymentMethod: PaymentMethod;
   totalAmount: number;
