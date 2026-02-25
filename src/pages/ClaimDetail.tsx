@@ -84,7 +84,6 @@ export default function ClaimDetail() {
         <div className="flex-1">
           <div className="flex items-center gap-3">
             <h1 className="text-2xl font-bold text-foreground">{claim.claimNo}</h1>
-            <Badge className={sc.color}><StatusIcon className="h-3 w-3 mr-1" />{claim.status}</Badge>
           </div>
           <p className="text-muted-foreground">{claim.purpose}</p>
         </div>
@@ -107,7 +106,7 @@ export default function ClaimDetail() {
       <DocumentHeader
         advanceNo={claim.claimNo}
         glNo="-"
-        status={claim.status === "Pending Invoice" ? "Requester" : claim.status === "Pending Approval" ? "Approver" : claim.status === "Auto Approved" ? "Completed" : claim.status === "Final Rejected" ? "Rejected" : "Requester"}
+        status={claim.status as any}
         createDate={new Date(claim.createdDate)}
       />
 
