@@ -95,7 +95,7 @@ export function getUnifiedExpenses(claims: ClaimHeader[]): UnifiedExpenseItem[] 
       merchant_vendor: claim.lines[0]?.vendor || claim.purpose,
       purpose: claim.purpose,
       amount: claim.totalAmount,
-      status: claim.status === "Draft" ? "Draft" : claim.status,
+      status: claim.status === "Pending Invoice" ? "Pending Invoice" : claim.status,
       reconcile_status: "—",
       reject_reason: claim.approvalHistory.find((a) => a.action === "Rejected")?.comment,
     });

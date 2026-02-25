@@ -12,7 +12,7 @@ export default function ApprovalInbox() {
   const { claims } = useClaims();
 
   const pendingClaims = claims.filter((c) => c.status === "Pending Approval");
-  const approvedThisMonth = claims.filter((c) => c.status === "Approved").length;
+  const approvedThisMonth = claims.filter((c) => c.status === "Auto Approved").length;
   const totalPending = pendingClaims.reduce((s, c) => s + c.totalAmount, 0);
 
   return (

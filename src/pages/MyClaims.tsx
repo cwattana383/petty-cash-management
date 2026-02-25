@@ -11,13 +11,11 @@ import { ClaimStatus } from "@/lib/types";
 import { formatBEDate } from "@/lib/utils";
 
 const statusVariant: Record<ClaimStatus, string> = {
-  "Draft": "bg-muted text-muted-foreground",
+  "Pending Invoice": "bg-orange-100 text-orange-800",
   "Pending Approval": "bg-yellow-100 text-yellow-800",
-  "Approved": "bg-green-100 text-green-800",
-  "Rejected": "bg-red-100 text-red-800",
-  "Need Info": "bg-blue-100 text-blue-800",
-  "Paid": "bg-emerald-100 text-emerald-800",
-  "Reconciled": "bg-purple-100 text-purple-800",
+  "Final Rejected": "bg-red-100 text-red-800",
+  "Auto Approved": "bg-green-100 text-green-800",
+  "Reimbursed": "bg-emerald-100 text-emerald-800",
 };
 
 export default function MyClaims() {
@@ -61,12 +59,11 @@ export default function MyClaims() {
           <SelectTrigger className="w-[160px]"><SelectValue placeholder="All Status" /></SelectTrigger>
           <SelectContent>
             <SelectItem value="all">All Status</SelectItem>
-            <SelectItem value="Draft">Draft</SelectItem>
+            <SelectItem value="Pending Invoice">Pending Invoice</SelectItem>
             <SelectItem value="Pending Approval">Pending Approval</SelectItem>
-            <SelectItem value="Approved">Approved</SelectItem>
-            <SelectItem value="Rejected">Rejected</SelectItem>
-            <SelectItem value="Need Info">Need Info</SelectItem>
-            <SelectItem value="Paid">Paid</SelectItem>
+            <SelectItem value="Final Rejected">Final Rejected</SelectItem>
+            <SelectItem value="Auto Approved">Auto Approved</SelectItem>
+            <SelectItem value="Reimbursed">Reimbursed</SelectItem>
           </SelectContent>
         </Select>
       </div>
