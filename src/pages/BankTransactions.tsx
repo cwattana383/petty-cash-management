@@ -1,6 +1,6 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useCallback } from "react";
 import { format, subDays, isAfter } from "date-fns";
-import { Calendar as CalendarIcon, Search, RefreshCw, RotateCcw, Eye } from "lucide-react";
+import { Calendar as CalendarIcon, Search, Upload } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
@@ -15,6 +15,7 @@ import { Separator } from "@/components/ui/separator";
 import { cn } from "@/lib/utils";
 import { BankTransaction, PolicyResult, ProcessingStatus } from "@/lib/corporate-card-types";
 import { mockBankTransactions, mockMccPolicies, mockCardholders } from "@/lib/corporate-card-mock-data";
+import { ImportBankFileDialog } from "@/components/bank-transactions/ImportBankFileDialog";
 
 const POLICY_BADGE: Record<PolicyResult, { label: string; className: string }> = {
   AUTO_APPROVED: { label: "Auto Approved", className: "bg-emerald-100 text-emerald-800 border-emerald-200" },
@@ -46,7 +47,8 @@ export default function BankTransactions() {
   const [sortDir, setSortDir] = useState<"asc" | "desc">("desc");
   const [selectedTxn, setSelectedTxn] = useState<BankTransaction | null>(null);
   const [isLoading] = useState(false);
-
+  const [transactions, setTransactions] = useState<BankTransaction[]>(mockBankTransactions);
+  const [importOpen, setImportOpen] = useState(false);
   const dateError = isAfter(dateFrom, dateTo);
 
   const categoryMap = useMemo(() => {
@@ -56,7 +58,7 @@ export default function BankTransactions() {
   }, []);
 
   const filtered = useMemo(() => {
-    let data = [...mockBankTransactions];
+    let data = [...transactions];
     data = data.filter((t) => {
       const td = new Date(t.transaction_date);
       if (td < dateFrom || td > dateTo) return false;
@@ -76,7 +78,7 @@ export default function BankTransactions() {
       return sortDir === "asc" ? valA - valB : valB - valA;
     });
     return data;
-  }, [dateFrom, dateTo, cardholder, mccCode, policyResult, processingStatus, search, sortBy, sortDir]);
+  }, [dateFrom, dateTo, cardholder, mccCode, policyResult, processingStatus, search, sortBy, sortDir, transactions]);
 
   const totalPages = Math.ceil(filtered.length / PAGE_SIZE);
   const paged = filtered.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
@@ -91,6 +93,11 @@ export default function BankTransactions() {
     setSearch("");
     setPage(1);
   };
+
+  const handleImport = useCallback((newTxns: BankTransaction[]) => {
+    setTransactions((prev) => [...newTxns, ...prev]);
+    setPage(1);
+  }, []);
 
   const toggleSort = (col: "transaction_date" | "billing_amount") => {
     if (sortBy === col) setSortDir((d) => (d === "asc" ? "desc" : "asc"));
@@ -187,6 +194,12 @@ export default function BankTransactions() {
           </div>
         </div>
 
+        <div className="flex-1" />
+        <div className="self-end">
+          <Button size="sm" onClick={() => setImportOpen(true)}>
+            <Upload className="mr-1.5 h-3.5 w-3.5" />+ Import Bank File
+          </Button>
+        </div>
       </div>
 
       {/* Table */}
@@ -267,6 +280,8 @@ export default function BankTransactions() {
           {selectedTxn && <TransactionDetail txn={selectedTxn} categoryMap={categoryMap} />}
         </SheetContent>
       </Sheet>
+
+      <ImportBankFileDialog open={importOpen} onOpenChange={setImportOpen} onImport={handleImport} />
     </div>
   );
 }
