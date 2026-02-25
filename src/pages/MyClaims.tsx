@@ -60,24 +60,11 @@ export default function MyClaims() {
 
       {/* Filters */}
       <div className="flex flex-col gap-3 p-4 border rounded-lg bg-card">
-        <div className="flex flex-col sm:flex-row gap-3">
-          <div className="relative flex-1">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-            <Input placeholder="Search expenses..." value={search} onChange={(e) => setSearch(e.target.value)} className="pl-9" />
-          </div>
-          <Select value={statusFilter} onValueChange={setStatusFilter}>
-            <SelectTrigger className="w-[160px]"><SelectValue placeholder="All Status" /></SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">All Status</SelectItem>
-              <SelectItem value="Pending Invoice">Pending Invoice</SelectItem>
-              <SelectItem value="Pending Approval">Pending Approval</SelectItem>
-              <SelectItem value="Final Rejected">Final Rejected</SelectItem>
-              <SelectItem value="Auto Approved">Auto Approved</SelectItem>
-              <SelectItem value="Reimbursed">Reimbursed</SelectItem>
-            </SelectContent>
-          </Select>
+        <div className="relative">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+          <Input placeholder="Search expenses..." value={search} onChange={(e) => setSearch(e.target.value)} className="pl-9" />
         </div>
-        <div className="flex flex-col sm:flex-row gap-3 items-center">
+        <div className="flex flex-wrap gap-3 items-center">
           <span className="text-sm text-muted-foreground whitespace-nowrap">Transaction Date:</span>
           <Popover>
             <PopoverTrigger asChild>
@@ -102,6 +89,17 @@ export default function MyClaims() {
               <Calendar mode="single" selected={dateTo} onSelect={(d) => d && setDateTo(d)} initialFocus />
             </PopoverContent>
           </Popover>
+          <Select value={statusFilter} onValueChange={setStatusFilter}>
+            <SelectTrigger className="w-[180px]"><SelectValue placeholder="All Status" /></SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All Status</SelectItem>
+              <SelectItem value="Pending Invoice">Pending Invoice</SelectItem>
+              <SelectItem value="Pending Approval">Pending Approval</SelectItem>
+              <SelectItem value="Final Rejected">Final Rejected</SelectItem>
+              <SelectItem value="Auto Approved">Auto Approved</SelectItem>
+              <SelectItem value="Reimbursed">Reimbursed</SelectItem>
+            </SelectContent>
+          </Select>
         </div>
       </div>
 
