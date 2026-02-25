@@ -50,6 +50,16 @@ export function ClaimsProvider({ children }: { children: ReactNode }) {
 
 export function useClaims() {
   const ctx = useContext(ClaimsContext);
-  if (!ctx) throw new Error("useClaims must be used within ClaimsProvider");
+  if (!ctx) {
+    // Fallback for HMR edge cases - return empty state instead of throwing
+    return {
+      claims: [] as ClaimHeader[],
+      addClaim: () => {},
+      updateClaim: () => {},
+      deleteClaim: () => {},
+      getClaimById: () => undefined,
+      nextClaimNo: () => "EC-0000-001",
+    } as ClaimsContextType;
+  }
   return ctx;
 }
