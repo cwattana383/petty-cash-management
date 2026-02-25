@@ -71,7 +71,7 @@ export default function MyClaims() {
           <TableHeader>
             <TableRow>
               <TableHead>Expense No.</TableHead>
-              <TableHead>Date</TableHead>
+              <TableHead>Transaction Date</TableHead>
               <TableHead>Description</TableHead>
               <TableHead className="text-right">Amount</TableHead>
               <TableHead>Status</TableHead>
