@@ -111,40 +111,6 @@ export default function ClaimDetail() {
         createDate={new Date(claim.createdDate)}
       />
 
-      {/* Requester Information (read-only) */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-base">Requester Information</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-            <div>
-              <Label>Employee</Label>
-              <Input value={claim.requesterName} disabled />
-            </div>
-            <div>
-              <Label>Telephone</Label>
-              <Input value="0657778899" disabled />
-            </div>
-            <div>
-              <Label>Email</Label>
-              <Input value={`${claim.requesterName.split(" ")[0].toLowerCase()}@cpaxtra.co.th`} disabled />
-            </div>
-            <div>
-              <Label>แผนก (Department)</Label>
-              <Input value={claim.department} disabled />
-            </div>
-            <div>
-              <Label>Division</Label>
-              <Input value={claim.costCenter} disabled />
-            </div>
-            <div>
-              <Label>สาขา (Branch)</Label>
-              <Input value={claim.branch} disabled />
-            </div>
-          </div>
-        </CardContent>
-      </Card>
 
 
       {/* Lines */}
