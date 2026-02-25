@@ -26,7 +26,6 @@ import {
 
 const mainNav = [
   { title: "My Expense", url: "/claims", icon: FileText },
-  { title: "Upload Document", url: "/upload", icon: Upload },
   { title: "Approval Inbox", url: "/approvals", icon: CheckSquare },
   { title: "Accounting Review", url: "/accounting", icon: ClipboardList },
   { title: "Bank Transactions", url: "/bank-transactions", icon: CreditCard },
