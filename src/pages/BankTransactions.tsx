@@ -219,7 +219,7 @@ export default function BankTransactions() {
                     <TableHead className="whitespace-nowrap">Policy Result</TableHead>
                     <TableHead className="whitespace-nowrap">Policy Reason</TableHead>
                     <TableHead className="whitespace-nowrap">Status</TableHead>
-                    <TableHead className="whitespace-nowrap">Action</TableHead>
+                    
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -243,9 +243,6 @@ export default function BankTransactions() {
                       </TableCell>
                       <TableCell>
                         <Badge variant="outline" className={STATUS_BADGE[t.processing_status].className}>{STATUS_BADGE[t.processing_status].label}</Badge>
-                      </TableCell>
-                      <TableCell>
-                        <Button variant="ghost" size="sm" onClick={() => setSelectedTxn(t)}><Eye className="h-3.5 w-3.5 mr-1" />View</Button>
                       </TableCell>
                     </TableRow>
                   ))}
