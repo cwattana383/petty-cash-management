@@ -187,10 +187,6 @@ export default function BankTransactions() {
           </div>
         </div>
 
-        <div className="flex gap-2 self-end">
-          <Button variant="outline" size="sm" onClick={resetFilters}><RotateCcw className="mr-1 h-3.5 w-3.5" />Reset</Button>
-          <Button size="sm" disabled={dateError}><RefreshCw className="mr-1 h-3.5 w-3.5" />Refresh</Button>
-        </div>
       </div>
 
       {/* Table */}
