@@ -34,8 +34,8 @@ export default function MyClaims() {
   const navigate = useNavigate();
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState("Pending Invoice");
-  const [dateFrom, setDateFrom] = useState<Date>(subDays(new Date(), 6));
-  const [dateTo, setDateTo] = useState<Date>(new Date());
+  const [dateFrom, setDateFrom] = useState<Date>(subDays(new Date("2026-02-28"), 6));
+  const [dateTo, setDateTo] = useState<Date>(new Date("2026-02-28"));
 
   // Track attached files per claim and claim statuses
   const [attachedFiles, setAttachedFiles] = useState<Record<string, AttachedFileInfo>>({});
