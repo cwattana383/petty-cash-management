@@ -25,83 +25,39 @@ export const users: User[] = [
 
 export const mockClaims: ClaimHeader[] = [
   {
-    id: "c1", claimNo: "EC-2025-001", requesterId: "u1", requesterName: "สมชาย ใจดี",
+    id: "c1", claimNo: "TXN20250129001", requesterId: "u1", requesterName: "สมชาย ใจดี",
     company: "ABC Co., Ltd.", branch: "Bangkok", department: "9993010460 Finance and Accounting", costCenter: "CC-SALES-01",
-    purpose: "Business Travel - Bangkok to Chiang Mai", merchantName: "Thai Airways", currency: "THB", paymentMethod: "Corporate Card",
-    totalAmount: 15200, totalVat: 1065, status: "Auto Approved", createdDate: "2025-01-15", submittedDate: "2025-01-15",
-    lines: [
-      { id: "l1", expenseType: "Travel", description: "Flight BKK-CNX round trip", amount: 8500, vat: 595, taxInvoiceNo: "INV-TG-20250115", invoiceDate: "2025-01-15", vendor: "Thai Airways", paymentMethod: "Corporate Card", projectId: "PRJ-001", memo: "" },
-      { id: "l2", expenseType: "Travel", description: "Hotel 2 nights", amount: 4800, vat: 336, taxInvoiceNo: "INV-HTL-001", invoiceDate: "2025-01-15", vendor: "Centara Hotel", paymentMethod: "Corporate Card", projectId: "PRJ-001", memo: "" },
-      { id: "l3", expenseType: "Transportation", description: "Airport transfer", amount: 1900, vat: 133, taxInvoiceNo: "INV-GRB-001", invoiceDate: "2025-01-15", vendor: "Grab", paymentMethod: "Corporate Card", projectId: "PRJ-001", memo: "" },
-    ],
-    approvalHistory: [
-      { stepNo: 1, approverId: "u2", approverName: "สมหญิง แก้วใส", action: "Approved", comment: "Approved - within budget", actionDate: "2025-01-16" },
-    ],
-    comments: [{ id: "cm1", userId: "u2", userName: "สมหญิง แก้วใส", text: "OK, approved for business trip", date: "2025-01-16" }],
+    purpose: "Taxicabs and Limousines", merchantName: "GRAB TAXI", currency: "THB", paymentMethod: "Corporate Card",
+    totalAmount: 1500, totalVat: 0, status: "Pending Invoice", createdDate: "2026-02-28", submittedDate: null,
+    lines: [], approvalHistory: [], comments: [],
   },
   {
-    id: "c2", claimNo: "EC-2025-002", requesterId: "u1", requesterName: "สมชาย ใจดี",
+    id: "c2", claimNo: "TXN20250129002", requesterId: "u1", requesterName: "สมชาย ใจดี",
     company: "ABC Co., Ltd.", branch: "Bangkok", department: "9993010460 Finance and Accounting", costCenter: "CC-SALES-01",
-    purpose: "Client Meeting Lunch", merchantName: "S&P Restaurant", currency: "THB", paymentMethod: "Cash",
-    totalAmount: 2800, totalVat: 196, status: "Pending Approval", createdDate: "2025-01-20", submittedDate: "2025-01-20",
-    lines: [
-      { id: "l4", expenseType: "Meals", description: "Lunch with client at Siam Paragon", amount: 2800, vat: 196, taxInvoiceNo: "INV-REST-001", invoiceDate: "2025-01-20", vendor: "S&P Restaurant", paymentMethod: "Cash", projectId: "PRJ-002", memo: "Meeting with XYZ Corp" },
-    ],
-    approvalHistory: [
-      { stepNo: 1, approverId: "u2", approverName: "สมหญิง แก้วใส", action: "Pending", comment: "", actionDate: null },
-    ],
-    comments: [],
+    purpose: "Hotels and Motels", merchantName: "MARRIOTT HOTEL BKK", currency: "THB", paymentMethod: "Corporate Card",
+    totalAmount: 3500, totalVat: 0, status: "Pending Invoice", createdDate: "2026-02-28", submittedDate: null,
+    lines: [], approvalHistory: [], comments: [],
   },
   {
-    id: "c3", claimNo: "EC-2025-003", requesterId: "u1", requesterName: "สมชาย ใจดี",
+    id: "c3", claimNo: "TXN20250129003", requesterId: "u1", requesterName: "สมชาย ใจดี",
     company: "ABC Co., Ltd.", branch: "Bangkok", department: "9993010460 Finance and Accounting", costCenter: "CC-SALES-01",
-    purpose: "Office Supplies Purchase", merchantName: "OfficeMate", currency: "THB", paymentMethod: "Personal Card",
-    totalAmount: 4500, totalVat: 315, status: "Pending Invoice", createdDate: "2025-02-01", submittedDate: null,
-    lines: [
-      { id: "l5", expenseType: "Office Supplies", description: "Printer cartridges & paper", amount: 3200, vat: 224, taxInvoiceNo: "INV-OD-001", invoiceDate: "2025-02-01", vendor: "OfficeMate", paymentMethod: "Personal Card", projectId: "", memo: "" },
-      { id: "l6", expenseType: "Office Supplies", description: "Desk organizer", amount: 1300, vat: 91, taxInvoiceNo: "INV-OD-002", invoiceDate: "2025-02-01", vendor: "OfficeMate", paymentMethod: "Personal Card", projectId: "", memo: "" },
-    ],
-    approvalHistory: [],
-    comments: [],
+    purpose: "Service Stations", merchantName: "PTT GAS STATION", currency: "THB", paymentMethod: "Corporate Card",
+    totalAmount: 850, totalVat: 0, status: "Pending Invoice", createdDate: "2026-02-28", submittedDate: null,
+    lines: [], approvalHistory: [], comments: [],
   },
   {
-    id: "c4", claimNo: "EC-2025-004", requesterId: "u1", requesterName: "สมชาย ใจดี",
+    id: "c4", claimNo: "TXN20250129004", requesterId: "u1", requesterName: "สมชาย ใจดี",
     company: "ABC Co., Ltd.", branch: "Bangkok", department: "9993010460 Finance and Accounting", costCenter: "CC-SALES-01",
-    purpose: "Taxi to Airport", merchantName: "Taxi meter", currency: "THB", paymentMethod: "Cash",
-    totalAmount: 850, totalVat: 0, status: "Final Rejected", createdDate: "2025-02-05", submittedDate: "2025-02-05",
-    lines: [
-      { id: "l7", expenseType: "Transportation", description: "Taxi to Suvarnabhumi", amount: 850, vat: 0, taxInvoiceNo: "", invoiceDate: "2025-02-05", vendor: "Taxi meter", paymentMethod: "Cash", projectId: "", memo: "" },
-    ],
-    approvalHistory: [
-      { stepNo: 1, approverId: "u2", approverName: "สมหญิง แก้วใส", action: "Rejected", comment: "Missing receipt. Please resubmit with receipt.", actionDate: "2025-02-06" },
-    ],
-    comments: [{ id: "cm2", userId: "u2", userName: "สมหญิง แก้วใส", text: "No receipt attached. Company policy requires receipt for all claims.", date: "2025-02-06" }],
+    purpose: "Eating Places and Restaurants", merchantName: "SOMTUM RESTAURANT", currency: "THB", paymentMethod: "Cash",
+    totalAmount: 1250, totalVat: 0, status: "Pending Invoice", createdDate: "2026-02-28", submittedDate: null,
+    lines: [], approvalHistory: [], comments: [],
   },
   {
-    id: "c5", claimNo: "EC-2025-005", requesterId: "u1", requesterName: "สมชาย ใจดี",
+    id: "c5", claimNo: "TXN20250129005", requesterId: "u1", requesterName: "สมชาย ใจดี",
     company: "ABC Co., Ltd.", branch: "Bangkok", department: "9993010460 Finance and Accounting", costCenter: "CC-SALES-01",
-    purpose: "Conference Registration", merchantName: "Event Organizer Co.", currency: "THB", paymentMethod: "Bank Transfer",
-    totalAmount: 25000, totalVat: 1750, status: "Reimbursed", createdDate: "2025-02-08", submittedDate: "2025-02-08",
-    lines: [
-      { id: "l8", expenseType: "Training", description: "Annual Sales Conference 2025", amount: 25000, vat: 1750, taxInvoiceNo: "INV-CONF-001", invoiceDate: "2025-02-08", vendor: "Event Organizer Co.", paymentMethod: "Bank Transfer", projectId: "PRJ-003", memo: "" },
-    ],
-    approvalHistory: [
-      { stepNo: 1, approverId: "u2", approverName: "สมหญิง แก้วใส", action: "Request Info", comment: "Please provide conference agenda and approval from HR", actionDate: "2025-02-09" },
-    ],
-    comments: [{ id: "cm3", userId: "u2", userName: "สมหญิง แก้วใส", text: "Need HR approval for training budget. Also attach conference agenda.", date: "2025-02-09" }],
-  },
-  {
-    id: "c6", claimNo: "EC-2025-006", requesterId: "u3", requesterName: "วิชัย เจริญ",
-    company: "ABC Co., Ltd.", branch: "Chiang Mai", department: "9993010460 Finance and Accounting", costCenter: "CC-ENG-01",
-    purpose: "Software License Renewal", merchantName: "JetBrains", currency: "THB", paymentMethod: "Corporate Card",
-    totalAmount: 12000, totalVat: 840, status: "Pending Approval", accountingStatus: "Pending Review", createdDate: "2025-02-08", submittedDate: "2025-02-08",
-    lines: [
-      { id: "l9", expenseType: "Other", description: "JetBrains IntelliJ IDEA license", amount: 12000, vat: 840, taxInvoiceNo: "INV-JB-001", invoiceDate: "2025-02-08", vendor: "JetBrains", paymentMethod: "Corporate Card", projectId: "PRJ-DEV", memo: "Annual renewal" },
-    ],
-    approvalHistory: [
-      { stepNo: 1, approverId: "u5", approverName: "ธนา พิทักษ์", action: "Pending", comment: "", actionDate: null },
-    ],
-    comments: [],
+    purpose: "Airlines", merchantName: "THAI AIRWAYS", currency: "THB", paymentMethod: "Corporate Card",
+    totalAmount: 15000, totalVat: 0, status: "Pending Invoice", createdDate: "2026-02-28", submittedDate: null,
+    lines: [], approvalHistory: [], comments: [],
   },
 ];
 
