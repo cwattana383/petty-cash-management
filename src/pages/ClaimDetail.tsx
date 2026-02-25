@@ -113,29 +113,29 @@ export default function ClaimDetail() {
 
       {/* Transaction Details */}
       <Card>
-        <CardHeader><CardTitle className="text-base">Transaction Details</CardTitle></CardHeader>
+        <CardHeader><CardTitle className="text-base font-bold">Transaction Details</CardTitle></CardHeader>
         <CardContent>
-          <div className="border rounded-lg overflow-hidden">
-            <Table>
-              <TableHeader>
-                <TableRow className="bg-primary">
-                  <TableHead className="text-primary-foreground font-semibold">Transaction No.</TableHead>
-                  <TableHead className="text-primary-foreground font-semibold">Transaction Date</TableHead>
-                  <TableHead className="text-primary-foreground font-semibold">Merchant Name</TableHead>
-                  <TableHead className="text-primary-foreground font-semibold">Description</TableHead>
-                  <TableHead className="text-primary-foreground font-semibold text-right">Amount</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                <TableRow>
-                  <TableCell className="font-medium">{claim.claimNo}</TableCell>
-                  <TableCell>{formatBEDate(claim.createdDate)}</TableCell>
-                  <TableCell>{claim.merchantName || "—"}</TableCell>
-                  <TableCell>{claim.purpose}</TableCell>
-                  <TableCell className="text-right">{claim.totalAmount.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</TableCell>
-                </TableRow>
-              </TableBody>
-            </Table>
+          <div className="grid grid-cols-3 gap-x-6 gap-y-4">
+            <div className="space-y-1.5">
+              <Label className="text-sm font-semibold text-foreground">Transaction No.</Label>
+              <Input value={claim.claimNo} readOnly className="bg-muted/30 border-border" />
+            </div>
+            <div className="space-y-1.5">
+              <Label className="text-sm font-semibold text-foreground">Transaction Date</Label>
+              <Input value={formatBEDate(claim.createdDate)} readOnly className="bg-muted/30 border-border" />
+            </div>
+            <div className="space-y-1.5">
+              <Label className="text-sm font-semibold text-foreground">Merchant Name</Label>
+              <Input value={claim.merchantName || "—"} readOnly className="bg-muted/30 border-border" />
+            </div>
+            <div className="space-y-1.5">
+              <Label className="text-sm font-semibold text-foreground">Description</Label>
+              <Input value={claim.purpose} readOnly className="bg-muted/30 border-border" />
+            </div>
+            <div className="space-y-1.5">
+              <Label className="text-sm font-semibold text-foreground">Amount</Label>
+              <Input value={claim.totalAmount.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} readOnly className="bg-muted/30 border-border text-right" />
+            </div>
           </div>
         </CardContent>
       </Card>
