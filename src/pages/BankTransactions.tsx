@@ -110,31 +110,32 @@ export default function BankTransactions() {
       {/* Filters */}
       <div className="flex flex-wrap items-end gap-3 rounded-lg border bg-card p-4">
         {/* Date From */}
-        <div className="space-y-1">
+        <div className="flex flex-col gap-1">
           <label className="text-xs font-medium text-muted-foreground">Date From</label>
           <Popover>
             <PopoverTrigger asChild>
-              <Button variant="outline" size="sm" className={cn("w-[130px] justify-start text-left font-normal", dateError && "border-destructive")}>
-                <CalendarIcon className="mr-1 h-3.5 w-3.5" />
+              <Button variant="outline" size="sm" className={cn("w-[140px] justify-start text-left font-normal", dateError && "border-destructive")}>
+                <CalendarIcon className="mr-2 h-3.5 w-3.5" />
                 {format(dateFrom, "dd/MM/yyyy")}
               </Button>
             </PopoverTrigger>
             <PopoverContent className="w-auto p-0"><Calendar mode="single" selected={dateFrom} onSelect={(d) => d && setDateFrom(d)} /></PopoverContent>
           </Popover>
         </div>
-        <div className="space-y-1">
+        {/* Date To */}
+        <div className="flex flex-col gap-1">
           <label className="text-xs font-medium text-muted-foreground">Date To</label>
           <Popover>
             <PopoverTrigger asChild>
-              <Button variant="outline" size="sm" className={cn("w-[130px] justify-start text-left font-normal", dateError && "border-destructive")}>
-                <CalendarIcon className="mr-1 h-3.5 w-3.5" />
+              <Button variant="outline" size="sm" className={cn("w-[140px] justify-start text-left font-normal", dateError && "border-destructive")}>
+                <CalendarIcon className="mr-2 h-3.5 w-3.5" />
                 {format(dateTo, "dd/MM/yyyy")}
               </Button>
             </PopoverTrigger>
             <PopoverContent className="w-auto p-0"><Calendar mode="single" selected={dateTo} onSelect={(d) => d && setDateTo(d)} /></PopoverContent>
           </Popover>
         </div>
-        {dateError && <span className="text-xs text-destructive self-end pb-2">Date From cannot be after Date To</span>}
+        {dateError && <span className="text-xs text-destructive self-end pb-2">Date From &gt; Date To</span>}
 
         <div className="space-y-1">
           <label className="text-xs font-medium text-muted-foreground">Cardholder</label>
