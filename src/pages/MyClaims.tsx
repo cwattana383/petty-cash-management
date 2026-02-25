@@ -88,7 +88,7 @@ export default function MyClaims() {
             <TableRow>
               <TableHead>Expense No.</TableHead>
               <TableHead>Date</TableHead>
-              <TableHead>Purpose</TableHead>
+              <TableHead>Description</TableHead>
               <TableHead className="text-right">Amount</TableHead>
               <TableHead>Status</TableHead>
               <TableHead className="w-10" />
