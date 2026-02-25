@@ -1,5 +1,6 @@
 import { useState, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
+import PolicyManagement from "./PolicyManagement";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import {
@@ -66,6 +67,13 @@ const adminMenu = [
       { key: "employees", label: "Employee Profiles", icon: Users },
       { key: "roles", label: "Roles & Permissions", icon: Shield },
       { key: "costcenters", label: "Cost Center Assignments", icon: CircleDollarSign },
+    ],
+  },
+  {
+    group: "Corporate Card Setup",
+    icon: Shield,
+    items: [
+      { key: "mcc-policy", label: "Policy Management", icon: Shield },
     ],
   },
   {
@@ -946,6 +954,7 @@ const panelMap: Record<string, () => JSX.Element> = {
   "system-alerts": SystemAlertsPanel,
   "erp-sync": ErpSyncPanel,
   "sync-logs": SyncLogsPanel,
+  "mcc-policy": PolicyManagement,
 };
 
 export default function Admin() {
