@@ -72,6 +72,7 @@ export default function MyClaims() {
             <TableRow>
               <TableHead>Expense No.</TableHead>
               <TableHead>Transaction Date</TableHead>
+              <TableHead>Merchant Name</TableHead>
               <TableHead>Description</TableHead>
               <TableHead className="text-right">Amount</TableHead>
               <TableHead>Status</TableHead>
@@ -80,12 +81,13 @@ export default function MyClaims() {
           </TableHeader>
           <TableBody>
             {filtered.length === 0 ? (
-              <TableRow><TableCell colSpan={6} className="text-center text-muted-foreground py-8">No expenses found</TableCell></TableRow>
+              <TableRow><TableCell colSpan={7} className="text-center text-muted-foreground py-8">No expenses found</TableCell></TableRow>
             ) : (
               filtered.map((c) => (
                 <TableRow key={c.id} className="cursor-pointer hover:bg-muted/50" onClick={() => navigate(`/claims/${c.id}`)}>
                   <TableCell className="font-medium">{c.claimNo}</TableCell>
                   <TableCell>{formatBEDate(c.createdDate)}</TableCell>
+                  <TableCell>{c.merchantName || "—"}</TableCell>
                   <TableCell>{c.purpose}</TableCell>
                   <TableCell className="text-right">฿{c.totalAmount.toLocaleString()}</TableCell>
                   <TableCell>

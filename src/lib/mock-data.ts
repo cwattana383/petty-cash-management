@@ -27,7 +27,7 @@ export const mockClaims: ClaimHeader[] = [
   {
     id: "c1", claimNo: "EC-2025-001", requesterId: "u1", requesterName: "สมชาย ใจดี",
     company: "ABC Co., Ltd.", branch: "Bangkok", department: "9993010460 Finance and Accounting", costCenter: "CC-SALES-01",
-    purpose: "Business Travel - Bangkok to Chiang Mai", currency: "THB", paymentMethod: "Corporate Card",
+    purpose: "Business Travel - Bangkok to Chiang Mai", merchantName: "Thai Airways", currency: "THB", paymentMethod: "Corporate Card",
     totalAmount: 15200, totalVat: 1065, status: "Auto Approved", createdDate: "2025-01-15", submittedDate: "2025-01-15",
     lines: [
       { id: "l1", expenseType: "Travel", description: "Flight BKK-CNX round trip", amount: 8500, vat: 595, taxInvoiceNo: "INV-TG-20250115", invoiceDate: "2025-01-15", vendor: "Thai Airways", paymentMethod: "Corporate Card", projectId: "PRJ-001", memo: "" },
@@ -42,7 +42,7 @@ export const mockClaims: ClaimHeader[] = [
   {
     id: "c2", claimNo: "EC-2025-002", requesterId: "u1", requesterName: "สมชาย ใจดี",
     company: "ABC Co., Ltd.", branch: "Bangkok", department: "9993010460 Finance and Accounting", costCenter: "CC-SALES-01",
-    purpose: "Client Meeting Lunch", currency: "THB", paymentMethod: "Cash",
+    purpose: "Client Meeting Lunch", merchantName: "S&P Restaurant", currency: "THB", paymentMethod: "Cash",
     totalAmount: 2800, totalVat: 196, status: "Pending Approval", createdDate: "2025-01-20", submittedDate: "2025-01-20",
     lines: [
       { id: "l4", expenseType: "Meals", description: "Lunch with client at Siam Paragon", amount: 2800, vat: 196, taxInvoiceNo: "INV-REST-001", invoiceDate: "2025-01-20", vendor: "S&P Restaurant", paymentMethod: "Cash", projectId: "PRJ-002", memo: "Meeting with XYZ Corp" },
@@ -55,7 +55,7 @@ export const mockClaims: ClaimHeader[] = [
   {
     id: "c3", claimNo: "EC-2025-003", requesterId: "u1", requesterName: "สมชาย ใจดี",
     company: "ABC Co., Ltd.", branch: "Bangkok", department: "9993010460 Finance and Accounting", costCenter: "CC-SALES-01",
-    purpose: "Office Supplies Purchase", currency: "THB", paymentMethod: "Personal Card",
+    purpose: "Office Supplies Purchase", merchantName: "OfficeMate", currency: "THB", paymentMethod: "Personal Card",
     totalAmount: 4500, totalVat: 315, status: "Pending Invoice", createdDate: "2025-02-01", submittedDate: null,
     lines: [
       { id: "l5", expenseType: "Office Supplies", description: "Printer cartridges & paper", amount: 3200, vat: 224, taxInvoiceNo: "INV-OD-001", invoiceDate: "2025-02-01", vendor: "OfficeMate", paymentMethod: "Personal Card", projectId: "", memo: "" },
@@ -67,7 +67,7 @@ export const mockClaims: ClaimHeader[] = [
   {
     id: "c4", claimNo: "EC-2025-004", requesterId: "u1", requesterName: "สมชาย ใจดี",
     company: "ABC Co., Ltd.", branch: "Bangkok", department: "9993010460 Finance and Accounting", costCenter: "CC-SALES-01",
-    purpose: "Taxi to Airport", currency: "THB", paymentMethod: "Cash",
+    purpose: "Taxi to Airport", merchantName: "Taxi meter", currency: "THB", paymentMethod: "Cash",
     totalAmount: 850, totalVat: 0, status: "Final Rejected", createdDate: "2025-02-05", submittedDate: "2025-02-05",
     lines: [
       { id: "l7", expenseType: "Transportation", description: "Taxi to Suvarnabhumi", amount: 850, vat: 0, taxInvoiceNo: "", invoiceDate: "2025-02-05", vendor: "Taxi meter", paymentMethod: "Cash", projectId: "", memo: "" },
@@ -80,7 +80,7 @@ export const mockClaims: ClaimHeader[] = [
   {
     id: "c5", claimNo: "EC-2025-005", requesterId: "u1", requesterName: "สมชาย ใจดี",
     company: "ABC Co., Ltd.", branch: "Bangkok", department: "9993010460 Finance and Accounting", costCenter: "CC-SALES-01",
-    purpose: "Conference Registration", currency: "THB", paymentMethod: "Bank Transfer",
+    purpose: "Conference Registration", merchantName: "Event Organizer Co.", currency: "THB", paymentMethod: "Bank Transfer",
     totalAmount: 25000, totalVat: 1750, status: "Reimbursed", createdDate: "2025-02-08", submittedDate: "2025-02-08",
     lines: [
       { id: "l8", expenseType: "Training", description: "Annual Sales Conference 2025", amount: 25000, vat: 1750, taxInvoiceNo: "INV-CONF-001", invoiceDate: "2025-02-08", vendor: "Event Organizer Co.", paymentMethod: "Bank Transfer", projectId: "PRJ-003", memo: "" },
@@ -93,7 +93,7 @@ export const mockClaims: ClaimHeader[] = [
   {
     id: "c6", claimNo: "EC-2025-006", requesterId: "u3", requesterName: "วิชัย เจริญ",
     company: "ABC Co., Ltd.", branch: "Chiang Mai", department: "9993010460 Finance and Accounting", costCenter: "CC-ENG-01",
-    purpose: "Software License Renewal", currency: "THB", paymentMethod: "Corporate Card",
+    purpose: "Software License Renewal", merchantName: "JetBrains", currency: "THB", paymentMethod: "Corporate Card",
     totalAmount: 12000, totalVat: 840, status: "Pending Approval", accountingStatus: "Pending Review", createdDate: "2025-02-08", submittedDate: "2025-02-08",
     lines: [
       { id: "l9", expenseType: "Other", description: "JetBrains IntelliJ IDEA license", amount: 12000, vat: 840, taxInvoiceNo: "INV-JB-001", invoiceDate: "2025-02-08", vendor: "JetBrains", paymentMethod: "Corporate Card", projectId: "PRJ-DEV", memo: "Annual renewal" },
