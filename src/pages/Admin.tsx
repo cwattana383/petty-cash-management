@@ -69,24 +69,6 @@ const adminMenu = [
     ],
   },
   {
-    group: "Approval Workflow Setup",
-    icon: GitBranch,
-    items: [
-      { key: "approval-levels", label: "Approval Levels", icon: GitBranch },
-      { key: "approval-limits", label: "Approval Limits", icon: Gauge },
-    ],
-  },
-  {
-    group: "Expense",
-    icon: Receipt,
-    items: [
-      { key: "expense-type", label: "Expense Type", icon: Receipt },
-      { key: "expense-item", label: "Expense Item", icon: ListChecks },
-      { key: "expense-rules", label: "Expense Rules", icon: Scale },
-      { key: "expense-delegates", label: "Expense Delegates", icon: UserCheck },
-    ],
-  },
-  {
     group: "Notification Setup",
     icon: Bell,
     items: [
