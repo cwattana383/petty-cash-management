@@ -56,15 +56,43 @@ interface NotificationSettings {
 // --- Template Variables ---
 const templateVariables = [
   { key: "{{cardholder_name}}", label: "Cardholder Name", mock: "สมชาย ใจดี" },
-  { key: "{{merchant_name}}", label: "Merchant Name", mock: "Starbucks Siam Paragon" },
-  { key: "{{transaction_date}}", label: "Transaction Date", mock: "2026-02-20" },
-  { key: "{{amount}}", label: "Amount", mock: "1,250.00" },
-  { key: "{{currency}}", label: "Currency", mock: "THB" },
-  { key: "{{category}}", label: "Category", mock: "Meals & Entertainment" },
-  { key: "{{due_date}}", label: "Due Date (SLA)", mock: "2026-03-07" },
-  { key: "{{transaction_id}}", label: "Transaction ID", mock: "TXN-20260220-0042" },
-  { key: "{{upload_link}}", label: "Upload Invoice Link", mock: "https://app.example.com/upload?txn=TXN-20260220-0042" },
   { key: "{{pending_count}}", label: "Pending Invoice Count", mock: "3" },
+  { key: "{{max_due_date}}", label: "Latest Due Date", mock: "2026-03-15" },
+  { key: "{{upload_all_link}}", label: "Upload All Link", mock: "https://app.example.com/transactions?status=PENDING_INVOICE" },
+];
+
+// Mock pending transactions for preview
+const mockPendingTransactions = [
+  {
+    transaction_id: "TXN-20260228-0001",
+    merchant_name: "Grab Taxi",
+    transaction_date: "2026-02-28",
+    amount: "2,500.00",
+    currency: "THB",
+    category: "Transportation",
+    due_date: "2026-03-15",
+    upload_link: "https://app.example.com/upload?txn=TXN-20260228-0001",
+  },
+  {
+    transaction_id: "TXN-20260227-0002",
+    merchant_name: "Novotel Bangkok",
+    transaction_date: "2026-02-27",
+    amount: "4,500.00",
+    currency: "THB",
+    category: "Hotel",
+    due_date: "2026-03-14",
+    upload_link: "https://app.example.com/upload?txn=TXN-20260227-0002",
+  },
+  {
+    transaction_id: "TXN-20260226-0003",
+    merchant_name: "Sushi Hiro Restaurant",
+    transaction_date: "2026-02-26",
+    amount: "1,280.00",
+    currency: "THB",
+    category: "Meals & Entertainment",
+    due_date: "2026-03-13",
+    upload_link: "https://app.example.com/upload?txn=TXN-20260226-0003",
+  },
 ];
 
 const expenseCategories = [
@@ -93,23 +121,14 @@ const defaultSettings: NotificationSettings = {
     { id: "1", category: "Travel", slaDays: 7, reminderIntervalDays: 2 },
     { id: "2", category: "Meals & Entertainment", slaDays: 5, reminderIntervalDays: 1 },
   ],
-  templateSubject: "Action Required: Upload Invoice for {{merchant_name}} – {{amount}} {{currency}}",
+  templateSubject: "Action Required: {{pending_count}} Pending Corporate Card Invoices",
   templateBody: `Dear {{cardholder_name}},
 
-You have a corporate card transaction that requires an invoice upload.
+You have **{{pending_count}}** corporate card transaction(s) that require invoice uploads.
 
-**Transaction Details:**
-- Merchant: {{merchant_name}}
-- Date: {{transaction_date}}
-- Amount: {{amount}} {{currency}}
-- Category: {{category}}
-- Transaction ID: {{transaction_id}}
+Please upload all invoices before **{{max_due_date}}** to avoid policy violations.
 
-**Due Date:** {{due_date}}
-
-Please upload the invoice before the due date to avoid policy violations.
-
-You currently have **{{pending_count}}** pending invoice(s).
+The details of your pending transactions are listed below.
 
 Thank you,
 Finance Team`,
@@ -192,7 +211,7 @@ export default function PendingInvoiceNotificationPanel() {
         <div>
           <h2 className="text-lg font-semibold">Pending Invoice — Email & Reminder Setup</h2>
           <p className="text-sm text-muted-foreground">
-            Configure automatic email notifications for cardholders with pending invoices after bank import.
+            Configure consolidated email notifications grouping all pending invoices per cardholder.
           </p>
         </div>
         <div className="flex items-center gap-3">
@@ -216,7 +235,7 @@ export default function PendingInvoiceNotificationPanel() {
               <div>
                 <p className="text-sm font-semibold">Enable Notifications</p>
                 <p className="text-xs text-muted-foreground">
-                  Send email notifications to cardholders when invoices are pending
+                  Send one consolidated email per cardholder listing all pending invoices
                 </p>
               </div>
             </div>
@@ -240,11 +259,11 @@ export default function PendingInvoiceNotificationPanel() {
                 <div className="flex items-start gap-3">
                   <CheckCircle2 className="h-4 w-4 text-primary mt-0.5 shrink-0" />
                   <div>
-                    <p className="font-medium">Bank Import Success + Status = PENDING_INVOICE</p>
+                    <p className="font-medium">Bank Import Success → Group by Cardholder</p>
                     <p className="text-muted-foreground mt-1">
-                      When a bank import job successfully creates or updates a transaction and sets its status to
-                      <Badge variant="outline" className="mx-1 text-xs">PENDING_INVOICE</Badge>,
-                      the system will create an email notification task.
+                      After a bank import job completes, the system groups all transactions with status
+                      <Badge variant="outline" className="mx-1 text-xs">PENDING_INVOICE</Badge>
+                      by cardholder and sends <strong>one consolidated email per cardholder</strong>.
                     </p>
                   </div>
                 </div>
@@ -308,7 +327,7 @@ export default function PendingInvoiceNotificationPanel() {
                 <div>
                   <p className="text-sm font-medium">Enable Reminders</p>
                   <p className="text-xs text-muted-foreground">
-                    Send periodic reminders for transactions still in PENDING_INVOICE status
+                    Send periodic consolidated reminders for transactions still in PENDING_INVOICE
                   </p>
                 </div>
                 <Switch
@@ -541,14 +560,21 @@ export default function PendingInvoiceNotificationPanel() {
                   value={settings.templateBody}
                   onChange={(e) => update("templateBody", e.target.value)}
                   placeholder="Email body..."
-                  className="min-h-[240px] font-mono text-xs"
+                  className="min-h-[200px] font-mono text-xs"
                 />
               </div>
 
-              <p className="text-xs text-muted-foreground">
-                The email will include a primary CTA button <strong>"Upload Invoice"</strong> linking to {`{{upload_link}}`}.
-                If the cardholder has multiple pending invoices, {`{{pending_count}}`} and a link to the pending list will be shown.
-              </p>
+              <div className="bg-muted/50 rounded-lg p-3 text-xs text-muted-foreground space-y-1.5">
+                <p>
+                  <strong>Transaction Table:</strong> A table listing all pending transactions (Merchant, Date, Amount, Category, Due Date) is automatically appended below the body text.
+                </p>
+                <p>
+                  <strong>Primary CTA:</strong> An "Upload All Invoices" button linking to <code className="bg-muted px-1 rounded">{`{{upload_all_link}}`}</code> is added below the table.
+                </p>
+                <p>
+                  <strong>Note:</strong> Even if only 1 transaction is pending, the same table layout is used (no separate single-item design).
+                </p>
+              </div>
             </CardContent>
           </Card>
 
@@ -598,50 +624,12 @@ export default function PendingInvoiceNotificationPanel() {
                       <span className="font-semibold">{previewSubject}</span>
                     </div>
                   </div>
-                  {/* Email body */}
-                  <div className="p-5 bg-background">
-                    <div className="whitespace-pre-wrap text-sm leading-relaxed max-w-lg">
-                      {previewBody.split("\n").map((line, i) => {
-                        // Simple bold markdown rendering
-                        const parts = line.split(/(\*\*[^*]+\*\*)/g);
-                        return (
-                          <div key={i} className={line === "" ? "h-3" : ""}>
-                            {parts.map((part, j) => {
-                              if (part.startsWith("**") && part.endsWith("**")) {
-                                return <strong key={j}>{part.slice(2, -2)}</strong>;
-                              }
-                              return <span key={j}>{part}</span>;
-                            })}
-                          </div>
-                        );
-                      })}
-                    </div>
 
-                    {/* CTA Button Preview */}
-                    <div className="mt-6 space-y-3">
-                      <a
-                        href="#"
-                        className="inline-block bg-primary text-primary-foreground px-6 py-3 rounded-lg font-semibold text-sm no-underline hover:opacity-90 transition-opacity"
-                        onClick={(e) => e.preventDefault()}
-                      >
-                        📎 Upload Invoice
-                      </a>
-                      <div>
-                        <a
-                          href="#"
-                          className="text-xs text-primary underline"
-                          onClick={(e) => e.preventDefault()}
-                        >
-                          View transaction details →
-                        </a>
-                      </div>
-                      <div className="mt-2 text-xs text-muted-foreground bg-muted/50 rounded p-2.5">
-                        You have <strong>3</strong> pending invoice(s).{" "}
-                        <a href="#" className="text-primary underline" onClick={(e) => e.preventDefault()}>
-                          View all pending invoices
-                        </a>
-                      </div>
-                    </div>
+                  {/* Email body - rendered as email-safe HTML */}
+                  <div className="p-0">
+                    <div
+                      dangerouslySetInnerHTML={{ __html: buildEmailPreviewHtml(previewBody) }}
+                    />
                   </div>
                 </div>
               )}
@@ -663,4 +651,98 @@ export default function PendingInvoiceNotificationPanel() {
       )}
     </div>
   );
+}
+
+/**
+ * Build a full email-safe HTML preview with inline styles, transaction table, and CTA.
+ * Uses only inline CSS and HTML tables for Gmail/Outlook compatibility.
+ */
+function buildEmailPreviewHtml(bodyText: string): string {
+  // Convert markdown bold to HTML
+  const htmlBody = bodyText
+    .split("\n")
+    .map((line) => {
+      const converted = line.replace(/\*\*([^*]+)\*\*/g, "<strong>$1</strong>");
+      return converted === "" ? "<br/>" : `<p style="margin:0 0 8px 0;line-height:1.6;">${converted}</p>`;
+    })
+    .join("");
+
+  const txnRows = mockPendingTransactions
+    .map(
+      (txn) => `
+      <tr>
+        <td style="padding:10px 12px;border-bottom:1px solid #e5e7eb;font-size:13px;color:#1f2937;">${txn.merchant_name}</td>
+        <td style="padding:10px 12px;border-bottom:1px solid #e5e7eb;font-size:13px;color:#1f2937;">${txn.transaction_date}</td>
+        <td style="padding:10px 12px;border-bottom:1px solid #e5e7eb;font-size:13px;color:#1f2937;text-align:right;font-variant-numeric:tabular-nums;">${txn.amount} ${txn.currency}</td>
+        <td style="padding:10px 12px;border-bottom:1px solid #e5e7eb;font-size:13px;color:#1f2937;">${txn.category}</td>
+        <td style="padding:10px 12px;border-bottom:1px solid #e5e7eb;font-size:13px;color:#1f2937;">${txn.due_date}</td>
+        <td style="padding:10px 12px;border-bottom:1px solid #e5e7eb;font-size:13px;text-align:center;">
+          <a href="${txn.upload_link}" style="color:#2563eb;text-decoration:underline;font-size:12px;">Upload</a>
+        </td>
+      </tr>`
+    )
+    .join("");
+
+  return `
+    <div style="background-color:#ffffff;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif;">
+      <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="max-width:640px;margin:0 auto;">
+        <tr>
+          <td style="padding:32px 24px 0 24px;">
+            <!-- Body text -->
+            <div style="font-size:14px;color:#374151;">
+              ${htmlBody}
+            </div>
+
+            <!-- Transaction Table -->
+            <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin-top:20px;border:1px solid #e5e7eb;border-radius:8px;border-collapse:separate;overflow:hidden;">
+              <thead>
+                <tr style="background-color:#f9fafb;">
+                  <th style="padding:10px 12px;text-align:left;font-size:12px;font-weight:600;color:#6b7280;border-bottom:2px solid #e5e7eb;">Merchant</th>
+                  <th style="padding:10px 12px;text-align:left;font-size:12px;font-weight:600;color:#6b7280;border-bottom:2px solid #e5e7eb;">Date</th>
+                  <th style="padding:10px 12px;text-align:right;font-size:12px;font-weight:600;color:#6b7280;border-bottom:2px solid #e5e7eb;">Amount</th>
+                  <th style="padding:10px 12px;text-align:left;font-size:12px;font-weight:600;color:#6b7280;border-bottom:2px solid #e5e7eb;">Category</th>
+                  <th style="padding:10px 12px;text-align:left;font-size:12px;font-weight:600;color:#6b7280;border-bottom:2px solid #e5e7eb;">Due Date</th>
+                  <th style="padding:10px 12px;text-align:center;font-size:12px;font-weight:600;color:#6b7280;border-bottom:2px solid #e5e7eb;">Action</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${txnRows}
+              </tbody>
+              <tfoot>
+                <tr style="background-color:#f9fafb;">
+                  <td colspan="2" style="padding:10px 12px;font-size:13px;font-weight:600;color:#374151;">Total: ${mockPendingTransactions.length} transaction(s)</td>
+                  <td style="padding:10px 12px;text-align:right;font-size:13px;font-weight:600;color:#374151;">8,280.00 THB</td>
+                  <td colspan="3"></td>
+                </tr>
+              </tfoot>
+            </table>
+
+            <!-- Primary CTA -->
+            <div style="text-align:center;margin-top:28px;">
+              <a href="https://app.example.com/transactions?status=PENDING_INVOICE"
+                 style="display:inline-block;background-color:#2563eb;color:#ffffff;padding:14px 32px;border-radius:8px;font-size:15px;font-weight:600;text-decoration:none;letter-spacing:0.02em;">
+                📎 Upload All Invoices
+              </a>
+            </div>
+
+            <!-- Secondary link -->
+            <div style="text-align:center;margin-top:12px;">
+              <a href="https://app.example.com/transactions?status=PENDING_INVOICE"
+                 style="color:#2563eb;font-size:13px;text-decoration:underline;">
+                View all pending transactions →
+              </a>
+            </div>
+
+            <!-- Footer -->
+            <div style="margin-top:32px;padding-top:20px;border-top:1px solid #e5e7eb;">
+              <p style="font-size:12px;color:#9ca3af;margin:0;line-height:1.5;">
+                This is an automated notification from the Corporate Card Expense System.<br/>
+                If you have already uploaded these invoices, please disregard this email.
+              </p>
+            </div>
+          </td>
+        </tr>
+      </table>
+    </div>
+  `;
 }
