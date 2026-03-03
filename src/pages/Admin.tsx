@@ -962,7 +962,7 @@ const panelMap: Record<string, () => JSX.Element> = {
 
 export default function Admin() {
   const [activeKey, setActiveKey] = useState("employees");
-  const ActivePanel = panelMap[activeKey];
+  const ActivePanel = panelMap[activeKey] || (() => <div className="p-8 text-muted-foreground">Panel not found</div>);
 
   return (
     <div className="space-y-4">
