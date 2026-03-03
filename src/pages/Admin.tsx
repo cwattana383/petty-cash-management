@@ -2,6 +2,7 @@ import { useState, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import PolicyManagement from "./PolicyManagement";
 import PendingInvoiceNotificationPanel from "@/components/admin/PendingInvoiceNotificationPanel";
+import PendingApprovalNotificationPanel from "@/components/admin/PendingApprovalNotificationPanel";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import {
@@ -83,6 +84,7 @@ const adminMenu = [
     items: [
       { key: "email-notifications", label: "Email Notifications", icon: Mail },
       { key: "pending-invoice-email", label: "Pending Invoice Email", icon: Receipt },
+      { key: "pending-approval-email", label: "Pending Approval Email", icon: UserCheck },
       { key: "system-alerts", label: "System Alerts", icon: AlertCircle },
     ],
   },
@@ -954,6 +956,7 @@ const panelMap: Record<string, () => JSX.Element> = {
   "expense-delegates": ExpenseDelegatesPanel,
   "email-notifications": EmailNotificationsPanel,
   "pending-invoice-email": PendingInvoiceNotificationPanel,
+  "pending-approval-email": PendingApprovalNotificationPanel,
   "system-alerts": SystemAlertsPanel,
   "erp-sync": ErpSyncPanel,
   "sync-logs": SyncLogsPanel,
