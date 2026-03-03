@@ -165,12 +165,12 @@ export default function PolicyManagement() {
                 <TableHead>Currency</TableHead>
                 <TableHead>Active</TableHead>
                 <TableHead>Updated At</TableHead>
-                <TableHead>Actions</TableHead>
+                
               </TableRow>
             </TableHeader>
             <TableBody>
               {paged.length === 0 ? (
-                <TableRow><TableCell colSpan={9} className="text-center py-12 text-muted-foreground">No policies found.</TableCell></TableRow>
+                <TableRow><TableCell colSpan={8} className="text-center py-12 text-muted-foreground">No policies found.</TableCell></TableRow>
               ) : paged.map((p) => (
                 <TableRow key={p.mcc_code}>
                   <TableCell className="font-mono font-medium">{p.mcc_code}</TableCell>
@@ -207,12 +207,6 @@ export default function PolicyManagement() {
                     <Switch checked={p.active_flag} onCheckedChange={(v) => handleInlineToggle(p.mcc_code, v)} />
                   </TableCell>
                   <TableCell className="text-xs text-muted-foreground">{format(new Date(p.updated_at), "dd/MM/yyyy HH:mm")}</TableCell>
-                  <TableCell>
-                    <div className="flex gap-1">
-                      <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => openEdit(p)}><Pencil className="h-3.5 w-3.5" /></Button>
-                      <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive" onClick={() => setDeleteTarget(p.mcc_code)}><Trash2 className="h-3.5 w-3.5" /></Button>
-                    </div>
-                  </TableCell>
                 </TableRow>
               ))}
             </TableBody>
