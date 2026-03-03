@@ -676,9 +676,6 @@ function buildEmailPreviewHtml(bodyText: string): string {
         <td style="padding:10px 12px;border-bottom:1px solid #e5e7eb;font-size:13px;color:#1f2937;text-align:right;font-variant-numeric:tabular-nums;">${txn.amount} ${txn.currency}</td>
         <td style="padding:10px 12px;border-bottom:1px solid #e5e7eb;font-size:13px;color:#1f2937;">${txn.category}</td>
         <td style="padding:10px 12px;border-bottom:1px solid #e5e7eb;font-size:13px;color:#1f2937;">${txn.due_date}</td>
-        <td style="padding:10px 12px;border-bottom:1px solid #e5e7eb;font-size:13px;text-align:center;">
-          <a href="${txn.upload_link}" style="color:#2563eb;text-decoration:underline;font-size:12px;">Upload</a>
-        </td>
       </tr>`
     )
     .join("");
@@ -702,7 +699,6 @@ function buildEmailPreviewHtml(bodyText: string): string {
                   <th style="padding:10px 12px;text-align:right;font-size:12px;font-weight:600;color:#6b7280;border-bottom:2px solid #e5e7eb;">Amount</th>
                   <th style="padding:10px 12px;text-align:left;font-size:12px;font-weight:600;color:#6b7280;border-bottom:2px solid #e5e7eb;">Category</th>
                   <th style="padding:10px 12px;text-align:left;font-size:12px;font-weight:600;color:#6b7280;border-bottom:2px solid #e5e7eb;">Due Date</th>
-                  <th style="padding:10px 12px;text-align:center;font-size:12px;font-weight:600;color:#6b7280;border-bottom:2px solid #e5e7eb;">Action</th>
                 </tr>
               </thead>
               <tbody>
@@ -712,7 +708,7 @@ function buildEmailPreviewHtml(bodyText: string): string {
                 <tr style="background-color:#f9fafb;">
                   <td colspan="2" style="padding:10px 12px;font-size:13px;font-weight:600;color:#374151;">Total: ${mockPendingTransactions.length} transaction(s)</td>
                   <td style="padding:10px 12px;text-align:right;font-size:13px;font-weight:600;color:#374151;">8,280.00 THB</td>
-                  <td colspan="3"></td>
+                  <td colspan="2"></td>
                 </tr>
               </tfoot>
             </table>
