@@ -1,7 +1,7 @@
 import { useState, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import PolicyManagement from "./PolicyManagement";
-import PendingInvoiceNotificationPanel from "@/components/admin/PendingInvoiceNotificationPanel";
+import NotificationSetupPanel from "@/components/admin/NotificationSetupPanel";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import {
@@ -12,12 +12,10 @@ import {
   GitBranch,
   Gauge,
   Bell,
-  Receipt,
   ListChecks,
   Scale,
   UserCheck,
   Mail,
-  AlertCircle,
   Plug,
   Clock,
   CalendarClock,
@@ -81,9 +79,7 @@ const adminMenu = [
     group: "Notification Setup",
     icon: Bell,
     items: [
-      { key: "email-notifications", label: "Email Notifications", icon: Mail },
-      { key: "pending-invoice-email", label: "Pending Invoice Email", icon: Receipt },
-      { key: "system-alerts", label: "System Alerts", icon: AlertCircle },
+      { key: "notification-setup", label: "Notification Setup", icon: Mail },
     ],
   },
   {
@@ -952,9 +948,7 @@ const panelMap: Record<string, () => JSX.Element> = {
   "expense-item": ExpenseItemPanel,
   "expense-rules": ExpenseRulesPanel,
   "expense-delegates": ExpenseDelegatesPanel,
-  "email-notifications": EmailNotificationsPanel,
-  "pending-invoice-email": PendingInvoiceNotificationPanel,
-  "system-alerts": SystemAlertsPanel,
+  "notification-setup": NotificationSetupPanel,
   "erp-sync": ErpSyncPanel,
   "sync-logs": SyncLogsPanel,
   "mcc-policy": PolicyManagement,
