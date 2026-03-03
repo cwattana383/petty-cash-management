@@ -9,12 +9,16 @@ import { formatBEDate } from "@/lib/utils";
 import { useToast } from "@/hooks/use-toast";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { useState } from "react";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 
 export default function ApprovalInbox() {
   const navigate = useNavigate();
   const { claims, updateClaim } = useClaims();
   const { toast } = useToast();
   const [previewFile, setPreviewFile] = useState<{ name: string; url: string } | null>(null);
+  const [rejectDialog, setRejectDialog] = useState<{ id: string; claimNo: string } | null>(null);
+  const [rejectReason, setRejectReason] = useState("");
 
   const pendingClaims = claims.filter((c) => c.status === "Pending Approval");
   const approvedThisMonth = claims.filter((c) => c.status === "Auto Approved").length;
@@ -25,9 +29,17 @@ export default function ApprovalInbox() {
     toast({ title: "Approved", description: `${claimNo} has been approved.` });
   };
 
-  const handleReject = (id: string, claimNo: string) => {
-    updateClaim(id, { status: "Final Rejected" });
-    toast({ title: "Rejected", description: `${claimNo} has been rejected.`, variant: "destructive" });
+  const handleRejectClick = (id: string, claimNo: string) => {
+    setRejectDialog({ id, claimNo });
+    setRejectReason("");
+  };
+
+  const handleConfirmReject = () => {
+    if (!rejectDialog) return;
+    updateClaim(rejectDialog.id, { status: "Final Rejected" });
+    toast({ title: "Rejected", description: `${rejectDialog.claimNo} has been rejected. Reason: ${rejectReason || "No reason provided"}`, variant: "destructive" });
+    setRejectDialog(null);
+    setRejectReason("");
   };
 
   // Mock attached file per claim
@@ -114,7 +126,7 @@ export default function ApprovalInbox() {
                             variant="ghost"
                             size="icon"
                             className="h-8 w-8 text-destructive hover:text-destructive/80 hover:bg-red-50"
-                            onClick={() => handleReject(a.id, a.claimNo)}
+                            onClick={() => handleRejectClick(a.id, a.claimNo)}
                             title="Reject"
                           >
                             <X className="h-4 w-4" />
@@ -129,6 +141,31 @@ export default function ApprovalInbox() {
           </Table>
         </CardContent>
       </Card>
+
+      {/* Reject Reason Dialog */}
+      <Dialog open={!!rejectDialog} onOpenChange={(v) => !v && setRejectDialog(null)}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2 text-destructive">
+              <X className="h-5 w-5" />
+              Reject Claim — {rejectDialog?.claimNo}
+            </DialogTitle>
+          </DialogHeader>
+          <div className="space-y-3">
+            <p className="text-sm text-muted-foreground">Please provide a reason for rejecting this claim.</p>
+            <Textarea
+              placeholder="Enter rejection reason or comment..."
+              value={rejectReason}
+              onChange={(e) => setRejectReason(e.target.value)}
+              rows={3}
+            />
+          </div>
+          <div className="flex justify-end gap-2 pt-2">
+            <Button variant="outline" onClick={() => setRejectDialog(null)}>Cancel</Button>
+            <Button variant="destructive" onClick={handleConfirmReject}>Confirm Reject</Button>
+          </div>
+        </DialogContent>
+      </Dialog>
 
       {/* File Preview Dialog */}
       <Dialog open={!!previewFile} onOpenChange={(v) => !v && setPreviewFile(null)}>
