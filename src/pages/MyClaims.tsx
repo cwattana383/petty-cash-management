@@ -15,6 +15,7 @@ import { formatBEDate, cn } from "@/lib/utils";
 import { format, subDays } from "date-fns";
 import { toast } from "@/hooks/use-toast";
 import { ACCEPTED_MIME_TYPES } from "@/lib/upload-types";
+import { useNotifications } from "@/lib/notifications-context";
 
 const statusVariant: Record<ClaimStatus, string> = {
   "Pending Invoice": "bg-orange-100 text-orange-800",
@@ -32,6 +33,7 @@ interface AttachedFileInfo {
 
 export default function MyClaims() {
   const navigate = useNavigate();
+  const { addNotification } = useNotifications();
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState("Pending Invoice");
   const [dateFrom, setDateFrom] = useState<Date>(subDays(new Date("2026-02-28"), 6));
@@ -108,13 +110,52 @@ export default function MyClaims() {
 
       // Step 2 & 3: Simulate OCR processing
       setTimeout(() => {
-        const confidence = 90 + Math.random() * 10; // 90-100%
-        setAttachedFiles((prev) => ({
-          ...prev,
-          [claimId]: { ...prev[claimId], ocrStatus: "done", ocrConfidence: Math.round(confidence) },
-        }));
+        const confidence = 60 + Math.random() * 40; // 60-100% for more variation
+        const claim = mockClaims.find((c) => c.id === claimId);
+        const claimNo = claim?.claimNo || claimId;
 
-        if (confidence >= 90) {
+        // Simulate data mismatch check (random 30% chance)
+        const dataMismatch = Math.random() < 0.3;
+
+        if (confidence < 90 || dataMismatch) {
+          // Invoice incorrect: low confidence or data mismatch
+          const reasons: string[] = [];
+          if (confidence < 90) reasons.push(`OCR confidence too low (${Math.round(confidence)}%)`);
+          if (dataMismatch) reasons.push("Invoice data does not match transaction");
+
+          setAttachedFiles((prev) => ({
+            ...prev,
+            [claimId]: { ...prev[claimId], ocrStatus: "failed", ocrConfidence: Math.round(confidence) },
+          }));
+
+          toast({
+            title: "Invoice Incorrect",
+            description: `${claimNo}: ${reasons.join(", ")}. Please upload the correct invoice.`,
+            variant: "destructive",
+          });
+
+          addNotification({
+            title: "Incorrect Invoice Uploaded",
+            message: `Your uploaded invoice for ${claimNo} (${claim?.merchantName || ""}) is incorrect: ${reasons.join(", ")}. Please upload the correct invoice.`,
+            type: "NEED_INFO",
+            target_transaction_id: claimId,
+          });
+
+          // Reset attached file so user can re-upload
+          setTimeout(() => {
+            setAttachedFiles((prev) => {
+              const copy = { ...prev };
+              delete copy[claimId];
+              return copy;
+            });
+          }, 3000);
+        } else {
+          // Invoice correct
+          setAttachedFiles((prev) => ({
+            ...prev,
+            [claimId]: { ...prev[claimId], ocrStatus: "done", ocrConfidence: Math.round(confidence) },
+          }));
+
           setConfirmDialog({ open: true, claimId });
         }
       }, 2000);

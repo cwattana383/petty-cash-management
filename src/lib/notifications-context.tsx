@@ -31,6 +31,7 @@ interface NotificationsContextType {
   unreadCount: number;
   markAsRead: (id: string) => void;
   markAllAsRead: () => void;
+  addNotification: (notif: Omit<Notification, "id" | "read_flag" | "created_at" | "user_id">) => void;
 }
 
 const NotificationsContext = createContext<NotificationsContextType | null>(null);
@@ -48,6 +49,17 @@ export function NotificationsProvider({ children }: { children: ReactNode }) {
     setNotifications((prev) => prev.map((n) => ({ ...n, read_flag: true })));
   }, []);
 
+  const addNotification = useCallback((notif: Omit<Notification, "id" | "read_flag" | "created_at" | "user_id">) => {
+    const newNotif: Notification = {
+      ...notif,
+      id: `n-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`,
+      read_flag: false,
+      created_at: new Date().toISOString(),
+      user_id: "u1",
+    };
+    setNotifications((prev) => [newNotif, ...prev]);
+  }, []);
+
   // Auto refresh unread count every 60 seconds (future: replace with websocket)
   useEffect(() => {
     const interval = setInterval(() => {
@@ -57,7 +69,7 @@ export function NotificationsProvider({ children }: { children: ReactNode }) {
   }, []);
 
   return (
-    <NotificationsContext.Provider value={{ notifications, unreadCount, markAsRead, markAllAsRead }}>
+    <NotificationsContext.Provider value={{ notifications, unreadCount, markAsRead, markAllAsRead, addNotification }}>
       {children}
     </NotificationsContext.Provider>
   );
