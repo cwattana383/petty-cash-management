@@ -36,7 +36,7 @@ export default function ApprovalInbox() {
                 <TableHead>Claim No.</TableHead>
                 <TableHead>Requester</TableHead>
                 <TableHead>Department</TableHead>
-                <TableHead>Purpose</TableHead>
+                <TableHead>Description</TableHead>
                 <TableHead className="text-right">Amount</TableHead>
                 <TableHead>Submitted</TableHead>
                 <TableHead>Actions</TableHead>
