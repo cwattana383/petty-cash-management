@@ -1,10 +1,11 @@
+import { useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Eye, Edit } from "lucide-react";
 import { formatBEDate } from "@/lib/utils";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 const mockItems = [
   { id: "EC-2025-006", requester: "พิมพ์ ดี", amount: "฿8,200", status: "Pending Review", accountCode: "-", date: "2025-02-03" },
@@ -18,7 +19,19 @@ const queueColors: Record<string, string> = {
   "Ready for ERP": "bg-green-100 text-green-800",
 };
 
+const tabStatusMap: Record<string, string | null> = {
+  all: null,
+  pending: "Pending Review",
+  exception: "Exception",
+  ready: "Ready for ERP",
+};
+
 export default function AccountingReview() {
+  const [activeTab, setActiveTab] = useState("all");
+  const filtered = tabStatusMap[activeTab]
+    ? mockItems.filter((item) => item.status === tabStatusMap[activeTab])
+    : mockItems;
+
   return (
     <div className="space-y-6">
       <div>
@@ -26,51 +39,56 @@ export default function AccountingReview() {
         <p className="text-muted-foreground">Review and adjust expense claims for ERP</p>
       </div>
 
-      <Tabs defaultValue="all">
+      <Tabs value={activeTab} onValueChange={setActiveTab}>
         <TabsList>
           <TabsTrigger value="all">All</TabsTrigger>
           <TabsTrigger value="pending">Pending Review</TabsTrigger>
           <TabsTrigger value="exception">Exception</TabsTrigger>
           <TabsTrigger value="ready">Ready for ERP</TabsTrigger>
         </TabsList>
-        <TabsContent value="all" className="mt-4">
-          <Card>
-            <CardContent className="p-0">
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Claim No.</TableHead>
-                    <TableHead>Requester</TableHead>
-                    <TableHead className="text-right">Amount</TableHead>
-                    <TableHead>Account Code</TableHead>
-                    <TableHead>Date</TableHead>
-                    <TableHead>Status</TableHead>
-                    <TableHead>Actions</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {mockItems.map((item) => (
-                    <TableRow key={item.id}>
-                      <TableCell className="font-medium">{item.id}</TableCell>
-                      <TableCell>{item.requester}</TableCell>
-                      <TableCell className="text-right font-medium">{item.amount}</TableCell>
-                      <TableCell>{item.accountCode}</TableCell>
-                      <TableCell>{formatBEDate(item.date)}</TableCell>
-                      <TableCell><Badge className={queueColors[item.status]}>{item.status}</Badge></TableCell>
-                      <TableCell>
-                        <div className="flex gap-1">
-                          <Button variant="ghost" size="icon"><Eye className="h-4 w-4" /></Button>
-                          <Button variant="ghost" size="icon"><Edit className="h-4 w-4" /></Button>
-                        </div>
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </CardContent>
-          </Card>
-        </TabsContent>
       </Tabs>
+
+      <Card>
+        <CardContent className="p-0">
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Claim No.</TableHead>
+                <TableHead>Requester</TableHead>
+                <TableHead className="text-right">Amount</TableHead>
+                <TableHead>Account Code</TableHead>
+                <TableHead>Date</TableHead>
+                <TableHead>Status</TableHead>
+                <TableHead>Actions</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {filtered.length === 0 ? (
+                <TableRow>
+                  <TableCell colSpan={7} className="text-center text-muted-foreground py-8">No items found</TableCell>
+                </TableRow>
+              ) : (
+                filtered.map((item) => (
+                  <TableRow key={item.id}>
+                    <TableCell className="font-medium">{item.id}</TableCell>
+                    <TableCell>{item.requester}</TableCell>
+                    <TableCell className="text-right font-medium">{item.amount}</TableCell>
+                    <TableCell>{item.accountCode}</TableCell>
+                    <TableCell>{formatBEDate(item.date)}</TableCell>
+                    <TableCell><Badge className={queueColors[item.status]}>{item.status}</Badge></TableCell>
+                    <TableCell>
+                      <div className="flex gap-1">
+                        <Button variant="ghost" size="icon"><Eye className="h-4 w-4" /></Button>
+                        <Button variant="ghost" size="icon"><Edit className="h-4 w-4" /></Button>
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                ))
+              )}
+            </TableBody>
+          </Table>
+        </CardContent>
+      </Card>
     </div>
   );
 }
