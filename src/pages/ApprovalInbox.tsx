@@ -33,7 +33,7 @@ export default function ApprovalInbox() {
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>Claim No.</TableHead>
+                <TableHead>Transaction No.</TableHead>
                 <TableHead>Requester</TableHead>
                 <TableHead>Department</TableHead>
                 <TableHead>Description</TableHead>
