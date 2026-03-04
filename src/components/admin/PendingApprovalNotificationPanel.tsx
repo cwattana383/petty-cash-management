@@ -251,30 +251,8 @@ export default function PendingApprovalNotificationPanel() {
 
       {settings.enabled && (
         <>
-          {/* Section 2: Trigger */}
-          <Card>
-            <CardHeader className="pb-3">
-              <CardTitle className="text-sm font-semibold flex items-center gap-2">
-                <Info className="h-4 w-4 text-muted-foreground" />
-                Trigger Condition
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="pt-0">
-              <div className="bg-muted/50 rounded-lg p-4 text-sm">
-                <div className="flex items-start gap-3">
-                  <CheckCircle2 className="h-4 w-4 text-primary mt-0.5 shrink-0" />
-                  <div>
-                    <p className="font-medium">Claim Submitted → Group by Approver</p>
-                    <p className="text-muted-foreground mt-1">
-                      When expense claims are submitted, the system groups all claims with status
-                      <Badge variant="outline" className="mx-1 text-xs">PENDING_APPROVAL</Badge>
-                      by assigned approver and sends <strong>one consolidated email per approver</strong>.
-                    </p>
-                  </div>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
+          {/* Section 2: Trigger - hidden */}
+
 
           {/* Section 3: First Email Timing */}
           <Card>
