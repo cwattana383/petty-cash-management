@@ -4,6 +4,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Check, X, FileText, Paperclip } from "lucide-react";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Checkbox } from "@/components/ui/checkbox";
 import { useClaims } from "@/lib/claims-context";
 import { formatBEDate } from "@/lib/utils";
 import { useToast } from "@/hooks/use-toast";
@@ -19,6 +20,9 @@ export default function ApprovalInbox() {
   const [previewFile, setPreviewFile] = useState<{ name: string; url: string } | null>(null);
   const [rejectDialog, setRejectDialog] = useState<{ id: string; claimNo: string } | null>(null);
   const [rejectReason, setRejectReason] = useState("");
+  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
+  const [batchRejectDialog, setBatchRejectDialog] = useState(false);
+  const [batchRejectReason, setBatchRejectReason] = useState("");
 
   const pendingClaims = claims.filter((c) => c.status === "Pending Approval");
   const approvedThisMonth = claims.filter((c) => c.status === "Auto Approved").length;
@@ -40,6 +44,43 @@ export default function ApprovalInbox() {
     toast({ title: "Rejected", description: `${rejectDialog.claimNo} has been rejected. Reason: ${rejectReason || "No reason provided"}`, variant: "destructive" });
     setRejectDialog(null);
     setRejectReason("");
+  };
+
+  const toggleSelect = (id: string) => {
+    setSelectedIds((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id); else next.add(id);
+      return next;
+    });
+  };
+
+  const toggleAll = () => {
+    if (selectedIds.size === pendingClaims.length) {
+      setSelectedIds(new Set());
+    } else {
+      setSelectedIds(new Set(pendingClaims.map((c) => c.id)));
+    }
+  };
+
+  const handleBatchApprove = () => {
+    const selected = pendingClaims.filter((c) => selectedIds.has(c.id));
+    selected.forEach((c) => updateClaim(c.id, { status: "Auto Approved" }));
+    toast({ title: "Approved", description: `${selected.length} claim(s) have been approved.` });
+    setSelectedIds(new Set());
+  };
+
+  const handleBatchRejectClick = () => {
+    setBatchRejectDialog(true);
+    setBatchRejectReason("");
+  };
+
+  const handleConfirmBatchReject = () => {
+    const selected = pendingClaims.filter((c) => selectedIds.has(c.id));
+    selected.forEach((c) => updateClaim(c.id, { status: "Final Rejected" }));
+    toast({ title: "Rejected", description: `${selected.length} claim(s) have been rejected. Reason: ${batchRejectReason || "No reason provided"}`, variant: "destructive" });
+    setSelectedIds(new Set());
+    setBatchRejectDialog(false);
+    setBatchRejectReason("");
   };
 
   // Mock attached file per claim
@@ -67,11 +108,30 @@ export default function ApprovalInbox() {
         <Card><CardContent className="p-4 text-center"><p className="text-2xl font-bold text-foreground">฿{totalPending.toLocaleString()}</p><p className="text-sm text-muted-foreground">Total Pending Amount</p></CardContent></Card>
       </div>
 
+      {/* Batch Action Bar */}
+      {selectedIds.size > 0 && (
+        <div className="flex items-center gap-3 p-3 border rounded-lg bg-muted/50">
+          <span className="text-sm font-medium">{selectedIds.size} selected</span>
+          <Button size="sm" className="bg-green-600 hover:bg-green-700 text-white gap-1" onClick={handleBatchApprove}>
+            <Check className="h-4 w-4" /> Approve Selected
+          </Button>
+          <Button size="sm" variant="destructive" className="gap-1" onClick={handleBatchRejectClick}>
+            <X className="h-4 w-4" /> Reject Selected
+          </Button>
+        </div>
+      )}
+
       <Card>
         <CardContent className="p-0">
           <Table>
             <TableHeader>
               <TableRow>
+                <TableHead className="w-[40px]">
+                  <Checkbox
+                    checked={pendingClaims.length > 0 && selectedIds.size === pendingClaims.length}
+                    onCheckedChange={toggleAll}
+                  />
+                </TableHead>
                 <TableHead>Transaction No.</TableHead>
                 <TableHead>Requester</TableHead>
                 <TableHead>Department</TableHead>
@@ -84,12 +144,18 @@ export default function ApprovalInbox() {
             </TableHeader>
             <TableBody>
               {pendingClaims.length === 0 ? (
-                <TableRow><TableCell colSpan={8} className="text-center text-muted-foreground py-8">No pending approvals</TableCell></TableRow>
+                <TableRow><TableCell colSpan={9} className="text-center text-muted-foreground py-8">No pending approvals</TableCell></TableRow>
               ) : (
                 pendingClaims.map((a) => {
                   const file = getAttachedFile(a.claimNo);
                   return (
-                    <TableRow key={a.id}>
+                    <TableRow key={a.id} className={selectedIds.has(a.id) ? "bg-muted/50" : ""}>
+                      <TableCell>
+                        <Checkbox
+                          checked={selectedIds.has(a.id)}
+                          onCheckedChange={() => toggleSelect(a.id)}
+                        />
+                      </TableCell>
                       <TableCell className="font-medium">{a.claimNo}</TableCell>
                       <TableCell>{a.requesterName}</TableCell>
                       <TableCell>{a.department}</TableCell>
@@ -142,7 +208,7 @@ export default function ApprovalInbox() {
         </CardContent>
       </Card>
 
-      {/* Reject Reason Dialog */}
+      {/* Reject Reason Dialog (single) */}
       <Dialog open={!!rejectDialog} onOpenChange={(v) => !v && setRejectDialog(null)}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
@@ -163,6 +229,31 @@ export default function ApprovalInbox() {
           <div className="flex justify-end gap-2 pt-2">
             <Button variant="outline" onClick={() => setRejectDialog(null)}>Cancel</Button>
             <Button variant="destructive" onClick={handleConfirmReject}>Confirm Reject</Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Batch Reject Reason Dialog */}
+      <Dialog open={batchRejectDialog} onOpenChange={(v) => !v && setBatchRejectDialog(false)}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2 text-destructive">
+              <X className="h-5 w-5" />
+              Reject {selectedIds.size} Claim(s)
+            </DialogTitle>
+          </DialogHeader>
+          <div className="space-y-3">
+            <p className="text-sm text-muted-foreground">Please provide a reason for rejecting the selected claims.</p>
+            <Textarea
+              placeholder="Enter rejection reason or comment..."
+              value={batchRejectReason}
+              onChange={(e) => setBatchRejectReason(e.target.value)}
+              rows={3}
+            />
+          </div>
+          <div className="flex justify-end gap-2 pt-2">
+            <Button variant="outline" onClick={() => setBatchRejectDialog(false)}>Cancel</Button>
+            <Button variant="destructive" onClick={handleConfirmBatchReject}>Confirm Reject</Button>
           </div>
         </DialogContent>
       </Dialog>
