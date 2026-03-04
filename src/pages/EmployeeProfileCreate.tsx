@@ -15,6 +15,7 @@ import {
 import { ArrowLeft, Save, UserPlus } from "lucide-react";
 import { Checkbox } from "@/components/ui/checkbox";
 import { toast } from "sonner";
+import { useRoles } from "@/lib/role-context";
 import CreditCardTab from "@/components/employee/CreditCardTab";
 import ApprovalChainTab from "@/components/employee/ApprovalChainTab";
 
@@ -28,6 +29,7 @@ const divisions = ["92029 – Accounting", "Division A", "Division B", "Division
 
 export default function EmployeeProfileCreate() {
   const navigate = useNavigate();
+  const { setRoles } = useRoles();
   const [form, setForm] = useState({
     firstName: "สมชาย",
     lastName: "ใจดี",
@@ -54,8 +56,11 @@ export default function EmployeeProfileCreate() {
       toast.error("กรุณากรอกข้อมูลให้ครบทุกช่อง");
       return;
     }
+    setRoles(form.roles);
     toast.success(`เพิ่มพนักงาน ${form.firstName} ${form.lastName} สำเร็จ`);
-    navigate("/admin");
+    // Navigate to /claims and reload to reflect new role
+    navigate("/claims");
+    setTimeout(() => window.location.reload(), 100);
   };
 
   const employeeName = `${form.firstName} ${form.lastName}`;
