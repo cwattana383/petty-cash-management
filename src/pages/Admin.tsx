@@ -90,16 +90,14 @@ const mockEmployees = [
 ];
 
 const roleColors: Record<string, string> = {
-  Employee: "bg-blue-100 text-blue-800",
-  Manager: "bg-purple-100 text-purple-800",
-  Accounting: "bg-green-100 text-green-800",
+  Cardholder: "bg-blue-100 text-blue-800",
+  Approver: "bg-purple-100 text-purple-800",
   Admin: "bg-red-100 text-red-800",
 };
 
 const mockRoles = [
-  { role: "Employee", permissions: ["Submit Claims", "View Own Claims"], users: 120 },
-  { role: "Manager", permissions: ["Approve Claims", "View Team Claims", "Submit Claims"], users: 15 },
-  { role: "Accounting", permissions: ["Review Claims", "Export Reports", "Reconcile"], users: 5 },
+  { role: "Cardholder", permissions: ["Submit Claims", "View Own Claims"], users: 120 },
+  { role: "Approver", permissions: ["Approve Claims", "View Team Claims", "Submit Claims"], users: 15 },
   { role: "Admin", permissions: ["Full Access"], users: 2 },
 ];
 
