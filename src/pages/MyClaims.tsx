@@ -2,10 +2,10 @@ import { useState, useMemo, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { Search, CalendarIcon, Paperclip } from "lucide-react";
 import { Input } from "@/components/ui/input";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Calendar } from "@/components/ui/calendar";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
@@ -16,6 +16,15 @@ import { format, subDays } from "date-fns";
 import { toast } from "@/hooks/use-toast";
 import { ACCEPTED_MIME_TYPES } from "@/lib/upload-types";
 import { useNotifications } from "@/lib/notifications-context";
+
+type StatusTab = "pending_invoice" | "rejected" | "approved" | "all";
+
+const TAB_STATUS_MAP: Record<StatusTab, ClaimStatus[]> = {
+  pending_invoice: ["Pending Invoice"],
+  rejected: ["Final Rejected"],
+  approved: ["Auto Approved", "Reimbursed"],
+  all: [],
+};
 
 const statusVariant: Record<ClaimStatus, string> = {
   "Pending Invoice": "bg-orange-100 text-orange-800",
@@ -35,7 +44,7 @@ export default function MyClaims() {
   const navigate = useNavigate();
   const { addNotification } = useNotifications();
   const [search, setSearch] = useState("");
-  const [statusFilter, setStatusFilter] = useState("Pending Invoice");
+  const [activeTab, setActiveTab] = useState<StatusTab>("pending_invoice");
   const [dateFrom, setDateFrom] = useState<Date>(subDays(new Date("2026-02-28"), 6));
   const [dateTo, setDateTo] = useState<Date>(new Date("2026-02-28"));
 
@@ -54,8 +63,8 @@ export default function MyClaims() {
   const filtered = useMemo(() => {
     return mockClaims.filter((c) => {
       const status = getStatus(c);
-      if (statusFilter !== "all" && status !== statusFilter) return false;
-
+      const allowedStatuses = TAB_STATUS_MAP[activeTab];
+      if (allowedStatuses.length > 0 && !allowedStatuses.includes(status)) return false;
       const txnDate = new Date(c.createdDate);
       const from = new Date(dateFrom);
       from.setHours(0, 0, 0, 0);
@@ -70,7 +79,7 @@ export default function MyClaims() {
       }
       return true;
     });
-  }, [search, statusFilter, dateFrom, dateTo, claimStatuses]);
+  }, [search, activeTab, dateFrom, dateTo, claimStatuses]);
 
   const handleAttachClick = (e: React.MouseEvent, claimId: string) => {
     e.stopPropagation();
@@ -222,18 +231,15 @@ export default function MyClaims() {
               <Calendar mode="single" selected={dateTo} onSelect={(d) => d && setDateTo(d)} initialFocus />
             </PopoverContent>
           </Popover>
-          <Select value={statusFilter} onValueChange={setStatusFilter}>
-            <SelectTrigger className="w-[180px]"><SelectValue placeholder="All Status" /></SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">All Status</SelectItem>
-              <SelectItem value="Pending Invoice">Pending Invoice</SelectItem>
-              <SelectItem value="Pending Approval">Pending Approval</SelectItem>
-              <SelectItem value="Final Rejected">Final Rejected</SelectItem>
-              <SelectItem value="Auto Approved">Auto Approved</SelectItem>
-              <SelectItem value="Reimbursed">Reimbursed</SelectItem>
-            </SelectContent>
-          </Select>
         </div>
+        <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as StatusTab)}>
+          <TabsList>
+            <TabsTrigger value="pending_invoice">Pending Invoice</TabsTrigger>
+            <TabsTrigger value="rejected">Rejected</TabsTrigger>
+            <TabsTrigger value="approved">Approved</TabsTrigger>
+            <TabsTrigger value="all">All</TabsTrigger>
+          </TabsList>
+        </Tabs>
       </div>
 
       {/* Table */}
@@ -252,7 +258,7 @@ export default function MyClaims() {
           </TableHeader>
           <TableBody>
             {filtered.length === 0 ? (
-              <TableRow><TableCell colSpan={7} className="text-center text-muted-foreground py-8">No expenses found</TableCell></TableRow>
+              <TableRow><TableCell colSpan={7} className="text-center text-muted-foreground py-8">No transactions found for this status.</TableCell></TableRow>
             ) : (
               filtered.map((c) => {
                 const status = getStatus(c);
