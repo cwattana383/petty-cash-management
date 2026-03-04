@@ -258,7 +258,7 @@ export default function PolicyManagement() {
             </div>
             {form.policy_type === "AUTO_APPROVE" && (
               <div className="space-y-1.5">
-                <Label>Threshold Amount (THB)</Label>
+                <Label>Threshold Amount</Label>
                 <Input
                   type="number"
                   value={form.threshold_amount ?? ""}
@@ -269,6 +269,19 @@ export default function PolicyManagement() {
                 {formErrors.threshold_amount && <p className="text-xs text-destructive">{formErrors.threshold_amount}</p>}
               </div>
             )}
+            <div className="space-y-1.5">
+              <Label>Currency</Label>
+              <Select value={form.currency} onValueChange={(v) => setForm({ ...form, currency: v })}>
+                <SelectTrigger><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="THB">THB</SelectItem>
+                  <SelectItem value="USD">USD</SelectItem>
+                  <SelectItem value="EUR">EUR</SelectItem>
+                  <SelectItem value="JPY">JPY</SelectItem>
+                  <SelectItem value="SGD">SGD</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
             <div className="flex items-center gap-2">
               <Switch checked={form.active_flag} onCheckedChange={(v) => setForm({ ...form, active_flag: v })} />
               <Label>Active</Label>
