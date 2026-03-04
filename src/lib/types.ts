@@ -1,4 +1,4 @@
-export type ClaimStatus = "Pending Invoice" | "Pending Approval" | "Final Rejected" | "Auto Approved" | "Reimbursed";
+export type ClaimStatus = "Pending Invoice" | "Pending Approval" | "Final Rejected" | "Auto Reject" | "Manager Reject" | "Auto Approved" | "Reimbursed";
 export type PaymentMethod = "Cash" | "Corporate Card" | "Personal Card" | "Bank Transfer";
 export type ExpenseType = "Travel" | "Meals" | "Office Supplies" | "Transportation" | "Training" | "Entertainment" | "Communication" | "Other";
 export type ReconcileStatus = "Unmatched" | "Matched" | "Partially Matched" | "Exception";
