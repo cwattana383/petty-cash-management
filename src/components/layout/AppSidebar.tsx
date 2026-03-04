@@ -12,6 +12,7 @@ import {
 } from "lucide-react";
 import { NavLink } from "@/components/NavLink";
 import { useLocation } from "react-router-dom";
+import { useRoles } from "@/lib/role-context";
 import {
   Sidebar,
   SidebarContent,
@@ -34,6 +35,25 @@ const mainNav = [
 
 export function AppSidebar() {
   const location = useLocation();
+  const { roles } = useRoles();
+
+  const filteredNav = roles.length > 0
+    ? mainNav.filter((item) => {
+        // Cardholder only sees "My Expense"
+        if (roles.length === 1 && roles.includes("Cardholder") && !roles.includes("Approver") && !roles.includes("Admin")) {
+          return item.title === "My Expense";
+        }
+        // Approver sees My Expense + Approval Inbox
+        if (roles.includes("Approver") && !roles.includes("Admin")) {
+          return ["My Expense", "Approval Inbox"].includes(item.title);
+        }
+        // Admin sees all
+        if (roles.includes("Admin")) {
+          return true;
+        }
+        return item.title === "My Expense";
+      })
+    : mainNav;
 
   return (
     <Sidebar>
@@ -52,7 +72,7 @@ export function AppSidebar() {
           </SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
-              {mainNav.map((item) => (
+              {filteredNav.map((item) => (
                 <SidebarMenuItem key={item.title}>
                   <SidebarMenuButton asChild isActive={location.pathname === item.url}>
                     <NavLink

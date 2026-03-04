@@ -6,6 +6,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AppLayout } from "@/components/layout/AppLayout";
 import { AuthGuard } from "@/components/layout/AuthGuard";
 import { ClaimsProvider } from "@/lib/claims-context";
+import { RoleProvider } from "@/lib/role-context";
 import { NotificationsProvider } from "@/lib/notifications-context";
 import Login from "./pages/Login";
 import UploadDocument from "./pages/UploadDocument";
@@ -29,6 +30,7 @@ const App = () => (
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
       <ClaimsProvider>
+        <RoleProvider>
         <NotificationsProvider>
           <Toaster />
           <Sonner />
@@ -64,6 +66,7 @@ const App = () => (
             </Routes>
           </BrowserRouter>
         </NotificationsProvider>
+        </RoleProvider>
       </ClaimsProvider>
     </TooltipProvider>
   </QueryClientProvider>
