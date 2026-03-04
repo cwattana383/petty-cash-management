@@ -246,30 +246,7 @@ export default function PendingInvoiceNotificationPanel() {
 
       {settings.enabled && (
         <>
-          {/* Section 2: Trigger */}
-          <Card>
-            <CardHeader className="pb-3">
-              <CardTitle className="text-sm font-semibold flex items-center gap-2">
-                <Info className="h-4 w-4 text-muted-foreground" />
-                Trigger Condition
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="pt-0">
-              <div className="bg-muted/50 rounded-lg p-4 text-sm">
-                <div className="flex items-start gap-3">
-                  <CheckCircle2 className="h-4 w-4 text-primary mt-0.5 shrink-0" />
-                  <div>
-                    <p className="font-medium">Bank Import Success → Group by Cardholder</p>
-                    <p className="text-muted-foreground mt-1">
-                      After a bank import job completes, the system groups all transactions with status
-                      <Badge variant="outline" className="mx-1 text-xs">PENDING_INVOICE</Badge>
-                      by cardholder and sends <strong>one consolidated email per cardholder</strong>.
-                    </p>
-                  </div>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
+          {/* Section 2: Trigger - hidden */}
 
           {/* Section 3: First Email Timing */}
           <Card>
@@ -382,135 +359,8 @@ export default function PendingInvoiceNotificationPanel() {
             </CardContent>
           </Card>
 
-          {/* Section 5: SLA */}
-          <Card>
-            <CardHeader className="pb-3">
-              <CardTitle className="text-sm font-semibold flex items-center gap-2">
-                <FileText className="h-4 w-4 text-muted-foreground" />
-                SLA (Service Level Agreement)
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="pt-0 space-y-4">
-              <div className="space-y-2">
-                <Label className="text-xs">Global SLA</Label>
-                <div className="flex items-center gap-2">
-                  <span className="text-sm text-muted-foreground">Invoice must be uploaded within</span>
-                  <Input
-                    type="number"
-                    value={settings.slaDays}
-                    onChange={(e) => update("slaDays", Math.max(1, parseInt(e.target.value) || 1))}
-                    className="w-20"
-                    min={1}
-                  />
-                  <span className="text-sm text-muted-foreground">day(s) from transaction date</span>
-                </div>
-              </div>
+          {/* Section 5: SLA - hidden */}
 
-              <Separator />
-
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm font-medium">Category Overrides</p>
-                  <p className="text-xs text-muted-foreground">
-                    Set different SLA and reminder frequency per expense category
-                  </p>
-                </div>
-                <Switch
-                  checked={settings.categoryOverridesEnabled}
-                  onCheckedChange={(v) => update("categoryOverridesEnabled", v)}
-                />
-              </div>
-
-              {settings.categoryOverridesEnabled && (
-                <div className="space-y-3">
-                  <Table>
-                    <TableHeader>
-                      <TableRow>
-                        <TableHead>Category</TableHead>
-                        <TableHead>SLA (days)</TableHead>
-                        <TableHead>Reminder Interval (days)</TableHead>
-                        <TableHead className="w-12"></TableHead>
-                      </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                      {settings.categoryOverrides.length === 0 && (
-                        <TableRow>
-                          <TableCell colSpan={4} className="text-center text-muted-foreground py-6 text-sm">
-                            No category overrides. Click "Add Override" to create one.
-                          </TableCell>
-                        </TableRow>
-                      )}
-                      {settings.categoryOverrides.map((o) => {
-                        const usedCategories = settings.categoryOverrides
-                          .filter((x) => x.id !== o.id)
-                          .map((x) => x.category);
-                        const availableCategories = expenseCategories.filter(
-                          (c) => c === o.category || !usedCategories.includes(c)
-                        );
-                        return (
-                          <TableRow key={o.id}>
-                            <TableCell>
-                              <Select
-                                value={o.category}
-                                onValueChange={(v) => updateOverride(o.id, "category", v)}
-                              >
-                                <SelectTrigger className="w-48">
-                                  <SelectValue />
-                                </SelectTrigger>
-                                <SelectContent>
-                                  {availableCategories.map((c) => (
-                                    <SelectItem key={c} value={c}>{c}</SelectItem>
-                                  ))}
-                                </SelectContent>
-                              </Select>
-                            </TableCell>
-                            <TableCell>
-                              <Input
-                                type="number"
-                                value={o.slaDays}
-                                onChange={(e) => updateOverride(o.id, "slaDays", Math.max(1, parseInt(e.target.value) || 1))}
-                                className="w-20"
-                                min={1}
-                              />
-                            </TableCell>
-                            <TableCell>
-                              <Input
-                                type="number"
-                                value={o.reminderIntervalDays}
-                                onChange={(e) =>
-                                  updateOverride(o.id, "reminderIntervalDays", Math.max(1, parseInt(e.target.value) || 1))
-                                }
-                                className="w-20"
-                                min={1}
-                              />
-                            </TableCell>
-                            <TableCell>
-                              <Button
-                                size="icon"
-                                variant="ghost"
-                                className="h-7 w-7 text-destructive"
-                                onClick={() => removeCategoryOverride(o.id)}
-                              >
-                                <Trash2 className="h-3.5 w-3.5" />
-                              </Button>
-                            </TableCell>
-                          </TableRow>
-                        );
-                      })}
-                    </TableBody>
-                  </Table>
-                  <Button
-                    size="sm"
-                    variant="outline"
-                    onClick={addCategoryOverride}
-                    disabled={settings.categoryOverrides.length >= expenseCategories.length}
-                  >
-                    <Plus className="h-3.5 w-3.5 mr-1" /> Add Override
-                  </Button>
-                </div>
-              )}
-            </CardContent>
-          </Card>
 
           {/* Section 6: Template Editor */}
           <Card>
