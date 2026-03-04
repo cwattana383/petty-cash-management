@@ -56,7 +56,7 @@ interface NotificationSettings {
 // --- Template Variables ---
 const templateVariables = [
   { key: "{{cardholder_name}}", label: "Cardholder Name", mock: "สมชาย ใจดี" },
-  { key: "{{pending_count}}", label: "Pending Invoice Count", mock: "3" },
+  { key: "{{pending_count}}", label: "Pending Invoice Count", mock: "5" },
   { key: "{{max_due_date}}", label: "Latest Due Date", mock: "2026-03-15" },
   { key: "{{upload_all_link}}", label: "Upload All Link", mock: "https://app.example.com/transactions?status=PENDING_INVOICE" },
 ];
@@ -64,34 +64,54 @@ const templateVariables = [
 // Mock pending transactions for preview
 const mockPendingTransactions = [
   {
-    transaction_id: "TXN-20260228-0001",
-    merchant_name: "Grab Taxi",
+    transaction_id: "TXN20250129001",
+    merchant_name: "GRAB TAXI",
     transaction_date: "2026-02-28",
-    amount: "2,500.00",
+    amount: "1,500",
     currency: "THB",
-    category: "Transportation",
+    category: "Taxicabs and Limousines",
     due_date: "2026-03-15",
-    upload_link: "https://app.example.com/upload?txn=TXN-20260228-0001",
+    upload_link: "https://app.example.com/upload?txn=TXN20250129001",
   },
   {
-    transaction_id: "TXN-20260227-0002",
-    merchant_name: "Novotel Bangkok",
-    transaction_date: "2026-02-27",
-    amount: "4,500.00",
+    transaction_id: "TXN20250129002",
+    merchant_name: "MARRIOTT HOTEL BKK",
+    transaction_date: "2026-02-28",
+    amount: "3,500",
     currency: "THB",
-    category: "Hotel",
-    due_date: "2026-03-14",
-    upload_link: "https://app.example.com/upload?txn=TXN-20260227-0002",
+    category: "Hotels and Motels",
+    due_date: "2026-03-15",
+    upload_link: "https://app.example.com/upload?txn=TXN20250129002",
   },
   {
-    transaction_id: "TXN-20260226-0003",
-    merchant_name: "Sushi Hiro Restaurant",
-    transaction_date: "2026-02-26",
-    amount: "1,280.00",
+    transaction_id: "TXN20250129003",
+    merchant_name: "PTT GAS STATION",
+    transaction_date: "2026-02-28",
+    amount: "850",
     currency: "THB",
-    category: "Meals & Entertainment",
-    due_date: "2026-03-13",
-    upload_link: "https://app.example.com/upload?txn=TXN-20260226-0003",
+    category: "Service Stations",
+    due_date: "2026-03-15",
+    upload_link: "https://app.example.com/upload?txn=TXN20250129003",
+  },
+  {
+    transaction_id: "TXN20250129004",
+    merchant_name: "SOMTUM RESTAURANT",
+    transaction_date: "2026-02-28",
+    amount: "1,250",
+    currency: "THB",
+    category: "Eating Places and Restaurants",
+    due_date: "2026-03-15",
+    upload_link: "https://app.example.com/upload?txn=TXN20250129004",
+  },
+  {
+    transaction_id: "TXN20250129005",
+    merchant_name: "THAI AIRWAYS",
+    transaction_date: "2026-02-28",
+    amount: "15,000",
+    currency: "THB",
+    category: "Airlines",
+    due_date: "2026-03-15",
+    upload_link: "https://app.example.com/upload?txn=TXN20250129005",
   },
 ];
 
@@ -557,7 +577,7 @@ function buildEmailPreviewHtml(bodyText: string): string {
               <tfoot>
                 <tr style="background-color:#f9fafb;">
                   <td colspan="2" style="padding:10px 12px;font-size:13px;font-weight:600;color:#374151;">Total: ${mockPendingTransactions.length} transaction(s)</td>
-                  <td style="padding:10px 12px;text-align:right;font-size:13px;font-weight:600;color:#374151;">8,280.00 THB</td>
+                  <td style="padding:10px 12px;text-align:right;font-size:13px;font-weight:600;color:#374151;">22,100.00 THB</td>
                   <td colspan="2"></td>
                 </tr>
               </tfoot>
