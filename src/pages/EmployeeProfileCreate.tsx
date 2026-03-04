@@ -12,7 +12,8 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 
-import { ArrowLeft, Save, UserPlus, CreditCard, ShieldCheck } from "lucide-react";
+import { ArrowLeft, Save, UserPlus } from "lucide-react";
+import { Checkbox } from "@/components/ui/checkbox";
 import { toast } from "sonner";
 import CreditCardTab from "@/components/employee/CreditCardTab";
 import ApprovalChainTab from "@/components/employee/ApprovalChainTab";
@@ -20,7 +21,7 @@ import ApprovalChainTab from "@/components/employee/ApprovalChainTab";
 const departments = ["9993010460 Finance and Accounting", "Sales", "Marketing", "Engineering", "Finance", "HR", "Operations"];
 const branches = ["099999 – HO", "Bangkok", "Chiang Mai", "Phuket", "Pattaya", "Khon Kaen"];
 const costCenters = ["9999", "CC-100", "CC-200", "CC-300", "CC-400", "CC-500"];
-const roles = ["Director - Accounting", "Employee", "Manager", "Accounting", "Admin"];
+const roles = ["Cardholder", "Approver", "Admin"];
 const companies = ["บริษัท ซีพี แอ็กซ์ตร้า จำกัด (มหาชน)", "ABC Corporation", "XYZ Holdings", "DEF Group"];
 const stores = ["Head Office", "Store Bangkok", "Store Chiang Mai", "Store Phuket"];
 const divisions = ["92029 – Accounting", "Division A", "Division B", "Division C", "Division D"];
@@ -38,7 +39,7 @@ export default function EmployeeProfileCreate() {
     department: "9993010460 Finance and Accounting",
     branch: "099999 – HO",
     costCenter: "9999",
-    role: "Director - Accounting",
+    roles: [] as string[],
     creditCardLast4: "",
     cardHolderName: "",
   });
@@ -49,7 +50,7 @@ export default function EmployeeProfileCreate() {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!form.firstName || !form.lastName || !form.department || !form.branch || !form.costCenter || !form.role) {
+    if (!form.firstName || !form.lastName || !form.department || !form.branch || !form.costCenter || form.roles.length === 0) {
       toast.error("กรุณากรอกข้อมูลให้ครบทุกช่อง");
       return;
     }
@@ -151,10 +152,24 @@ export default function EmployeeProfileCreate() {
               </div>
               <div className="space-y-2">
                 <Label>บทบาท (Role) <span className="text-destructive">*</span></Label>
-                <Select value={form.role} onValueChange={(v) => handleChange("role", v)}>
-                  <SelectTrigger><SelectValue placeholder="เลือก Role" /></SelectTrigger>
-                  <SelectContent>{roles.map((r) => <SelectItem key={r} value={r}>{r}</SelectItem>)}</SelectContent>
-                </Select>
+                <div className="flex items-center gap-6 h-10">
+                  {roles.map((r) => (
+                    <label key={r} className="flex items-center gap-2 cursor-pointer text-sm">
+                      <Checkbox
+                        checked={form.roles.includes(r)}
+                        onCheckedChange={(checked) => {
+                          setForm((prev) => ({
+                            ...prev,
+                            roles: checked
+                              ? [...prev.roles, r]
+                              : prev.roles.filter((role) => role !== r),
+                          }));
+                        }}
+                      />
+                      {r}
+                    </label>
+                  ))}
+                </div>
               </div>
             </div>
           </div>
