@@ -225,7 +225,7 @@ export default function BankTransactions() {
                       Billing Amount {sortBy === "billing_amount" ? (sortDir === "desc" ? "↓" : "↑") : ""}
                     </TableHead>
                     <TableHead className="whitespace-nowrap">Policy Result</TableHead>
-                    <TableHead className="whitespace-nowrap">Policy Reason</TableHead>
+                    
                     <TableHead className="whitespace-nowrap">Status</TableHead>
                     
                   </TableRow>
@@ -243,12 +243,7 @@ export default function BankTransactions() {
                       <TableCell>
                         <Badge variant="outline" className={POLICY_BADGE[t.policy_result].className}>{POLICY_BADGE[t.policy_result].label}</Badge>
                       </TableCell>
-                      <TableCell className="max-w-[180px]">
-                        <Tooltip>
-                          <TooltipTrigger asChild><span className="block truncate text-xs">{t.policy_reason}</span></TooltipTrigger>
-                          <TooltipContent className="max-w-xs"><p className="text-xs">{t.policy_reason}</p></TooltipContent>
-                        </Tooltip>
-                      </TableCell>
+                      
                       <TableCell>
                         <Badge variant="outline" className={STATUS_BADGE[t.processing_status].className}>{STATUS_BADGE[t.processing_status].label}</Badge>
                       </TableCell>
