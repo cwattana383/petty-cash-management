@@ -57,9 +57,6 @@ const adminMenu = [
     icon: Building2,
     items: [
       { key: "entities", label: "Entities", icon: Building2 },
-      { key: "departments", label: "Departments", icon: Layers },
-      { key: "org-costcenters", label: "Cost Centers", icon: DollarSign },
-      { key: "branches", label: "Branches", icon: MapPin },
     ],
   },
   {
@@ -68,7 +65,6 @@ const adminMenu = [
     items: [
       { key: "employees", label: "Employee Profiles", icon: Users },
       { key: "roles", label: "Roles & Permissions", icon: Shield },
-      { key: "costcenters", label: "Cost Center Assignments", icon: CircleDollarSign },
     ],
   },
   {
@@ -82,18 +78,8 @@ const adminMenu = [
     group: "Notification Setup",
     icon: Bell,
     items: [
-      { key: "email-notifications", label: "Email Notifications", icon: Mail },
       { key: "pending-invoice-email", label: "Pending Invoice Email", icon: Receipt },
       { key: "pending-approval-email", label: "Pending Approval Email", icon: UserCheck },
-      { key: "system-alerts", label: "System Alerts", icon: AlertCircle },
-    ],
-  },
-  {
-    group: "Interface Schedule",
-    icon: Plug,
-    items: [
-      { key: "erp-sync", label: "ERP Sync Schedule", icon: CalendarClock },
-      { key: "sync-logs", label: "Sync Logs", icon: Clock },
     ],
   },
 ];
