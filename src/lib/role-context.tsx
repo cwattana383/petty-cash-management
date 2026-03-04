@@ -10,7 +10,7 @@ const RoleContext = createContext<RoleContextType>({ roles: [], setRoles: () => 
 export function RoleProvider({ children }: { children: ReactNode }) {
   const [roles, setRolesState] = useState<string[]>(() => {
     const saved = localStorage.getItem("employee_roles");
-    return saved ? JSON.parse(saved) : [];
+    return saved ? JSON.parse(saved) : ["Cardholder"];
   });
 
   const setRoles = (newRoles: string[]) => {

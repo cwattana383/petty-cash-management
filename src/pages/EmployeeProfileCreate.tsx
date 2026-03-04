@@ -41,7 +41,7 @@ export default function EmployeeProfileCreate() {
     department: "9993010460 Finance and Accounting",
     branch: "099999 – HO",
     costCenter: "9999",
-    roles: [] as string[],
+    roles: ["Cardholder"] as string[],
     creditCardLast4: "",
     cardHolderName: "",
   });
