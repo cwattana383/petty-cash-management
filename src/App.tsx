@@ -9,7 +9,7 @@ import { ClaimsProvider } from "@/lib/claims-context";
 import { RoleProvider } from "@/lib/role-context";
 import { NotificationsProvider } from "@/lib/notifications-context";
 import Login from "./pages/Login";
-import UploadDocument from "./pages/UploadDocument";
+
 import MyClaims from "./pages/MyClaims";
 import CreateClaim from "./pages/CreateClaim";
 import ClaimDetail from "./pages/ClaimDetail";
@@ -44,7 +44,7 @@ const App = () => (
                     <AppLayout>
                       <Routes>
                         <Route path="/" element={<MyClaims />} />
-                        <Route path="/upload" element={<UploadDocument />} />
+                        
                         <Route path="/claims" element={<MyClaims />} />
                         <Route path="/claims/create" element={<CreateClaim />} />
                         <Route path="/claims/:id" element={<ClaimDetail />} />
