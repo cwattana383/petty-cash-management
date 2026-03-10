@@ -16,7 +16,7 @@ import ClaimDetail from "./pages/ClaimDetail";
 import ApprovalInbox from "./pages/ApprovalInbox";
 import AccountingReview from "./pages/AccountingReview";
 import Reports from "./pages/Reports";
-import Reconcile from "./pages/Reconcile";
+
 import Admin from "./pages/Admin";
 import EmployeeProfileCreate from "./pages/EmployeeProfileCreate";
 import Profile from "./pages/Profile";
@@ -51,7 +51,7 @@ const App = () => (
                         <Route path="/approvals" element={<ApprovalInbox />} />
                         <Route path="/accounting" element={<AccountingReview />} />
                         <Route path="/reports" element={<Reports />} />
-                        <Route path="/reconcile" element={<Reconcile />} />
+                        
                         <Route path="/bank-transactions" element={<BankTransactions />} />
                         <Route path="/policy-management" element={<PolicyManagement />} />
                         <Route path="/admin" element={<Admin />} />
