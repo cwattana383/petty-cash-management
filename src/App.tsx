@@ -9,7 +9,7 @@ import { ClaimsProvider } from "@/lib/claims-context";
 import { RoleProvider } from "@/lib/role-context";
 import { NotificationsProvider } from "@/lib/notifications-context";
 import Login from "./pages/Login";
-import UploadDocument from "./pages/UploadDocument";
+
 import MyClaims from "./pages/MyClaims";
 import CreateClaim from "./pages/CreateClaim";
 import ClaimDetail from "./pages/ClaimDetail";
