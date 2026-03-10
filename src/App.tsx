@@ -16,7 +16,7 @@ import ClaimDetail from "./pages/ClaimDetail";
 import ApprovalInbox from "./pages/ApprovalInbox";
 import AccountingReview from "./pages/AccountingReview";
 import Reports from "./pages/Reports";
-import Reconcile from "./pages/Reconcile";
+
 import Admin from "./pages/Admin";
 import EmployeeProfileCreate from "./pages/EmployeeProfileCreate";
 import Profile from "./pages/Profile";
