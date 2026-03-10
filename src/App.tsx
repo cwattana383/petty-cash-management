@@ -44,7 +44,7 @@ const App = () => (
                     <AppLayout>
                       <Routes>
                         <Route path="/" element={<MyClaims />} />
-                        <Route path="/upload" element={<UploadDocument />} />
+                        
                         <Route path="/claims" element={<MyClaims />} />
                         <Route path="/claims/create" element={<CreateClaim />} />
                         <Route path="/claims/:id" element={<ClaimDetail />} />
