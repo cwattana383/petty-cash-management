@@ -95,6 +95,15 @@ export default function MyClaims() {
     });
   }, [search, activeTab, dateFrom, dateTo, claimStatuses]);
 
+  // Always compute rejected summary (independent of active tab)
+  const rejectedItems = useMemo(() => {
+    const rejectedStatuses: ClaimStatus[] = ["Auto Reject", "Reject", "Final Reject"];
+    return mockClaims.filter((c) => {
+      const status = getStatus(c);
+      return rejectedStatuses.includes(status);
+    });
+  }, [claimStatuses]);
+
   const handleAttachClick = (e: React.MouseEvent, claimId: string) => {
     e.stopPropagation();
     setActiveClaimId(claimId);
