@@ -455,7 +455,7 @@ export default function AccountingReview() {
                 </p>
               </div>
             )}
-            {taxInvoiceDoc && <OcrExtractedDataCard drawerItem={{ ...drawerItem, attachedFile: taxInvoiceDoc.name }} />}
+            {taxInvoiceDoc && <OcrExtractedDataCard drawerItem={drawerItem} />}
 
             {/* Audit Trail */}
             <div className="mx-4 mb-4">
