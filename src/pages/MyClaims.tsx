@@ -286,7 +286,12 @@ export default function MyClaims() {
                     <TableCell>{c.purpose}</TableCell>
                     <TableCell className="text-right">฿{c.totalAmount.toLocaleString()}</TableCell>
                     <TableCell>
-                      <Badge variant="outline" className={statusVariant[status]}>{status}</Badge>
+                      <div className="flex flex-col gap-1 items-start">
+                        <Badge variant="outline" className={statusVariant[status]}>{status}</Badge>
+                        {["Auto Reject", "Final Reject"].includes(status) && isCurrentDeductionPeriod(c.createdDate) && (
+                          <Badge variant="destructive" className="text-[10px] px-1.5 py-0">หักจากเงินเดือนแล้ว</Badge>
+                        )}
+                      </div>
                     </TableCell>
                     {activeTab === "rejected" && (
                       <TableCell className="text-sm">
