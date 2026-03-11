@@ -227,7 +227,7 @@ export default function BankTransactions() {
                     <TableHead className="whitespace-nowrap">Policy Result</TableHead>
                     
                     <TableHead className="whitespace-nowrap">Status</TableHead>
-                    
+                    <TableHead className="whitespace-nowrap">Creation Date & Time</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -247,6 +247,7 @@ export default function BankTransactions() {
                       <TableCell>
                         <Badge variant="outline" className={STATUS_BADGE[t.processing_status].className}>{STATUS_BADGE[t.processing_status].label}</Badge>
                       </TableCell>
+                      <TableCell className="whitespace-nowrap text-sm">{format(new Date(t.created_at), "dd/MM/yyyy HH:mm")}</TableCell>
                     </TableRow>
                   ))}
                 </TableBody>
