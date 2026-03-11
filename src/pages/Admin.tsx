@@ -943,6 +943,7 @@ const panelMap: Record<string, () => JSX.Element> = {
   "email-notifications": EmailNotificationsPanel,
   "pending-invoice-email": PendingInvoiceNotificationPanel,
   "pending-approval-email": PendingApprovalNotificationPanel,
+  "month-end-report-email": MonthEndReportNotificationPanel,
   "system-alerts": SystemAlertsPanel,
   "erp-sync": ErpSyncPanel,
   "sync-logs": SyncLogsPanel,
