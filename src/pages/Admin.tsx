@@ -81,6 +81,7 @@ const adminMenu = [
     items: [
       { key: "pending-invoice-email", label: "Pending Invoice Email", icon: Receipt },
       { key: "pending-approval-email", label: "Pending Approval Email", icon: UserCheck },
+      { key: "month-end-report-email", label: "Month End Report — HR & Finance", icon: CalendarClock },
     ],
   },
 ];
