@@ -70,11 +70,13 @@ export default function AccountingReview() {
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>Claim No.</TableHead>
+                <TableHead>Transaction No.</TableHead>
+                <TableHead>Transaction Date</TableHead>
+                <TableHead>Merchant Name</TableHead>
+                <TableHead>Description</TableHead>
                 <TableHead>Requester</TableHead>
                 <TableHead className="text-right">Amount</TableHead>
                 <TableHead>Account Code</TableHead>
-                <TableHead>Date</TableHead>
                 <TableHead>Status</TableHead>
                 <TableHead>Actions</TableHead>
               </TableRow>
