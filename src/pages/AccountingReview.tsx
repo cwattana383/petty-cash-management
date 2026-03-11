@@ -67,7 +67,7 @@ const tabStatusMap: Record<string, string[] | null> = {
 };
 
 export default function AccountingReview() {
-  const [activeTab, setActiveTab] = useState("all");
+  const [activeTab, setActiveTab] = useState("pending");
   const [drawerItemId, setDrawerItemId] = useState<string | null>(null);
   const [items, setItems] = useState<MockItem[]>(initialMockItems);
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
