@@ -412,6 +412,49 @@ export default function AccountingReview() {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      {/* Exception flag dialog */}
+      <Dialog open={exceptionDialogOpen} onOpenChange={setExceptionDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>⚠️ Flag as Exception</DialogTitle>
+            <DialogDescription>ระบุเหตุผลและข้อความถึงพนักงาน</DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4 py-2">
+            <div className="space-y-2">
+              <Label>เหตุผล</Label>
+              <Select value={exceptionReason} onValueChange={setExceptionReason}>
+                <SelectTrigger>
+                  <SelectValue placeholder="เลือกเหตุผล..." />
+                </SelectTrigger>
+                <SelectContent>
+                  {["Tax ID ไม่ตรง", "ที่อยู่ไม่ตรง", "จำนวนเงินเกิน tolerance", "เอกสารไม่ชัดเจน", "อื่นๆ"].map((r) => (
+                    <SelectItem key={r} value={r}>{r}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="space-y-2">
+              <Label>ข้อความถึงพนักงาน</Label>
+              <Textarea
+                placeholder="ระบุรายละเอียดเพิ่มเติม..."
+                value={exceptionNote}
+                onChange={(e) => setExceptionNote(e.target.value)}
+              />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setExceptionDialogOpen(false)}>Cancel</Button>
+            <Button
+              className="bg-red-600 hover:bg-red-700 text-white"
+              disabled={!exceptionReason}
+              onClick={handleFlagException}
+            >
+              Confirm
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
