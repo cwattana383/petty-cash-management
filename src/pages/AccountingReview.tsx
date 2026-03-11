@@ -182,19 +182,33 @@ export default function AccountingReview() {
             <p className="text-sm text-blue-700 mb-4 font-medium">
               รายงานประจำเดือน — ส่งให้ HR และ Finance ทุกวันที่ 9 ของเดือน
             </p>
-            <div className="grid grid-cols-4 gap-4">
+            <div className="grid grid-cols-5 gap-4">
               {metrics.map((m) => (
-                <div key={m.label} className="flex items-center gap-3 rounded-lg bg-white/80 border border-blue-100 p-4">
-                  <div className="rounded-full bg-blue-100 p-2">
-                    <m.icon className="h-5 w-5 text-blue-600" />
+                <div
+                  key={m.label}
+                  onClick={() => setActiveTab(m.tab)}
+                  className={cn(
+                    "flex items-center gap-3 rounded-lg border p-4 cursor-pointer transition-colors",
+                    m.isException
+                      ? "bg-red-50/80 border-red-200 hover:bg-red-100/80"
+                      : "bg-white/80 border-blue-100 hover:bg-blue-50",
+                    activeTab === m.tab && !m.isException && "ring-2 ring-blue-400",
+                    activeTab === m.tab && m.isException && "ring-2 ring-red-400"
+                  )}
+                >
+                  <div className={cn("rounded-full p-2", m.isException ? "bg-red-100" : "bg-blue-100")}>
+                    <m.icon className={cn("h-5 w-5", m.isException ? "text-red-600" : "text-blue-600")} />
                   </div>
                   <div>
                     <p className="text-xs text-muted-foreground">{m.label}</p>
-                    <p className="text-xl font-bold text-foreground">{m.value}</p>
+                    <p className={cn("text-xl font-bold", m.isException ? "text-red-700" : "text-foreground")}>{m.value}</p>
                   </div>
                 </div>
               ))}
             </div>
+            <p className="text-xs text-muted-foreground mt-3">
+              อัปเดตล่าสุด: 11 มี.ค. 2569 07:00 — ส่ง ERP ครั้งล่าสุด: 9 มี.ค. 2569 09:15
+            </p>
           </CardContent>
         </Card>
 
