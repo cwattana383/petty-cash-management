@@ -95,6 +95,15 @@ export default function MyClaims() {
     });
   }, [search, activeTab, dateFrom, dateTo, claimStatuses]);
 
+  // Always compute rejected summary (independent of active tab)
+  const rejectedItems = useMemo(() => {
+    const rejectedStatuses: ClaimStatus[] = ["Auto Reject", "Reject", "Final Reject"];
+    return mockClaims.filter((c) => {
+      const status = getStatus(c);
+      return rejectedStatuses.includes(status);
+    });
+  }, [claimStatuses]);
+
   const handleAttachClick = (e: React.MouseEvent, claimId: string) => {
     e.stopPropagation();
     setActiveClaimId(claimId);
@@ -214,22 +223,22 @@ export default function MyClaims() {
         onChange={handleFileChange}
       />
 
-      {/* Summary Bar */}
-      {activeTab === "rejected" && filtered.length > 0 && (
+      {/* Summary Bar - Always visible */}
+      {rejectedItems.length > 0 && (
         <div className="border rounded-lg bg-card px-5 py-3.5 flex items-center gap-6">
           <div>
-            <span className="text-muted-foreground text-sm">Transactions</span>
-            <p className="font-semibold text-foreground">{filtered.length} transactions</p>
+            <span className="text-muted-foreground text-sm">Rejected Transactions</span>
+            <p className="font-semibold text-foreground">{rejectedItems.length} transactions</p>
           </div>
           <div className="w-px h-8 bg-border" />
           <div>
-            <span className="text-muted-foreground text-sm">Total</span>
-            <p className="font-semibold text-foreground text-lg">฿{filtered.reduce((sum, c) => sum + c.totalAmount, 0).toLocaleString()}</p>
+            <span className="text-muted-foreground text-sm">Total Deducted</span>
+            <p className="font-semibold text-foreground text-lg">฿{rejectedItems.reduce((sum, c) => sum + c.totalAmount, 0).toLocaleString()}</p>
           </div>
           <div className="w-px h-8 bg-border" />
           <div>
             <span className="text-muted-foreground text-sm">All rejected · Deduction period</span>
-            <p className="font-semibold text-foreground">{getDeductionPeriod(filtered[0].createdDate)}</p>
+            <p className="font-semibold text-foreground">{getDeductionPeriod(rejectedItems[0].createdDate)}</p>
           </div>
         </div>
       )}
