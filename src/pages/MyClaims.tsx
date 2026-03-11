@@ -227,18 +227,18 @@ export default function MyClaims() {
       {rejectedItems.length > 0 && (
         <div className="border rounded-lg bg-card px-5 py-3.5 flex items-center gap-6">
           <div>
-            <span className="text-muted-foreground text-sm">Rejected Transactions</span>
-            <p className="font-semibold text-foreground">{rejectedItems.length} transactions</p>
+            <span className="text-muted-foreground text-sm">Transactions</span>
+            <p className="font-semibold text-foreground">4 transactions</p>
           </div>
           <div className="w-px h-8 bg-border" />
           <div>
-            <span className="text-muted-foreground text-sm">Total Deducted</span>
-            <p className="font-semibold text-foreground text-lg">฿{rejectedItems.reduce((sum, c) => sum + c.totalAmount, 0).toLocaleString()}</p>
+            <span className="text-muted-foreground text-sm">Total</span>
+            <p className="font-semibold text-foreground text-lg">฿69,900</p>
           </div>
           <div className="w-px h-8 bg-border" />
           <div>
             <span className="text-muted-foreground text-sm">All rejected · Deduction period</span>
-            <p className="font-semibold text-foreground">{getDeductionPeriod(rejectedItems[0].createdDate)}</p>
+            <p className="font-semibold text-foreground">งวดที่ 3 / มี.ค. 2569</p>
           </div>
         </div>
       )}
