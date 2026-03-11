@@ -296,13 +296,13 @@ export default function MyClaims() {
               <TableHead>Description</TableHead>
               <TableHead className="text-right">Amount</TableHead>
               <TableHead>Status</TableHead>
-              {activeTab === "rejected" && <TableHead>Deduction Period</TableHead>}
+              {(activeTab === "rejected" || activeTab === "all") && <TableHead>Deduction Period</TableHead>}
               <TableHead>Attached File</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {filtered.length === 0 ? (
-              <TableRow><TableCell colSpan={activeTab === "rejected" ? 8 : 7} className="text-center text-muted-foreground py-8">No transactions found for this status.</TableCell></TableRow>
+              <TableRow><TableCell colSpan={(activeTab === "rejected" || activeTab === "all") ? 8 : 7} className="text-center text-muted-foreground py-8">No transactions found for this status.</TableCell></TableRow>
             ) : (
               filtered.map((c) => {
                 const status = getStatus(c);
@@ -317,9 +317,13 @@ export default function MyClaims() {
                     <TableCell>
                       <Badge variant="outline" className={statusVariant[status]}>{status}</Badge>
                     </TableCell>
-                    {activeTab === "rejected" && (
+                    {(activeTab === "rejected" || activeTab === "all") && (
                       <TableCell className="text-sm">
-                        {status === "Reject" ? "N/A" : getDeductionPeriod(c.createdDate)}
+                        {["Auto Reject", "Final Reject"].includes(status)
+                          ? getDeductionPeriod(c.createdDate)
+                          : status === "Reject"
+                            ? "N/A"
+                            : "—"}
                       </TableCell>
                     )}
                     <TableCell>
