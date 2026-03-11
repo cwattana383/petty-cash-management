@@ -267,6 +267,7 @@ export default function MyClaims() {
               <TableHead>Description</TableHead>
               <TableHead className="text-right">Amount</TableHead>
               <TableHead>Status</TableHead>
+              {activeTab === "rejected" && <TableHead>งวดหักเงินเดือน</TableHead>}
               <TableHead>Attached File</TableHead>
             </TableRow>
           </TableHeader>
