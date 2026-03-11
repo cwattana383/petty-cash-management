@@ -131,6 +131,20 @@ export default function AccountingReview() {
     setBulkConfirmOpen(false);
   };
 
+  const handleFlagException = () => {
+    if (!drawerItemId || !exceptionReason) return;
+    setItems((prev) =>
+      prev.map((item) =>
+        item.id === drawerItemId ? { ...item, status: "Exception" } : item
+      )
+    );
+    toast({ title: "รายการถูก flag เป็น Exception แล้ว — แจ้งพนักงานเรียบร้อย", description: `${drawerItemId} — เหตุผล: ${exceptionReason}` });
+    setDrawerItemId(null);
+    setExceptionDialogOpen(false);
+    setExceptionReason("");
+    setExceptionNote("");
+  };
+
   const toggleSelect = (id: string) => {
     setSelectedIds((prev) => {
       const next = new Set(prev);
