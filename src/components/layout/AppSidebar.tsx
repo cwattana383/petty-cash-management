@@ -36,7 +36,7 @@ const mainNav = [
 
 export function AppSidebar() {
   const location = useLocation();
-  const { roles } = useRoles();
+  const { roles, setRoles } = useRoles();
 
   const filteredNav = roles.length > 0
     ? mainNav.filter((item) => {
