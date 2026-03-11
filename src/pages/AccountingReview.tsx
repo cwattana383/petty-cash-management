@@ -8,9 +8,26 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 const mockItems = [
-  { id: "EC-2025-006", requester: "พิมพ์ ดี", amount: "฿8,200", status: "Pending Review", accountCode: "-", date: "2025-02-03" },
-  { id: "EC-2025-007", requester: "ชัยวัฒน์ ศรี", amount: "฿32,000", status: "Exception", accountCode: "5120", date: "2025-02-04" },
-  { id: "EC-2025-008", requester: "นภา แจ่มใส", amount: "฿5,600", status: "Ready for ERP", accountCode: "5110", date: "2025-02-05" },
+  { id: "TXN20250129001", requester: "สมชาย ใจดี", merchantName: "GRAB TAXI", description: "Taxicabs and Limousines", amount: "฿1,500", status: "Pending Review", accountCode: "-", date: "2026-02-28" },
+  { id: "TXN20250129002", requester: "สมชาย ใจดี", merchantName: "MARRIOTT HOTEL BKK", description: "Hotels and Motels", amount: "฿3,500", status: "Pending Review", accountCode: "-", date: "2026-02-28" },
+  { id: "TXN20250129003", requester: "สมชาย ใจดี", merchantName: "PTT GAS STATION", description: "Service Stations", amount: "฿850", status: "Pending Review", accountCode: "-", date: "2026-02-28" },
+  { id: "TXN20250129004", requester: "สมชาย ใจดี", merchantName: "SOMTUM RESTAURANT", description: "Eating Places and Restaurants", amount: "฿1,250", status: "Pending Review", accountCode: "-", date: "2026-02-28" },
+  { id: "TXN20250129005", requester: "สมชาย ใจดี", merchantName: "THAI AIRWAYS", description: "Airlines", amount: "฿15,000", status: "Pending Review", accountCode: "-", date: "2026-02-28" },
+  { id: "TXN20260227021", requester: "สมชาย ใจดี", merchantName: "Siam Amazing Park", description: "Amusement Parks", amount: "฿7,900", status: "Exception", accountCode: "5120", date: "2026-02-27" },
+  { id: "TXN20260227002", requester: "สมชาย ใจดี", merchantName: "Tiger Kingdom", description: "Tourist Attractions", amount: "฿4,500", status: "Exception", accountCode: "5120", date: "2026-02-27" },
+  { id: "TXN20260227053", requester: "สมชาย ใจดี", merchantName: "The Street", description: "Dance Halls", amount: "฿2,500", status: "Exception", accountCode: "5130", date: "2026-02-27" },
+  { id: "TXN20260227114", requester: "สมชาย ใจดี", merchantName: "The Nine", description: "Drinking Places (Bars)", amount: "฿1,250", status: "Exception", accountCode: "5130", date: "2026-02-27" },
+  { id: "TXN20260227025", requester: "สมชาย ใจดี", merchantName: "Stone Hill Golf Club", description: "Sporting and Recreational Camps", amount: "฿55,000", status: "Exception", accountCode: "5140", date: "2026-02-27" },
+  { id: "TXN20260227071", requester: "สมชาย ใจดี", merchantName: "Top", description: "Grocery Stores", amount: "฿799", status: "Ready for ERP", accountCode: "5110", date: "2026-02-27" },
+  { id: "TXN20260227078", requester: "สมชาย ใจดี", merchantName: "KFC", description: "Fast Food Restaurants", amount: "฿279", status: "Ready for ERP", accountCode: "5110", date: "2026-02-27" },
+  { id: "TXN20260227013", requester: "สมชาย ใจดี", merchantName: "Suki Teenoi", description: "Eating Places and Restaurants", amount: "฿499", status: "Ready for ERP", accountCode: "5110", date: "2026-02-27" },
+  { id: "TXN20260227124", requester: "สมชาย ใจดี", merchantName: "Good Car Service", description: "Car Rental Agencies", amount: "฿3,000", status: "Ready for ERP", accountCode: "5150", date: "2026-02-27" },
+  { id: "TXN20260227065", requester: "สมชาย ใจดี", merchantName: "Rama 9 Hospital", description: "Hospitals", amount: "฿2,500", status: "Ready for ERP", accountCode: "5160", date: "2026-02-27" },
+  { id: "TXN20250128001", requester: "วิชัย เจริญ", merchantName: "GRAB TAXI", description: "Taxi to client site", amount: "฿1,850", status: "Pending Review", accountCode: "-", date: "2026-02-25" },
+  { id: "TXN20250128002", requester: "สมหญิง แก้วใส", merchantName: "BANYAN TREE RESTAURANT", description: "Business dinner with client", amount: "฿8,500", status: "Pending Review", accountCode: "-", date: "2026-02-24" },
+  { id: "TXN20250127001", requester: "วิชัย เจริญ", merchantName: "THAI AIRWAYS", description: "Flight to Bangkok for meeting", amount: "฿12,500", status: "Pending Review", accountCode: "-", date: "2026-02-23" },
+  { id: "TXN20250127002", requester: "สมหญิง แก้วใส", merchantName: "NOVOTEL BANGKOK", description: "Hotel for regional meeting", amount: "฿4,200", status: "Pending Review", accountCode: "-", date: "2026-02-22" },
+  { id: "TXN20250126001", requester: "วิชัย เจริญ", merchantName: "OfficeMate", description: "Office supplies for project", amount: "฿3,200", status: "Pending Review", accountCode: "-", date: "2026-02-21" },
 ];
 
 const queueColors: Record<string, string> = {
