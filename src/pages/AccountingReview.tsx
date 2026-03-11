@@ -330,6 +330,33 @@ export default function AccountingReview() {
 
             {/* OCR Extracted Data */}
             <OcrExtractedDataCard drawerItem={drawerItem} />
+
+            {/* Audit Trail */}
+            <div className="mx-4 mb-4">
+              <details className="group">
+                <summary className="flex items-center gap-2 cursor-pointer select-none py-2">
+                  <ChevronDown className="h-4 w-4 text-muted-foreground transition-transform group-open:rotate-180" />
+                  <h3 className="text-sm font-semibold text-foreground">ประวัติการดำเนินการ (Audit Trail)</h3>
+                </summary>
+                <div className="ml-2 mt-2 border-l-2 border-muted pl-4 space-y-4 pb-2">
+                  {[
+                    { icon: "✅", action: "Auto-approved by Policy Engine", time: "27 ก.พ. 2569 07:15" },
+                    { icon: "📎", action: "Document uploaded by สมชาย ไชยดี", time: "27 ก.พ. 2569 09:32" },
+                    { icon: "🔍", action: "OCR validation passed", time: "27 ก.พ. 2569 09:33" },
+                    { icon: "✅", action: "Confirmed by Finance", time: "11 มี.ค. 2569 14:00" },
+                  ].map((entry, idx) => (
+                    <div key={idx} className="flex items-start gap-2 relative">
+                      <div className="absolute -left-[21px] top-1 w-2.5 h-2.5 rounded-full bg-primary border-2 border-background" />
+                      <span className="text-sm">{entry.icon}</span>
+                      <div>
+                        <p className="text-xs font-medium text-foreground">{entry.action}</p>
+                        <p className="text-xs text-muted-foreground">{entry.time}</p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </details>
+            </div>
           </ScrollArea>
 
           {/* Footer with ERP button + Navigation */}
