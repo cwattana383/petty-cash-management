@@ -2,12 +2,14 @@ import { useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Paperclip, FileText, Clock, CheckCircle, BarChart3, ChevronLeft, ChevronRight, X, Brain } from "lucide-react";
+import { Paperclip, FileText, Clock, CheckCircle, BarChart3, ChevronLeft, ChevronRight, X } from "lucide-react";
 import { formatBEDate } from "@/lib/utils";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { cn } from "@/lib/utils";
 import { ScrollArea } from "@/components/ui/scroll-area";
+
+import OcrExtractedDataCard from "@/components/accounting/OcrExtractedDataCard";
 
 const mockItems = [
   { id: "TXN20250129001", merchantName: "GRAB TAXI", description: "Taxicabs and Limousines", amount: "฿1,500", status: "Pending Invoice", deductionPeriod: "—", attachedFile: null, date: "2026-02-28" },
@@ -192,51 +194,7 @@ export default function AccountingReview() {
             </div>
 
             {/* OCR Extracted Data */}
-            <div className="mx-4 mb-4">
-              <Card>
-                <CardContent className="pt-4">
-                  <div className="flex items-center gap-2 mb-3">
-                    <Brain className="h-4 w-4 text-primary" />
-                    <h3 className="text-sm font-semibold text-foreground">AI Extracted Data — โปรดตรวจสอบ</h3>
-                  </div>
-                  <Table>
-                    <TableHeader>
-                      <TableRow>
-                        <TableHead className="text-xs">Field</TableHead>
-                        <TableHead className="text-xs">Value</TableHead>
-                        <TableHead className="text-xs text-right">Status</TableHead>
-                      </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                      {[
-                        { field: "Tax ID (เลขผู้เสียภาษี)", value: "0105556176009", status: "match" },
-                        { field: "Buyer Name", value: drawerItem.merchantName, status: "match" },
-                        { field: "Buyer Address", value: "123 ถ.สุขุมวิท แขวงคลองเตย กรุงเทพฯ 10110", status: "partial" },
-                        { field: "Invoice Amount", value: drawerItem.amount, status: "match" },
-                        { field: "Invoice Date", value: formatBEDate(drawerItem.date), status: "match" },
-                        { field: "Invoice Number", value: "INV-" + drawerItem.id.slice(-6), status: "none" },
-                      ].map((row) => (
-                        <TableRow key={row.field}>
-                          <TableCell className="text-xs font-medium py-2">{row.field}</TableCell>
-                          <TableCell className="text-xs py-2">{row.value}</TableCell>
-                          <TableCell className="text-right py-2">
-                            {row.status === "match" && (
-                              <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200 text-xs">✅ Match</Badge>
-                            )}
-                            {row.status === "partial" && (
-                              <Badge variant="outline" className="bg-amber-50 text-amber-700 border-amber-200 text-xs">⚠️ Partial Match</Badge>
-                            )}
-                            {row.status === "none" && (
-                              <Badge variant="outline" className="bg-muted text-muted-foreground text-xs">—</Badge>
-                            )}
-                          </TableCell>
-                        </TableRow>
-                      ))}
-                    </TableBody>
-                  </Table>
-                </CardContent>
-              </Card>
-            </div>
+            <OcrExtractedDataCard drawerItem={drawerItem} />
           </ScrollArea>
 
           {/* Navigation */}
