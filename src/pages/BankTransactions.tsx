@@ -227,7 +227,7 @@ export default function BankTransactions() {
                     <TableHead className="whitespace-nowrap">Policy Result</TableHead>
                     
                     <TableHead className="whitespace-nowrap">Status</TableHead>
-                    
+                    <TableHead className="whitespace-nowrap">Creation Date & Time</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
