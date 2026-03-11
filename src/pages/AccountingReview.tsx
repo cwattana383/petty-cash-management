@@ -46,12 +46,48 @@ export default function AccountingReview() {
     ? mockItems.filter((item) => tabStatusMap[activeTab]!.includes(item.status))
     : mockItems;
 
+  const totalTransactions = mockItems.length;
+  const totalAmount = mockItems.reduce((sum, item) => {
+    const num = parseFloat(item.amount.replace(/[฿,]/g, ""));
+    return sum + num;
+  }, 0);
+  const pendingCount = mockItems.filter((i) => i.status === "Pending Invoice").length;
+  const readyCount = mockItems.filter((i) => i.status === "Auto Approved").length;
+
+  const metrics = [
+    { label: "Total Transactions", value: totalTransactions.toString(), icon: FileText },
+    { label: "Total Amount (฿)", value: `฿${totalAmount.toLocaleString()}`, icon: BarChart3 },
+    { label: "Pending Review", value: pendingCount.toString(), icon: Clock },
+    { label: "Ready for ERP", value: readyCount.toString(), icon: CheckCircle },
+  ];
+
   return (
     <div className="space-y-6">
       <div>
         <h1 className="text-2xl font-bold text-foreground">Accounting Review</h1>
         <p className="text-muted-foreground">Review and adjust expense claims for ERP</p>
       </div>
+
+      <Card className="border-blue-200 bg-blue-50/50">
+        <CardContent className="pt-6">
+          <p className="text-sm text-blue-700 mb-4 font-medium">
+            รายงานประจำเดือน — ส่งให้ HR และ Finance ทุกวันที่ 9 ของเดือน
+          </p>
+          <div className="grid grid-cols-4 gap-4">
+            {metrics.map((m) => (
+              <div key={m.label} className="flex items-center gap-3 rounded-lg bg-white/80 border border-blue-100 p-4">
+                <div className="rounded-full bg-blue-100 p-2">
+                  <m.icon className="h-5 w-5 text-blue-600" />
+                </div>
+                <div>
+                  <p className="text-xs text-muted-foreground">{m.label}</p>
+                  <p className="text-xl font-bold text-foreground">{m.value}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </CardContent>
+      </Card>
 
       <Tabs value={activeTab} onValueChange={setActiveTab}>
         <TabsList>
