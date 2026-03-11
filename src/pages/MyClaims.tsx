@@ -317,9 +317,13 @@ export default function MyClaims() {
                     <TableCell>
                       <Badge variant="outline" className={statusVariant[status]}>{status}</Badge>
                     </TableCell>
-                    {activeTab === "rejected" && (
+                    {(activeTab === "rejected" || activeTab === "all") && (
                       <TableCell className="text-sm">
-                        {status === "Reject" ? "N/A" : getDeductionPeriod(c.createdDate)}
+                        {["Auto Reject", "Final Reject"].includes(status)
+                          ? getDeductionPeriod(c.createdDate)
+                          : status === "Reject"
+                            ? "N/A"
+                            : "—"}
                       </TableCell>
                     )}
                     <TableCell>
