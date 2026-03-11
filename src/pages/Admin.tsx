@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import PolicyManagement from "./PolicyManagement";
 import PendingInvoiceNotificationPanel from "@/components/admin/PendingInvoiceNotificationPanel";
 import PendingApprovalNotificationPanel from "@/components/admin/PendingApprovalNotificationPanel";
+import MonthEndReportNotificationPanel from "@/components/admin/MonthEndReportNotificationPanel";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import {
