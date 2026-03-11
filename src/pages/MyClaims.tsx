@@ -21,7 +21,7 @@ type StatusTab = "pending_invoice" | "rejected" | "approved" | "all";
 
 const TAB_STATUS_MAP: Record<StatusTab, ClaimStatus[]> = {
   pending_invoice: ["Pending Invoice"],
-  rejected: ["Final Rejected", "Auto Reject", "Manager Reject"],
+  rejected: ["Final Rejected", "Auto Reject", "Reject"],
   approved: ["Auto Approved", "Manager Approved", "Reimbursed"],
   all: [],
 };
