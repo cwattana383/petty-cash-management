@@ -22,7 +22,6 @@ export const mockBankTransactions: BankTransaction[] = [
     merchant_name: "Grab Taxi", merchant_city: "Bangkok", merchant_country: "TH",
     mcc_code: "4121", mcc_description: "Taxicabs/Limousines",
     transaction_type: "PURCHASE", authorization_code: "AUTH001", reference_number: "REF-001",
-    policy_result: "AUTO_APPROVED", policy_reason: "Amount 2,500 exceeds threshold 1,500 but within daily limit",
     processing_status: "PROCESSED", created_at: "2026-02-28T08:00:00Z",
   },
   {
