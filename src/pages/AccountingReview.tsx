@@ -77,6 +77,9 @@ export default function AccountingReview() {
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const [confirmDialogOpen, setConfirmDialogOpen] = useState(false);
   const [bulkConfirmOpen, setBulkConfirmOpen] = useState(false);
+  const [exceptionDialogOpen, setExceptionDialogOpen] = useState(false);
+  const [exceptionReason, setExceptionReason] = useState("");
+  const [exceptionNote, setExceptionNote] = useState("");
   const { toast } = useToast();
 
   const filtered = tabStatusMap[activeTab]
