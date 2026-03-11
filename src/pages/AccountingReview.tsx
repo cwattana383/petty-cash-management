@@ -95,14 +95,16 @@ export default function AccountingReview() {
     const num = parseFloat(item.amount.replace(/[฿,]/g, ""));
     return sum + num;
   }, 0);
-  const pendingCount = items.filter((i) => i.status === "Pending Invoice").length;
-  const readyCount = items.filter((i) => ["Auto Approved", "Ready for ERP"].includes(i.status)).length;
+  const pendingCount = items.filter((i) => ["Pending Invoice", "Auto Approved"].includes(i.status)).length;
+  const readyCount = items.filter((i) => i.status === "Ready for ERP").length;
+  const exceptionCount = items.filter((i) => ["Auto Reject", "Reject", "Final Reject", "Exception"].includes(i.status)).length;
 
   const metrics = [
-    { label: "Total Transactions", value: totalTransactions.toString(), icon: FileText },
-    { label: "Total Amount (฿)", value: `฿${totalAmount.toLocaleString()}`, icon: BarChart3 },
-    { label: "Pending Review", value: pendingCount.toString(), icon: Clock },
-    { label: "Ready for ERP", value: readyCount.toString(), icon: CheckCircle },
+    { label: "Total Transactions", value: totalTransactions.toString(), icon: FileText, tab: "all" },
+    { label: "Total Amount (฿)", value: `฿${totalAmount.toLocaleString()}`, icon: BarChart3, tab: "all" },
+    { label: "Pending Review", value: pendingCount.toString(), icon: Clock, tab: "pending" },
+    { label: "Exception", value: exceptionCount.toString(), icon: AlertTriangle, tab: "exception", isException: true },
+    { label: "Ready for ERP", value: readyCount.toString(), icon: CheckCircle, tab: "ready" },
   ];
 
   const isDrawerOpen = !!drawerItem;
