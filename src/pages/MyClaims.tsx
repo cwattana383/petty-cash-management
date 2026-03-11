@@ -1,6 +1,6 @@
-import { useState, useMemo, useRef } from "react";
+import { useState, useMemo, useRef, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
-import { Search, CalendarIcon, Paperclip } from "lucide-react";
+import { Search, CalendarIcon, Paperclip, Upload, FileText, X, AlertCircle } from "lucide-react";
 import { addMonths } from "date-fns";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -10,12 +10,14 @@ import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Calendar } from "@/components/ui/calendar";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 import { mockClaims } from "@/lib/mock-data";
 import { ClaimStatus } from "@/lib/types";
 import { formatBEDate, cn } from "@/lib/utils";
 import { format, subDays } from "date-fns";
 import { toast } from "@/hooks/use-toast";
-import { ACCEPTED_MIME_TYPES } from "@/lib/upload-types";
+import { ACCEPTED_MIME_TYPES, MAX_FILE_SIZE_BYTES, MAX_FILE_SIZE_MB } from "@/lib/upload-types";
 import { useNotifications } from "@/lib/notifications-context";
 
 type StatusTab = "pending_invoice" | "rejected" | "approved" | "all";
@@ -39,10 +41,28 @@ const statusVariant: Record<ClaimStatus, string> = {
   "Reimbursed": "bg-emerald-100 text-emerald-800",
 };
 
-interface AttachedFileInfo {
+const DOC_TYPE_OPTIONS = [
+  "ใบกำกับภาษี",
+  "ใบเสร็จรับเงิน",
+  "ใบอนุมัติเดินทาง",
+  "รายชื่อผู้เข้าร่วม",
+  "รายงานการเดินทาง",
+  "เอกสารอื่นๆ",
+] as const;
+
+type DocType = typeof DOC_TYPE_OPTIONS[number];
+
+const MAX_FILES_PER_TXN = 5;
+
+interface AttachedFileEntry {
+  file: File;
+  docType: DocType;
+}
+
+interface SavedAttachment {
   fileName: string;
-  ocrStatus: "uploading" | "processing" | "done" | "failed";
-  ocrConfidence?: number;
+  size: number;
+  docType: DocType;
 }
 
 const THAI_MONTHS_SHORT = ["ม.ค.", "ก.พ.", "มี.ค.", "เม.ย.", "พ.ค.", "มิ.ย.", "ก.ค.", "ส.ค.", "ก.ย.", "ต.ค.", "พ.ย.", "ธ.ค."];
@@ -62,16 +82,80 @@ export default function MyClaims() {
   const [dateFrom, setDateFrom] = useState<Date>(subDays(new Date("2026-02-28"), 6));
   const [dateTo, setDateTo] = useState<Date>(new Date("2026-02-28"));
 
-  // Track attached files per claim and claim statuses
-  const [attachedFiles, setAttachedFiles] = useState<Record<string, AttachedFileInfo>>({});
+  // Multi-file attachments per claim
+  const [savedAttachments, setSavedAttachments] = useState<Record<string, SavedAttachment[]>>({});
   const [claimStatuses, setClaimStatuses] = useState<Record<string, ClaimStatus>>({});
-  const [confirmDialog, setConfirmDialog] = useState<{ open: boolean; claimId: string }>({ open: false, claimId: "" });
 
-  const fileInputRef = useRef<HTMLInputElement>(null);
-  const [activeClaimId, setActiveClaimId] = useState<string>("");
+  // Upload dialog state
+  const [uploadDialog, setUploadDialog] = useState<{ open: boolean; claimId: string }>({ open: false, claimId: "" });
+  const [pendingFiles, setPendingFiles] = useState<AttachedFileEntry[]>([]);
+  const [showValidation, setShowValidation] = useState(false);
+  const uploadInputRef = useRef<HTMLInputElement>(null);
 
   const getStatus = (claim: typeof mockClaims[0]): ClaimStatus => {
     return claimStatuses[claim.id] || claim.status;
+  };
+
+  const hasTaxInvoice = pendingFiles.some((f) => f.docType === "ใบกำกับภาษี");
+
+  const handleOpenUploadDialog = (e: React.MouseEvent, claimId: string) => {
+    e.stopPropagation();
+    const existing = savedAttachments[claimId];
+    setPendingFiles(
+      existing
+        ? existing.map((a) => ({ file: new File([], a.fileName, {}), docType: a.docType }))
+        : []
+    );
+    setShowValidation(false);
+    setUploadDialog({ open: true, claimId });
+  };
+
+  const handleAddFiles = useCallback((files: FileList | File[]) => {
+    const arr = Array.from(files);
+    const remaining = MAX_FILES_PER_TXN - pendingFiles.length;
+    if (remaining <= 0) {
+      toast({ title: "จำกัดสูงสุด", description: `อัปโหลดได้สูงสุด ${MAX_FILES_PER_TXN} ไฟล์ต่อรายการ`, variant: "destructive" });
+      return;
+    }
+    const toAdd = arr.slice(0, remaining);
+    const invalid: string[] = [];
+    const valid: AttachedFileEntry[] = [];
+    for (const f of toAdd) {
+      if (!ACCEPTED_MIME_TYPES.includes(f.type)) {
+        invalid.push(`"${f.name}" — ไม่รองรับ`);
+        continue;
+      }
+      if (f.size > MAX_FILE_SIZE_BYTES) {
+        invalid.push(`"${f.name}" — เกิน ${MAX_FILE_SIZE_MB}MB`);
+        continue;
+      }
+      valid.push({ file: f, docType: "เอกสารอื่นๆ" });
+    }
+    if (invalid.length) toast({ title: "ไฟล์ไม่ผ่าน", description: invalid.join(", "), variant: "destructive" });
+    if (valid.length) setPendingFiles((prev) => [...prev, ...valid]);
+  }, [pendingFiles.length]);
+
+  const handleRemovePendingFile = (idx: number) => {
+    setPendingFiles((prev) => prev.filter((_, i) => i !== idx));
+  };
+
+  const handleDocTypeChange = (idx: number, type: DocType) => {
+    setPendingFiles((prev) => prev.map((f, i) => (i === idx ? { ...f, docType: type } : f)));
+  };
+
+  const handleSubmitFiles = () => {
+    if (!hasTaxInvoice) {
+      setShowValidation(true);
+      return;
+    }
+    const { claimId } = uploadDialog;
+    setSavedAttachments((prev) => ({
+      ...prev,
+      [claimId]: pendingFiles.map((f) => ({ fileName: f.file.name || f.docType, size: f.file.size, docType: f.docType })),
+    }));
+    setClaimStatuses((prev) => ({ ...prev, [claimId]: "Pending Approval" }));
+    setUploadDialog({ open: false, claimId: "" });
+    toast({ title: "แนบเอกสารสำเร็จ", description: "สถานะเปลี่ยนเป็น Pending Approval" });
   };
 
   const filtered = useMemo(() => {
