@@ -247,6 +247,7 @@ export default function BankTransactions() {
                       <TableCell>
                         <Badge variant="outline" className={STATUS_BADGE[t.processing_status].className}>{STATUS_BADGE[t.processing_status].label}</Badge>
                       </TableCell>
+                      <TableCell className="whitespace-nowrap text-sm">{format(new Date(t.created_at), "dd/MM/yyyy HH:mm")}</TableCell>
                     </TableRow>
                   ))}
                 </TableBody>
