@@ -84,16 +84,18 @@ export default function AccountingReview() {
             <TableBody>
               {filtered.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={7} className="text-center text-muted-foreground py-8">No items found</TableCell>
+                  <TableCell colSpan={9} className="text-center text-muted-foreground py-8">No items found</TableCell>
                 </TableRow>
               ) : (
                 filtered.map((item) => (
                   <TableRow key={item.id}>
                     <TableCell className="font-medium">{item.id}</TableCell>
+                    <TableCell>{formatBEDate(item.date)}</TableCell>
+                    <TableCell>{item.merchantName}</TableCell>
+                    <TableCell>{item.description}</TableCell>
                     <TableCell>{item.requester}</TableCell>
                     <TableCell className="text-right font-medium">{item.amount}</TableCell>
                     <TableCell>{item.accountCode}</TableCell>
-                    <TableCell>{formatBEDate(item.date)}</TableCell>
                     <TableCell><Badge className={queueColors[item.status]}>{item.status}</Badge></TableCell>
                     <TableCell>
                       <div className="flex gap-1">
