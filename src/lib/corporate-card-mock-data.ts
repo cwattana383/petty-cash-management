@@ -33,7 +33,7 @@ export const mockBankTransactions: BankTransaction[] = [
     mcc_code: "7011", mcc_description: "Hotels/Motels/Resorts",
     transaction_type: "PURCHASE", authorization_code: "AUTH002", reference_number: "REF-002",
     policy_result: "AUTO_APPROVED", policy_reason: "Amount within hotel threshold 8,000",
-    processing_status: "PROCESSED", created_at: "2026-02-28T08:05:00Z",
+    processing_status: "PROCESSED", created_at: "2026-02-28T08:00:00Z",
   },
   {
     id: "bt-003", file_id: "file-001", transaction_id: "TXN-2026022803",
