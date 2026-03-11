@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import PolicyManagement from "./PolicyManagement";
 import PendingInvoiceNotificationPanel from "@/components/admin/PendingInvoiceNotificationPanel";
 import PendingApprovalNotificationPanel from "@/components/admin/PendingApprovalNotificationPanel";
+import MonthEndReportNotificationPanel from "@/components/admin/MonthEndReportNotificationPanel";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import {
@@ -80,6 +81,7 @@ const adminMenu = [
     items: [
       { key: "pending-invoice-email", label: "Pending Invoice Email", icon: Receipt },
       { key: "pending-approval-email", label: "Pending Approval Email", icon: UserCheck },
+      { key: "month-end-report-email", label: "Month End Report — HR & Finance", icon: CalendarClock },
     ],
   },
 ];
@@ -941,6 +943,7 @@ const panelMap: Record<string, () => JSX.Element> = {
   "email-notifications": EmailNotificationsPanel,
   "pending-invoice-email": PendingInvoiceNotificationPanel,
   "pending-approval-email": PendingApprovalNotificationPanel,
+  "month-end-report-email": MonthEndReportNotificationPanel,
   "system-alerts": SystemAlertsPanel,
   "erp-sync": ErpSyncPanel,
   "sync-logs": SyncLogsPanel,
