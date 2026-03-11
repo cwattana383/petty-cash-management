@@ -99,7 +99,7 @@ export const mockBankTransactions: BankTransaction[] = [
     mcc_code: "5541", mcc_description: "Service Stations",
     transaction_type: "PURCHASE", authorization_code: "AUTH008", reference_number: "REF-008",
     policy_result: "AUTO_APPROVED", policy_reason: "Amount within fuel threshold 2,000",
-    processing_status: "PROCESSED", created_at: "2026-02-23T07:30:00Z",
+    processing_status: "PROCESSED", created_at: "2026-02-23T13:00:00Z",
   },
 ];
 
