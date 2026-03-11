@@ -54,7 +54,7 @@ function getDeductionPeriod(txnDate: string): string {
   return `งวดที่ ${period} / ${THAI_MONTHS_SHORT[d.getMonth()]} ${beYear}`;
 }
 
-
+export default function MyClaims() {
   const navigate = useNavigate();
   const { addNotification } = useNotifications();
   const [search, setSearch] = useState("");
