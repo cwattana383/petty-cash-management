@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Paperclip, FileText, Clock, CheckCircle, BarChart3, ChevronLeft, ChevronRight, X, Send } from "lucide-react";
+import { Paperclip, FileText, Clock, CheckCircle, BarChart3, ChevronLeft, ChevronRight, X, Send, AlertTriangle } from "lucide-react";
 import { formatBEDate } from "@/lib/utils";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -11,6 +11,10 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Checkbox } from "@/components/ui/checkbox";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 import { useToast } from "@/hooks/use-toast";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Textarea } from "@/components/ui/textarea";
+import { Label } from "@/components/ui/label";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import OcrExtractedDataCard from "@/components/accounting/OcrExtractedDataCard";
 
 interface MockItem {
@@ -73,6 +77,9 @@ export default function AccountingReview() {
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const [confirmDialogOpen, setConfirmDialogOpen] = useState(false);
   const [bulkConfirmOpen, setBulkConfirmOpen] = useState(false);
+  const [exceptionDialogOpen, setExceptionDialogOpen] = useState(false);
+  const [exceptionReason, setExceptionReason] = useState("");
+  const [exceptionNote, setExceptionNote] = useState("");
   const { toast } = useToast();
 
   const filtered = tabStatusMap[activeTab]
@@ -122,6 +129,20 @@ export default function AccountingReview() {
     toast({ title: "ส่งรายการไปยัง ERP เรียบร้อย", description: `${ids.length} รายการถูกส่งไปยัง ERP` });
     setSelectedIds(new Set());
     setBulkConfirmOpen(false);
+  };
+
+  const handleFlagException = () => {
+    if (!drawerItemId || !exceptionReason) return;
+    setItems((prev) =>
+      prev.map((item) =>
+        item.id === drawerItemId ? { ...item, status: "Exception" } : item
+      )
+    );
+    toast({ title: "รายการถูก flag เป็น Exception แล้ว — แจ้งพนักงานเรียบร้อย", description: `${drawerItemId} — เหตุผล: ${exceptionReason}` });
+    setDrawerItemId(null);
+    setExceptionDialogOpen(false);
+    setExceptionReason("");
+    setExceptionNote("");
   };
 
   const toggleSelect = (id: string) => {
@@ -297,18 +318,38 @@ export default function AccountingReview() {
 
           {/* Footer with ERP button + Navigation */}
           <div className="border-t border-border p-4 space-y-3">
-            {drawerItem.status !== "Ready for ERP" && (
-              <Button
-                className="w-full bg-green-600 hover:bg-green-700 text-white"
-                onClick={() => setConfirmDialogOpen(true)}
-              >
-                <Send className="h-4 w-4 mr-2" />
-                ยืนยัน & ส่ง ERP
-              </Button>
+            {!["Ready for ERP", "Reimbursed", "Exception"].includes(drawerItem.status) && (
+              <div className="flex gap-2">
+                <Button
+                  className="flex-1 bg-green-600 hover:bg-green-700 text-white"
+                  onClick={() => setConfirmDialogOpen(true)}
+                >
+                  <Send className="h-4 w-4 mr-2" />
+                  ยืนยัน & ส่ง ERP
+                </Button>
+                <Button
+                  variant="outline"
+                  className="flex-1 border-red-300 text-red-600 hover:bg-red-50"
+                  onClick={() => setExceptionDialogOpen(true)}
+                >
+                  <AlertTriangle className="h-4 w-4 mr-2" />
+                  Flag as Exception
+                </Button>
+              </div>
             )}
             {drawerItem.status === "Ready for ERP" && (
               <div className="text-center">
                 <Badge className="bg-blue-100 text-blue-800 border-blue-300" variant="outline">✅ ส่ง ERP แล้ว</Badge>
+              </div>
+            )}
+            {drawerItem.status === "Exception" && (
+              <div className="text-center">
+                <Badge className="bg-red-100 text-red-800 border-red-300" variant="outline">⚠️ Exception</Badge>
+              </div>
+            )}
+            {drawerItem.status === "Reimbursed" && (
+              <div className="text-center">
+                <Badge className="bg-purple-100 text-purple-800 border-purple-300" variant="outline">✅ Reimbursed</Badge>
               </div>
             )}
             <div className="flex items-center justify-between">
@@ -371,6 +412,49 @@ export default function AccountingReview() {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      {/* Exception flag dialog */}
+      <Dialog open={exceptionDialogOpen} onOpenChange={setExceptionDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>⚠️ Flag as Exception</DialogTitle>
+            <DialogDescription>ระบุเหตุผลและข้อความถึงพนักงาน</DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4 py-2">
+            <div className="space-y-2">
+              <Label>เหตุผล</Label>
+              <Select value={exceptionReason} onValueChange={setExceptionReason}>
+                <SelectTrigger>
+                  <SelectValue placeholder="เลือกเหตุผล..." />
+                </SelectTrigger>
+                <SelectContent>
+                  {["Tax ID ไม่ตรง", "ที่อยู่ไม่ตรง", "จำนวนเงินเกิน tolerance", "เอกสารไม่ชัดเจน", "อื่นๆ"].map((r) => (
+                    <SelectItem key={r} value={r}>{r}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="space-y-2">
+              <Label>ข้อความถึงพนักงาน</Label>
+              <Textarea
+                placeholder="ระบุรายละเอียดเพิ่มเติม..."
+                value={exceptionNote}
+                onChange={(e) => setExceptionNote(e.target.value)}
+              />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setExceptionDialogOpen(false)}>Cancel</Button>
+            <Button
+              className="bg-red-600 hover:bg-red-700 text-white"
+              disabled={!exceptionReason}
+              onClick={handleFlagException}
+            >
+              Confirm
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
