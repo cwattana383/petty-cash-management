@@ -1,6 +1,7 @@
 import { useState, useMemo, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { Search, CalendarIcon, Paperclip } from "lucide-react";
+import { addMonths } from "date-fns";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -42,6 +43,15 @@ interface AttachedFileInfo {
   fileName: string;
   ocrStatus: "uploading" | "processing" | "done" | "failed";
   ocrConfidence?: number;
+}
+
+const THAI_MONTHS_SHORT = ["ม.ค.", "ก.พ.", "มี.ค.", "เม.ย.", "พ.ค.", "มิ.ย.", "ก.ค.", "ส.ค.", "ก.ย.", "ต.ค.", "พ.ย.", "ธ.ค."];
+
+function getDeductionPeriod(txnDate: string): string {
+  const d = addMonths(new Date(txnDate), 1);
+  const beYear = d.getFullYear() + 543;
+  const period = d.getMonth() + 1;
+  return `งวดที่ ${period} / ${THAI_MONTHS_SHORT[d.getMonth()]} ${beYear}`;
 }
 
 export default function MyClaims() {
@@ -257,12 +267,13 @@ export default function MyClaims() {
               <TableHead>Description</TableHead>
               <TableHead className="text-right">Amount</TableHead>
               <TableHead>Status</TableHead>
+              {activeTab === "rejected" && <TableHead>งวดหักเงินเดือน</TableHead>}
               <TableHead>Attached File</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {filtered.length === 0 ? (
-              <TableRow><TableCell colSpan={7} className="text-center text-muted-foreground py-8">No transactions found for this status.</TableCell></TableRow>
+              <TableRow><TableCell colSpan={activeTab === "rejected" ? 8 : 7} className="text-center text-muted-foreground py-8">No transactions found for this status.</TableCell></TableRow>
             ) : (
               filtered.map((c) => {
                 const status = getStatus(c);
@@ -277,6 +288,11 @@ export default function MyClaims() {
                     <TableCell>
                       <Badge variant="outline" className={statusVariant[status]}>{status}</Badge>
                     </TableCell>
+                    {activeTab === "rejected" && (
+                      <TableCell className="text-sm">
+                        {status === "Reject" ? "N/A" : getDeductionPeriod(c.createdDate)}
+                      </TableCell>
+                    )}
                     <TableCell>
                       {fileInfo ? (
                         <div className="flex items-center gap-1.5 text-sm">
