@@ -55,14 +55,42 @@ export function AppSidebar() {
       })
     : mainNav;
 
+  const demoRoles = [
+    { key: "Cardholder", label: "👤 Cardholder" },
+    { key: "Approver", label: "✅ Approver" },
+    { key: "Admin", label: "⚙️ Admin" },
+  ] as const;
+
+  const activeDemo = roles.includes("Admin")
+    ? "Admin"
+    : roles.includes("Approver")
+    ? "Approver"
+    : "Cardholder";
+
   return (
     <Sidebar>
-      <SidebarHeader className="px-4 py-5 border-b border-sidebar-border">
+      <SidebarHeader className="px-4 py-5 border-b border-sidebar-border space-y-3">
         <div className="flex items-center gap-2">
           <div className="w-8 h-8 rounded bg-primary flex items-center justify-center">
             <span className="text-primary-foreground font-bold text-sm">E</span>
           </div>
           <span className="font-bold text-lg text-primary">ExpenseClaim</span>
+        </div>
+        <div className="flex gap-1">
+          {demoRoles.map((r) => (
+            <button
+              key={r.key}
+              onClick={() => setRoles([r.key])}
+              className={cn(
+                "flex-1 text-xs py-1.5 rounded-md font-medium transition-colors",
+                activeDemo === r.key
+                  ? "bg-primary text-primary-foreground"
+                  : "bg-muted text-muted-foreground hover:bg-accent"
+              )}
+            >
+              {r.label}
+            </button>
+          ))}
         </div>
       </SidebarHeader>
       <SidebarContent>
