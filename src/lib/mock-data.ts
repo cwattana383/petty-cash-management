@@ -84,7 +84,7 @@ export const mockClaims: ClaimHeader[] = [
     id: "r4", claimNo: "TXN20260227114", requesterId: "u1", requesterName: "สมชาย ใจดี",
     company: "ABC Co., Ltd.", branch: "Bangkok", department: "9993010460 Finance and Accounting", costCenter: "CC-SALES-01",
     purpose: "Drinking Places (Bars)", merchantName: "The Nine", currency: "THB", paymentMethod: "Corporate Card",
-    totalAmount: 1250, totalVat: 0, status: "Manager Reject", createdDate: "2026-02-27", submittedDate: "2026-02-27",
+    totalAmount: 1250, totalVat: 0, status: "Reject", createdDate: "2026-02-27", submittedDate: "2026-02-27",
     lines: [], approvalHistory: [], comments: [],
   },
   {
