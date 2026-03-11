@@ -93,10 +93,18 @@ export default function AccountingReview() {
                     <TableCell><Badge className={statusColors[item.status]} variant="outline">{item.status}</Badge></TableCell>
                     <TableCell>{item.deductionPeriod}</TableCell>
                     <TableCell>
-                      <Button variant="destructive" size="sm" className="gap-1">
-                        <Paperclip className="h-3.5 w-3.5" />
-                        Attach File
-                      </Button>
+                      {item.status === "Pending Invoice" ? (
+                        <span className="text-muted-foreground">Pending</span>
+                      ) : item.status === "Auto Reject" ? (
+                        <span className="text-muted-foreground">None</span>
+                      ) : item.attachedFile ? (
+                        <span className="flex items-center gap-1 text-red-600 cursor-pointer hover:underline">
+                          <Paperclip className="h-3.5 w-3.5" />
+                          {item.attachedFile}
+                        </span>
+                      ) : (
+                        <span className="text-muted-foreground">—</span>
+                      )}
                     </TableCell>
                   </TableRow>
                 ))
