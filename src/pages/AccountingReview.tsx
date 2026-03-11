@@ -318,18 +318,38 @@ export default function AccountingReview() {
 
           {/* Footer with ERP button + Navigation */}
           <div className="border-t border-border p-4 space-y-3">
-            {drawerItem.status !== "Ready for ERP" && (
-              <Button
-                className="w-full bg-green-600 hover:bg-green-700 text-white"
-                onClick={() => setConfirmDialogOpen(true)}
-              >
-                <Send className="h-4 w-4 mr-2" />
-                ยืนยัน & ส่ง ERP
-              </Button>
+            {!["Ready for ERP", "Reimbursed", "Exception"].includes(drawerItem.status) && (
+              <div className="flex gap-2">
+                <Button
+                  className="flex-1 bg-green-600 hover:bg-green-700 text-white"
+                  onClick={() => setConfirmDialogOpen(true)}
+                >
+                  <Send className="h-4 w-4 mr-2" />
+                  ยืนยัน & ส่ง ERP
+                </Button>
+                <Button
+                  variant="outline"
+                  className="flex-1 border-red-300 text-red-600 hover:bg-red-50"
+                  onClick={() => setExceptionDialogOpen(true)}
+                >
+                  <AlertTriangle className="h-4 w-4 mr-2" />
+                  Flag as Exception
+                </Button>
+              </div>
             )}
             {drawerItem.status === "Ready for ERP" && (
               <div className="text-center">
                 <Badge className="bg-blue-100 text-blue-800 border-blue-300" variant="outline">✅ ส่ง ERP แล้ว</Badge>
+              </div>
+            )}
+            {drawerItem.status === "Exception" && (
+              <div className="text-center">
+                <Badge className="bg-red-100 text-red-800 border-red-300" variant="outline">⚠️ Exception</Badge>
+              </div>
+            )}
+            {drawerItem.status === "Reimbursed" && (
+              <div className="text-center">
+                <Badge className="bg-purple-100 text-purple-800 border-purple-300" variant="outline">✅ Reimbursed</Badge>
               </div>
             )}
             <div className="flex items-center justify-between">
