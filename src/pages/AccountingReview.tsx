@@ -180,14 +180,64 @@ export default function AccountingReview() {
             </Button>
           </div>
 
-          {/* Document viewer placeholder */}
-          <div className="flex-1 m-4 rounded-lg bg-muted flex items-center justify-center">
-            <div className="text-center text-muted-foreground">
-              <FileText className="h-16 w-16 mx-auto mb-4 opacity-30" />
-              <p className="text-sm font-medium">Document Preview: {drawerItem.attachedFile}</p>
-              <p className="text-xs mt-1">เอกสารจะแสดงตรงนี้เมื่อเชื่อมต่อกับ backend</p>
+          {/* Scrollable content */}
+          <ScrollArea className="flex-1">
+            {/* Document viewer placeholder */}
+            <div className="m-4 rounded-lg bg-muted flex items-center justify-center min-h-[250px]">
+              <div className="text-center text-muted-foreground">
+                <FileText className="h-16 w-16 mx-auto mb-4 opacity-30" />
+                <p className="text-sm font-medium">Document Preview: {drawerItem.attachedFile}</p>
+                <p className="text-xs mt-1">เอกสารจะแสดงตรงนี้เมื่อเชื่อมต่อกับ backend</p>
+              </div>
             </div>
-          </div>
+
+            {/* OCR Extracted Data */}
+            <div className="mx-4 mb-4">
+              <Card>
+                <CardContent className="pt-4">
+                  <div className="flex items-center gap-2 mb-3">
+                    <Brain className="h-4 w-4 text-primary" />
+                    <h3 className="text-sm font-semibold text-foreground">AI Extracted Data — โปรดตรวจสอบ</h3>
+                  </div>
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead className="text-xs">Field</TableHead>
+                        <TableHead className="text-xs">Value</TableHead>
+                        <TableHead className="text-xs text-right">Status</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {[
+                        { field: "Tax ID (เลขผู้เสียภาษี)", value: "0105556176009", status: "match" },
+                        { field: "Buyer Name", value: drawerItem.merchantName, status: "match" },
+                        { field: "Buyer Address", value: "123 ถ.สุขุมวิท แขวงคลองเตย กรุงเทพฯ 10110", status: "partial" },
+                        { field: "Invoice Amount", value: drawerItem.amount, status: "match" },
+                        { field: "Invoice Date", value: formatBEDate(drawerItem.date), status: "match" },
+                        { field: "Invoice Number", value: "INV-" + drawerItem.id.slice(-6), status: "none" },
+                      ].map((row) => (
+                        <TableRow key={row.field}>
+                          <TableCell className="text-xs font-medium py-2">{row.field}</TableCell>
+                          <TableCell className="text-xs py-2">{row.value}</TableCell>
+                          <TableCell className="text-right py-2">
+                            {row.status === "match" && (
+                              <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200 text-xs">✅ Match</Badge>
+                            )}
+                            {row.status === "partial" && (
+                              <Badge variant="outline" className="bg-amber-50 text-amber-700 border-amber-200 text-xs">⚠️ Partial Match</Badge>
+                            )}
+                            {row.status === "none" && (
+                              <Badge variant="outline" className="bg-muted text-muted-foreground text-xs">—</Badge>
+                            )}
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                </CardContent>
+              </Card>
+            </div>
+          </ScrollArea>
 
           {/* Navigation */}
           <div className="flex items-center justify-between p-4 border-t border-border">
