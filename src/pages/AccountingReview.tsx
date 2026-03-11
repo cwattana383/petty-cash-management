@@ -57,7 +57,7 @@ export default function AccountingReview() {
         <TabsList>
           <TabsTrigger value="all">All</TabsTrigger>
           <TabsTrigger value="pending">Pending Invoice</TabsTrigger>
-          <TabsTrigger value="exception">Exception</TabsTrigger>
+          <TabsTrigger value="exception">Reject</TabsTrigger>
           <TabsTrigger value="ready">Auto Approved</TabsTrigger>
         </TabsList>
       </Tabs>
