@@ -10,14 +10,54 @@ import { formatBEDate } from "@/lib/utils";
 import { useToast } from "@/hooks/use-toast";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { useState } from "react";
-import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+
+interface AttachedDoc {
+  name: string;
+  size: string;
+  docType: string;
+  url: string;
+}
+
+const DOC_TYPE_COLORS: Record<string, string> = {
+  "ใบกำกับภาษี": "bg-blue-100 text-blue-800 border-blue-300",
+  "ใบเสร็จรับเงิน": "bg-green-100 text-green-800 border-green-300",
+  "ใบอนุมัติเดินทาง": "bg-purple-100 text-purple-800 border-purple-300",
+  "รายชื่อผู้เข้าร่วม": "bg-yellow-100 text-yellow-800 border-yellow-300",
+  "รายงานการเดินทาง": "bg-cyan-100 text-cyan-800 border-cyan-300",
+  "เอกสารอื่นๆ": "bg-gray-100 text-gray-600 border-gray-300",
+};
+
+const mockAttachments: Record<string, AttachedDoc[]> = {
+  "TXN20250128001": [
+    { name: "receipt_taxi.pdf", size: "1.2 MB", docType: "ใบกำกับภาษี", url: "#" },
+    { name: "trip_approval.pdf", size: "340 KB", docType: "ใบอนุมัติเดินทาง", url: "#" },
+  ],
+  "TXN20250128002": [
+    { name: "invoice_dinner.pdf", size: "2.1 MB", docType: "ใบกำกับภาษี", url: "#" },
+    { name: "attendee_list.xlsx", size: "85 KB", docType: "รายชื่อผู้เข้าร่วม", url: "#" },
+    { name: "dinner_photo.jpg", size: "3.4 MB", docType: "เอกสารอื่นๆ", url: "#" },
+  ],
+  "TXN20250127001": [
+    { name: "boarding_pass.pdf", size: "520 KB", docType: "เอกสารอื่นๆ", url: "#" },
+    { name: "flight_invoice.pdf", size: "1.8 MB", docType: "ใบกำกับภาษี", url: "#" },
+    { name: "travel_report.pdf", size: "2.5 MB", docType: "รายงานการเดินทาง", url: "#" },
+  ],
+  "TXN20250127002": [
+    { name: "hotel_receipt.jpg", size: "4.2 MB", docType: "ใบเสร็จรับเงิน", url: "#" },
+    { name: "hotel_tax_invoice.pdf", size: "1.1 MB", docType: "ใบกำกับภาษี", url: "#" },
+  ],
+  "TXN20250126001": [
+    { name: "supplies_receipt.pdf", size: "890 KB", docType: "ใบกำกับภาษี", url: "#" },
+  ],
+};
 
 export default function ApprovalInbox() {
   const navigate = useNavigate();
   const { claims, updateClaim } = useClaims();
   const { toast } = useToast();
-  const [previewFile, setPreviewFile] = useState<{ name: string; url: string } | null>(null);
+  const [previewFile, setPreviewFile] = useState<AttachedDoc | null>(null);
+  const [docsDialog, setDocsDialog] = useState<{ claimNo: string; docs: AttachedDoc[] } | null>(null);
   const [rejectDialog, setRejectDialog] = useState<{ id: string; claimNo: string } | null>(null);
   const [rejectReason, setRejectReason] = useState("");
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
@@ -83,16 +123,8 @@ export default function ApprovalInbox() {
     setBatchRejectReason("");
   };
 
-  // Mock attached file per claim
-  const getAttachedFile = (claimNo: string) => {
-    const mockFiles: Record<string, { name: string; url: string }> = {
-      "TXN20250128001": { name: "receipt_taxi.pdf", url: "#" },
-      "TXN20250128002": { name: "invoice_dinner.pdf", url: "#" },
-      "TXN20250127001": { name: "boarding_pass.pdf", url: "#" },
-      "TXN20250127002": { name: "hotel_receipt.jpg", url: "#" },
-      "TXN20250126001": { name: "supplies_receipt.pdf", url: "#" },
-    };
-    return mockFiles[claimNo] || null;
+  const getAttachedDocs = (claimNo: string): AttachedDoc[] => {
+    return mockAttachments[claimNo] || [];
   };
 
   return (
@@ -108,7 +140,6 @@ export default function ApprovalInbox() {
         <Card><CardContent className="p-4 text-center"><p className="text-2xl font-bold text-foreground">฿{totalPending.toLocaleString()}</p><p className="text-sm text-muted-foreground">Total Pending Amount</p></CardContent></Card>
       </div>
 
-      {/* Batch Action Bar */}
       {selectedIds.size > 0 && (
         <div className="flex items-center gap-3 p-3 border rounded-lg bg-muted/50">
           <span className="text-sm font-medium">{selectedIds.size} selected</span>
@@ -147,7 +178,7 @@ export default function ApprovalInbox() {
                 <TableRow><TableCell colSpan={9} className="text-center text-muted-foreground py-8">No pending approvals</TableCell></TableRow>
               ) : (
                 pendingClaims.map((a) => {
-                  const file = getAttachedFile(a.claimNo);
+                  const docs = getAttachedDocs(a.claimNo);
                   return (
                     <TableRow key={a.id} className={selectedIds.has(a.id) ? "bg-muted/50" : ""}>
                       <TableCell>
@@ -163,15 +194,17 @@ export default function ApprovalInbox() {
                       <TableCell className="text-right font-medium">฿{a.totalAmount.toLocaleString()}</TableCell>
                       <TableCell>{formatBEDate(a.submittedDate)}</TableCell>
                       <TableCell>
-                        {file ? (
+                        {docs.length > 0 ? (
                           <Button
                             variant="ghost"
                             size="sm"
                             className="text-primary hover:text-primary/80 gap-1.5 px-2"
-                            onClick={() => setPreviewFile(file)}
+                            onClick={() => setDocsDialog({ claimNo: a.claimNo, docs })}
                           >
                             <Paperclip className="h-3.5 w-3.5" />
-                            <span className="text-xs">{file.name}</span>
+                            <Badge variant="secondary" className="text-xs px-1.5 py-0">
+                              📎 {docs.length}
+                            </Badge>
                           </Button>
                         ) : (
                           <span className="text-xs text-muted-foreground">—</span>
@@ -207,6 +240,38 @@ export default function ApprovalInbox() {
           </Table>
         </CardContent>
       </Card>
+
+      {/* Documents List Dialog */}
+      <Dialog open={!!docsDialog} onOpenChange={(v) => !v && setDocsDialog(null)}>
+        <DialogContent className="sm:max-w-lg">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Paperclip className="h-5 w-5" />
+              Attached Documents — {docsDialog?.claimNo}
+              <Badge variant="secondary" className="ml-1">📎 {docsDialog?.docs.length}</Badge>
+            </DialogTitle>
+          </DialogHeader>
+          <div className="space-y-2">
+            {docsDialog?.docs.map((doc, idx) => (
+              <div key={idx} className="flex items-center gap-3 p-3 border rounded-lg hover:bg-muted/30 transition-colors">
+                <Badge variant="outline" className={DOC_TYPE_COLORS[doc.docType] || DOC_TYPE_COLORS["เอกสารอื่นๆ"]}>
+                  {doc.docType}
+                </Badge>
+                <button
+                  className="text-sm font-medium text-primary hover:underline cursor-pointer flex-1 text-left"
+                  onClick={() => {
+                    setDocsDialog(null);
+                    setPreviewFile(doc);
+                  }}
+                >
+                  {doc.name}
+                </button>
+                <span className="text-xs text-muted-foreground whitespace-nowrap">{doc.size}</span>
+              </div>
+            ))}
+          </div>
+        </DialogContent>
+      </Dialog>
 
       {/* Reject Reason Dialog (single) */}
       <Dialog open={!!rejectDialog} onOpenChange={(v) => !v && setRejectDialog(null)}>
@@ -264,14 +329,21 @@ export default function ApprovalInbox() {
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
               <FileText className="h-5 w-5" />
-              Attached Document
+              Document Preview
             </DialogTitle>
           </DialogHeader>
           <div className="space-y-3">
+            {previewFile && (
+              <div className="mb-2">
+                <Badge variant="outline" className={DOC_TYPE_COLORS[previewFile.docType] || DOC_TYPE_COLORS["เอกสารอื่นๆ"]}>
+                  {previewFile.docType}
+                </Badge>
+              </div>
+            )}
             <div className="bg-muted/50 rounded-lg p-6 flex flex-col items-center gap-3">
               <FileText className="h-12 w-12 text-muted-foreground" />
               <p className="text-sm font-medium">{previewFile?.name}</p>
-              <p className="text-xs text-muted-foreground">Click below to download the document</p>
+              <p className="text-xs text-muted-foreground">{previewFile?.size}</p>
               <Button size="sm" variant="outline">
                 Download File
               </Button>
