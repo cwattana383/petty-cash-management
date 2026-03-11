@@ -214,6 +214,26 @@ export default function MyClaims() {
         onChange={handleFileChange}
       />
 
+      {/* Summary Bar */}
+      {activeTab === "rejected" && filtered.length > 0 && (
+        <div className="border rounded-lg bg-card px-5 py-3.5 flex items-center gap-6">
+          <div>
+            <span className="text-muted-foreground text-sm">Transactions</span>
+            <p className="font-semibold text-foreground">{filtered.length} transactions</p>
+          </div>
+          <div className="w-px h-8 bg-border" />
+          <div>
+            <span className="text-muted-foreground text-sm">Total</span>
+            <p className="font-semibold text-foreground text-lg">฿{filtered.reduce((sum, c) => sum + c.totalAmount, 0).toLocaleString()}</p>
+          </div>
+          <div className="w-px h-8 bg-border" />
+          <div>
+            <span className="text-muted-foreground text-sm">All rejected · Deduction period</span>
+            <p className="font-semibold text-foreground">{getDeductionPeriod(filtered[0].createdDate)}</p>
+          </div>
+        </div>
+      )}
+
       {/* Filters */}
       <div className="flex flex-col gap-3 p-4 border rounded-lg bg-card">
         <div className="relative">
@@ -255,26 +275,6 @@ export default function MyClaims() {
           </TabsList>
         </Tabs>
       </div>
-
-      {/* Summary Bar */}
-      {activeTab === "rejected" && filtered.length > 0 && (
-        <div className="border rounded-lg bg-card px-5 py-3.5 mt-4 flex items-center gap-6">
-          <div>
-            <span className="text-muted-foreground text-sm">Transactions</span>
-            <p className="font-semibold text-foreground">{filtered.length} transactions</p>
-          </div>
-          <div className="w-px h-8 bg-border" />
-          <div>
-            <span className="text-muted-foreground text-sm">Total</span>
-            <p className="font-semibold text-foreground text-lg">฿{filtered.reduce((sum, c) => sum + c.totalAmount, 0).toLocaleString()}</p>
-          </div>
-          <div className="w-px h-8 bg-border" />
-          <div>
-            <span className="text-muted-foreground text-sm">All rejected · Deduction period</span>
-            <p className="font-semibold text-foreground">{getDeductionPeriod(filtered[0].createdDate)}</p>
-          </div>
-        </div>
-      )}
 
       {/* Table */}
       <div className="border rounded-lg bg-card overflow-hidden">
