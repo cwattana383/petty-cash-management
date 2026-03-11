@@ -13,6 +13,7 @@ import {
 import { NavLink } from "@/components/NavLink";
 import { useLocation } from "react-router-dom";
 import { useRoles } from "@/lib/role-context";
+import { cn } from "@/lib/utils";
 import {
   Sidebar,
   SidebarContent,
