@@ -33,6 +33,7 @@ const statusVariant: Record<ClaimStatus, string> = {
   "Auto Reject": "bg-red-100 text-red-800",
   "Reject": "bg-red-100 text-red-800",
   "Final Reject": "bg-red-100 text-red-800",
+  "Auto Approved": "bg-green-100 text-green-800",
   "Manager Approved": "bg-green-100 text-green-800",
   "Reimbursed": "bg-emerald-100 text-emerald-800",
 };
