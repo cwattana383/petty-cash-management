@@ -40,6 +40,11 @@ const initialMockItems: MockItem[] = [
   { id: "TXN20260227013", merchantName: "Suki Teenoi", description: "Eating Places and Restaurants", amount: "฿499", status: "Auto Approved", deductionPeriod: "—", attachedFile: "suki_receipt.pdf", date: "2026-02-27" },
   { id: "TXN20260227124", merchantName: "Good Car Service", description: "Car Rental Agencies", amount: "฿3,000", status: "Auto Approved", deductionPeriod: "—", attachedFile: "car_rental_invoice.pdf", date: "2026-02-27" },
   { id: "TXN20260227065", merchantName: "Rama 9 Hospital", description: "Hospitals", amount: "฿2,500", status: "Auto Approved", deductionPeriod: "—", attachedFile: "hospital_receipt.pdf", date: "2026-02-27" },
+  { id: "TXN20260227088", merchantName: "Lazada Express", description: "Courier Services", amount: "฿12,500", status: "Exception", deductionPeriod: "งวดที่ 3 / มี.ค. 2569", attachedFile: "lazada_invoice.pdf", date: "2026-02-27" },
+  { id: "TXN20260227091", merchantName: "JD Central", description: "Computer Software Stores", amount: "฿8,900", status: "Exception", deductionPeriod: "งวดที่ 3 / มี.ค. 2569", attachedFile: "jd_receipt.pdf", date: "2026-02-27" },
+  { id: "TXN20260227095", merchantName: "Flash Express", description: "Courier Services", amount: "฿3,200", status: "Exception", deductionPeriod: "งวดที่ 3 / มี.ค. 2569", attachedFile: "flash_receipt.pdf", date: "2026-02-27" },
+  { id: "TXN20260228001", merchantName: "GRAB TAXI", description: "Taxicabs and Limousines", amount: "฿1,200", status: "Reimbursed", deductionPeriod: "งวดที่ 2 / ก.พ. 2569", attachedFile: "grab_receipt2.pdf", date: "2026-02-15" },
+  { id: "TXN20260228002", merchantName: "Starbucks", description: "Eating Places and Restaurants", amount: "฿350", status: "Reimbursed", deductionPeriod: "งวดที่ 2 / ก.พ. 2569", attachedFile: "starbucks_receipt.pdf", date: "2026-02-15" },
 ];
 
 const statusColors: Record<string, string> = {
@@ -47,15 +52,18 @@ const statusColors: Record<string, string> = {
   "Auto Reject": "bg-red-100 text-red-800 border-red-300",
   "Reject": "bg-red-100 text-red-800 border-red-300",
   "Final Reject": "bg-red-100 text-red-800 border-red-300",
+  "Exception": "bg-red-100 text-red-800 border-red-300",
   "Auto Approved": "bg-green-100 text-green-800 border-green-300",
   "Ready for ERP": "bg-blue-100 text-blue-800 border-blue-300",
+  "Reimbursed": "bg-purple-100 text-purple-800 border-purple-300",
 };
 
 const tabStatusMap: Record<string, string[] | null> = {
   all: null,
-  pending: ["Pending Invoice"],
-  exception: ["Auto Reject", "Reject", "Final Reject"],
-  ready: ["Auto Approved", "Ready for ERP"],
+  pending: ["Pending Invoice", "Auto Approved"],
+  exception: ["Auto Reject", "Reject", "Final Reject", "Exception"],
+  ready: ["Ready for ERP"],
+  reimbursed: ["Reimbursed"],
 };
 
 export default function AccountingReview() {
