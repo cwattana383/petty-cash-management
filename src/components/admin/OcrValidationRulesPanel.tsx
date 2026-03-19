@@ -44,8 +44,6 @@ export default function OcrValidationRulesPanel() {
     setConfig(saved);
     toast({ title: "OCR validation rules updated successfully" });
   };
-    toast({ title: "OCR validation rules updated successfully" });
-  };
 
   const handleReset = () => {
     setConfig({ ...DEFAULTS });
