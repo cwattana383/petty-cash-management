@@ -5,6 +5,7 @@ import PendingInvoiceNotificationPanel from "@/components/admin/PendingInvoiceNo
 import PendingApprovalNotificationPanel from "@/components/admin/PendingApprovalNotificationPanel";
 import MonthEndReportNotificationPanel from "@/components/admin/MonthEndReportNotificationPanel";
 import ExpenseTypePanel from "@/components/admin/ExpenseTypePanel";
+import GlAccountPanel from "@/components/admin/GlAccountPanel";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import {
