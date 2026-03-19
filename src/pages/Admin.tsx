@@ -776,44 +776,7 @@ const mockExpenseDelegates = [
   { delegator: "ธนา พิทักษ์", delegate: "พิมพ์ ดี", startDate: "2026-03-01", endDate: "2026-03-15", status: "Scheduled" },
 ];
 
-function ExpenseTypePanel() {
-  return (
-    <div className="space-y-4">
-      <div className="flex items-center justify-between">
-        <h2 className="text-lg font-semibold">Expense Type</h2>
-        <Button size="sm"><Plus className="h-4 w-4 mr-2" />Add Type</Button>
-      </div>
-      <Card>
-        <CardContent className="p-0">
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Code</TableHead>
-                <TableHead>Name</TableHead>
-                <TableHead>Description</TableHead>
-                <TableHead>Status</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {mockExpenseTypes.map((e) => (
-                <TableRow key={e.code} className="cursor-pointer hover:bg-muted/50">
-                  <TableCell className="font-medium">{e.code}</TableCell>
-                  <TableCell>{e.name}</TableCell>
-                  <TableCell className="text-sm text-muted-foreground">{e.description}</TableCell>
-                  <TableCell>
-                    <Badge className={e.status === "Active" ? "bg-green-100 text-green-800" : "bg-gray-100 text-gray-600"}>
-                      {e.status}
-                    </Badge>
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </CardContent>
-      </Card>
-    </div>
-  );
-}
+// ExpenseTypePanel is now imported from @/components/admin/ExpenseTypePanel
 
 function ExpenseItemPanel() {
   return (
