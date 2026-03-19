@@ -70,6 +70,13 @@ const adminMenu = [
     ],
   },
   {
+    group: "System Configuration",
+    icon: Gauge,
+    items: [
+      { key: "ocr-validation", label: "OCR Validation Rules", icon: Gauge },
+    ],
+  },
+  {
     group: "Corporate Card Setup",
     icon: Shield,
     items: [
