@@ -55,19 +55,19 @@ import { cn } from "@/lib/utils";
 // --- Sidebar menu definition ---
 const adminMenu = [
   {
-    group: "User Setup",
-    icon: Users,
-    items: [
-      { key: "employees", label: "Employee Profiles", icon: Users },
-      { key: "roles", label: "Roles & Permissions", icon: Shield },
-    ],
-  },
-  {
     group: "System Configuration",
     icon: Gauge,
     items: [
       { key: "entities", label: "Entities", icon: Building2 },
       { key: "ocr-validation", label: "OCR Validation Rules", icon: Gauge },
+    ],
+  },
+  {
+    group: "User Setup",
+    icon: Users,
+    items: [
+      { key: "employees", label: "Employee Profiles", icon: Users },
+      { key: "roles", label: "Roles & Permissions", icon: Shield },
     ],
   },
   {
