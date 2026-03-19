@@ -906,6 +906,7 @@ const panelMap: Record<string, () => JSX.Element> = {
   "approval-levels": ApprovalLevelsPanel,
   "approval-limits": ApprovalLimitsPanel,
   "expense-type": ExpenseTypePanel,
+  "gl-account": GlAccountPanel,
   "expense-item": ExpenseItemPanel,
   "expense-rules": ExpenseRulesPanel,
   "expense-delegates": ExpenseDelegatesPanel,
