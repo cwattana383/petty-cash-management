@@ -71,7 +71,7 @@ const adminMenu = [
     ],
   },
   {
-    group: "Corporate Card Setup",
+    group: "Expense Configuration",
     icon: Shield,
     items: [
       { key: "mcc-policy", label: "Policy Management", icon: Shield },
