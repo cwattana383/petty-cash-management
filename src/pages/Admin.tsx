@@ -35,6 +35,7 @@ import {
   ChevronRight,
 } from "lucide-react";
 import EntityDrawer from "@/components/admin/EntityDrawer";
+import OcrValidationRulesPanel from "@/components/admin/OcrValidationRulesPanel";
 import { CompanyIdentity, mockCompanyIdentities } from "@/components/admin/EntityTypes";
 import {
   Table,
@@ -66,6 +67,13 @@ const adminMenu = [
     items: [
       { key: "employees", label: "Employee Profiles", icon: Users },
       { key: "roles", label: "Roles & Permissions", icon: Shield },
+    ],
+  },
+  {
+    group: "System Configuration",
+    icon: Gauge,
+    items: [
+      { key: "ocr-validation", label: "OCR Validation Rules", icon: Gauge },
     ],
   },
   {
@@ -948,6 +956,7 @@ const panelMap: Record<string, () => JSX.Element> = {
   "erp-sync": ErpSyncPanel,
   "sync-logs": SyncLogsPanel,
   "mcc-policy": PolicyManagement,
+  "ocr-validation": OcrValidationRulesPanel,
 };
 
 export default function Admin() {
