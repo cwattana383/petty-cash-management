@@ -327,25 +327,6 @@ export default function ClaimDetail() {
               {errors.glAccount && <p className="text-xs text-destructive">{errors.glAccount}</p>}
             </div>
 
-            <div className="space-y-1.5">
-              <Label className="text-[13px] font-semibold text-foreground">Cost Center</Label>
-              <Select value={costCenter} onValueChange={setCostCenter}>
-                <SelectTrigger className="text-[13px]"><SelectValue placeholder="Select cost center (optional)" /></SelectTrigger>
-                <SelectContent>
-                  {COST_CENTERS.map((c) => <SelectItem key={c} value={c} className="text-[13px]">{c}</SelectItem>)}
-                </SelectContent>
-              </Select>
-            </div>
-
-            <div className="space-y-1.5">
-              <Label className="text-[13px] font-semibold text-foreground">Project Code</Label>
-              <Input
-                placeholder="Optional project code"
-                value={projectCode}
-                onChange={(e) => setProjectCode(e.target.value)}
-                className="text-[13px]"
-              />
-            </div>
           </div>
         </CardContent>
       </Card>
