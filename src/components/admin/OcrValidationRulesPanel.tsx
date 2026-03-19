@@ -168,26 +168,6 @@ export default function OcrValidationRulesPanel() {
             <Save className="h-4 w-4 mr-2" />
             Save Changes
           </Button>
-          <AlertDialog>
-            <AlertDialogTrigger asChild>
-              <Button variant="ghost">
-                <RotateCcw className="h-4 w-4 mr-2" />
-                Reset to Default
-              </Button>
-            </AlertDialogTrigger>
-            <AlertDialogContent>
-              <AlertDialogHeader>
-                <AlertDialogTitle>Reset to Default Settings?</AlertDialogTitle>
-                <AlertDialogDescription>
-                  This will reset all OCR validation rules to their default values. This action cannot be undone.
-                </AlertDialogDescription>
-              </AlertDialogHeader>
-              <AlertDialogFooter>
-                <AlertDialogCancel>Cancel</AlertDialogCancel>
-                <AlertDialogAction onClick={handleReset}>Reset</AlertDialogAction>
-              </AlertDialogFooter>
-            </AlertDialogContent>
-          </AlertDialog>
         </div>
       )}
 
