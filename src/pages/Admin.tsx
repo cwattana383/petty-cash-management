@@ -77,6 +77,7 @@ const adminMenu = [
     icon: Shield,
     items: [
       { key: "expense-type", label: "Expense Type", icon: Layers },
+      { key: "gl-account", label: "GL Account", icon: DollarSign },
       { key: "mcc-policy", label: "Policy Management", icon: Shield },
     ],
   },
