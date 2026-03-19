@@ -152,6 +152,17 @@ export default function ClaimDetail() {
     }, 400);
   }, []);
 
+  if (!claim) {
+    return (
+      <div className="flex flex-col items-center justify-center py-20">
+        <p className="text-lg text-muted-foreground">Claim not found</p>
+        <Button variant="link" onClick={() => navigate("/claims")}>Back to claims</Button>
+      </div>
+    );
+  }
+
+  const isOverseas = expenseType === "Transportation — Overseas";
+
   const handleSaveDraft = () => {
     toast({ title: "Draft Saved", description: "Your changes have been saved as a draft." });
   };
