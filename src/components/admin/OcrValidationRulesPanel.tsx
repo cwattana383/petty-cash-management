@@ -161,33 +161,6 @@ export default function OcrValidationRulesPanel() {
         </CardContent>
       </Card>
 
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-base">OCR Confidence</CardTitle>
-          <CardDescription>Set the minimum confidence level for OCR field extraction.</CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="space-y-3">
-            <Label>Minimum OCR Confidence Threshold</Label>
-            <div className="flex items-center gap-4">
-              <Slider
-                value={[config.ocrConfidenceThreshold]}
-                onValueChange={([v]) => update("ocrConfidenceThreshold", v)}
-                min={0}
-                max={100}
-                step={1}
-                disabled={!isAdmin}
-                className="flex-1"
-              />
-              <span className="text-sm font-medium w-12 text-right">{config.ocrConfidenceThreshold}%</span>
-            </div>
-          </div>
-          <p className="text-xs text-muted-foreground flex items-start gap-1.5">
-            <Info className="h-3.5 w-3.5 mt-0.5 shrink-0" />
-            Fields with confidence below this threshold will be flagged for manual review
-          </p>
-        </CardContent>
-      </Card>
 
       {isAdmin && (
         <div className="flex items-center gap-3">
