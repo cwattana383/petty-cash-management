@@ -115,6 +115,15 @@ export default function ClaimDetail() {
   // Validation
   const [errors, setErrors] = useState<Record<string, string>>({});
 
+  if (!claim) {
+    return (
+      <div className="flex flex-col items-center justify-center py-20">
+        <p className="text-lg text-muted-foreground">Claim not found</p>
+        <Button variant="link" onClick={() => navigate("/claims")}>Back to claims</Button>
+      </div>
+    );
+  }
+
   const isOverseas = expenseType === "Transportation — Overseas";
 
   const simulateUpload = useCallback((files: UploadedFile[], setFiles: React.Dispatch<React.SetStateAction<UploadedFile[]>>) => {
