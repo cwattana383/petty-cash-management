@@ -35,6 +35,7 @@ import {
   ChevronRight,
 } from "lucide-react";
 import EntityDrawer from "@/components/admin/EntityDrawer";
+import OcrValidationRulesPanel from "@/components/admin/OcrValidationRulesPanel";
 import { CompanyIdentity, mockCompanyIdentities } from "@/components/admin/EntityTypes";
 import {
   Table,
