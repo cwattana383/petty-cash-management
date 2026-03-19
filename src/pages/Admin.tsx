@@ -5,6 +5,7 @@ import PendingInvoiceNotificationPanel from "@/components/admin/PendingInvoiceNo
 import PendingApprovalNotificationPanel from "@/components/admin/PendingApprovalNotificationPanel";
 import MonthEndReportNotificationPanel from "@/components/admin/MonthEndReportNotificationPanel";
 import ExpenseTypePanel from "@/components/admin/ExpenseTypePanel";
+import GlAccountPanel from "@/components/admin/GlAccountPanel";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import {
@@ -76,6 +77,7 @@ const adminMenu = [
     icon: Shield,
     items: [
       { key: "expense-type", label: "Expense Type", icon: Layers },
+      { key: "gl-account", label: "GL Account", icon: DollarSign },
       { key: "mcc-policy", label: "Policy Management", icon: Shield },
     ],
   },
@@ -904,6 +906,7 @@ const panelMap: Record<string, () => JSX.Element> = {
   "approval-levels": ApprovalLevelsPanel,
   "approval-limits": ApprovalLimitsPanel,
   "expense-type": ExpenseTypePanel,
+  "gl-account": GlAccountPanel,
   "expense-item": ExpenseItemPanel,
   "expense-rules": ExpenseRulesPanel,
   "expense-delegates": ExpenseDelegatesPanel,
