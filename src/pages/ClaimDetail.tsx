@@ -2,15 +2,22 @@ import { useParams, useNavigate } from "react-router-dom";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { ArrowLeft, Check, X, MessageSquare, Clock, CheckCircle, XCircle, AlertCircle, Send } from "lucide-react";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Switch } from "@/components/ui/switch";
+import { Progress } from "@/components/ui/progress";
+import {
+  ArrowLeft, Check, X, MessageSquare, Clock, CheckCircle, XCircle,
+  AlertCircle, Send, AlertTriangle, Upload, FileText, Image, ShieldCheck,
+  Loader2, CheckCircle2, Info
+} from "lucide-react";
 import { formatBEDate } from "@/lib/utils";
 import { useClaims } from "@/lib/claims-context";
 import { useToast } from "@/hooks/use-toast";
-import { useState } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import DocumentHeader from "@/components/claims/DocumentHeader";
 
@@ -19,7 +26,7 @@ const statusConfig: Record<string, { color: string; icon: React.ElementType }> =
   "Pending Approval": { color: "bg-yellow-100 text-yellow-800", icon: Clock },
   "Final Rejected": { color: "bg-red-100 text-red-800", icon: XCircle },
   "Auto Approved": { color: "bg-green-100 text-green-800", icon: CheckCircle },
-  "Reimbursed": { color: "bg-emerald-100 text-emerald-800", icon: CheckCircle },
+  Reimbursed: { color: "bg-emerald-100 text-emerald-800", icon: CheckCircle },
 };
 
 const actionConfig: Record<string, { color: string; icon: React.ElementType }> = {
@@ -30,6 +37,54 @@ const actionConfig: Record<string, { color: string; icon: React.ElementType }> =
   Delegated: { color: "border-purple-400 bg-purple-50", icon: Send },
 };
 
+const EXPENSE_TYPES = [
+  "Transportation — Domestic",
+  "Transportation — Overseas",
+  "Meals & Entertainment",
+  "Accommodation",
+  "Office Supplies",
+  "Other",
+];
+
+const GL_ACCOUNTS = [
+  "51200 Travel Expense",
+  "51201 Taxi & Cab",
+  "51300 Meal Expense",
+  "51400 Accommodation",
+  "51500 Office Supply",
+];
+
+const COST_CENTERS = [
+  "CC-FIN-001 Finance",
+  "CC-IT-002 IT",
+  "CC-HR-003 HR",
+];
+
+type DocTab = "tax-invoice" | "receipt" | "abbreviated" | "cash-bill" | "other";
+
+const DOC_TABS: { key: DocTab; label: string; hint: string }[] = [
+  { key: "tax-invoice", label: "Tax Invoice", hint: "Must include: invoice number, seller name & address, tax ID, date, VAT amount" },
+  { key: "receipt", label: "Receipt", hint: "Must include: payee name & address, date, line items, total amount" },
+  { key: "abbreviated", label: "Abbreviated Receipt", hint: "Allowed only for transactions under THB 2,000. Must include: date, shop name, total" },
+  { key: "cash-bill", label: "Cash Bill", hint: "Must include: shop name, date, itemized list, total" },
+  { key: "other", label: "Other", hint: "Attach any other relevant document" },
+];
+
+interface UploadedFile {
+  id: string;
+  name: string;
+  type: string;
+  size: string;
+  progress: number;
+  ocrStatus: "uploading" | "processing" | "passed" | "incomplete";
+}
+
+const SIMULATED_FILES = [
+  { name: "INV-2025-0129.pdf", type: "PDF", size: "245 KB" },
+  { name: "receipt-grab.jpg", type: "JPG", size: "1.2 MB" },
+  { name: "taxi-receipt-scan.png", type: "PNG", size: "890 KB" },
+];
+
 export default function ClaimDetail() {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -37,8 +92,65 @@ export default function ClaimDetail() {
   const { toast } = useToast();
   const claim = getClaimById(id || "");
 
+  // Action dialog
   const [actionDialog, setActionDialog] = useState<{ open: boolean; type: "approve" | "reject" | "info" }>({ open: false, type: "approve" });
   const [comment, setComment] = useState("");
+
+  // Editable fields
+  const [purpose, setPurpose] = useState("");
+  const [expenseType, setExpenseType] = useState("");
+  const [glAccount, setGlAccount] = useState("");
+  const [costCenter, setCostCenter] = useState("");
+  const [projectCode, setProjectCode] = useState("");
+
+  // Overseas approval
+  const [overseasApprovalStatus, setOverseasApprovalStatus] = useState<"pending" | "approved">("pending");
+  const [travelApprovalFiles, setTravelApprovalFiles] = useState<UploadedFile[]>([]);
+
+  // Documents
+  const [activeDocTab, setActiveDocTab] = useState<DocTab>("tax-invoice");
+  const [uploadedFiles, setUploadedFiles] = useState<UploadedFile[]>([]);
+  const fileCounter = useRef(0);
+
+  // Validation
+  const [errors, setErrors] = useState<Record<string, string>>({});
+
+  const simulateUpload = useCallback((files: UploadedFile[], setFiles: React.Dispatch<React.SetStateAction<UploadedFile[]>>) => {
+    const simFile = SIMULATED_FILES[fileCounter.current % SIMULATED_FILES.length];
+    fileCounter.current += 1;
+    const newFile: UploadedFile = {
+      id: `file-${Date.now()}`,
+      name: simFile.name,
+      type: simFile.type,
+      size: simFile.size,
+      progress: 0,
+      ocrStatus: "uploading",
+    };
+    setFiles((prev) => [...prev, newFile]);
+
+    // Simulate progress
+    let prog = 0;
+    const interval = setInterval(() => {
+      prog += 20;
+      if (prog >= 100) {
+        clearInterval(interval);
+        setFiles((prev) =>
+          prev.map((f) => f.id === newFile.id ? { ...f, progress: 100, ocrStatus: "processing" } : f)
+        );
+        // Simulate OCR after upload
+        setTimeout(() => {
+          const passed = Math.random() > 0.25;
+          setFiles((prev) =>
+            prev.map((f) => f.id === newFile.id ? { ...f, ocrStatus: passed ? "passed" : "incomplete" } : f)
+          );
+        }, 2000);
+      } else {
+        setFiles((prev) =>
+          prev.map((f) => f.id === newFile.id ? { ...f, progress: prog } : f)
+        );
+      }
+    }, 400);
+  }, []);
 
   if (!claim) {
     return (
@@ -49,8 +161,36 @@ export default function ClaimDetail() {
     );
   }
 
+  const isOverseas = expenseType === "Transportation — Overseas";
+
+  const handleSaveDraft = () => {
+    toast({ title: "Draft Saved", description: "Your changes have been saved as a draft." });
+  };
+
+  const handleSubmit = () => {
+    const newErrors: Record<string, string> = {};
+    if (!purpose.trim()) newErrors.purpose = "Purpose is required";
+    if (!expenseType) newErrors.expenseType = "Expense Type is required";
+    if (!glAccount) newErrors.glAccount = "GL Account is required";
+    if (isOverseas && overseasApprovalStatus !== "approved") {
+      newErrors.overseas = "Travel approval is required before submitting.";
+    }
+    if (uploadedFiles.length === 0) {
+      newErrors.documents = "At least one document must be uploaded before submitting.";
+    }
+
+    if (Object.keys(newErrors).length > 0) {
+      setErrors(newErrors);
+      toast({ title: "Validation Error", description: "Please complete all required fields.", variant: "destructive" });
+      return;
+    }
+
+    setErrors({});
+    updateClaim(claim.id, { status: "Pending Approval" });
+    toast({ title: "Submitted", description: `${claim.claimNo} has been submitted for approval.` });
+  };
+
   const sc = statusConfig[claim.status] || statusConfig["Pending Invoice"];
-  const StatusIcon = sc.icon;
 
   const handleAction = (type: "approve" | "reject" | "info") => {
     const newStatus = type === "approve" ? "Auto Approved" : type === "reject" ? "Final Rejected" : "Pending Approval";
@@ -75,16 +215,17 @@ export default function ClaimDetail() {
 
   const isPendingApproval = claim.status === "Pending Approval";
 
+  const ocrResultFile = uploadedFiles.find((f) => f.ocrStatus === "passed" || f.ocrStatus === "incomplete");
+
   return (
-    <div className="space-y-6 max-w-5xl mx-auto">
+    <div className="space-y-6 max-w-5xl mx-auto pb-24">
+      {/* Page Header */}
       <div className="flex items-center gap-3">
         <Button variant="ghost" size="icon" onClick={() => navigate(-1)}>
           <ArrowLeft className="h-4 w-4" />
         </Button>
         <div className="flex-1">
-          <div className="flex items-center gap-3">
-            <h1 className="text-2xl font-bold text-foreground">{claim.claimNo}</h1>
-          </div>
+          <h1 className="text-2xl font-bold text-foreground">{claim.claimNo}</h1>
           <p className="text-muted-foreground">{claim.purpose}</p>
         </div>
         {isPendingApproval && (
@@ -102,7 +243,7 @@ export default function ClaimDetail() {
         )}
       </div>
 
-      {/* Document Header */}
+      {/* Section 1 — Transaction Header (read-only) */}
       <DocumentHeader
         advanceNo={claim.claimNo}
         glNo="-"
@@ -110,38 +251,264 @@ export default function ClaimDetail() {
         createDate={new Date(claim.createdDate)}
       />
 
-      {/* Transaction Details */}
-      <Card>
+      {/* Section 2 — Transaction Details (read-only) */}
+      <Card className="border border-border rounded-xl">
         <CardHeader><CardTitle className="text-base font-bold">Transaction Details</CardTitle></CardHeader>
         <CardContent>
-          <div className="grid grid-cols-3 gap-x-6 gap-y-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-4">
             <div className="space-y-1.5">
-              <Label className="text-sm font-semibold text-foreground">Transaction No.</Label>
-              <Input value={claim.claimNo} readOnly className="bg-muted/30 border-border" />
+              <Label className="text-[13px] font-semibold text-foreground">Transaction No.</Label>
+              <Input value={claim.claimNo} readOnly className="bg-muted/40 border-border text-[13px]" />
             </div>
             <div className="space-y-1.5">
-              <Label className="text-sm font-semibold text-foreground">Transaction Date</Label>
-              <Input value={formatBEDate(claim.createdDate)} readOnly className="bg-muted/30 border-border" />
+              <Label className="text-[13px] font-semibold text-foreground">Transaction Date</Label>
+              <Input value={formatBEDate(claim.createdDate)} readOnly className="bg-muted/40 border-border text-[13px]" />
             </div>
             <div className="space-y-1.5">
-              <Label className="text-sm font-semibold text-foreground">Merchant Name</Label>
-              <Input value={claim.merchantName || "—"} readOnly className="bg-muted/30 border-border" />
+              <Label className="text-[13px] font-semibold text-foreground">Merchant Name</Label>
+              <Input value={claim.merchantName || "GRAB TAXI"} readOnly className="bg-muted/40 border-border text-[13px]" />
             </div>
             <div className="space-y-1.5">
-              <Label className="text-sm font-semibold text-foreground">Description</Label>
-              <Input value={claim.purpose} readOnly className="bg-muted/30 border-border" />
+              <Label className="text-[13px] font-semibold text-foreground">Amount</Label>
+              <Input
+                value={claim.totalAmount.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                readOnly
+                className="bg-muted/40 border-border text-right text-[13px]"
+              />
             </div>
-            <div className="space-y-1.5">
-              <Label className="text-sm font-semibold text-foreground">Amount</Label>
-              <Input value={claim.totalAmount.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} readOnly className="bg-muted/30 border-border text-right" />
+            <div className="space-y-1.5 md:col-span-2">
+              <Label className="text-[13px] font-semibold text-foreground">Description</Label>
+              <Input value={claim.purpose} readOnly className="bg-muted/40 border-border text-[13px]" />
             </div>
           </div>
         </CardContent>
       </Card>
 
+      {/* Section 3 — Expense Information (editable) */}
+      <Card className="border border-border rounded-xl">
+        <CardHeader>
+          <div>
+            <CardTitle className="text-base font-bold">Expense Information</CardTitle>
+            <p className="text-[13px] text-muted-foreground mt-0.5">Completed by Cardholder</p>
+          </div>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="space-y-1.5">
+            <Label className="text-[13px] font-semibold text-foreground">Purpose <span className="text-destructive">*</span></Label>
+            <Textarea
+              placeholder="Describe the business purpose of this expense"
+              value={purpose}
+              onChange={(e) => { setPurpose(e.target.value); setErrors((p) => ({ ...p, purpose: "" })); }}
+              className="text-[13px] min-h-[80px]"
+            />
+            {errors.purpose && <p className="text-xs text-destructive">{errors.purpose}</p>}
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="space-y-1.5">
+              <Label className="text-[13px] font-semibold text-foreground">Expense Type <span className="text-destructive">*</span></Label>
+              <Select value={expenseType} onValueChange={(v) => { setExpenseType(v); setErrors((p) => ({ ...p, expenseType: "" })); }}>
+                <SelectTrigger className="text-[13px]"><SelectValue placeholder="Select expense type" /></SelectTrigger>
+                <SelectContent>
+                  {EXPENSE_TYPES.map((t) => <SelectItem key={t} value={t} className="text-[13px]">{t}</SelectItem>)}
+                </SelectContent>
+              </Select>
+              {errors.expenseType && <p className="text-xs text-destructive">{errors.expenseType}</p>}
+            </div>
+
+            <div className="space-y-1.5">
+              <Label className="text-[13px] font-semibold text-foreground">GL Account <span className="text-destructive">*</span></Label>
+              <Select value={glAccount} onValueChange={(v) => { setGlAccount(v); setErrors((p) => ({ ...p, glAccount: "" })); }}>
+                <SelectTrigger className="text-[13px]"><SelectValue placeholder="Select GL account" /></SelectTrigger>
+                <SelectContent>
+                  {GL_ACCOUNTS.map((g) => <SelectItem key={g} value={g} className="text-[13px]">{g}</SelectItem>)}
+                </SelectContent>
+              </Select>
+              {errors.glAccount && <p className="text-xs text-destructive">{errors.glAccount}</p>}
+            </div>
+
+            <div className="space-y-1.5">
+              <Label className="text-[13px] font-semibold text-foreground">Cost Center</Label>
+              <Select value={costCenter} onValueChange={setCostCenter}>
+                <SelectTrigger className="text-[13px]"><SelectValue placeholder="Select cost center (optional)" /></SelectTrigger>
+                <SelectContent>
+                  {COST_CENTERS.map((c) => <SelectItem key={c} value={c} className="text-[13px]">{c}</SelectItem>)}
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className="space-y-1.5">
+              <Label className="text-[13px] font-semibold text-foreground">Project Code</Label>
+              <Input
+                placeholder="Optional project code"
+                value={projectCode}
+                onChange={(e) => setProjectCode(e.target.value)}
+                className="text-[13px]"
+              />
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Section 4 — Overseas Travel Approval Alert (conditional) */}
+      {isOverseas && (
+        <div className="space-y-4">
+          <div className="rounded-xl border border-amber-300 bg-amber-50 p-4 flex items-start gap-3">
+            <AlertTriangle className="h-5 w-5 text-amber-600 shrink-0 mt-0.5" />
+            <div className="flex-1 space-y-2">
+              <div className="flex items-center justify-between">
+                <h4 className="text-[14px] font-semibold text-amber-900">Overseas Travel — Pre-approval Required</h4>
+                <Badge className={overseasApprovalStatus === "approved"
+                  ? "bg-green-100 text-green-800 border-green-200"
+                  : "bg-amber-100 text-amber-800 border-amber-200"
+                } variant="outline">
+                  {overseasApprovalStatus === "approved" ? "Approved" : "Pending Approval"}
+                </Badge>
+              </div>
+              <p className="text-[13px] text-amber-800">
+                Please attach your travel approval document before uploading receipts.
+              </p>
+              {overseasApprovalStatus === "pending" && (
+                <Button
+                  size="sm"
+                  variant="outline"
+                  className="border-amber-400 text-amber-800 hover:bg-amber-100"
+                  onClick={() => setOverseasApprovalStatus("approved")}
+                >
+                  Check Status
+                </Button>
+              )}
+            </div>
+          </div>
+          {errors.overseas && <p className="text-xs text-destructive">{errors.overseas}</p>}
+
+          <Card className="border border-border rounded-xl">
+            <CardHeader>
+              <CardTitle className="text-sm font-bold">Travel Approval Documents <span className="text-destructive">*</span></CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div
+                className="border-2 border-dashed border-border rounded-lg p-6 flex flex-col items-center gap-2 cursor-pointer hover:border-primary/50 transition-colors"
+                onClick={() => simulateUpload(travelApprovalFiles, setTravelApprovalFiles)}
+              >
+                <Upload className="h-6 w-6 text-muted-foreground" />
+                <p className="text-[13px] text-muted-foreground">Click to upload Travel Approval Form (TR-001)</p>
+                <p className="text-xs text-muted-foreground">Supports PDF, JPG, PNG — Max 10 MB per file</p>
+              </div>
+              {travelApprovalFiles.length > 0 && (
+                <div className="mt-3 space-y-2">
+                  {travelApprovalFiles.map((f) => (
+                    <FileRow key={f.id} file={f} onRemove={() => setTravelApprovalFiles((prev) => prev.filter((x) => x.id !== f.id))} />
+                  ))}
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        </div>
+      )}
+
+      {/* Section 5 — Supporting Documents */}
+      <Card className="border border-border rounded-xl">
+        <CardHeader>
+          <div className="flex items-center justify-between">
+            <div>
+              <CardTitle className="text-base font-bold">Supporting Documents</CardTitle>
+            </div>
+            <Badge variant="outline" className="bg-blue-50 text-blue-700 border-blue-200 text-xs gap-1">
+              <ShieldCheck className="h-3 w-3" />
+              Auto-validated by OCR
+            </Badge>
+          </div>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          {/* Document Type Tabs */}
+          <div className="flex flex-wrap gap-2">
+            {DOC_TABS.map((tab) => (
+              <button
+                key={tab.key}
+                onClick={() => setActiveDocTab(tab.key)}
+                className={`px-3 py-1.5 rounded-full text-xs font-medium border transition-colors ${
+                  activeDocTab === tab.key
+                    ? "bg-primary text-primary-foreground border-primary"
+                    : "bg-background text-foreground border-border hover:bg-muted"
+                }`}
+              >
+                {tab.label}
+              </button>
+            ))}
+          </div>
+
+          {/* Hint text */}
+          <div className="rounded-lg bg-blue-50 border border-blue-200 px-3 py-2">
+            <p className="text-xs text-blue-700 flex items-center gap-1.5">
+              <Info className="h-3.5 w-3.5 shrink-0" />
+              {DOC_TABS.find((t) => t.key === activeDocTab)?.hint}
+            </p>
+          </div>
+
+          {/* Upload Zone */}
+          <div
+            className="border-2 border-dashed border-border rounded-lg p-8 flex flex-col items-center gap-2 cursor-pointer hover:border-primary/50 transition-colors"
+            onClick={() => simulateUpload(uploadedFiles, setUploadedFiles)}
+          >
+            <Upload className="h-8 w-8 text-muted-foreground" />
+            <p className="text-[13px] font-medium text-foreground">Click to select files or drag and drop here</p>
+            <p className="text-xs text-muted-foreground">Supports PDF, JPG, PNG — Max 10 MB per file</p>
+          </div>
+          {errors.documents && <p className="text-xs text-destructive">{errors.documents}</p>}
+
+          {/* Uploaded Files List */}
+          {uploadedFiles.length > 0 && (
+            <div className="space-y-2">
+              {uploadedFiles.map((f) => (
+                <FileRow key={f.id} file={f} onRemove={() => setUploadedFiles((prev) => prev.filter((x) => x.id !== f.id))} />
+              ))}
+            </div>
+          )}
+
+          {/* OCR Result Panel */}
+          {ocrResultFile && ocrResultFile.ocrStatus === "passed" && (
+            <div className="border border-border rounded-lg overflow-hidden">
+              <div className="bg-muted/30 px-4 py-2 border-b border-border">
+                <p className="text-xs font-semibold text-foreground">OCR Extraction Results — {ocrResultFile.name}</p>
+              </div>
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead className="text-xs">Field</TableHead>
+                    <TableHead className="text-xs">Extracted Value</TableHead>
+                    <TableHead className="text-xs">Match</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {[
+                    { field: "Document No.", value: "INV-2025-0129", match: true },
+                    { field: "Merchant", value: "Grab Thailand", match: true },
+                    { field: "Date", value: "28/02/2025", match: true },
+                    { field: "Total Amount", value: "1,500.00 THB", match: true },
+                    { field: "Tax ID", value: "0105562097059", match: true },
+                  ].map((row) => (
+                    <TableRow key={row.field}>
+                      <TableCell className="text-xs font-medium py-2">{row.field}</TableCell>
+                      <TableCell className="text-xs py-2 font-mono">{row.value}</TableCell>
+                      <TableCell className="py-2">
+                        <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200 text-[10px] gap-1">
+                          <CheckCircle2 className="h-3 w-3" />
+                          {row.field === "Tax ID" ? "Found" : "Matched"}
+                        </Badge>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </div>
+          )}
+        </CardContent>
+      </Card>
+
       {/* Approval Timeline */}
       {claim.approvalHistory.length > 0 && (
-        <Card>
+        <Card className="border border-border rounded-xl">
           <CardHeader><CardTitle className="text-base">Approval Timeline</CardTitle></CardHeader>
           <CardContent>
             <div className="space-y-4">
@@ -167,7 +534,7 @@ export default function ClaimDetail() {
 
       {/* Comments */}
       {claim.comments.length > 0 && (
-        <Card>
+        <Card className="border border-border rounded-xl">
           <CardHeader><CardTitle className="text-base">Comments ({claim.comments.length})</CardTitle></CardHeader>
           <CardContent className="space-y-3">
             {claim.comments.map((c) => (
@@ -182,6 +549,16 @@ export default function ClaimDetail() {
           </CardContent>
         </Card>
       )}
+
+      {/* Section 6 — Action Bar (sticky footer) */}
+      <div className="fixed bottom-0 left-0 right-0 bg-background border-t border-border px-6 py-3 flex justify-end gap-3 z-50">
+        <Button variant="outline" onClick={handleSaveDraft}>
+          Save Draft
+        </Button>
+        <Button onClick={handleSubmit} className="bg-blue-600 hover:bg-blue-700 text-white">
+          Submit for Approval
+        </Button>
+      </div>
 
       {/* Action Dialog */}
       <Dialog open={actionDialog.open} onOpenChange={(open) => setActionDialog((prev) => ({ ...prev, open }))}>
@@ -208,6 +585,48 @@ export default function ClaimDetail() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+    </div>
+  );
+}
+
+/* ─── File Row Component ─── */
+function FileRow({ file, onRemove }: { file: UploadedFile; onRemove: () => void }) {
+  const isPdf = file.type === "PDF";
+  return (
+    <div className="flex items-center gap-3 p-3 rounded-lg border border-border bg-background">
+      <div className={`h-9 w-9 rounded flex items-center justify-center shrink-0 ${isPdf ? "bg-red-100" : "bg-green-100"}`}>
+        {isPdf ? <FileText className="h-4 w-4 text-red-600" /> : <Image className="h-4 w-4 text-green-600" />}
+      </div>
+      <div className="flex-1 min-w-0 space-y-1">
+        <div className="flex items-center gap-2">
+          <p className="text-xs font-medium truncate">{file.name}</p>
+          <span className="text-[10px] text-muted-foreground">{file.type} • {file.size}</span>
+        </div>
+        {file.progress < 100 && (
+          <Progress value={file.progress} className="h-1.5" />
+        )}
+      </div>
+      <div className="shrink-0">
+        {file.ocrStatus === "uploading" && <span className="text-xs text-muted-foreground">Uploading...</span>}
+        {file.ocrStatus === "processing" && (
+          <span className="text-xs text-blue-600 flex items-center gap-1">
+            <Loader2 className="h-3 w-3 animate-spin" /> Processing OCR...
+          </span>
+        )}
+        {file.ocrStatus === "passed" && (
+          <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200 text-[10px]">
+            <CheckCircle2 className="h-3 w-3 mr-1" /> OCR Passed
+          </Badge>
+        )}
+        {file.ocrStatus === "incomplete" && (
+          <Badge variant="outline" className="bg-amber-50 text-amber-700 border-amber-200 text-[10px]">
+            <AlertTriangle className="h-3 w-3 mr-1" /> OCR — Incomplete data
+          </Badge>
+        )}
+      </div>
+      <Button variant="ghost" size="icon" className="h-7 w-7 shrink-0" onClick={onRemove}>
+        <X className="h-3.5 w-3.5" />
+      </Button>
     </div>
   );
 }
