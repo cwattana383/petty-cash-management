@@ -3,35 +3,21 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Slider } from "@/components/ui/slider";
 import { Separator } from "@/components/ui/separator";
 import { useToast } from "@/hooks/use-toast";
 import { useRoles } from "@/lib/role-context";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger,
-} from "@/components/ui/alert-dialog";
-import { Save, RotateCcw, ShieldCheck, Info } from "lucide-react";
+import { Save, ShieldCheck, Info } from "lucide-react";
 
 interface OcrConfig {
   amountToleranceThb: number;
   amountTolerancePct: number;
   dateToleranceDays: number;
-  ocrConfidenceThreshold: number;
 }
 
 const DEFAULTS: OcrConfig = {
   amountToleranceThb: 1,
   amountTolerancePct: 0.5,
   dateToleranceDays: 3,
-  ocrConfidenceThreshold: 80,
 };
 
 export default function OcrValidationRulesPanel() {
@@ -50,14 +36,14 @@ export default function OcrValidationRulesPanel() {
   const clamp = (val: number, min: number, max: number) => Math.min(max, Math.max(min, val));
 
   const handleSave = () => {
-    // Clamp values
     const saved: OcrConfig = {
       amountToleranceThb: clamp(config.amountToleranceThb, 0, 9999),
       amountTolerancePct: clamp(config.amountTolerancePct, 0, 100),
       dateToleranceDays: clamp(config.dateToleranceDays, 0, 30),
-      ocrConfidenceThreshold: clamp(config.ocrConfidenceThreshold, 0, 100),
     };
     setConfig(saved);
+    toast({ title: "OCR validation rules updated successfully" });
+  };
     toast({ title: "OCR validation rules updated successfully" });
   };
 
@@ -161,33 +147,6 @@ export default function OcrValidationRulesPanel() {
         </CardContent>
       </Card>
 
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-base">OCR Confidence</CardTitle>
-          <CardDescription>Set the minimum confidence level for OCR field extraction.</CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="space-y-3">
-            <Label>Minimum OCR Confidence Threshold</Label>
-            <div className="flex items-center gap-4">
-              <Slider
-                value={[config.ocrConfidenceThreshold]}
-                onValueChange={([v]) => update("ocrConfidenceThreshold", v)}
-                min={0}
-                max={100}
-                step={1}
-                disabled={!isAdmin}
-                className="flex-1"
-              />
-              <span className="text-sm font-medium w-12 text-right">{config.ocrConfidenceThreshold}%</span>
-            </div>
-          </div>
-          <p className="text-xs text-muted-foreground flex items-start gap-1.5">
-            <Info className="h-3.5 w-3.5 mt-0.5 shrink-0" />
-            Fields with confidence below this threshold will be flagged for manual review
-          </p>
-        </CardContent>
-      </Card>
 
       {isAdmin && (
         <div className="flex items-center gap-3">
@@ -195,26 +154,6 @@ export default function OcrValidationRulesPanel() {
             <Save className="h-4 w-4 mr-2" />
             Save Changes
           </Button>
-          <AlertDialog>
-            <AlertDialogTrigger asChild>
-              <Button variant="ghost">
-                <RotateCcw className="h-4 w-4 mr-2" />
-                Reset to Default
-              </Button>
-            </AlertDialogTrigger>
-            <AlertDialogContent>
-              <AlertDialogHeader>
-                <AlertDialogTitle>Reset to Default Settings?</AlertDialogTitle>
-                <AlertDialogDescription>
-                  This will reset all OCR validation rules to their default values. This action cannot be undone.
-                </AlertDialogDescription>
-              </AlertDialogHeader>
-              <AlertDialogFooter>
-                <AlertDialogCancel>Cancel</AlertDialogCancel>
-                <AlertDialogAction onClick={handleReset}>Reset</AlertDialogAction>
-              </AlertDialogFooter>
-            </AlertDialogContent>
-          </AlertDialog>
         </div>
       )}
 
