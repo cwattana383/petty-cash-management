@@ -36,14 +36,14 @@ export default function OcrValidationRulesPanel() {
   const clamp = (val: number, min: number, max: number) => Math.min(max, Math.max(min, val));
 
   const handleSave = () => {
-    // Clamp values
     const saved: OcrConfig = {
       amountToleranceThb: clamp(config.amountToleranceThb, 0, 9999),
       amountTolerancePct: clamp(config.amountTolerancePct, 0, 100),
       dateToleranceDays: clamp(config.dateToleranceDays, 0, 30),
-      ocrConfidenceThreshold: clamp(config.ocrConfidenceThreshold, 0, 100),
     };
     setConfig(saved);
+    toast({ title: "OCR validation rules updated successfully" });
+  };
     toast({ title: "OCR validation rules updated successfully" });
   };
 
