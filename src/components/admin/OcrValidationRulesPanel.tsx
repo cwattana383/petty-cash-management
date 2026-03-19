@@ -3,35 +3,21 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Slider } from "@/components/ui/slider";
 import { Separator } from "@/components/ui/separator";
 import { useToast } from "@/hooks/use-toast";
 import { useRoles } from "@/lib/role-context";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger,
-} from "@/components/ui/alert-dialog";
-import { Save, RotateCcw, ShieldCheck, Info } from "lucide-react";
+import { Save, ShieldCheck, Info } from "lucide-react";
 
 interface OcrConfig {
   amountToleranceThb: number;
   amountTolerancePct: number;
   dateToleranceDays: number;
-  ocrConfidenceThreshold: number;
 }
 
 const DEFAULTS: OcrConfig = {
   amountToleranceThb: 1,
   amountTolerancePct: 0.5,
   dateToleranceDays: 3,
-  ocrConfidenceThreshold: 80,
 };
 
 export default function OcrValidationRulesPanel() {
