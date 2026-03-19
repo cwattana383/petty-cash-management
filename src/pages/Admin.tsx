@@ -75,6 +75,7 @@ const adminMenu = [
     group: "Expense Configuration",
     icon: Shield,
     items: [
+      { key: "expense-type", label: "Expense Type", icon: Layers },
       { key: "mcc-policy", label: "Policy Management", icon: Shield },
     ],
   },
