@@ -55,13 +55,6 @@ import { cn } from "@/lib/utils";
 // --- Sidebar menu definition ---
 const adminMenu = [
   {
-    group: "Organization Data",
-    icon: Building2,
-    items: [
-      { key: "entities", label: "Entities", icon: Building2 },
-    ],
-  },
-  {
     group: "User Setup",
     icon: Users,
     items: [
@@ -73,6 +66,7 @@ const adminMenu = [
     group: "System Configuration",
     icon: Gauge,
     items: [
+      { key: "entities", label: "Entities", icon: Building2 },
       { key: "ocr-validation", label: "OCR Validation Rules", icon: Gauge },
     ],
   },
