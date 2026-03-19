@@ -956,6 +956,7 @@ const panelMap: Record<string, () => JSX.Element> = {
   "erp-sync": ErpSyncPanel,
   "sync-logs": SyncLogsPanel,
   "mcc-policy": PolicyManagement,
+  "ocr-validation": OcrValidationRulesPanel,
 };
 
 export default function Admin() {
