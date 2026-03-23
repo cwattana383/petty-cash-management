@@ -36,6 +36,7 @@ import {
   Ban,
   ChevronLeft,
   ChevronRight,
+  CreditCard,
 } from "lucide-react";
 import EntityDrawer from "@/components/admin/EntityDrawer";
 import OcrValidationRulesPanel from "@/components/admin/OcrValidationRulesPanel";
