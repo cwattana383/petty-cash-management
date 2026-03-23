@@ -32,6 +32,7 @@ export default function PolicyManagement() {
   const [policies, setPolicies] = useState<MccPolicyMaster[]>([...mockMccPolicies]);
   const [search, setSearch] = useState("");
   const [activeFilter, setActiveFilter] = useState("all");
+  const [expenseTypeFilter, setExpenseTypeFilter] = useState("all");
   const [page, setPage] = useState(1);
 
   // Modal
@@ -46,17 +47,23 @@ export default function PolicyManagement() {
   // Bulk import
   const [bulkOpen, setBulkOpen] = useState(false);
 
+  const expenseTypeOptions = useMemo(() => {
+    const cats = Array.from(new Set(policies.map((p) => p.category))).sort();
+    return cats;
+  }, [policies]);
+
   const filtered = useMemo(() => {
     let data = [...policies];
     if (activeFilter === "active") data = data.filter((p) => p.active_flag);
     else if (activeFilter === "inactive") data = data.filter((p) => !p.active_flag);
+    if (expenseTypeFilter !== "all") data = data.filter((p) => p.category === expenseTypeFilter);
     if (search) {
       const s = search.toLowerCase();
-      data = data.filter((p) => p.mcc_code.toLowerCase().includes(s) || p.description.toLowerCase().includes(s));
+      data = data.filter((p) => p.category.toLowerCase().includes(s) || p.description.toLowerCase().includes(s));
     }
-    data.sort((a, b) => a.mcc_code.localeCompare(b.mcc_code));
+    data.sort((a, b) => a.category.localeCompare(b.category));
     return data;
-  }, [policies, activeFilter, search]);
+  }, [policies, activeFilter, expenseTypeFilter, search]);
 
   const totalPages = Math.ceil(filtered.length / PAGE_SIZE);
   const paged = filtered.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
@@ -136,8 +143,17 @@ export default function PolicyManagement() {
       <div className="flex flex-wrap items-center gap-3">
         <div className="relative flex-1 max-w-xs">
           <Search className="absolute left-2 top-2.5 h-3.5 w-3.5 text-muted-foreground" />
-          <Input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Search MCC code or description" className="pl-7 h-9 text-sm" />
+          <Input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Search expense type" className="pl-7 h-9 text-sm" />
         </div>
+        <Select value={expenseTypeFilter} onValueChange={setExpenseTypeFilter}>
+          <SelectTrigger className="w-[180px] h-9 text-sm"><SelectValue placeholder="Expense Type" /></SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">All Expense Types</SelectItem>
+            {expenseTypeOptions.map((cat) => (
+              <SelectItem key={cat} value={cat}>{cat}</SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
         <Select value={activeFilter} onValueChange={setActiveFilter}>
           <SelectTrigger className="w-[130px] h-9 text-sm"><SelectValue /></SelectTrigger>
           <SelectContent>
@@ -147,7 +163,7 @@ export default function PolicyManagement() {
           </SelectContent>
         </Select>
         <div className="flex-1" />
-        <Button size="sm" onClick={openAdd}><Plus className="mr-1 h-3.5 w-3.5" />Add MCC Policy</Button>
+        <Button size="sm" onClick={openAdd}><Plus className="mr-1 h-3.5 w-3.5" />Add Policy Rule</Button>
         {/* Bulk Import button removed */}
       </div>
 
