@@ -129,7 +129,7 @@ export default function PolicyManagement() {
     <div className="space-y-4">
       <div>
         <h1 className="text-2xl font-bold">Policy Management</h1>
-        <p className="text-sm text-muted-foreground">Maintain MCC-based rules for Auto Approve / Auto Reject / Requires Approval.</p>
+        <p className="text-sm text-muted-foreground">Maintain Expense type-based rules for Auto Approve / Auto Reject / Requires Approval.</p>
       </div>
 
       {/* Toolbar */}
@@ -157,7 +157,7 @@ export default function PolicyManagement() {
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>Category</TableHead>
+                <TableHead>Expense Type</TableHead>
                 <TableHead>Policy Type</TableHead>
                 <TableHead className="text-right">Threshold Amount</TableHead>
                 <TableHead>Currency</TableHead>
