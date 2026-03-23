@@ -927,6 +927,7 @@ const panelMap: Record<string, () => JSX.Element> = {
   "sync-logs": SyncLogsPanel,
   "mcc-policy": PolicyManagement,
   "ocr-validation": OcrValidationRulesPanel,
+  "category-policy": CategoryPolicyRulesPanel,
 };
 
 export default function Admin() {
