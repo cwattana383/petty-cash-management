@@ -83,6 +83,13 @@ const adminMenu = [
     ],
   },
   {
+    group: "Corporate Card Setup",
+    icon: CreditCard,
+    items: [
+      { key: "category-policy", label: "Category Policy Rules", icon: Scale },
+    ],
+  },
+  {
     group: "Notification Setup",
     icon: Bell,
     items: [
