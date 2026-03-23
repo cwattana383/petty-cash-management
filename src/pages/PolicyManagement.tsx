@@ -47,17 +47,23 @@ export default function PolicyManagement() {
   // Bulk import
   const [bulkOpen, setBulkOpen] = useState(false);
 
+  const expenseTypeOptions = useMemo(() => {
+    const cats = Array.from(new Set(policies.map((p) => p.category))).sort();
+    return cats;
+  }, [policies]);
+
   const filtered = useMemo(() => {
     let data = [...policies];
     if (activeFilter === "active") data = data.filter((p) => p.active_flag);
     else if (activeFilter === "inactive") data = data.filter((p) => !p.active_flag);
+    if (expenseTypeFilter !== "all") data = data.filter((p) => p.category === expenseTypeFilter);
     if (search) {
       const s = search.toLowerCase();
-      data = data.filter((p) => p.mcc_code.toLowerCase().includes(s) || p.description.toLowerCase().includes(s));
+      data = data.filter((p) => p.category.toLowerCase().includes(s) || p.description.toLowerCase().includes(s));
     }
-    data.sort((a, b) => a.mcc_code.localeCompare(b.mcc_code));
+    data.sort((a, b) => a.category.localeCompare(b.category));
     return data;
-  }, [policies, activeFilter, search]);
+  }, [policies, activeFilter, expenseTypeFilter, search]);
 
   const totalPages = Math.ceil(filtered.length / PAGE_SIZE);
   const paged = filtered.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
