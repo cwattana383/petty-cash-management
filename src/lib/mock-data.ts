@@ -161,7 +161,7 @@ export const mockClaims: ClaimHeader[] = [
     id: "c10", claimNo: "TXN20250126001", requesterId: "u3", requesterName: "วิชัย เจริญ",
     company: "ABC Co., Ltd.", branch: "Chiang Mai", department: "9993010460 Finance and Accounting", costCenter: "CC-ENG-01",
     purpose: "Office supplies for project", merchantName: "OfficeMate", currency: "THB", paymentMethod: "Corporate Card",
-    totalAmount: 3200, totalVat: 224, status: "Pending Approval", createdDate: "2026-02-21", submittedDate: "2026-02-22",
+    totalAmount: 3200, totalVat: 224, status: "Pending Invoice", createdDate: "2026-02-21", submittedDate: "2026-02-22",
     lines: [], approvalHistory: [{ stepNo: 1, approverId: "u1", approverName: "สมชาย ใจดี", action: "Pending", comment: "", actionDate: null }], comments: [],
   },
 ];
