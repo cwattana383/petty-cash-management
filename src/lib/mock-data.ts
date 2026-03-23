@@ -140,7 +140,7 @@ export const mockClaims: ClaimHeader[] = [
     id: "c7", claimNo: "TXN20250128002", requesterId: "u2", requesterName: "สมหญิง แก้วใส",
     company: "ABC Co., Ltd.", branch: "Bangkok", department: "9993010460 Finance and Accounting", costCenter: "CC-SALES-01",
     purpose: "Business dinner with client", merchantName: "BANYAN TREE RESTAURANT", currency: "THB", paymentMethod: "Corporate Card",
-    totalAmount: 8500, totalVat: 595, status: "Pending Approval", createdDate: "2026-02-24", submittedDate: "2026-02-25",
+    totalAmount: 8500, totalVat: 595, status: "Pending Invoice", createdDate: "2026-02-24", submittedDate: "2026-02-25",
     lines: [], approvalHistory: [{ stepNo: 1, approverId: "u1", approverName: "สมชาย ใจดี", action: "Pending", comment: "", actionDate: null }], comments: [],
   },
   {
