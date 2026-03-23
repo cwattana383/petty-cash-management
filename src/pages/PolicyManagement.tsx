@@ -23,7 +23,9 @@ const POLICY_TYPE_BADGE: Record<PolicyType, { label: string; className: string }
 const PAGE_SIZE = 20;
 
 const emptyPolicy: MccPolicyMaster = {
-  mcc_code: "", description: "", category: "", policy_type: "AUTO_APPROVE",
+  mcc_code: "", description: "", category: "",
+  mcc_code_ref: "", mcc_code_description: "", description_subtype: "",
+  policy_type: "AUTO_APPROVE",
   threshold_amount: null, currency: "THB", active_flag: true, updated_at: new Date().toISOString(),
 };
 
@@ -59,7 +61,13 @@ export default function PolicyManagement() {
     if (expenseTypeFilter !== "all") data = data.filter((p) => p.category === expenseTypeFilter);
     if (search) {
       const s = search.toLowerCase();
-      data = data.filter((p) => p.category.toLowerCase().includes(s) || p.description.toLowerCase().includes(s));
+      data = data.filter((p) =>
+        p.category.toLowerCase().includes(s) ||
+        p.description.toLowerCase().includes(s) ||
+        p.description_subtype.toLowerCase().includes(s) ||
+        p.mcc_code_ref.toLowerCase().includes(s) ||
+        p.mcc_code_description.toLowerCase().includes(s)
+      );
     }
     data.sort((a, b) => a.category.localeCompare(b.category));
     return data;
@@ -84,9 +92,8 @@ export default function PolicyManagement() {
 
   const validateForm = (): boolean => {
     const errors: Record<string, string> = {};
-    if (!form.mcc_code.trim()) errors.mcc_code = "Required";
-    if (!editingPolicy && policies.some((p) => p.mcc_code === form.mcc_code.trim())) errors.mcc_code = "MCC Code already exists";
-    if (!form.description.trim()) errors.description = "Required";
+    if (!form.category.trim()) errors.category = "Required";
+    if (!form.description_subtype.trim()) errors.description_subtype = "Required";
     if (form.policy_type === "AUTO_APPROVE" && form.threshold_amount !== null && form.threshold_amount <= 0)
       errors.threshold_amount = "Must be > 0";
     setFormErrors(errors);
@@ -96,15 +103,16 @@ export default function PolicyManagement() {
   const handleSave = () => {
     if (!validateForm()) return;
     const now = new Date().toISOString();
-    const updated = { ...form, mcc_code: form.mcc_code.trim(), updated_at: now };
+    const updated = { ...form, updated_at: now };
     if (form.policy_type !== "AUTO_APPROVE") updated.threshold_amount = null;
 
     if (editingPolicy) {
       setPolicies((prev) => prev.map((p) => (p.mcc_code === editingPolicy.mcc_code ? updated : p)));
-      toast({ title: "Policy Updated", description: `MCC ${updated.mcc_code} saved.` });
+      toast({ title: "Policy Updated", description: `Policy rule saved.` });
     } else {
-      setPolicies((prev) => [...prev, updated]);
-      toast({ title: "Policy Added", description: `MCC ${updated.mcc_code} created.` });
+      const newId = `P${String(policies.length + 100).padStart(3, "0")}`;
+      setPolicies((prev) => [...prev, { ...updated, mcc_code: newId }]);
+      toast({ title: "Policy Added", description: `Policy rule created.` });
     }
     setModalOpen(false);
   };
@@ -112,7 +120,7 @@ export default function PolicyManagement() {
   const handleDelete = () => {
     if (!deleteTarget) return;
     setPolicies((prev) => prev.filter((p) => p.mcc_code !== deleteTarget));
-    toast({ title: "Policy Deleted", description: `MCC ${deleteTarget} removed.` });
+    toast({ title: "Policy Deleted", description: `Policy removed.` });
     setDeleteTarget(null);
   };
 
@@ -143,7 +151,7 @@ export default function PolicyManagement() {
       <div className="flex flex-wrap items-center gap-3">
         <div className="relative flex-1 max-w-xs">
           <Search className="absolute left-2 top-2.5 h-3.5 w-3.5 text-muted-foreground" />
-          <Input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Search expense type" className="pl-7 h-9 text-sm" />
+          <Input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Search expense type, description, MCC..." className="pl-7 h-9 text-sm" />
         </div>
         <Select value={expenseTypeFilter} onValueChange={setExpenseTypeFilter}>
           <SelectTrigger className="w-[180px] h-9 text-sm"><SelectValue placeholder="Expense Type" /></SelectTrigger>
@@ -164,7 +172,6 @@ export default function PolicyManagement() {
         </Select>
         <div className="flex-1" />
         <Button size="sm" onClick={openAdd}><Plus className="mr-1 h-3.5 w-3.5" />Add Policy Rule</Button>
-        {/* Bulk Import button removed */}
       </div>
 
       {/* Table */}
@@ -174,20 +181,25 @@ export default function PolicyManagement() {
             <TableHeader>
               <TableRow>
                 <TableHead>Expense Type</TableHead>
+                <TableHead className="w-[100px]">MCC Code (Ref)</TableHead>
+                <TableHead className="w-[160px]">MCC Code Description</TableHead>
+                <TableHead className="min-w-[260px]">Description / Sub-type</TableHead>
                 <TableHead>Policy Type</TableHead>
                 <TableHead className="text-right">Threshold Amount</TableHead>
                 <TableHead>Currency</TableHead>
                 <TableHead>Active</TableHead>
                 <TableHead>Updated At</TableHead>
-                
               </TableRow>
             </TableHeader>
             <TableBody>
               {paged.length === 0 ? (
-                <TableRow><TableCell colSpan={6} className="text-center py-12 text-muted-foreground">No policies found.</TableCell></TableRow>
+                <TableRow><TableCell colSpan={9} className="text-center py-12 text-muted-foreground">No policies found.</TableCell></TableRow>
               ) : paged.map((p) => (
                 <TableRow key={p.mcc_code}>
                   <TableCell>{p.category}</TableCell>
+                  <TableCell className="text-xs font-mono">{p.mcc_code_ref || "—"}</TableCell>
+                  <TableCell className="text-xs">{p.mcc_code_description || "—"}</TableCell>
+                  <TableCell className="text-sm">{p.description_subtype || "—"}</TableCell>
                   <TableCell>
                     <Select value={p.policy_type} onValueChange={(v) => handleInlinePolicyType(p.mcc_code, v as PolicyType)}>
                       <SelectTrigger className="h-8 w-[160px] text-xs">
@@ -237,25 +249,31 @@ export default function PolicyManagement() {
 
       {/* Add/Edit Modal */}
       <Dialog open={modalOpen} onOpenChange={setModalOpen}>
-        <DialogContent className="sm:max-w-md">
+        <DialogContent className="sm:max-w-lg">
           <DialogHeader>
-            <DialogTitle>{editingPolicy ? "Edit MCC Policy" : "Add MCC Policy"}</DialogTitle>
-            <DialogDescription>{editingPolicy ? `Editing policy for MCC ${editingPolicy.mcc_code}` : "Create a new MCC policy rule."}</DialogDescription>
+            <DialogTitle>{editingPolicy ? "Edit Policy Rule" : "Add Policy Rule"}</DialogTitle>
+            <DialogDescription>{editingPolicy ? "Update this policy rule." : "Create a new policy rule."}</DialogDescription>
           </DialogHeader>
           <div className="space-y-4 py-2">
             <div className="space-y-1.5">
-              <Label>MCC Code</Label>
-              <Input value={form.mcc_code} onChange={(e) => setForm({ ...form, mcc_code: e.target.value })} disabled={!!editingPolicy} placeholder="e.g. 5812" />
-              {formErrors.mcc_code && <p className="text-xs text-destructive">{formErrors.mcc_code}</p>}
+              <Label>Expense Type <span className="text-destructive">*</span></Label>
+              <Input value={form.category} onChange={(e) => setForm({ ...form, category: e.target.value })} placeholder="e.g. Entertainment, Hotel" />
+              {formErrors.category && <p className="text-xs text-destructive">{formErrors.category}</p>}
+            </div>
+            <div className="grid grid-cols-2 gap-3">
+              <div className="space-y-1.5">
+                <Label>MCC Code (Reference)</Label>
+                <Input value={form.mcc_code_ref} onChange={(e) => setForm({ ...form, mcc_code_ref: e.target.value })} placeholder="e.g. 5812" />
+              </div>
+              <div className="space-y-1.5">
+                <Label>MCC Code Description</Label>
+                <Input value={form.mcc_code_description} onChange={(e) => setForm({ ...form, mcc_code_description: e.target.value })} placeholder="e.g. Restaurants" />
+              </div>
             </div>
             <div className="space-y-1.5">
-              <Label>Description</Label>
-              <Input value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} placeholder="e.g. Eating Places/Restaurants" />
-              {formErrors.description && <p className="text-xs text-destructive">{formErrors.description}</p>}
-            </div>
-            <div className="space-y-1.5">
-              <Label>Category</Label>
-              <Input value={form.category} onChange={(e) => setForm({ ...form, category: e.target.value })} placeholder="e.g. Meals & Entertainment" />
+              <Label>Description / Sub-type <span className="text-destructive">*</span></Label>
+              <Input value={form.description_subtype} onChange={(e) => setForm({ ...form, description_subtype: e.target.value })} placeholder="e.g. Client Meal — HoReCa / Business Visit" />
+              {formErrors.description_subtype && <p className="text-xs text-destructive">{formErrors.description_subtype}</p>}
             </div>
             <div className="space-y-1.5">
               <Label>Policy Type</Label>
@@ -310,8 +328,8 @@ export default function PolicyManagement() {
       <AlertDialog open={!!deleteTarget} onOpenChange={(o) => !o && setDeleteTarget(null)}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Delete MCC Policy</AlertDialogTitle>
-            <AlertDialogDescription>Are you sure you want to delete MCC policy {deleteTarget}?</AlertDialogDescription>
+            <AlertDialogTitle>Delete Policy Rule</AlertDialogTitle>
+            <AlertDialogDescription>Are you sure you want to delete this policy rule?</AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel>Cancel</AlertDialogCancel>
@@ -325,7 +343,7 @@ export default function PolicyManagement() {
         <DialogContent className="sm:max-w-sm">
           <DialogHeader>
             <DialogTitle>Bulk Import (CSV)</DialogTitle>
-            <DialogDescription>Upload MCC policy master records via CSV file.</DialogDescription>
+            <DialogDescription>Upload policy rules via CSV file.</DialogDescription>
           </DialogHeader>
           <div className="py-6 text-center">
             <div className="border-2 border-dashed rounded-lg p-8 text-muted-foreground">

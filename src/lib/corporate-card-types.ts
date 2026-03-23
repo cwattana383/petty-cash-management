@@ -30,6 +30,9 @@ export interface MccPolicyMaster {
   mcc_code: string;
   description: string;
   category: string;
+  mcc_code_ref: string;
+  mcc_code_description: string;
+  description_subtype: string;
   policy_type: PolicyType;
   threshold_amount: number | null;
   currency: string;
