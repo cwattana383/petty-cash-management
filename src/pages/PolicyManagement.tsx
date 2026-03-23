@@ -157,8 +157,6 @@ export default function PolicyManagement() {
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>MCC Code</TableHead>
-                <TableHead>Description</TableHead>
                 <TableHead>Category</TableHead>
                 <TableHead>Policy Type</TableHead>
                 <TableHead className="text-right">Threshold Amount</TableHead>
@@ -170,11 +168,9 @@ export default function PolicyManagement() {
             </TableHeader>
             <TableBody>
               {paged.length === 0 ? (
-                <TableRow><TableCell colSpan={8} className="text-center py-12 text-muted-foreground">No policies found.</TableCell></TableRow>
+                <TableRow><TableCell colSpan={6} className="text-center py-12 text-muted-foreground">No policies found.</TableCell></TableRow>
               ) : paged.map((p) => (
                 <TableRow key={p.mcc_code}>
-                  <TableCell className="font-mono font-medium">{p.mcc_code}</TableCell>
-                  <TableCell>{p.description}</TableCell>
                   <TableCell>{p.category}</TableCell>
                   <TableCell>
                     <Select value={p.policy_type} onValueChange={(v) => handleInlinePolicyType(p.mcc_code, v as PolicyType)}>
