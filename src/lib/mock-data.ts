@@ -154,7 +154,7 @@ export const mockClaims: ClaimHeader[] = [
     id: "c9", claimNo: "TXN20250127002", requesterId: "u2", requesterName: "สมหญิง แก้วใส",
     company: "ABC Co., Ltd.", branch: "Bangkok", department: "9993010460 Finance and Accounting", costCenter: "CC-SALES-01",
     purpose: "Hotel for regional meeting", merchantName: "NOVOTEL BANGKOK", currency: "THB", paymentMethod: "Corporate Card",
-    totalAmount: 4200, totalVat: 294, status: "Pending Approval", createdDate: "2026-02-22", submittedDate: "2026-02-23",
+    totalAmount: 4200, totalVat: 294, status: "Pending Invoice", createdDate: "2026-02-22", submittedDate: "2026-02-23",
     lines: [], approvalHistory: [{ stepNo: 1, approverId: "u1", approverName: "สมชาย ใจดี", action: "Pending", comment: "", actionDate: null }], comments: [],
   },
   {
