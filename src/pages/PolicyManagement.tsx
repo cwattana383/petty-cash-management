@@ -157,8 +157,6 @@ export default function PolicyManagement() {
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>MCC Code</TableHead>
-                <TableHead>Description</TableHead>
                 <TableHead>Category</TableHead>
                 <TableHead>Policy Type</TableHead>
                 <TableHead className="text-right">Threshold Amount</TableHead>
