@@ -6,6 +6,7 @@ import PendingApprovalNotificationPanel from "@/components/admin/PendingApproval
 import MonthEndReportNotificationPanel from "@/components/admin/MonthEndReportNotificationPanel";
 import ExpenseTypePanel from "@/components/admin/ExpenseTypePanel";
 import GlAccountPanel from "@/components/admin/GlAccountPanel";
+import CategoryPolicyRulesPanel from "@/components/admin/CategoryPolicyRulesPanel";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import {
@@ -35,6 +36,7 @@ import {
   Ban,
   ChevronLeft,
   ChevronRight,
+  CreditCard,
 } from "lucide-react";
 import EntityDrawer from "@/components/admin/EntityDrawer";
 import OcrValidationRulesPanel from "@/components/admin/OcrValidationRulesPanel";
@@ -79,6 +81,13 @@ const adminMenu = [
       { key: "expense-type", label: "Expense Type", icon: Layers },
       { key: "gl-account", label: "GL Account", icon: DollarSign },
       { key: "mcc-policy", label: "Policy Management", icon: Shield },
+    ],
+  },
+  {
+    group: "Corporate Card Setup",
+    icon: CreditCard,
+    items: [
+      { key: "category-policy", label: "Category Policy Rules", icon: Scale },
     ],
   },
   {
@@ -919,6 +928,7 @@ const panelMap: Record<string, () => JSX.Element> = {
   "sync-logs": SyncLogsPanel,
   "mcc-policy": PolicyManagement,
   "ocr-validation": OcrValidationRulesPanel,
+  "category-policy": CategoryPolicyRulesPanel,
 };
 
 export default function Admin() {
