@@ -32,6 +32,7 @@ export default function PolicyManagement() {
   const [policies, setPolicies] = useState<MccPolicyMaster[]>([...mockMccPolicies]);
   const [search, setSearch] = useState("");
   const [activeFilter, setActiveFilter] = useState("all");
+  const [expenseTypeFilter, setExpenseTypeFilter] = useState("all");
   const [page, setPage] = useState(1);
 
   // Modal
