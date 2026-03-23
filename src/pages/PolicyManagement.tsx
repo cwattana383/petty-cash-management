@@ -157,7 +157,7 @@ export default function PolicyManagement() {
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>Category</TableHead>
+                <TableHead>Expense Type</TableHead>
                 <TableHead>Policy Type</TableHead>
                 <TableHead className="text-right">Threshold Amount</TableHead>
                 <TableHead>Currency</TableHead>
