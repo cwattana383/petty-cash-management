@@ -1,5 +1,5 @@
-import { useState, useRef } from "react";
-import { Upload, FileText, CheckCircle2, AlertCircle, X } from "lucide-react";
+import { useState, useRef, useCallback, useEffect } from "react";
+import { Upload, FileText, CheckCircle2, AlertCircle, X, AlertTriangle, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -22,8 +22,11 @@ interface ImportBankFileDialogProps {
 interface ParseResult {
   success: BankTransaction[];
   errors: string[];
+  skipped: number;
   fileName: string;
 }
+
+type DialogStep = "upload" | "processing" | "result";
 
 const REQUIRED_HEADERS = [
   "transaction_id",
@@ -43,6 +46,9 @@ const REQUIRED_HEADERS = [
   "reference_number",
 ];
 
+// Track previously imported files
+const processedFiles: Set<string> = new Set();
+
 function applyPolicy(mccCode: string, amount: number): { result: PolicyResult; reason: string } {
   const policy = mockMccPolicies.find((p) => p.mcc_code === mccCode && p.active_flag);
   if (!policy) return { result: "REQUIRES_APPROVAL", reason: `No active policy for MCC ${mccCode}` };
@@ -56,16 +62,17 @@ function applyPolicy(mccCode: string, amount: number): { result: PolicyResult; r
 
 function parseCSV(text: string, fileName: string): ParseResult {
   const lines = text.split(/\r?\n/).filter((l) => l.trim());
-  if (lines.length < 2) return { success: [], errors: ["File is empty or has no data rows."], fileName };
+  if (lines.length < 2) return { success: [], errors: ["File is empty or has no data rows."], skipped: 0, fileName };
 
   const headers = lines[0].split(",").map((h) => h.trim().toLowerCase().replace(/"/g, ""));
   const missing = REQUIRED_HEADERS.filter((h) => !headers.includes(h));
   if (missing.length > 0) {
-    return { success: [], errors: [`Missing required columns: ${missing.join(", ")}`], fileName };
+    return { success: [], errors: [`Missing required columns: ${missing.join(", ")}`], skipped: 0, fileName };
   }
 
   const success: BankTransaction[] = [];
   const errors: string[] = [];
+  let skipped = 0;
   const fileId = `file-import-${Date.now()}`;
 
   for (let i = 1; i < lines.length; i++) {
@@ -75,8 +82,8 @@ function parseCSV(text: string, fileName: string): ParseResult {
       headers.forEach((h, idx) => { row[h] = values[idx] || ""; });
 
       const amount = parseFloat(row.billing_amount);
-      if (isNaN(amount)) { errors.push(`Row ${i}: Invalid billing_amount "${row.billing_amount}"`); continue; }
-      if (!row.transaction_id) { errors.push(`Row ${i}: Missing transaction_id`); continue; }
+      if (isNaN(amount)) { errors.push(`Row ${i}: Invalid billing_amount "${row.billing_amount}"`); skipped++; continue; }
+      if (!row.transaction_id) { errors.push(`Row ${i}: Missing transaction_id`); skipped++; continue; }
 
       const { result, reason } = applyPolicy(row.mcc_code, amount);
 
@@ -105,108 +112,203 @@ function parseCSV(text: string, fileName: string): ParseResult {
       });
     } catch {
       errors.push(`Row ${i}: Failed to parse row`);
+      skipped++;
     }
   }
 
-  return { success, errors, fileName };
+  return { success, errors, skipped, fileName };
 }
 
 export function ImportBankFileDialog({ open, onOpenChange, onImport }: ImportBankFileDialogProps) {
   const [parseResult, setParseResult] = useState<ParseResult | null>(null);
   const [isDragging, setIsDragging] = useState(false);
+  const [step, setStep] = useState<DialogStep>("upload");
+  const [fileError, setFileError] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const handleFile = (file: File) => {
+  const resetState = useCallback(() => {
+    setParseResult(null);
+    setStep("upload");
+    setFileError(null);
+    setIsDragging(false);
+  }, []);
+
+  const handleFile = useCallback((file: File) => {
+    setFileError(null);
+
     if (!file.name.toLowerCase().endsWith(".csv")) {
-      toast.error("Please select a CSV file.");
+      setFileError("Only .csv files are accepted. Please upload a valid bank statement file.");
       return;
     }
+
+    // Duplicate check
+    const fileKey = `${file.name}_${file.lastModified}`;
+    if (processedFiles.has(fileKey)) {
+      setFileError("This file has already been processed. Please check the file and try again.");
+      return;
+    }
+
+    // Start processing
+    setStep("processing");
+
     const reader = new FileReader();
     reader.onload = (e) => {
       const text = e.target?.result as string;
       const result = parseCSV(text, file.name);
-      setParseResult(result);
+
+      // Simulate processing delay
+      setTimeout(() => {
+        processedFiles.add(fileKey);
+        setParseResult(result);
+        setStep("result");
+      }, 2000);
     };
     reader.readAsText(file);
-  };
+  }, []);
 
-  const handleConfirm = () => {
+  const handleDone = () => {
     if (parseResult && parseResult.success.length > 0) {
       onImport(parseResult.success);
       toast.success(`Imported ${parseResult.success.length} transactions successfully.`);
     }
-    setParseResult(null);
+    resetState();
     onOpenChange(false);
   };
 
   const handleClose = () => {
-    setParseResult(null);
+    resetState();
     onOpenChange(false);
   };
+
+  // Reset when dialog opens
+  useEffect(() => {
+    if (open) resetState();
+  }, [open, resetState]);
 
   return (
     <Dialog open={open} onOpenChange={handleClose}>
       <DialogContent className="sm:max-w-lg">
         <DialogHeader>
           <DialogTitle>Import Bank File</DialogTitle>
-          <DialogDescription>Upload a CSV file containing bank transactions. The system will automatically apply MCC policies.</DialogDescription>
+          <DialogDescription>
+            Upload a CSV file containing bank transactions. The system will automatically apply MCC policies.
+          </DialogDescription>
         </DialogHeader>
 
-        {!parseResult ? (
-          <div
-            className={`border-2 border-dashed rounded-lg p-8 text-center cursor-pointer transition-colors ${isDragging ? "border-primary bg-primary/5" : "border-muted-foreground/25 hover:border-primary/50"}`}
-            onClick={() => fileInputRef.current?.click()}
-            onDragOver={(e) => { e.preventDefault(); setIsDragging(true); }}
-            onDragLeave={() => setIsDragging(false)}
-            onDrop={(e) => { e.preventDefault(); setIsDragging(false); if (e.dataTransfer.files[0]) handleFile(e.dataTransfer.files[0]); }}
-          >
-            <Upload className="mx-auto h-10 w-10 text-muted-foreground mb-3" />
-            <p className="text-sm font-medium">Click to select or drag & drop a CSV file</p>
-            <p className="text-xs text-muted-foreground mt-1">Supported format: .csv</p>
-            <input ref={fileInputRef} type="file" accept=".csv" className="hidden" onChange={(e) => { if (e.target.files?.[0]) handleFile(e.target.files[0]); e.target.value = ""; }} />
+        {/* STEP 1: Upload */}
+        {step === "upload" && (
+          <div className="space-y-3">
+            <div
+              className={`border-2 border-dashed rounded-lg p-8 text-center cursor-pointer transition-colors ${
+                isDragging
+                  ? "border-primary bg-primary/5"
+                  : "border-muted-foreground/25 hover:border-primary/50"
+              }`}
+              onClick={() => fileInputRef.current?.click()}
+              onDragOver={(e) => { e.preventDefault(); setIsDragging(true); }}
+              onDragLeave={() => setIsDragging(false)}
+              onDrop={(e) => {
+                e.preventDefault();
+                setIsDragging(false);
+                if (e.dataTransfer.files[0]) handleFile(e.dataTransfer.files[0]);
+              }}
+            >
+              <Upload className="mx-auto h-10 w-10 text-muted-foreground mb-3" />
+              <p className="text-sm font-medium">Drag & drop your CSV file here, or click to browse</p>
+              <p className="text-xs text-muted-foreground mt-1">Supported format: .csv</p>
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept=".csv"
+                className="hidden"
+                onChange={(e) => {
+                  if (e.target.files?.[0]) handleFile(e.target.files[0]);
+                  e.target.value = "";
+                }}
+              />
+            </div>
+
+            {fileError && (
+              <div className="flex items-start gap-2 rounded-md border border-destructive/30 bg-destructive/5 p-3">
+                <AlertTriangle className="h-5 w-5 text-destructive mt-0.5 shrink-0" />
+                <p className="text-sm text-destructive">{fileError}</p>
+              </div>
+            )}
           </div>
-        ) : (
+        )}
+
+        {/* STEP 2: Processing */}
+        {step === "processing" && (
+          <div className="flex flex-col items-center justify-center py-10 space-y-4">
+            <Loader2 className="h-10 w-10 text-primary animate-spin" />
+            <div className="text-center">
+              <p className="text-sm font-medium">Processing... Please wait while we import your transactions.</p>
+              <p className="text-xs text-muted-foreground mt-1">Validating data and applying policies</p>
+            </div>
+          </div>
+        )}
+
+        {/* STEP 3: Result Summary */}
+        {step === "result" && parseResult && (
           <div className="space-y-4">
             <div className="flex items-center gap-2 rounded-md border p-3 bg-muted/30">
               <FileText className="h-5 w-5 text-muted-foreground" />
-              <div className="flex-1 min-w-0">
-                <p className="text-sm font-medium truncate">{parseResult.fileName}</p>
+              <p className="text-sm font-medium truncate flex-1">{parseResult.fileName}</p>
+            </div>
+
+            <div className="rounded-lg border divide-y">
+              {/* Imported */}
+              <div className="flex items-center gap-3 p-3">
+                <CheckCircle2 className="h-5 w-5 text-emerald-600 shrink-0" />
+                <span className="text-sm flex-1">Rows imported</span>
+                <span className="text-sm font-semibold text-emerald-700">{parseResult.success.length}</span>
               </div>
-              <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => setParseResult(null)}><X className="h-4 w-4" /></Button>
+              {/* Skipped */}
+              <div className="flex items-center gap-3 p-3">
+                <AlertTriangle className="h-5 w-5 text-amber-500 shrink-0" />
+                <span className="text-sm flex-1">Rows skipped</span>
+                <span className="text-sm font-semibold text-amber-600">{parseResult.skipped}</span>
+              </div>
+              {/* Errors */}
+              <div className="flex items-center gap-3 p-3">
+                <AlertCircle className="h-5 w-5 text-destructive shrink-0" />
+                <span className="text-sm flex-1">Errors</span>
+                <span className="text-sm font-semibold text-destructive">{parseResult.errors.length}</span>
+              </div>
             </div>
 
             {parseResult.success.length > 0 && (
-              <div className="flex items-start gap-2 rounded-md border border-emerald-200 bg-emerald-50 p-3">
-                <CheckCircle2 className="h-5 w-5 text-emerald-600 mt-0.5" />
-                <div>
-                  <p className="text-sm font-medium text-emerald-800">{parseResult.success.length} transactions parsed successfully</p>
-                  <p className="text-xs text-emerald-600 mt-0.5">
-                    Auto Approved: {parseResult.success.filter(t => t.policy_result === "AUTO_APPROVED").length} · 
-                    Requires Approval: {parseResult.success.filter(t => t.policy_result === "REQUIRES_APPROVAL").length} · 
-                    Auto Rejected: {parseResult.success.filter(t => t.policy_result === "AUTO_REJECTED").length}
-                  </p>
-                </div>
+              <div className="rounded-md border border-emerald-200 bg-emerald-50 p-3">
+                <p className="text-xs text-emerald-700">
+                  Auto Approved: {parseResult.success.filter(t => t.policy_result === "AUTO_APPROVED").length} ·{" "}
+                  Requires Approval: {parseResult.success.filter(t => t.policy_result === "REQUIRES_APPROVAL").length} ·{" "}
+                  Auto Rejected: {parseResult.success.filter(t => t.policy_result === "AUTO_REJECTED").length}
+                </p>
               </div>
             )}
 
             {parseResult.errors.length > 0 && (
-              <div className="flex items-start gap-2 rounded-md border border-red-200 bg-red-50 p-3">
-                <AlertCircle className="h-5 w-5 text-red-600 mt-0.5" />
-                <div>
-                  <p className="text-sm font-medium text-red-800">{parseResult.errors.length} error(s)</p>
-                  <ul className="text-xs text-red-600 mt-1 space-y-0.5 max-h-24 overflow-auto">
-                    {parseResult.errors.map((err, i) => <li key={i}>{err}</li>)}
-                  </ul>
-                </div>
+              <div className="rounded-md border border-destructive/20 bg-destructive/5 p-3">
+                <ul className="text-xs text-destructive space-y-0.5 max-h-24 overflow-auto">
+                  {parseResult.errors.map((err, i) => <li key={i}>{err}</li>)}
+                </ul>
               </div>
             )}
           </div>
         )}
 
         <DialogFooter>
-          <Button variant="outline" onClick={handleClose}>Cancel</Button>
-          {parseResult && parseResult.success.length > 0 && (
-            <Button onClick={handleConfirm}>Import {parseResult.success.length} Transactions</Button>
+          {step === "upload" && (
+            <Button variant="outline" onClick={handleClose}>Cancel</Button>
+          )}
+          {step === "processing" && (
+            <Button disabled>
+              <Loader2 className="h-4 w-4 animate-spin mr-2" />
+              Processing...
+            </Button>
+          )}
+          {step === "result" && (
+            <Button onClick={handleDone}>Done</Button>
           )}
         </DialogFooter>
       </DialogContent>
