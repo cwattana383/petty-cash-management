@@ -74,23 +74,6 @@ export default function ClaimDetail() {
   // Validation
   const [errors, setErrors] = useState<Record<string, string>>({});
 
-  // Scroll tracking for progress indicator
-  const sectionRefs = useRef<(HTMLElement | null)[]>([null, null, null, null]);
-  const [activeStep, setActiveStep] = useState(0);
-
-  useEffect(() => {
-    const handleScroll = () => {
-      const offsets = sectionRefs.current.map((ref) => ref?.getBoundingClientRect().top ?? Infinity);
-      const threshold = 160;
-      let current = 0;
-      for (let i = offsets.length - 1; i >= 0; i--) {
-        if (offsets[i] <= threshold) { current = i; break; }
-      }
-      setActiveStep(current);
-    };
-    window.addEventListener("scroll", handleScroll, { passive: true });
-    return () => window.removeEventListener("scroll", handleScroll);
-  }, []);
 
   // Derived config
   const selectedConfig = expenseType && subExpenseType ? getExpenseConfig(expenseType, subExpenseType) : null;
