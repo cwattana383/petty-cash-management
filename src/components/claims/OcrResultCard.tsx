@@ -13,13 +13,13 @@ interface OcrField {
 }
 
 const OCR_FIELDS: OcrField[] = [
-  { label: "Tax ID", value: "0105556016761", status: "✅ ตรงกับ CPAxtra", color: "green" },
-  { label: "ชื่อผู้ซื้อ", value: "บริษัท CP Axtra จำกัด", status: "✅ ตรงกัน", color: "green" },
-  { label: "Buyer Address", value: "1468 ถ.พัฒนาการ กทม.", status: "⚠️ ตรงบางส่วน", color: "amber" },
-  { label: "หมายเลขบัตรเครดิต", value: "XXXX-XXXX-XXXX-1234", status: "✅ ตรงกัน", color: "green" },
-  { label: "ยอดเงินในเอกสาร", value: "฿1,500.00", status: "✅ ตรงกับitems", color: "green" },
-  { label: "daysที่ในเอกสาร", value: "28/02/2569", status: "✅ อยู่ในช่วงเวลา", color: "green" },
-  { label: "Invoice No.Tax Invoice", value: "INV-2025-0892", status: "ℹ️ Saveแล้ว", color: "grey" },
+  { label: "Tax ID", value: "0105556016761", status: "✅ Matches CPAxtra", color: "green" },
+  { label: "Buyer Name", value: "CP Axtra Co., Ltd.", status: "✅ Match", color: "green" },
+  { label: "Buyer Address", value: "1468 Pattanakarn Rd., Bangkok", status: "⚠️ Partial Match", color: "amber" },
+  { label: "Credit Card Number", value: "XXXX-XXXX-XXXX-1234", status: "✅ Match", color: "green" },
+  { label: "Document Amount", value: "฿1,500.00", status: "✅ Matches Transaction", color: "green" },
+  { label: "Document Date", value: "28/02/2569", status: "✅ Within Valid Period", color: "green" },
+  { label: "Tax Invoice No.", value: "INV-2025-0892", status: "ℹ️ Saved", color: "grey" },
 ];
 
 const statusColors: Record<string, string> = {
@@ -54,9 +54,9 @@ export default function OcrResultCard({ fileName, resultState, onConfirm, onReup
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead className="text-xs">ฟิลด์</TableHead>
-              <TableHead className="text-xs">ข้อมูลที่อ่านได้</TableHead>
-              <TableHead className="text-xs">สถานะ</TableHead>
+              <TableHead className="text-xs">Field</TableHead>
+              <TableHead className="text-xs">Extracted Data</TableHead>
+              <TableHead className="text-xs">Status</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>

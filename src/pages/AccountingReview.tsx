@@ -173,7 +173,7 @@ export default function AccountingReview() {
   const handleSingleConfirm = () => {
     if (!drawerItemId) return;
     updateStatus([drawerItemId]);
-    toast({ title: "ส่งitemsไปยัง ERP เรียบร้อย", description: `${drawerItemId} — สถานะเปลี่ยนเป็น Ready for ERP` });
+    toast({ title: "ส่งitemsไปยัง ERP เรียบร้อย", description: `${drawerItemId} — Statusเปลี่ยนเป็น Ready for ERP` });
     setDrawerItemId(null);
     setConfirmDialogOpen(false);
   };
@@ -435,7 +435,7 @@ export default function AccountingReview() {
                     <FileText className="h-12 w-12 mx-auto mb-3 opacity-30" />
                     <p className="text-sm font-medium">{activeDoc?.name}</p>
                     <p className="text-xs mt-1">{activeDoc?.size}</p>
-                    <p className="text-xs mt-1">เอกสารจะแสดงตรงนี้เมื่อเชื่อมต่อกับ backend</p>
+                    <p className="text-xs mt-1">Document will be displayed here when connected to the backend</p>
                   </div>
                 </div>
               </div>

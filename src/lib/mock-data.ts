@@ -19,7 +19,7 @@ export const users: User[] = [
   currentUser,
   { id: "u2", employeeCode: "EMP002", name: "Somying Kaewsai", email: "somying@company.com", role: "Manager", branch: "Bangkok", department: "Sales", costCenter: "CC-SALES-01", position: "Sales Manager", managerId: "u5", managerName: "ธนา พิทักษ์" },
   { id: "u3", employeeCode: "EMP003", name: "Wichai Charoen", email: "wichai@company.com", role: "Employee", branch: "Chiang Mai", department: "Engineering", costCenter: "CC-ENG-01", position: "Software Engineer", managerId: "u5", managerName: "ธนา พิทักษ์" },
-  { id: "u4", employeeCode: "ACC001", name: "พิมพ์ ดี", email: "pim@company.com", role: "Accounting", branch: "Bangkok", department: "Finance", costCenter: "CC-FIN-01", position: "Senior Accountant", managerId: null, managerName: null },
+  { id: "u4", employeeCode: "ACC001", name: "Pim Dee", email: "pim@company.com", role: "Accounting", branch: "Bangkok", department: "Finance", costCenter: "CC-FIN-01", position: "Senior Accountant", managerId: null, managerName: null },
   { id: "u5", employeeCode: "MGR001", name: "ธนา พิทักษ์", email: "thana@company.com", role: "Admin", branch: "Bangkok", department: "Management", costCenter: "CC-MGT-01", position: "Director", managerId: null, managerName: null },
 ];
 

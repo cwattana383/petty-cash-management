@@ -37,8 +37,8 @@ export default function OcrProcessingState({ onComplete }: OcrProcessingStatePro
     <div className="flex flex-col items-center gap-4 py-10">
       <Loader2 className="h-10 w-10 animate-spin text-primary" />
       <div className="text-center space-y-1">
-        <p className="text-base font-semibold text-foreground">🔍 กำลังอ่านเอกสาร...</p>
-        <p className="text-sm text-muted-foreground">ระบบกำลังตรวจสอบTax Invoiceของคุณ กรุณารอสักครู่</p>
+        <p className="text-base font-semibold text-foreground">🔍 Reading Document...</p>
+        <p className="text-sm text-muted-foreground">System is verifying your Tax Invoice. Please wait.</p>
       </div>
       <div className="w-full max-w-xs">
         <Progress value={progress} className="h-2" />

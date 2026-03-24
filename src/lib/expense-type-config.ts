@@ -68,9 +68,9 @@ export const EXPENSE_TYPE_CONFIG: ExpenseTypeConfigItem[] = [
     currency: "THB",
     glCode: "5300-004",
     requiredDocs: [
-      { id: "receipt_fuel", label: "ใบเสร็จน้ำมัน (พร้อมระบุทะเบียนรถ)", required: true },
-      { id: "trip_detail", label: "รายละเอียดการเดินทาง (ต้นทาง–ปลายทาง–กิโลเมตร)", required: true },
-      { id: "insurance_proof", label: "หลักฐานประกันภัย พ.ร.บ. + ประกันสมัครใจ", required: true },
+      { id: "receipt_fuel", label: "Fuel Receipt (with Vehicle Registration No.)", required: true },
+      { id: "trip_detail", label: "Trip Details (Origin–Destination–Kilometers)", required: true },
+      { id: "insurance_proof", label: "Insurance Proof (Compulsory + Voluntary)", required: true },
       { id: "claim_form", label: "Travelling Expenses Claim Form", required: true },
     ],
     optionalDocs: [],
@@ -83,12 +83,12 @@ export const EXPENSE_TYPE_CONFIG: ExpenseTypeConfigItem[] = [
     currency: "THB",
     glCode: "5300-004",
     requiredDocs: [
-      { id: "ev_receipt", label: "ใบเสร็จชาร์จไฟ EV (EV Charging Receipt)", required: true },
-      { id: "trip_detail", label: "รายละเอียดการเดินทาง (ต้นทาง–ปลายทาง–กิโลเมตร)", required: true },
+      { id: "ev_receipt", label: "EV Charging Receipt", required: true },
+      { id: "trip_detail", label: "Trip Details (Origin–Destination–Kilometers)", required: true },
       { id: "claim_form", label: "Travelling Expenses Claim Form", required: true },
     ],
     optionalDocs: [
-      { id: "ev_allowance_note", label: "หมายเหตุ: EV Allowance 3,000 THB/เดือน (HR-CB-001-2567)", required: false },
+      { id: "ev_allowance_note", label: "Note: EV Allowance 3,000 THB/month (HR-CB-001-2024)", required: false },
     ],
   },
   {
@@ -99,7 +99,7 @@ export const EXPENSE_TYPE_CONFIG: ExpenseTypeConfigItem[] = [
     currency: "THB",
     glCode: "5300-002",
     requiredDocs: [
-      { id: "receipt", label: "ใบเสร็จToll Fees", required: true },
+      { id: "receipt", label: "Toll Fee Receipt", required: true },
       { id: "claim_form", label: "Travelling Expenses Claim Form", required: true },
     ],
     optionalDocs: [],
@@ -112,7 +112,7 @@ export const EXPENSE_TYPE_CONFIG: ExpenseTypeConfigItem[] = [
     currency: "THB",
     glCode: "5300-002",
     requiredDocs: [
-      { id: "receipt", label: "ใบเสร็จค่าจอดรถ (≤4 days / 96 ชั่วโมง)", required: true },
+      { id: "receipt", label: "Parking Receipt (≤4 days / 96 hours)", required: true },
     ],
     optionalDocs: [],
   },
@@ -124,12 +124,12 @@ export const EXPENSE_TYPE_CONFIG: ExpenseTypeConfigItem[] = [
     currency: "THB",
     glCode: "5300-003",
     requiredDocs: [
-      { id: "invoice", label: "Invoice / ใบเสร็จจากบริษัทรถเช่า", required: true },
-      { id: "cga_booking", label: "หลักฐานการจองผ่าน CGA Booking", required: true },
-      { id: "travel_approval", label: "หนังสือApproveเดินทาง (Travel Approval)", required: true },
+      { id: "invoice", label: "Invoice / Receipt from Car Rental Company", required: true },
+      { id: "cga_booking", label: "CGA Booking Confirmation", required: true },
+      { id: "travel_approval", label: "Travel Approval Letter", required: true },
     ],
     optionalDocs: [
-      { id: "outside_contract_approval", label: "Approveจาก Associate Director (กรณีนอกสัญญา)", required: false },
+      { id: "outside_contract_approval", label: "Approval from Associate Director (Off-Contract)", required: false },
     ],
   },
   {
@@ -140,9 +140,9 @@ export const EXPENSE_TYPE_CONFIG: ExpenseTypeConfigItem[] = [
     currency: "THB",
     glCode: "5300-001",
     requiredDocs: [
-      { id: "eticket", label: "E-Ticket / ตั๋วเครื่องบิน", required: true },
-      { id: "director_approval", label: "หนังสือApproveจาก Director ขึ้นไป (HQ) หรือ SGM (สโตร์)", required: true },
-      { id: "cga_booking", label: "หลักฐานการจองผ่าน Agency / CGA", required: true },
+      { id: "eticket", label: "E-Ticket / Flight Ticket", required: true },
+      { id: "director_approval", label: "Approval from Director+ (HQ) or SGM (Store)", required: true },
+      { id: "cga_booking", label: "Agency / CGA Booking Confirmation", required: true },
       { id: "tax_invoice", label: "Tax Invoice (Tax Invoice)", required: true },
     ],
     optionalDocs: [
@@ -157,7 +157,7 @@ export const EXPENSE_TYPE_CONFIG: ExpenseTypeConfigItem[] = [
     currency: "THB",
     glCode: "5300-005",
     requiredDocs: [
-      { id: "receipt", label: "ใบเสร็จ Courier / ใบนำส่ง", required: true },
+      { id: "receipt", label: "Courier Receipt / Delivery Note", required: true },
     ],
     optionalDocs: [],
   },
@@ -171,11 +171,11 @@ export const EXPENSE_TYPE_CONFIG: ExpenseTypeConfigItem[] = [
     currency: "THB",
     glCode: "5300-001",
     requiredDocs: [
-      { id: "eticket", label: "E-Ticket / ตั๋วเครื่องบิน", required: true },
+      { id: "eticket", label: "E-Ticket / Flight Ticket", required: true },
       { id: "boarding_pass", label: "Boarding Pass", required: true },
       { id: "tax_invoice", label: "Tax Invoice / Invoice", required: true },
-      { id: "travel_approval", label: "หนังสือApproveเดินทางต่างประเทศ (Chief Level ขึ้นไป)", required: true },
-      { id: "cga_booking", label: "หลักฐานการจองผ่าน Agency / CGA", required: true },
+      { id: "travel_approval", label: "Overseas Travel Approval (Chief Level+)", required: true },
+      { id: "cga_booking", label: "Agency / CGA Booking Confirmation", required: true },
       { id: "travel_insurance", label: "Travel Insurance Certificate (แจ้ง HR ล่วงหน้า ≥7 days)", required: true },
     ],
     optionalDocs: [
@@ -322,7 +322,7 @@ export const EXPENSE_TYPE_CONFIG: ExpenseTypeConfigItem[] = [
       { id: "hotel_folio", label: "Hotel Folio / ใบเสร็จโรงแรม", required: true },
       { id: "tax_invoice", label: "Invoice / Tax Invoice", required: true },
       { id: "travel_approval", label: "หนังสือApproveเดินทางต่างประเทศ", required: true },
-      { id: "cga_booking", label: "หลักฐานการจองผ่าน Agency / CGA", required: true },
+      { id: "cga_booking", label: "Agency / CGA Booking Confirmation", required: true },
     ],
     optionalDocs: [
       { id: "booking_confirmation", label: "Booking Confirmation", required: false },

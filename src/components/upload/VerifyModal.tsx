@@ -118,7 +118,7 @@ export default function VerifyModal({ doc, onClose, onConfirm, onReject, onRerun
       { name: "Invoice No", conf: receipt.invoiceNumberConf },
     ];
     confFields.forEach((cf) => {
-      if (cf.conf < 80) w.push(`${cf.name} has low confidence (${cf.conf}%) — กรุณาตรวจสอบ`);
+      if (cf.conf < 80) w.push(`${cf.name} has low confidence (${cf.conf}%) — Please review`);
     });
 
     if (doc?.ocrConfidenceScore != null && doc.ocrConfidenceScore < 80) {
@@ -138,7 +138,7 @@ export default function VerifyModal({ doc, onClose, onConfirm, onReject, onRerun
 
     setReceiptErrors(errs);
     if (Object.keys(errs).length > 0) {
-      toast.error("กรุณากรอกข้อมูลให้ครบถ้วน");
+      toast.error("Please fill in all required fields");
       return;
     }
 

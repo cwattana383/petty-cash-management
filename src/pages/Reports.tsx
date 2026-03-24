@@ -63,8 +63,8 @@ export default function Reports() {
             <thead>
               <tr className="border-b bg-muted/50">
                 <th className="text-left px-6 py-3 font-semibold">Status</th>
-                <th className="text-right px-6 py-3 font-semibold">จำนวนitems</th>
-                <th className="text-right px-6 py-3 font-semibold">ยอดรวม</th>
+                <th className="text-right px-6 py-3 font-semibold">Count</th>
+                <th className="text-right px-6 py-3 font-semibold">Total Amount</th>
               </tr>
             </thead>
             <tbody>
@@ -83,7 +83,7 @@ export default function Reports() {
             </tbody>
             <tfoot>
               <tr className="border-t-2 bg-muted/30 font-semibold">
-                <td className="px-6 py-3">รวมAll</td>
+                <td className="px-6 py-3">Grand Total</td>
                 <td className="text-right px-6 py-3 font-mono">{grandTotalCount} items</td>
                 <td className="text-right px-6 py-3 font-mono">฿{grandTotalAmount.toLocaleString()}</td>
               </tr>

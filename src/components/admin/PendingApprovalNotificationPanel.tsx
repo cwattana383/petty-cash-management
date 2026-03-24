@@ -83,7 +83,7 @@ const mockPendingApprovals = [
   },
   {
     claim_id: "CLM-20260226-0015",
-    requester_name: "พิมพ์ ดี",
+    requester_name: "Pim Dee",
     submission_date: "2026-02-26",
     amount: "850.00",
     currency: "THB",
@@ -92,7 +92,7 @@ const mockPendingApprovals = [
   },
   {
     claim_id: "CLM-20260225-0003",
-    requester_name: "สมศักดิ์ วิชาญ",
+    requester_name: "Somsak Wichan",
     submission_date: "2026-02-25",
     amount: "45,000.00",
     currency: "THB",

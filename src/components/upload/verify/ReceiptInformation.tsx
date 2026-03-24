@@ -106,7 +106,7 @@ export default function ReceiptInformation({ data, onChange, errors }: Props) {
             </div>
             <Input type="date" value={data.invoiceDate} onChange={(e) => set("invoiceDate", e.target.value)} className={`h-8 text-sm ${data.invoiceDateConf < 80 ? "border-yellow-400 bg-yellow-50" : ""}`} />
             {data.invoiceDateDisplay && (
-              <p className="text-xs text-muted-foreground mt-0.5">แสดงเป็น พ.ศ.: {data.invoiceDateDisplay}</p>
+              <p className="text-xs text-muted-foreground mt-0.5">Displayed in BE: {data.invoiceDateDisplay}</p>
             )}
             {errors.invoiceDate && <p className="text-xs text-destructive mt-0.5">{errors.invoiceDate}</p>}
           </div>

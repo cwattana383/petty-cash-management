@@ -148,7 +148,7 @@ export default function MyClaims() {
     }));
     setClaimStatuses((prev) => ({ ...prev, [claimId]: "Pending Approval" }));
     resetDialog();
-    toast({ title: "ส่งApproveสำเร็จ", description: `แนบ ${totalFiles} files สถานะเปลี่ยนเป็น Pending Approval` });
+    toast({ title: "ส่งApproveสำเร็จ", description: `แนบ ${totalFiles} files Statusเปลี่ยนเป็น Pending Approval` });
   };
 
   // Warning dialog: submit without document
@@ -317,7 +317,7 @@ export default function MyClaims() {
       <Dialog open={uploadDialog.open} onOpenChange={(open) => { if (!open) resetDialog(); }}>
         <DialogContent className="sm:max-w-lg max-h-[90vh] overflow-y-auto">
           <DialogHeader>
-            <DialogTitle>แนบเอกสาร</DialogTitle>
+            <DialogTitle>Attach Document</DialogTitle>
             <DialogDescription>อัปโหลดTax Invoiceเพื่อตรวจสอบอัตโนมัติ (PDF, JPG, PNG)</DialogDescription>
           </DialogHeader>
 

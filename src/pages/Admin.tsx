@@ -155,10 +155,10 @@ const mockSyncLogs = [
 
 // --- Mock data for Organization Data ---
 const mockDepartments = [
-  { code: "DEPT-IT", name: "Information Technology", head: "สมศักดิ์ วิชาญ", employees: 25 },
+  { code: "DEPT-IT", name: "Information Technology", head: "Somsak Wichan", employees: 25 },
   { code: "DEPT-MK", name: "Marketing", head: "Somying Kaewsai", employees: 12 },
   { code: "DEPT-HR", name: "Human Resources", head: "Wipa Sukjai", employees: 8 },
-  { code: "DEPT-FN", name: "Finance", head: "พิมพ์ ดี", employees: 10 },
+  { code: "DEPT-FN", name: "Finance", head: "Pim Dee", employees: 10 },
   { code: "DEPT-SL", name: "Sales", head: "Somchai Jaidee", employees: 30 },
 ];
 
@@ -777,7 +777,7 @@ const mockExpenseRules = [
 
 const mockExpenseDelegates = [
   { delegator: "Somying Kaewsai", delegate: "Somchai Jaidee", startDate: "2026-02-01", endDate: "2026-02-28", status: "Active" },
-  { delegator: "ธนา พิทักษ์", delegate: "พิมพ์ ดี", startDate: "2026-03-01", endDate: "2026-03-15", status: "Scheduled" },
+  { delegator: "ธนา พิทักษ์", delegate: "Pim Dee", startDate: "2026-03-01", endDate: "2026-03-15", status: "Scheduled" },
 ];
 
 // ExpenseTypePanel is now imported from @/components/admin/ExpenseTypePanel
