@@ -260,24 +260,6 @@ export default function ExpenseLineItems({
                 </div>
 
 
-                {/* Tax Invoice Number (conditional) */}
-                {showTaxField && (
-                  <div className="space-y-1.5 md:col-span-2">
-                    <Label className="text-[13px] font-semibold text-foreground">
-                      Tax Invoice Number
-                      {requiresTaxInvoice && <span className="text-destructive"> *</span>}
-                    </Label>
-                    <Input
-                      className="text-[13px]"
-                      placeholder="e.g. INV-2025-001234"
-                      value={item.taxInvoiceNumber}
-                      onChange={(e) => updateItem(item.id, { taxInvoiceNumber: e.target.value })}
-                    />
-                    {requiresTaxInvoice && !item.taxInvoiceNumber.trim() && (
-                      <p className="text-xs text-destructive">Please enter the tax invoice number</p>
-                    )}
-                  </div>
-                )}
               </div>
 
               {/* VAT type changed — reason */}
