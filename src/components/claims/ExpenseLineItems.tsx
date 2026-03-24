@@ -298,13 +298,6 @@ export default function ExpenseLineItems({
           );
         })}
 
-        {/* VAT doc warning */}
-        {showVatDocWarning && (
-          <div className="rounded-lg border border-amber-300 bg-amber-50 px-4 py-3 flex items-center gap-2">
-            <AlertTriangle className="h-4 w-4 text-amber-600 shrink-0" />
-            <p className="text-[13px] text-amber-800">⚠️ This VAT Type requires a Tax Invoice attachment</p>
-          </div>
-        )}
 
       </CardContent>
     </Card>
