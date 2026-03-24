@@ -63,6 +63,7 @@ export default function ClaimDetail() {
   const [expenseType, setExpenseType] = useState("");
   const [subExpenseType, setSubExpenseType] = useState("");
   const [glAccount, setGlAccount] = useState("");
+  const [vatType, setVatType] = useState("");
 
   // Step 3
   const [lineItemsValid, setLineItemsValid] = useState(true);
