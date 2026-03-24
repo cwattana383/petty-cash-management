@@ -202,6 +202,9 @@ export default function ClaimDetail() {
     if (!allRequiredUploaded) {
       newErrors.documents = "All required documents must be uploaded before submitting.";
     }
+    if (!lineItemsValid) {
+      newErrors.lineItems = "Please complete all required fields in expense line items.";
+    }
 
     if (Object.keys(newErrors).length > 0) {
       setErrors(newErrors);
