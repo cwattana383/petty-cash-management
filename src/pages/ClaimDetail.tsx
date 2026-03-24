@@ -16,7 +16,7 @@ import {
 import { formatBEDate } from "@/lib/utils";
 import { useClaims } from "@/lib/claims-context";
 import { getLevel1Options, getLevel2Options, getExpenseConfig } from "@/lib/expense-type-config";
-import { getVatTypeConfig, getDefaultVatType } from "@/lib/vat-type-config";
+import { VAT_TYPE_CONFIG, getVatTypeConfig, getDefaultVatType } from "@/lib/vat-type-config";
 import ExpenseLineItems from "@/components/claims/ExpenseLineItems";
 import { useToast } from "@/hooks/use-toast";
 import { useState, useEffect, useCallback, useRef } from "react";
@@ -63,6 +63,7 @@ export default function ClaimDetail() {
   const [expenseType, setExpenseType] = useState("");
   const [subExpenseType, setSubExpenseType] = useState("");
   const [glAccount, setGlAccount] = useState("");
+  const [vatType, setVatType] = useState("");
 
   // Step 3
   const [lineItemsValid, setLineItemsValid] = useState(true);
@@ -267,6 +268,7 @@ export default function ClaimDetail() {
                     setExpenseType(v);
                     setSubExpenseType("");
                     setGlAccount("");
+                    setVatType("");
                     setDocUploads({});
                     setErrors((p) => ({ ...p, expenseType: "" }));
                   }}>
@@ -290,6 +292,7 @@ export default function ClaimDetail() {
                       setDocUploads({});
                       const config = getExpenseConfig(expenseType, v);
                       setGlAccount(config?.glCode || "");
+                      setVatType(getDefaultVatType(v) || "no_vat");
                       setErrors((p) => ({ ...p, subExpenseType: "" }));
                     }}
                     disabled={!expenseType}
@@ -305,7 +308,18 @@ export default function ClaimDetail() {
                 {/* VAT Type */}
                 <div className="space-y-1.5">
                   <Label className="text-[13px] font-semibold text-foreground">VAT Type</Label>
-                  <Input value={selectedConfig ? (getVatTypeConfig(getDefaultVatType(subExpenseType) || "no_vat")?.label || "No VAT") : ""} readOnly className="bg-muted/40 border-border text-[13px]" placeholder="Auto-filled from sub expense type" />
+                  <Select value={vatType} onValueChange={setVatType}>
+                    <SelectTrigger className="text-[13px]">
+                      <SelectValue placeholder="Auto-filled from sub expense type" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {VAT_TYPE_CONFIG.map((vt) => (
+                        <SelectItem key={vt.id} value={vt.id} className="text-[13px]">
+                          {vt.label}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                 </div>
 
                 {/* GL Account */}
