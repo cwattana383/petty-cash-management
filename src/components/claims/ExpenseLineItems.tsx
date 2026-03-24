@@ -3,7 +3,6 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
 import {
   Select,
   SelectContent,
@@ -21,12 +20,10 @@ import {
   VAT_TYPE_CONFIG,
   getVatTypeConfig,
   getDefaultVatType,
-  type VatTypeConfigItem,
 } from "@/lib/vat-type-config";
 
 export interface LineItem {
   id: string;
-  description: string;
   supplierName: string;
   grossAmount: number;
   vatTypeId: string;
@@ -37,12 +34,12 @@ export interface LineItem {
   netAmount: number;
   vatAmount: number;
   taxInvoiceNumber: string;
+  note: string;
 }
 
 function createEmptyLineItem(defaultVatId: string): LineItem {
   return {
     id: `li-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
-    description: "",
     supplierName: "",
     grossAmount: 0,
     vatTypeId: defaultVatId,
@@ -53,6 +50,7 @@ function createEmptyLineItem(defaultVatId: string): LineItem {
     netAmount: 0,
     vatAmount: 0,
     taxInvoiceNumber: "",
+    note: "",
   };
 }
 
@@ -62,13 +60,13 @@ function calcVat(gross: number, vatTypeId: string): { net: number; vat: number }
   if (!config) return { net: gross, vat: 0 };
 
   switch (config.calcMethod) {
-    case "exclusive": // claim_100: gross includes VAT
+    case "exclusive":
     case "average": {
       const net = Math.round((gross / 1.07) * 100) / 100;
       const vat = Math.round((gross - net) * 100) / 100;
       return { net, vat };
     }
-    case "inclusive": // unclaim_100: VAT absorbed
+    case "inclusive":
       return { net: gross, vat: 0 };
     case "none":
     default:
@@ -80,6 +78,7 @@ interface Props {
   subExpenseType: string;
   glCode: string;
   onValidationChange: (valid: boolean) => void;
+  onTotalChange?: (totalGross: number) => void;
   hasTaxInvoiceDoc: boolean;
 }
 
@@ -87,20 +86,18 @@ export default function ExpenseLineItems({
   subExpenseType,
   glCode,
   onValidationChange,
+  onTotalChange,
   hasTaxInvoiceDoc,
 }: Props) {
   const defaultVatId = getDefaultVatType(subExpenseType) || "no_vat";
   const [items, setItems] = useState<LineItem[]>([createEmptyLineItem(defaultVatId)]);
   const [showVatDocWarning, setShowVatDocWarning] = useState(false);
-  const [showNoVatWithInvoice, setShowNoVatWithInvoice] = useState(false);
 
-  // Reset items when sub expense type changes
   useEffect(() => {
     const newDefaultVatId = getDefaultVatType(subExpenseType) || "no_vat";
     setItems([createEmptyLineItem(newDefaultVatId)]);
   }, [subExpenseType]);
 
-  // Check validation
   useEffect(() => {
     const allValid = items.every((item) => {
       const config = getVatTypeConfig(item.vatTypeId);
@@ -109,26 +106,26 @@ export default function ExpenseLineItems({
       return true;
     });
 
-    // Check if any item with requiresTaxInvoice has no doc uploaded
     const needsTaxDoc = items.some((item) => {
       const config = getVatTypeConfig(item.vatTypeId);
       return config?.requiresTaxInvoice;
     });
     setShowVatDocWarning(needsTaxDoc && !hasTaxInvoiceDoc);
 
-    // Check no_vat with tax invoice
-    const hasNoVat = items.some((i) => i.vatTypeId === "no_vat");
-    setShowNoVatWithInvoice(hasNoVat && hasTaxInvoiceDoc);
-
     onValidationChange(allValid);
   }, [items, hasTaxInvoiceDoc, onValidationChange]);
+
+  // Report total gross to parent
+  useEffect(() => {
+    const totalGross = items.reduce((s, i) => s + i.grossAmount, 0);
+    onTotalChange?.(totalGross);
+  }, [items, onTotalChange]);
 
   const updateItem = useCallback((id: string, updates: Partial<LineItem>) => {
     setItems((prev) =>
       prev.map((item) => {
         if (item.id !== id) return item;
         const updated = { ...item, ...updates };
-        // Recalculate VAT when gross or vatType changes
         if ("grossAmount" in updates || "vatTypeId" in updates) {
           const { net, vat } = calcVat(updated.grossAmount, updated.vatTypeId);
           updated.netAmount = net;
@@ -162,10 +159,8 @@ export default function ExpenseLineItems({
 
   const handleSwitchToClaim100 = (id: string) => {
     handleVatTypeChange(id, "claim_100");
-    setShowNoVatWithInvoice(false);
   };
 
-  // Totals
   const totalGross = items.reduce((s, i) => s + i.grossAmount, 0);
   const totalNet = items.reduce((s, i) => s + i.netAmount, 0);
   const totalVat = items.reduce((s, i) => s + i.vatAmount, 0);
@@ -177,9 +172,9 @@ export default function ExpenseLineItems({
     <Card className="border border-border rounded-xl">
       <CardHeader className="flex flex-row items-center justify-between">
         <div>
-          <CardTitle className="text-base font-bold">Expense Details</CardTitle>
+          <CardTitle className="text-base font-bold">Receipt/Tax Invoice Details</CardTitle>
           <p className="text-[13px] text-muted-foreground mt-0.5">
-            Enter receipt details for each line item
+            Enter details from the receipt — multiple items can be added.
           </p>
         </div>
         <Button variant="outline" size="sm" className="gap-1 text-xs" onClick={addLineItem}>
@@ -214,17 +209,6 @@ export default function ExpenseLineItems({
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {/* Description */}
-                <div className="space-y-1.5">
-                  <Label className="text-[13px] font-semibold text-foreground">Description</Label>
-                  <Input
-                    className="text-[13px]"
-                    placeholder="Description of item/service"
-                    value={item.description}
-                    onChange={(e) => updateItem(item.id, { description: e.target.value })}
-                  />
-                </div>
-
                 {/* Supplier Name */}
                 <div className="space-y-1.5">
                   <Label className="text-[13px] font-semibold text-foreground">Supplier Name</Label>
@@ -275,20 +259,16 @@ export default function ExpenseLineItems({
                     <div className="flex items-center gap-1.5 mt-1">
                       <Info className="h-3 w-3 text-blue-500 shrink-0" />
                       <p className="text-[11px] text-blue-600">
-                        VAT Type auto-set to {vatConfig?.label}. Change only if your receipt differs.
+                        Auto-set to {vatConfig?.label}. Change if receipt differs.
                       </p>
                     </div>
                   )}
                 </div>
 
-                {/* Net Amount (read-only) */}
+                {/* Net Amount */}
                 <div className="space-y-1.5">
                   <Label className="text-[13px] font-semibold text-foreground">Net Amount (THB)</Label>
-                  <Input
-                    readOnly
-                    className="bg-muted/40 text-[13px] text-right"
-                    value={fmt(item.netAmount)}
-                  />
+                  <Input readOnly className="bg-muted/40 text-[13px] text-right" value={fmt(item.netAmount)} />
                   {item.vatTypeId === "unclaim_100" && item.grossAmount > 0 && (
                     <p className="text-[11px] text-amber-600">VAT included in cost — not claimable</p>
                   )}
@@ -297,13 +277,20 @@ export default function ExpenseLineItems({
                   )}
                 </div>
 
-                {/* VAT Amount (read-only) */}
+                {/* VAT Amount */}
                 <div className="space-y-1.5">
                   <Label className="text-[13px] font-semibold text-foreground">VAT Amount (THB)</Label>
+                  <Input readOnly className="bg-muted/40 text-[13px] text-right" value={fmt(item.vatAmount)} />
+                </div>
+
+                {/* Note (optional, single line) */}
+                <div className="space-y-1.5">
+                  <Label className="text-[13px] text-muted-foreground">Note (optional)</Label>
                   <Input
-                    readOnly
-                    className="bg-muted/40 text-[13px] text-right"
-                    value={fmt(item.vatAmount)}
+                    className="text-[13px]"
+                    placeholder="Additional note for this line"
+                    value={item.note}
+                    onChange={(e) => updateItem(item.id, { note: e.target.value })}
                   />
                 </div>
 
@@ -327,15 +314,15 @@ export default function ExpenseLineItems({
                 )}
               </div>
 
-              {/* VAT type changed — reason required */}
+              {/* VAT type changed — reason */}
               {item.vatTypeChanged && (
                 <div className="space-y-1.5">
                   <Label className="text-[13px] font-semibold text-foreground">
                     Reason for VAT Type Change <span className="text-destructive">*</span>
                   </Label>
-                  <Textarea
-                    className="text-[13px] min-h-[60px]"
-                    placeholder="Explain why the VAT type was changed from the default"
+                  <Input
+                    className="text-[13px]"
+                    placeholder="Explain why the VAT type was changed"
                     value={item.vatChangeReason}
                     onChange={(e) => updateItem(item.id, { vatChangeReason: e.target.value })}
                   />
@@ -345,24 +332,17 @@ export default function ExpenseLineItems({
                 </div>
               )}
 
-              {/* No VAT but has tax invoice warning */}
+              {/* No VAT but has tax invoice */}
               {item.vatTypeId === "no_vat" && hasTaxInvoiceDoc && (
                 <div className="rounded-lg border border-amber-300 bg-amber-50 px-4 py-3">
                   <p className="text-[13px] text-amber-800 mb-2">
                     คุณแนบใบกำกับภาษี — ต้องการเปลี่ยน VAT Type เป็น Claim 100 หรือไม่?
                   </p>
                   <div className="flex gap-2">
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      className="text-xs border-blue-300 text-blue-700 hover:bg-blue-50"
-                      onClick={() => handleSwitchToClaim100(item.id)}
-                    >
+                    <Button size="sm" variant="outline" className="text-xs border-blue-300 text-blue-700 hover:bg-blue-50" onClick={() => handleSwitchToClaim100(item.id)}>
                       เปลี่ยนเป็น Claim 100
                     </Button>
-                    <Button size="sm" variant="ghost" className="text-xs">
-                      คงไว้ No VAT
-                    </Button>
+                    <Button size="sm" variant="ghost" className="text-xs">คงไว้ No VAT</Button>
                   </div>
                 </div>
               )}
@@ -374,13 +354,11 @@ export default function ExpenseLineItems({
         {showVatDocWarning && (
           <div className="rounded-lg border border-amber-300 bg-amber-50 px-4 py-3 flex items-center gap-2">
             <AlertTriangle className="h-4 w-4 text-amber-600 shrink-0" />
-            <p className="text-[13px] text-amber-800">
-              ⚠️ VAT Type นี้ต้องแนบใบกำกับภาษี
-            </p>
+            <p className="text-[13px] text-amber-800">⚠️ VAT Type นี้ต้องแนบใบกำกับภาษี</p>
           </div>
         )}
 
-        {/* Summary Box */}
+        {/* Summary */}
         <div className="rounded-lg border border-border bg-muted/30 p-4">
           <p className="text-[13px] font-semibold text-foreground mb-3">Summary</p>
           <div className="grid grid-cols-2 gap-y-2 text-[13px]">

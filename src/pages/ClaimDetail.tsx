@@ -1,18 +1,17 @@
 import { useParams, useNavigate } from "react-router-dom";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Switch } from "@/components/ui/switch";
 import { Progress } from "@/components/ui/progress";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import {
   ArrowLeft, Check, X, MessageSquare, Clock, CheckCircle, XCircle,
-  AlertCircle, Send, AlertTriangle, Upload, FileText, Image, ShieldCheck,
-  Loader2, CheckCircle2, Info
+  AlertCircle, Send, AlertTriangle, Upload, FileText, Image,
+  Loader2, CheckCircle2, Info, Landmark, CreditCard
 } from "lucide-react";
 import { formatBEDate } from "@/lib/utils";
 import { useClaims } from "@/lib/claims-context";
@@ -21,40 +20,8 @@ import ExpenseLineItems from "@/components/claims/ExpenseLineItems";
 import { useToast } from "@/hooks/use-toast";
 import { useState, useEffect, useCallback, useRef } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
-import DocumentHeader from "@/components/claims/DocumentHeader";
 
-const statusConfig: Record<string, { color: string; icon: React.ElementType }> = {
-  "Pending Invoice": { color: "bg-orange-100 text-orange-800", icon: Clock },
-  "Pending Approval": { color: "bg-yellow-100 text-yellow-800", icon: Clock },
-  "Final Rejected": { color: "bg-red-100 text-red-800", icon: XCircle },
-  "Auto Approved": { color: "bg-green-100 text-green-800", icon: CheckCircle },
-  Reimbursed: { color: "bg-emerald-100 text-emerald-800", icon: CheckCircle },
-};
-
-const actionConfig: Record<string, { color: string; icon: React.ElementType }> = {
-  Pending: { color: "border-yellow-400 bg-yellow-50", icon: Clock },
-  Approved: { color: "border-green-400 bg-green-50", icon: CheckCircle },
-  Rejected: { color: "border-red-400 bg-red-50", icon: XCircle },
-  "Request Info": { color: "border-blue-400 bg-blue-50", icon: AlertCircle },
-  Delegated: { color: "border-purple-400 bg-purple-50", icon: Send },
-};
-
-const COST_CENTERS = [
-  "CC-FIN-001 Finance",
-  "CC-IT-002 IT",
-  "CC-HR-003 HR",
-];
-
-type DocTab = "tax-invoice" | "receipt" | "abbreviated" | "cash-bill" | "other";
-
-const DOC_TABS: { key: DocTab; label: string; hint: string }[] = [
-  { key: "tax-invoice", label: "Tax Invoice", hint: "Must include: invoice number, seller name & address, tax ID, date, VAT amount" },
-  { key: "receipt", label: "Receipt", hint: "Must include: payee name & address, date, line items, total amount" },
-  { key: "abbreviated", label: "Abbreviated Receipt", hint: "Allowed only for transactions under THB 2,000. Must include: date, shop name, total" },
-  { key: "cash-bill", label: "Cash Bill", hint: "Must include: shop name, date, itemized list, total" },
-  { key: "other", label: "Other", hint: "Attach any other relevant document" },
-];
-
+/* ─── Types ─── */
 interface UploadedFile {
   id: string;
   name: string;
@@ -70,6 +37,21 @@ const SIMULATED_FILES = [
   { name: "taxi-receipt-scan.png", type: "PNG", size: "890 KB" },
 ];
 
+const actionConfig: Record<string, { color: string; icon: React.ElementType }> = {
+  Pending: { color: "border-yellow-400 bg-yellow-50", icon: Clock },
+  Approved: { color: "border-green-400 bg-green-50", icon: CheckCircle },
+  Rejected: { color: "border-red-400 bg-red-50", icon: XCircle },
+  "Request Info": { color: "border-blue-400 bg-blue-50", icon: AlertCircle },
+  Delegated: { color: "border-purple-400 bg-purple-50", icon: Send },
+};
+
+const STEPS = [
+  { num: 1, label: "Card Transaction" },
+  { num: 2, label: "Business Info" },
+  { num: 3, label: "Receipt Details" },
+  { num: 4, label: "Documents" },
+];
+
 export default function ClaimDetail() {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -81,29 +63,40 @@ export default function ClaimDetail() {
   const [actionDialog, setActionDialog] = useState<{ open: boolean; type: "approve" | "reject" | "info" }>({ open: false, type: "approve" });
   const [comment, setComment] = useState("");
 
-  // Editable fields
+  // Step 2 fields
   const [purpose, setPurpose] = useState("");
   const [expenseType, setExpenseType] = useState("");
   const [subExpenseType, setSubExpenseType] = useState("");
   const [glAccount, setGlAccount] = useState("");
-  const [costCenter, setCostCenter] = useState("");
-  const [projectCode, setProjectCode] = useState("");
 
-  // Document uploads per doc slot (keyed by doc id)
+  // Step 3
+  const [lineItemsValid, setLineItemsValid] = useState(true);
+  const [lineItemsTotal, setLineItemsTotal] = useState(0);
+
+  // Step 4 documents
   const [docUploads, setDocUploads] = useState<Record<string, UploadedFile>>({});
-
-  // Overseas approval
-  const [overseasApprovalStatus, setOverseasApprovalStatus] = useState<"pending" | "approved">("pending");
-  const [travelApprovalFiles, setTravelApprovalFiles] = useState<UploadedFile[]>([]);
-
-  // Documents (legacy general uploads)
-  const [activeDocTab, setActiveDocTab] = useState<DocTab>("tax-invoice");
-  const [uploadedFiles, setUploadedFiles] = useState<UploadedFile[]>([]);
   const fileCounter = useRef(0);
 
   // Validation
   const [errors, setErrors] = useState<Record<string, string>>({});
-  const [lineItemsValid, setLineItemsValid] = useState(true);
+
+  // Scroll tracking for progress indicator
+  const sectionRefs = useRef<(HTMLDivElement | null)[]>([null, null, null, null]);
+  const [activeStep, setActiveStep] = useState(0);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      const offsets = sectionRefs.current.map((ref) => ref?.getBoundingClientRect().top ?? Infinity);
+      const threshold = 160;
+      let current = 0;
+      for (let i = offsets.length - 1; i >= 0; i--) {
+        if (offsets[i] <= threshold) { current = i; break; }
+      }
+      setActiveStep(current);
+    };
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
 
   // Derived config
   const selectedConfig = expenseType && subExpenseType ? getExpenseConfig(expenseType, subExpenseType) : null;
@@ -111,43 +104,20 @@ export default function ClaimDetail() {
   const allRequiredDocs = selectedConfig?.requiredDocs || [];
   const allOptionalDocs = selectedConfig?.optionalDocs || [];
   const allRequiredUploaded = allRequiredDocs.length === 0 || allRequiredDocs.every((d) => docUploads[d.id]);
+  const uploadedRequiredCount = allRequiredDocs.filter((d) => docUploads[d.id]).length;
+  const docProgressPercent = allRequiredDocs.length > 0 ? (uploadedRequiredCount / allRequiredDocs.length) * 100 : 100;
 
-  const simulateUpload = useCallback((files: UploadedFile[], setFiles: React.Dispatch<React.SetStateAction<UploadedFile[]>>) => {
-    const simFile = SIMULATED_FILES[fileCounter.current % SIMULATED_FILES.length];
-    fileCounter.current += 1;
-    const newFile: UploadedFile = {
-      id: `file-${Date.now()}`,
-      name: simFile.name,
-      type: simFile.type,
-      size: simFile.size,
-      progress: 0,
-      ocrStatus: "uploading",
-    };
-    setFiles((prev) => [...prev, newFile]);
+  // Step completion
+  const step1Complete = true; // always complete (read-only)
+  const step2Complete = !!purpose.trim() && !!expenseType && !!subExpenseType && !!glAccount;
+  const step3Complete = lineItemsValid && selectedConfig != null && !isAutoReject;
+  const step4Complete = allRequiredUploaded && step2Complete;
+  const stepComplete = [step1Complete, step2Complete, step3Complete, step4Complete];
 
-    // Simulate progress
-    let prog = 0;
-    const interval = setInterval(() => {
-      prog += 20;
-      if (prog >= 100) {
-        clearInterval(interval);
-        setFiles((prev) =>
-          prev.map((f) => f.id === newFile.id ? { ...f, progress: 100, ocrStatus: "processing" } : f)
-        );
-        // Simulate OCR after upload
-        setTimeout(() => {
-          const passed = Math.random() > 0.25;
-          setFiles((prev) =>
-            prev.map((f) => f.id === newFile.id ? { ...f, ocrStatus: passed ? "passed" : "incomplete" } : f)
-          );
-        }, 2000);
-      } else {
-        setFiles((prev) =>
-          prev.map((f) => f.id === newFile.id ? { ...f, progress: prog } : f)
-        );
-      }
-    }, 400);
-  }, []);
+  // Missing required docs for tooltip
+  const missingDocs = allRequiredDocs.filter((d) => !docUploads[d.id]).map((d) => d.label);
+
+  const canSubmit = step2Complete && step3Complete && step4Complete && !isAutoReject;
 
   const simulateDocSlotUpload = useCallback((docId: string) => {
     const simFile = SIMULATED_FILES[fileCounter.current % SIMULATED_FILES.length];
@@ -183,46 +153,35 @@ export default function ClaimDetail() {
     );
   }
 
-  const isOverseas = expenseType === "Transportation — Overseas";
+  const isPendingApproval = claim.status === "Pending Approval";
+  const txnAmount = claim.totalAmount;
+  const amountMismatch = lineItemsTotal > 0 && Math.abs(lineItemsTotal - txnAmount) > 0.01;
 
   const handleSaveDraft = () => {
     toast({ title: "Draft Saved", description: "Your changes have been saved as a draft." });
   };
 
   const handleSubmit = () => {
-    if (isAutoReject) return;
+    if (!canSubmit) return;
     const newErrors: Record<string, string> = {};
     if (!purpose.trim()) newErrors.purpose = "Purpose is required";
     if (!expenseType) newErrors.expenseType = "Expense Type is required";
     if (!subExpenseType) newErrors.subExpenseType = "Sub Expense Type is required";
-    if (!glAccount) newErrors.glAccount = "GL Account is required";
-    if (isOverseas && overseasApprovalStatus !== "approved") {
-      newErrors.overseas = "Travel approval is required before submitting.";
-    }
-    if (!allRequiredUploaded) {
-      newErrors.documents = "All required documents must be uploaded before submitting.";
-    }
-    if (!lineItemsValid) {
-      newErrors.lineItems = "Please complete all required fields in expense line items.";
-    }
+    if (!allRequiredUploaded) newErrors.documents = "All required documents must be uploaded.";
 
     if (Object.keys(newErrors).length > 0) {
       setErrors(newErrors);
       toast({ title: "Validation Error", description: "Please complete all required fields.", variant: "destructive" });
       return;
     }
-
     setErrors({});
     updateClaim(claim.id, { status: "Pending Approval" });
     toast({ title: "Submitted", description: `${claim.claimNo} has been submitted for approval.` });
   };
 
-  const sc = statusConfig[claim.status] || statusConfig["Pending Invoice"];
-
   const handleAction = (type: "approve" | "reject" | "info") => {
     const newStatus = type === "approve" ? "Auto Approved" : type === "reject" ? "Final Rejected" : "Pending Approval";
     const actionLabel = type === "approve" ? "Approved" : type === "reject" ? "Rejected" : "Request Info";
-
     updateClaim(claim.id, {
       status: newStatus,
       approvalHistory: claim.approvalHistory.map((s, i) =>
@@ -234,413 +193,395 @@ export default function ClaimDetail() {
         ? [...claim.comments, { id: `cm-${Date.now()}`, userId: "u2", userName: "สมหญิง แก้วใส", text: comment, date: new Date().toISOString().slice(0, 10) }]
         : claim.comments,
     });
-
     toast({ title: `Claim ${actionLabel}`, description: `${claim.claimNo} has been ${actionLabel.toLowerCase()}` });
     setActionDialog({ open: false, type: "approve" });
     setComment("");
   };
 
-  const isPendingApproval = claim.status === "Pending Approval";
+  const scrollToStep = (idx: number) => {
+    sectionRefs.current[idx]?.scrollIntoView({ behavior: "smooth", block: "start" });
+  };
 
-  const ocrResultFile = uploadedFiles.find((f) => f.ocrStatus === "passed" || f.ocrStatus === "incomplete");
+  const fmt = (n: number) => n.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 
   return (
-    <div className="space-y-6 max-w-5xl mx-auto pb-24">
-      {/* Page Header */}
-      <div className="flex items-center gap-3">
-        <Button variant="ghost" size="icon" onClick={() => navigate(-1)}>
-          <ArrowLeft className="h-4 w-4" />
-        </Button>
-        <div className="flex-1">
-          <h1 className="text-2xl font-bold text-foreground">{claim.claimNo}</h1>
-          <p className="text-muted-foreground">{claim.purpose}</p>
-        </div>
-        {isPendingApproval && (
-          <div className="flex gap-2">
-            <Button variant="outline" className="text-green-600 border-green-300 hover:bg-green-50" onClick={() => setActionDialog({ open: true, type: "approve" })}>
-              <Check className="h-4 w-4 mr-1" />Approve
-            </Button>
-            <Button variant="outline" className="text-red-600 border-red-300 hover:bg-red-50" onClick={() => setActionDialog({ open: true, type: "reject" })}>
-              <X className="h-4 w-4 mr-1" />Reject
-            </Button>
-            <Button variant="outline" onClick={() => setActionDialog({ open: true, type: "info" })}>
-              <MessageSquare className="h-4 w-4 mr-1" />Request Info
-            </Button>
+    <div className="pb-24 max-w-5xl mx-auto">
+      {/* ══════ STICKY HEADER ══════ */}
+      <div className="sticky top-0 z-40 bg-background border-b border-border -mx-4 px-4 md:-mx-6 md:px-6">
+        {/* Row 1: Back + title + actions */}
+        <div className="flex items-center gap-3 py-3">
+          <Button variant="ghost" size="icon" onClick={() => navigate(-1)} className="shrink-0">
+            <ArrowLeft className="h-4 w-4" />
+          </Button>
+          <div className="flex-1 min-w-0">
+            <h1 className="text-lg font-bold text-foreground truncate">
+              {claim.claimNo} · {claim.purpose || "Taxicabs and Limousines"}
+            </h1>
           </div>
-        )}
+          {isPendingApproval && (
+            <div className="flex gap-2 shrink-0">
+              <Button variant="outline" size="sm" className="text-green-600 border-green-300 hover:bg-green-50" onClick={() => setActionDialog({ open: true, type: "approve" })}>
+                <Check className="h-3.5 w-3.5 mr-1" />Approve
+              </Button>
+              <Button variant="outline" size="sm" className="text-red-600 border-red-300 hover:bg-red-50" onClick={() => setActionDialog({ open: true, type: "reject" })}>
+                <X className="h-3.5 w-3.5 mr-1" />Reject
+              </Button>
+              <Button variant="outline" size="sm" onClick={() => setActionDialog({ open: true, type: "info" })}>
+                <MessageSquare className="h-3.5 w-3.5 mr-1" />Request Info
+              </Button>
+            </div>
+          )}
+        </div>
+
+        {/* Row 2: 4-step progress indicator */}
+        <div className="flex items-center gap-1 pb-3 overflow-x-auto">
+          {STEPS.map((step, idx) => {
+            const isActive = activeStep === idx;
+            const isDone = stepComplete[idx];
+            return (
+              <button
+                key={step.num}
+                onClick={() => scrollToStep(idx)}
+                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium transition-colors whitespace-nowrap ${
+                  isActive
+                    ? "bg-primary text-primary-foreground"
+                    : isDone
+                    ? "bg-emerald-100 text-emerald-800"
+                    : "bg-muted text-muted-foreground"
+                }`}
+              >
+                {isDone && !isActive ? (
+                  <CheckCircle2 className="h-3.5 w-3.5" />
+                ) : (
+                  <span className="h-4 w-4 rounded-full border border-current flex items-center justify-center text-[10px] font-bold">
+                    {step.num}
+                  </span>
+                )}
+                {step.label}
+              </button>
+            );
+          })}
+        </div>
       </div>
 
-      {/* Section 1 — Transaction Header (read-only) */}
-      <DocumentHeader
-        advanceNo={claim.claimNo}
-        glNo="-"
-        status={claim.status as any}
-        createDate={new Date(claim.createdDate)}
-      />
+      <div className="space-y-8 mt-6">
+        {/* ══════════════════════════════════════════════
+            STEP 1 — CARD TRANSACTION (Read-Only)
+           ══════════════════════════════════════════════ */}
+        <section ref={(el) => { sectionRefs.current[0] = el; }} className="scroll-mt-28">
+          <SectionDivider num={1} label="Card Transaction" />
+          <Card className="bg-muted/40 border border-border rounded-xl">
+            <CardContent className="pt-5 pb-5">
+              <div className="flex items-center gap-2 mb-4">
+                <CreditCard className="h-4 w-4 text-muted-foreground" />
+                <p className="text-[13px] font-semibold text-foreground">Card Transaction (auto-filled)</p>
+              </div>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-3 text-[13px]">
+                <Row label="Transaction No." value={claim.claimNo} />
+                <Row label="Date" value={formatBEDate(claim.createdDate)} />
+                <Row label="Merchant" value={claim.merchantName || "GRAB TAXI"} />
+                <Row label="Amount" value={`${fmt(txnAmount)} THB`} />
+                <Row label="MCC Description" value={claim.purpose || "Taxicabs and Limousines"} className="sm:col-span-2" />
+              </div>
+              <p className="text-[11px] text-muted-foreground mt-4 italic">
+                Data from the credit card's transaction — cannot be edited.
+              </p>
+            </CardContent>
+          </Card>
+        </section>
 
-      {/* Section 2 — Transaction Details (read-only) */}
-      <Card className="border border-border rounded-xl">
-        <CardHeader><CardTitle className="text-base font-bold">Transaction Details</CardTitle></CardHeader>
-        <CardContent>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-4">
-            <div className="space-y-1.5">
-              <Label className="text-[13px] font-semibold text-foreground">Transaction No.</Label>
-              <Input value={claim.claimNo} readOnly className="bg-muted/40 border-border text-[13px]" />
-            </div>
-            <div className="space-y-1.5">
-              <Label className="text-[13px] font-semibold text-foreground">Transaction Date</Label>
-              <Input value={formatBEDate(claim.createdDate)} readOnly className="bg-muted/40 border-border text-[13px]" />
-            </div>
-            <div className="space-y-1.5">
-              <Label className="text-[13px] font-semibold text-foreground">Merchant Name</Label>
-              <Input value={claim.merchantName || "GRAB TAXI"} readOnly className="bg-muted/40 border-border text-[13px]" />
-            </div>
-            <div className="space-y-1.5">
-              <Label className="text-[13px] font-semibold text-foreground">Amount</Label>
-              <Input
-                value={claim.totalAmount.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-                readOnly
-                className="bg-muted/40 border-border text-right text-[13px]"
-              />
-            </div>
-            <div className="space-y-1.5 md:col-span-2">
-              <Label className="text-[13px] font-semibold text-foreground">Description</Label>
-              <Input value={claim.purpose} readOnly className="bg-muted/40 border-border text-[13px]" />
-            </div>
-          </div>
-        </CardContent>
-      </Card>
+        {/* ══════════════════════════════════════════════
+            STEP 2 — BUSINESS INFO
+           ══════════════════════════════════════════════ */}
+        <section ref={(el) => { sectionRefs.current[1] = el; }} className="scroll-mt-28">
+          <SectionDivider num={2} label="Business Info" />
+          <Card className="border border-border rounded-xl">
+            <CardContent className="pt-5 space-y-4">
+              {/* Purpose */}
+              <div className="space-y-1.5">
+                <Label className="text-[13px] font-semibold text-foreground">
+                  Purpose <span className="text-destructive">*</span>
+                </Label>
+                <Textarea
+                  placeholder="Describe the business purpose, e.g., traveling to meet a HoReCa customer at the Lat Phrao branch."
+                  value={purpose}
+                  onChange={(e) => { setPurpose(e.target.value); setErrors((p) => ({ ...p, purpose: "" })); }}
+                  className="text-[13px] min-h-[80px]"
+                />
+                {errors.purpose && <p className="text-xs text-destructive">{errors.purpose}</p>}
+              </div>
 
-      <Card className="border border-border rounded-xl">
-        <CardHeader>
-          <div>
-            <CardTitle className="text-base font-bold">Expense Information</CardTitle>
-            <p className="text-[13px] text-muted-foreground mt-0.5">Completed by Cardholder</p>
-          </div>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="space-y-1.5">
-            <Label className="text-[13px] font-semibold text-foreground">Purpose <span className="text-destructive">*</span></Label>
-            <Textarea
-              placeholder="Describe the business purpose of this expense"
-              value={purpose}
-              onChange={(e) => { setPurpose(e.target.value); setErrors((p) => ({ ...p, purpose: "" })); }}
-              className="text-[13px] min-h-[80px]"
-            />
-            {errors.purpose && <p className="text-xs text-destructive">{errors.purpose}</p>}
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="space-y-1.5">
-              <Label className="text-[13px] font-semibold text-foreground">Expense Type <span className="text-destructive">*</span></Label>
-              <Select value={expenseType} onValueChange={(v) => {
-                setExpenseType(v);
-                setSubExpenseType("");
-                setGlAccount("");
-                setDocUploads({});
-                setErrors((p) => ({ ...p, expenseType: "" }));
-              }}>
-                <SelectTrigger className="text-[13px]"><SelectValue placeholder="Select expense type" /></SelectTrigger>
-                <SelectContent>
-                  {getLevel1Options().map((t) => <SelectItem key={t} value={t} className="text-[13px]">{t}</SelectItem>)}
-                </SelectContent>
-              </Select>
-              {errors.expenseType && <p className="text-xs text-destructive">{errors.expenseType}</p>}
-            </div>
-
-            <div className="space-y-1.5">
-              <Label className="text-[13px] font-semibold text-foreground">Sub Expense Type <span className="text-destructive">*</span></Label>
-              <Select
-                value={subExpenseType}
-                onValueChange={(v) => {
-                  setSubExpenseType(v);
-                  setDocUploads({});
-                  const config = getExpenseConfig(expenseType, v);
-                  if (config?.glCode) {
-                    setGlAccount(config.glCode);
-                  } else {
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {/* Expense Type */}
+                <div className="space-y-1.5">
+                  <Label className="text-[13px] font-semibold text-foreground">
+                    Expense Type <span className="text-destructive">*</span>
+                  </Label>
+                  <Select value={expenseType} onValueChange={(v) => {
+                    setExpenseType(v);
+                    setSubExpenseType("");
                     setGlAccount("");
-                  }
-                  setErrors((p) => ({ ...p, subExpenseType: "" }));
-                }}
-                disabled={!expenseType}
-              >
-                <SelectTrigger className="text-[13px]"><SelectValue placeholder={expenseType ? "Select sub type" : "Select expense type first"} /></SelectTrigger>
-                <SelectContent>
-                  {getLevel2Options(expenseType).map((t) => <SelectItem key={t} value={t} className="text-[13px]">{t}</SelectItem>)}
-                </SelectContent>
-              </Select>
-              {errors.subExpenseType && <p className="text-xs text-destructive">{errors.subExpenseType}</p>}
-            </div>
+                    setDocUploads({});
+                    setErrors((p) => ({ ...p, expenseType: "" }));
+                  }}>
+                    <SelectTrigger className="text-[13px]"><SelectValue placeholder="Select expense type" /></SelectTrigger>
+                    <SelectContent>
+                      {getLevel1Options().map((t) => <SelectItem key={t} value={t} className="text-[13px]">{t}</SelectItem>)}
+                    </SelectContent>
+                  </Select>
+                  {errors.expenseType && <p className="text-xs text-destructive">{errors.expenseType}</p>}
+                </div>
 
-            <div className="space-y-1.5">
-              <Label className="text-[13px] font-semibold text-foreground">GL Account <span className="text-destructive">*</span></Label>
-              <Input value={glAccount} readOnly className="bg-muted/40 border-border text-[13px]" placeholder="Auto-filled from sub expense type" />
-              {errors.glAccount && <p className="text-xs text-destructive">{errors.glAccount}</p>}
-            </div>
+                {/* Sub Expense Type */}
+                <div className="space-y-1.5">
+                  <Label className="text-[13px] font-semibold text-foreground">
+                    Sub Expense Type <span className="text-destructive">*</span>
+                  </Label>
+                  <Select
+                    value={subExpenseType}
+                    onValueChange={(v) => {
+                      setSubExpenseType(v);
+                      setDocUploads({});
+                      const config = getExpenseConfig(expenseType, v);
+                      setGlAccount(config?.glCode || "");
+                      setErrors((p) => ({ ...p, subExpenseType: "" }));
+                    }}
+                    disabled={!expenseType}
+                  >
+                    <SelectTrigger className="text-[13px]"><SelectValue placeholder={expenseType ? "Select sub type" : "Select expense type first"} /></SelectTrigger>
+                    <SelectContent>
+                      {getLevel2Options(expenseType).map((t) => <SelectItem key={t} value={t} className="text-[13px]">{t}</SelectItem>)}
+                    </SelectContent>
+                  </Select>
+                  {errors.subExpenseType && <p className="text-xs text-destructive">{errors.subExpenseType}</p>}
+                </div>
 
-          </div>
+                {/* GL Account */}
+                <div className="space-y-1.5 md:col-span-2">
+                  <Label className="text-[13px] font-semibold text-foreground">GL Account (auto-suggested)</Label>
+                  <Input value={glAccount} readOnly className="bg-muted/40 border-border text-[13px]" placeholder="Auto-filled from sub expense type" />
+                </div>
+              </div>
 
-          {/* Policy info banner */}
-          {selectedConfig && (
-            <div className="space-y-3 mt-3">
-              {selectedConfig.policyRule === "Auto Reject" && (
+              {/* Auto Reject banner */}
+              {isAutoReject && selectedConfig?.notes && (
                 <div className="rounded-lg border border-red-300 bg-red-50 px-4 py-3 flex items-center gap-2">
                   <XCircle className="h-4 w-4 text-red-600 shrink-0" />
                   <p className="text-[13px] text-red-800 font-medium">
-                    This expense type cannot be reimbursed per company policy.
+                    ❌ This expense type cannot be reimbursed per company policy.
                   </p>
-                </div>
-              )}
-              {selectedConfig.policyRule === "Requires Approval" && (
-                <div className="rounded-lg border border-amber-300 bg-amber-50 px-4 py-3 flex items-center gap-2">
-                  <AlertTriangle className="h-4 w-4 text-amber-600 shrink-0" />
-                  <p className="text-[13px] text-amber-800 font-medium">
-                    This expense requires manager approval before processing.
-                  </p>
-                </div>
-              )}
-              {selectedConfig.policyRule === "Auto Approve" && (
-                <div className="rounded-lg border border-emerald-300 bg-emerald-50 px-4 py-3 flex items-center gap-2">
-                  <CheckCircle className="h-4 w-4 text-emerald-600 shrink-0" />
-                  <p className="text-[13px] text-emerald-800 font-medium">
-                    This expense will be auto-approved{selectedConfig.threshold !== null && <> if within threshold (THB {selectedConfig.threshold.toLocaleString()})</>}.
-                  </p>
-                </div>
-              )}
-            </div>
-          )}
-        </CardContent>
-      </Card>
-
-      {/* Expense Line Items with VAT */}
-      {selectedConfig && !isAutoReject && (
-        <ExpenseLineItems
-          subExpenseType={subExpenseType}
-          glCode={glAccount}
-          onValidationChange={setLineItemsValid}
-          hasTaxInvoiceDoc={uploadedFiles.some((f) => f.name.toLowerCase().includes("inv")) || !!docUploads["tax_invoice"]}
-        />
-      )}
-
-      {/* Required & Optional Documents Section */}
-      {selectedConfig && !isAutoReject && (allRequiredDocs.length > 0 || allOptionalDocs.length > 0) && (
-        <Card className="border border-border rounded-xl">
-          <CardHeader>
-            <CardTitle className="text-base font-bold">Required Documents</CardTitle>
-            <p className="text-[13px] text-muted-foreground mt-0.5">Upload all required documents before submitting.</p>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            {/* Required docs */}
-            {allRequiredDocs.length > 0 && (
-              <div className="space-y-2">
-                <p className="text-xs font-semibold text-red-700 flex items-center gap-1.5">
-                  <span className="h-2 w-2 rounded-full bg-red-500 inline-block" />
-                  Required — must upload before submit
-                </p>
-                <div className="space-y-2">
-                  {allRequiredDocs.map((doc) => {
-                    const uploaded = docUploads[doc.id];
-                    return (
-                      <div key={doc.id} className={`flex items-center gap-3 p-3 rounded-lg border ${uploaded ? "border-emerald-200 bg-emerald-50/50" : "border-border bg-background"}`}>
-                        <div className="shrink-0">
-                          {uploaded ? (
-                            <CheckCircle2 className="h-5 w-5 text-emerald-600" />
-                          ) : (
-                            <AlertTriangle className="h-5 w-5 text-amber-500" />
-                          )}
-                        </div>
-                        <div className="flex-1 min-w-0">
-                          <p className="text-[13px] font-medium text-foreground">{doc.label}</p>
-                          {uploaded && (
-                            <p className="text-xs text-muted-foreground mt-0.5">{uploaded.name} • {uploaded.size}</p>
-                          )}
-                        </div>
-                        {uploaded ? (
-                          <Button variant="ghost" size="sm" className="text-xs" onClick={() => setDocUploads((prev) => { const n = { ...prev }; delete n[doc.id]; return n; })}>
-                            Remove
-                          </Button>
-                        ) : (
-                          <Button variant="outline" size="sm" className="text-xs gap-1" onClick={() => simulateDocSlotUpload(doc.id)}>
-                            <Upload className="h-3 w-3" /> Upload
-                          </Button>
-                        )}
-                      </div>
-                    );
-                  })}
-                </div>
-              </div>
-            )}
-
-            {/* Optional docs */}
-            {allOptionalDocs.length > 0 && (
-              <div className="space-y-2">
-                <p className="text-xs font-semibold text-amber-700 flex items-center gap-1.5">
-                  <span className="h-2 w-2 rounded-full bg-amber-400 inline-block" />
-                  Optional — recommended but not required
-                </p>
-                <div className="space-y-2">
-                  {allOptionalDocs.map((doc) => {
-                    const uploaded = docUploads[doc.id];
-                    return (
-                      <div key={doc.id} className={`flex items-center gap-3 p-3 rounded-lg border ${uploaded ? "border-emerald-200 bg-emerald-50/50" : "border-dashed border-border bg-background"}`}>
-                        <div className="shrink-0">
-                          {uploaded ? (
-                            <CheckCircle2 className="h-5 w-5 text-emerald-600" />
-                          ) : (
-                            <FileText className="h-5 w-5 text-muted-foreground" />
-                          )}
-                        </div>
-                        <div className="flex-1 min-w-0">
-                          <p className="text-[13px] text-muted-foreground">{doc.label}</p>
-                          {uploaded && (
-                            <p className="text-xs text-muted-foreground mt-0.5">{uploaded.name} • {uploaded.size}</p>
-                          )}
-                        </div>
-                        {uploaded ? (
-                          <Button variant="ghost" size="sm" className="text-xs" onClick={() => setDocUploads((prev) => { const n = { ...prev }; delete n[doc.id]; return n; })}>
-                            Remove
-                          </Button>
-                        ) : (
-                          <Button variant="outline" size="sm" className="text-xs gap-1" onClick={() => simulateDocSlotUpload(doc.id)}>
-                            <Upload className="h-3 w-3" /> Upload
-                          </Button>
-                        )}
-                      </div>
-                    );
-                  })}
-                </div>
-              </div>
-            )}
-
-            {/* Notes */}
-            {selectedConfig.notes && (
-              <div className="rounded-lg border border-blue-200 bg-blue-50 px-4 py-3">
-                <p className="text-xs text-blue-700 flex items-start gap-1.5">
-                  <Info className="h-3.5 w-3.5 shrink-0 mt-0.5" />
-                  {selectedConfig.notes}
-                </p>
-              </div>
-            )}
-          </CardContent>
-        </Card>
-      )}
-
-
-      {/* Section 4 — Overseas Travel Approval Alert (conditional) */}
-      {isOverseas && (
-        <div className="space-y-4">
-          <div className="rounded-xl border border-amber-300 bg-amber-50 p-4 flex items-start gap-3">
-            <AlertTriangle className="h-5 w-5 text-amber-600 shrink-0 mt-0.5" />
-            <div className="flex-1 space-y-2">
-              <div className="flex items-center justify-between">
-                <h4 className="text-[14px] font-semibold text-amber-900">Overseas Travel — Pre-approval Required</h4>
-                <Badge className={overseasApprovalStatus === "approved"
-                  ? "bg-green-100 text-green-800 border-green-200"
-                  : "bg-amber-100 text-amber-800 border-amber-200"
-                } variant="outline">
-                  {overseasApprovalStatus === "approved" ? "Approved" : "Pending Approval"}
-                </Badge>
-              </div>
-              <p className="text-[13px] text-amber-800">
-                Please attach your travel approval document before uploading receipts.
-              </p>
-              {overseasApprovalStatus === "pending" && (
-                <Button
-                  size="sm"
-                  variant="outline"
-                  className="border-amber-400 text-amber-800 hover:bg-amber-100"
-                  onClick={() => setOverseasApprovalStatus("approved")}
-                >
-                  Check Status
-                </Button>
-              )}
-            </div>
-          </div>
-          {errors.overseas && <p className="text-xs text-destructive">{errors.overseas}</p>}
-
-          <Card className="border border-border rounded-xl">
-            <CardHeader>
-              <CardTitle className="text-sm font-bold">Travel Approval Documents <span className="text-destructive">*</span></CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div
-                className="border-2 border-dashed border-border rounded-lg p-6 flex flex-col items-center gap-2 cursor-pointer hover:border-primary/50 transition-colors"
-                onClick={() => simulateUpload(travelApprovalFiles, setTravelApprovalFiles)}
-              >
-                <Upload className="h-6 w-6 text-muted-foreground" />
-                <p className="text-[13px] text-muted-foreground">Click to upload Travel Approval Form (TR-001)</p>
-                <p className="text-xs text-muted-foreground">Supports PDF, JPG, PNG — Max 10 MB per file</p>
-              </div>
-              {travelApprovalFiles.length > 0 && (
-                <div className="mt-3 space-y-2">
-                  {travelApprovalFiles.map((f) => (
-                    <FileRow key={f.id} file={f} onRemove={() => setTravelApprovalFiles((prev) => prev.filter((x) => x.id !== f.id))} />
-                  ))}
                 </div>
               )}
             </CardContent>
           </Card>
-        </div>
-      )}
+        </section>
 
+        {/* ══════════════════════════════════════════════
+            STEP 3 — RECEIPT / TAX INVOICE DETAILS
+           ══════════════════════════════════════════════ */}
+        {selectedConfig && !isAutoReject && (
+          <section ref={(el) => { sectionRefs.current[2] = el; }} className="scroll-mt-28">
+            <SectionDivider num={3} label="Receipt / Tax Invoice Details" />
+            <ExpenseLineItems
+              subExpenseType={subExpenseType}
+              glCode={glAccount}
+              onValidationChange={setLineItemsValid}
+              onTotalChange={setLineItemsTotal}
+              hasTaxInvoiceDoc={!!docUploads["tax_invoice"]}
+            />
 
-      {/* Approval Timeline */}
-      {claim.approvalHistory.length > 0 && (
-        <Card className="border border-border rounded-xl">
-          <CardHeader><CardTitle className="text-base">Approval Timeline</CardTitle></CardHeader>
-          <CardContent>
-            <div className="space-y-4">
-              {claim.approvalHistory.map((step, i) => {
-                const ac = actionConfig[step.action] || actionConfig.Pending;
-                const Icon = ac.icon;
-                return (
-                  <div key={i} className={`border-l-4 ${ac.color} p-4 rounded-r-lg`}>
-                    <div className="flex items-center gap-2">
-                      <Icon className="h-4 w-4" />
-                      <span className="font-medium">Step {step.stepNo}: {step.approverName}</span>
-                      <Badge variant="outline">{step.action}</Badge>
-                      {step.actionDate && <span className="text-xs text-muted-foreground ml-auto">{formatBEDate(step.actionDate)}</span>}
-                    </div>
-                    {step.comment && <p className="text-sm text-muted-foreground mt-1">{step.comment}</p>}
-                  </div>
-                );
-              })}
-            </div>
-          </CardContent>
-        </Card>
-      )}
-
-      {/* Comments */}
-      {claim.comments.length > 0 && (
-        <Card className="border border-border rounded-xl">
-          <CardHeader><CardTitle className="text-base">Comments ({claim.comments.length})</CardTitle></CardHeader>
-          <CardContent className="space-y-3">
-            {claim.comments.map((c) => (
-              <div key={c.id} className="border rounded-lg p-3">
-                <div className="flex items-center justify-between">
-                  <span className="font-medium text-sm">{c.userName}</span>
-                  <span className="text-xs text-muted-foreground">{formatBEDate(c.date)}</span>
-                </div>
-                <p className="text-sm mt-1">{c.text}</p>
+            {/* Amount mismatch warning */}
+            {amountMismatch && (
+              <div className="rounded-lg border border-amber-300 bg-amber-50 px-4 py-3 flex items-start gap-2 mt-3">
+                <AlertTriangle className="h-4 w-4 text-amber-600 shrink-0 mt-0.5" />
+                <p className="text-[13px] text-amber-800">
+                  ⚠️ The total on the receipt ({fmt(lineItemsTotal)} THB) does not match the card transaction amount ({fmt(txnAmount)} THB). Please verify and upload the correct document.
+                </p>
               </div>
-            ))}
-          </CardContent>
-        </Card>
-      )}
+            )}
+          </section>
+        )}
 
-      {/* Section 6 — Action Bar (sticky footer) */}
+        {/* ══════════════════════════════════════════════
+            STEP 4 — DOCUMENTS
+           ══════════════════════════════════════════════ */}
+        {selectedConfig && !isAutoReject && (allRequiredDocs.length > 0 || allOptionalDocs.length > 0) && (
+          <section ref={(el) => { sectionRefs.current[3] = el; }} className="scroll-mt-28">
+            <SectionDivider num={4} label="Documents" />
+            <Card className="border border-border rounded-xl">
+              <CardContent className="pt-5 space-y-5">
+                {/* Required docs */}
+                {allRequiredDocs.length > 0 && (
+                  <div className="space-y-2">
+                    <p className="text-[13px] font-semibold text-red-700 flex items-center gap-1.5">
+                      <span className="h-2.5 w-2.5 rounded-full bg-red-500 inline-block" />
+                      Required — Attach file before Submit
+                    </p>
+                    <div className="space-y-2">
+                      {allRequiredDocs.map((doc) => {
+                        const uploaded = docUploads[doc.id];
+                        return (
+                          <div key={doc.id} className={`flex items-center gap-3 p-3 rounded-lg border ${uploaded ? "border-emerald-200 bg-emerald-50/50" : "border-border bg-background"}`}>
+                            <div className="shrink-0">
+                              {uploaded ? <CheckCircle2 className="h-5 w-5 text-emerald-600" /> : <AlertTriangle className="h-5 w-5 text-amber-500" />}
+                            </div>
+                            <div className="flex-1 min-w-0">
+                              <p className="text-[13px] font-medium text-foreground">{doc.label}</p>
+                              {uploaded && <p className="text-xs text-muted-foreground mt-0.5">{uploaded.name} • {uploaded.size}</p>}
+                            </div>
+                            {uploaded ? (
+                              <div className="flex gap-1 shrink-0">
+                                <Button variant="ghost" size="sm" className="text-xs">Preview</Button>
+                                <Button variant="ghost" size="sm" className="text-xs text-destructive" onClick={() => setDocUploads((prev) => { const n = { ...prev }; delete n[doc.id]; return n; })}>
+                                  Remove
+                                </Button>
+                              </div>
+                            ) : (
+                              <Button variant="outline" size="sm" className="text-xs gap-1 shrink-0" onClick={() => simulateDocSlotUpload(doc.id)}>
+                                <Upload className="h-3 w-3" /> Upload
+                              </Button>
+                            )}
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+                )}
+
+                {/* Optional docs */}
+                {allOptionalDocs.length > 0 && (
+                  <div className="space-y-2">
+                    <p className="text-[13px] font-semibold text-muted-foreground flex items-center gap-1.5">
+                      <span className="h-2.5 w-2.5 rounded-full bg-amber-400 inline-block" />
+                      Optional — Attach supporting Documents
+                    </p>
+                    <div className="space-y-2">
+                      {allOptionalDocs.map((doc) => {
+                        const uploaded = docUploads[doc.id];
+                        return (
+                          <div key={doc.id} className={`flex items-center gap-3 p-3 rounded-lg border ${uploaded ? "border-emerald-200 bg-emerald-50/50" : "border-dashed border-border bg-background"}`}>
+                            <div className="shrink-0">
+                              {uploaded ? <CheckCircle2 className="h-5 w-5 text-emerald-600" /> : <FileText className="h-5 w-5 text-muted-foreground" />}
+                            </div>
+                            <div className="flex-1 min-w-0">
+                              <p className="text-[13px] text-muted-foreground">{doc.label}</p>
+                              {uploaded && <p className="text-xs text-muted-foreground mt-0.5">{uploaded.name} • {uploaded.size}</p>}
+                            </div>
+                            {uploaded ? (
+                              <div className="flex gap-1 shrink-0">
+                                <Button variant="ghost" size="sm" className="text-xs">Preview</Button>
+                                <Button variant="ghost" size="sm" className="text-xs text-destructive" onClick={() => setDocUploads((prev) => { const n = { ...prev }; delete n[doc.id]; return n; })}>
+                                  Remove
+                                </Button>
+                              </div>
+                            ) : (
+                              <Button variant="outline" size="sm" className="text-xs gap-1 shrink-0" onClick={() => simulateDocSlotUpload(doc.id)}>
+                                <Upload className="h-3 w-3" /> Upload
+                              </Button>
+                            )}
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+                )}
+
+                {/* Progress summary */}
+                {allRequiredDocs.length > 0 && (
+                  <div className="space-y-2">
+                    <p className="text-[13px] text-muted-foreground">
+                      Uploaded {uploadedRequiredCount}/{allRequiredDocs.length} required documents.
+                    </p>
+                    <Progress value={docProgressPercent} className="h-2" />
+                  </div>
+                )}
+
+                {/* Notes from config */}
+                {selectedConfig.notes && (
+                  <div className="rounded-lg border border-blue-200 bg-blue-50 px-4 py-3">
+                    <p className="text-xs text-blue-700 flex items-start gap-1.5">
+                      <Info className="h-3.5 w-3.5 shrink-0 mt-0.5" />
+                      {selectedConfig.notes}
+                    </p>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          </section>
+        )}
+
+        {/* Approval Timeline */}
+        {claim.approvalHistory.length > 0 && (
+          <Card className="border border-border rounded-xl">
+            <CardContent className="pt-5">
+              <p className="text-base font-bold mb-4">Approval Timeline</p>
+              <div className="space-y-3">
+                {claim.approvalHistory.map((step, i) => {
+                  const ac = actionConfig[step.action] || actionConfig.Pending;
+                  const Icon = ac.icon;
+                  return (
+                    <div key={i} className={`border-l-4 ${ac.color} p-3 rounded-r-lg`}>
+                      <div className="flex items-center gap-2">
+                        <Icon className="h-4 w-4" />
+                        <span className="font-medium text-sm">Step {step.stepNo}: {step.approverName}</span>
+                        <Badge variant="outline">{step.action}</Badge>
+                        {step.actionDate && <span className="text-xs text-muted-foreground ml-auto">{formatBEDate(step.actionDate)}</span>}
+                      </div>
+                      {step.comment && <p className="text-sm text-muted-foreground mt-1">{step.comment}</p>}
+                    </div>
+                  );
+                })}
+              </div>
+            </CardContent>
+          </Card>
+        )}
+
+        {/* Comments */}
+        {claim.comments.length > 0 && (
+          <Card className="border border-border rounded-xl">
+            <CardContent className="pt-5">
+              <p className="text-base font-bold mb-3">Comments ({claim.comments.length})</p>
+              <div className="space-y-3">
+                {claim.comments.map((c) => (
+                  <div key={c.id} className="border rounded-lg p-3">
+                    <div className="flex items-center justify-between">
+                      <span className="font-medium text-sm">{c.userName}</span>
+                      <span className="text-xs text-muted-foreground">{formatBEDate(c.date)}</span>
+                    </div>
+                    <p className="text-sm mt-1">{c.text}</p>
+                  </div>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+        )}
+      </div>
+
+      {/* ══════ STICKY FOOTER ══════ */}
       <div className="fixed bottom-0 left-0 right-0 bg-background border-t border-border px-6 py-3 flex justify-end gap-3 z-50">
-        <Button variant="outline" onClick={handleSaveDraft}>
-          Save Draft
-        </Button>
-        <Button
-          onClick={handleSubmit}
-          disabled={isAutoReject || !lineItemsValid || (selectedConfig && allRequiredDocs.length > 0 && !allRequiredUploaded)}
-          className="bg-blue-600 hover:bg-blue-700 text-white disabled:opacity-50"
-        >
-          Submit for Approval
-        </Button>
+        <Button variant="outline" onClick={handleSaveDraft}>Save Draft</Button>
+        <TooltipProvider>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <span>
+                <Button
+                  onClick={handleSubmit}
+                  disabled={!canSubmit}
+                  className="bg-blue-600 hover:bg-blue-700 text-white disabled:opacity-50"
+                >
+                  Submit for Approval
+                </Button>
+              </span>
+            </TooltipTrigger>
+            {!canSubmit && (
+              <TooltipContent side="top" className="max-w-xs text-xs">
+                {missingDocs.length > 0
+                  ? `Please attach all required documents: ${missingDocs.join(", ")}`
+                  : "Please complete all required fields in each step."}
+              </TooltipContent>
+            )}
+          </Tooltip>
+        </TooltipProvider>
       </div>
 
       {/* Action Dialog */}
@@ -672,44 +613,24 @@ export default function ClaimDetail() {
   );
 }
 
-/* ─── File Row Component ─── */
-function FileRow({ file, onRemove }: { file: UploadedFile; onRemove: () => void }) {
-  const isPdf = file.type === "PDF";
+/* ─── Helpers ─── */
+function SectionDivider({ num, label }: { num: number; label: string }) {
   return (
-    <div className="flex items-center gap-3 p-3 rounded-lg border border-border bg-background">
-      <div className={`h-9 w-9 rounded flex items-center justify-center shrink-0 ${isPdf ? "bg-red-100" : "bg-green-100"}`}>
-        {isPdf ? <FileText className="h-4 w-4 text-red-600" /> : <Image className="h-4 w-4 text-green-600" />}
-      </div>
-      <div className="flex-1 min-w-0 space-y-1">
-        <div className="flex items-center gap-2">
-          <p className="text-xs font-medium truncate">{file.name}</p>
-          <span className="text-[10px] text-muted-foreground">{file.type} • {file.size}</span>
-        </div>
-        {file.progress < 100 && (
-          <Progress value={file.progress} className="h-1.5" />
-        )}
-      </div>
-      <div className="shrink-0">
-        {file.ocrStatus === "uploading" && <span className="text-xs text-muted-foreground">Uploading...</span>}
-        {file.ocrStatus === "processing" && (
-          <span className="text-xs text-blue-600 flex items-center gap-1">
-            <Loader2 className="h-3 w-3 animate-spin" /> Processing OCR...
-          </span>
-        )}
-        {file.ocrStatus === "passed" && (
-          <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200 text-[10px]">
-            <CheckCircle2 className="h-3 w-3 mr-1" /> OCR Passed
-          </Badge>
-        )}
-        {file.ocrStatus === "incomplete" && (
-          <Badge variant="outline" className="bg-amber-50 text-amber-700 border-amber-200 text-[10px]">
-            <AlertTriangle className="h-3 w-3 mr-1" /> OCR — Incomplete data
-          </Badge>
-        )}
-      </div>
-      <Button variant="ghost" size="icon" className="h-7 w-7 shrink-0" onClick={onRemove}>
-        <X className="h-3.5 w-3.5" />
-      </Button>
+    <div className="flex items-center gap-3 mb-3">
+      <span className="h-7 w-7 rounded-full bg-primary text-primary-foreground flex items-center justify-center text-xs font-bold shrink-0">
+        {num}
+      </span>
+      <h2 className="text-[15px] font-bold text-foreground">{label}</h2>
+      <div className="flex-1 border-t border-border" />
+    </div>
+  );
+}
+
+function Row({ label, value, className }: { label: string; value: string; className?: string }) {
+  return (
+    <div className={className}>
+      <p className="text-muted-foreground text-[12px]">{label}</p>
+      <p className="font-medium">{value}</p>
     </div>
   );
 }
