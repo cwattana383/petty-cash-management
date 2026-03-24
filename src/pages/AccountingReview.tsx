@@ -466,10 +466,10 @@ export default function AccountingReview() {
                 </summary>
                 <div className="ml-2 mt-2 border-l-2 border-muted pl-4 space-y-4 pb-2">
                   {[
-                    { icon: "✅", action: "Auto-approved by Policy Engine", time: "27 ก.พ. 2569 07:15" },
-                    { icon: "📎", action: "Document uploaded by สมชาย ไชยดี", time: "27 ก.พ. 2569 09:32" },
-                    { icon: "🔍", action: "OCR validation passed", time: "27 ก.พ. 2569 09:33" },
-                    { icon: "✅", action: "Confirmed by Finance", time: "11 มี.ค. 2569 14:00" },
+                    { icon: "✅", action: "Auto-approved by Policy Engine", time: "27 Feb 2026 07:15" },
+                    { icon: "📎", action: "Document uploaded by Somchai Chaidee", time: "27 Feb 2026 09:32" },
+                    { icon: "🔍", action: "OCR validation passed", time: "27 Feb 2026 09:33" },
+                    { icon: "✅", action: "Confirmed by Finance", time: "11 Mar 2026 14:00" },
                   ].map((entry, idx) => (
                     <div key={idx} className="flex items-start gap-2 relative">
                       <div className="absolute -left-[21px] top-1 w-2.5 h-2.5 rounded-full bg-primary border-2 border-background" />
@@ -494,7 +494,7 @@ export default function AccountingReview() {
                   onClick={() => setConfirmDialogOpen(true)}
                 >
                   <Send className="h-4 w-4 mr-2" />
-                  ยืนยัน & Export to ERP
+                  Confirm & Export to ERP
                 </Button>
                 <Button
                   variant="outline"
@@ -554,9 +554,9 @@ export default function AccountingReview() {
       <AlertDialog open={confirmDialogOpen} onOpenChange={setConfirmDialogOpen}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>ยืนยันการExport to ERP</AlertDialogTitle>
+            <AlertDialogTitle>Confirm Export to ERP</AlertDialogTitle>
             <AlertDialogDescription>
-              ยืนยันการส่งitemsนี้ไปยัง Oracle ERP ใช่หรือไม่?
+              Confirm sending this item to Oracle ERP?
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
@@ -570,9 +570,9 @@ export default function AccountingReview() {
       <AlertDialog open={bulkConfirmOpen} onOpenChange={setBulkConfirmOpen}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>ยืนยันการExport to ERP</AlertDialogTitle>
+            <AlertDialogTitle>Confirm Export to ERP</AlertDialogTitle>
             <AlertDialogDescription>
-              ยืนยันการส่ง {selectedIds.size} itemsไปยัง Oracle ERP ใช่หรือไม่?
+              Confirm sending {selectedIds.size} items to Oracle ERP?
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
@@ -587,26 +587,26 @@ export default function AccountingReview() {
         <DialogContent>
           <DialogHeader>
             <DialogTitle>⚠️ Flag as Exception</DialogTitle>
-            <DialogDescription>ระบุเหตุผลและข้อความถึงพนักงาน</DialogDescription>
+            <DialogDescription>Specify reason and message to employee</DialogDescription>
           </DialogHeader>
           <div className="space-y-4 py-2">
             <div className="space-y-2">
-              <Label>เหตุผล</Label>
+              <Label>Reason</Label>
               <Select value={exceptionReason} onValueChange={setExceptionReason}>
                 <SelectTrigger>
-                  <SelectValue placeholder="เลือกเหตุผล..." />
+                  <SelectValue placeholder="Select reason..." />
                 </SelectTrigger>
                 <SelectContent>
-                  {["Tax ID ไม่ตรง", "ที่อยู่ไม่ตรง", "Amountเกิน tolerance", "เอกสารไม่ชัดเจน", "อื่นๆ"].map((r) => (
+                  {["Tax ID Mismatch", "Address Mismatch", "Amount exceeds tolerance", "Unclear document", "Other"].map((r) => (
                     <SelectItem key={r} value={r}>{r}</SelectItem>
                   ))}
                 </SelectContent>
               </Select>
             </div>
             <div className="space-y-2">
-              <Label>ข้อความถึงพนักงาน</Label>
+              <Label>Message to Employee</Label>
               <Textarea
-                placeholder="ระบุรายละเอียดAddเติม..."
+                placeholder="Provide additional details..."
                 value={exceptionNote}
                 onChange={(e) => setExceptionNote(e.target.value)}
               />

@@ -24,7 +24,7 @@ const monthEndRows = [
   { status: "Manager-Approved", count: 18, amount: 94500, color: "#2563eb" },
   { status: "Auto-Rejected", count: 5, amount: 23000, color: "#dc2626" },
   { status: "Manager-Rejected", count: 3, amount: 15000, color: "#ea580c" },
-  { status: "Pending (หักจากเงินเดือน)", count: 2, amount: 8200, color: "#d97706" },
+  { status: "Pending (Salary Deduction)", count: 2, amount: 8200, color: "#d97706" },
 ];
 
 const grandTotalCount = monthEndRows.reduce((s, r) => s + r.count, 0);
@@ -48,7 +48,7 @@ export default function Reports() {
             <CalendarDays className="h-5 w-5 text-blue-600" />
           </div>
           <p className="text-sm text-blue-800 font-medium">
-            📅 Reportsประจำเดือน — Systemจะส่งReportsให้ HR และ Finance อัตโนมัติทุกdaysที่ 9 ของเดือน
+            📅 Monthly Report — System auto-sends reports to HR and Finance on the 9th of each month
           </p>
         </CardContent>
       </Card>
@@ -56,7 +56,7 @@ export default function Reports() {
       {/* Month-End Deduction Summary */}
       <Card>
         <CardHeader className="pb-3">
-          <CardTitle className="text-base">สรุปReportsสิ้นเดือน — กุมภาพันธ์ 2569</CardTitle>
+          <CardTitle className="text-base">Month-End Summary Report — February 2026</CardTitle>
         </CardHeader>
         <CardContent className="p-0">
           <table className="w-full text-sm">

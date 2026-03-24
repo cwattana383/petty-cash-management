@@ -44,7 +44,7 @@ const statusVariant: Record<ClaimStatus, string> = {
   "Reimbursed": "bg-emerald-100 text-emerald-800",
 };
 
-const THAI_MONTHS_SHORT = ["ม.ค.", "ก.พ.", "มี.ค.", "เม.ย.", "พ.ค.", "มิ.ย.", "ก.ค.", "ส.ค.", "ก.ย.", "ต.ค.", "พ.ย.", "ธ.ค."];
+const THAI_MONTHS_SHORT = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
 
 function getDeductionPeriod(txnDate: string): string {
   const d = addMonths(new Date(txnDate), 1);
@@ -110,11 +110,11 @@ export default function MyClaims() {
     const file = Array.from(files)[0];
     if (!file) return;
     if (!ACCEPTED_MIME_TYPES.includes(file.type)) {
-      toast({ title: "filesไม่รองรับ", description: "กรุณาอัปโหลด PDF, JPG หรือ PNG", variant: "destructive" });
+      toast({ title: "Unsupported file type", description: "Please upload PDF, JPG, or PNG", variant: "destructive" });
       return;
     }
     if (file.size > MAX_FILE_SIZE_BYTES) {
-      toast({ title: "filesใหญ่เกินไป", description: `ขนาดfilesต้องไม่เกิน ${MAX_FILE_SIZE_MB}MB`, variant: "destructive" });
+      toast({ title: "File too large", description: `File size must not exceed ${MAX_FILE_SIZE_MB}MB`, variant: "destructive" });
       return;
     }
     setSelectedFile(file);
@@ -148,14 +148,14 @@ export default function MyClaims() {
     }));
     setClaimStatuses((prev) => ({ ...prev, [claimId]: "Pending Approval" }));
     resetDialog();
-    toast({ title: "ส่งApproveสำเร็จ", description: `แนบ ${totalFiles} files Statusเปลี่ยนเป็น Pending Approval` });
+    toast({ title: "Submitted for approval", description: `แนบ ${totalFiles} files — status changed to Pending Approval` });
   };
 
   // Warning dialog: submit without document
   const handleSubmitWithoutDoc = (claimId: string) => {
     setClaimStatuses((prev) => ({ ...prev, [claimId]: "Pending Approval" }));
     setWarningDialog({ open: false, claimId: "" });
-    toast({ title: "ส่งApproved", description: "Submit Without Document — อาจถูกหักเงินเดือนหากไม่แนบภายในกำหนด", variant: "destructive" });
+    toast({ title: "Submitted", description: "Submitted without document — may be deducted from salary if not attached by deadline", variant: "destructive" });
   };
 
   const filtered = useMemo(() => {
@@ -318,7 +318,7 @@ export default function MyClaims() {
         <DialogContent className="sm:max-w-lg max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>Attach Document</DialogTitle>
-            <DialogDescription>อัปโหลดTax Invoiceเพื่อตรวจสอบอัตโนมัติ (PDF, JPG, PNG)</DialogDescription>
+            <DialogDescription>Upload Tax Invoice for automatic verification (PDF, JPG, PNG)</DialogDescription>
           </DialogHeader>
 
           {/* STATE: Dropzone */}
@@ -330,8 +330,8 @@ export default function MyClaims() {
               onDrop={(e) => { e.preventDefault(); handleFileSelected(e.dataTransfer.files); }}
             >
               <Upload className="h-10 w-10 text-muted-foreground" />
-              <p className="text-sm font-medium text-foreground">ลากfilesTax Invoiceมาวาง หรือคลิกเพื่อเลือก</p>
-              <p className="text-xs text-muted-foreground">รองรับ PDF, JPG, PNG ขนาดไม่เกิน {MAX_FILE_SIZE_MB}MB</p>
+              <p className="text-sm font-medium text-foreground">Drag & drop Tax Invoice here, or click to browse</p>
+              <p className="text-xs text-muted-foreground">Supported: PDF, JPG, PNG — max {MAX_FILE_SIZE_MB}MB</p>
             </div>
           )}
 
@@ -354,7 +354,7 @@ export default function MyClaims() {
           {flowState === "confirmed" && (
             <div className="space-y-4">
               <div className="rounded-lg bg-green-50 border border-green-200 px-4 py-3 text-sm text-green-800">
-                ✅ Tax Invoiceผ่านการตรวจสอบแล้ว — {selectedFile?.name}
+                ✅ Tax Invoice verified — {selectedFile?.name}
               </div>
 
               <SupportingDocsSection
