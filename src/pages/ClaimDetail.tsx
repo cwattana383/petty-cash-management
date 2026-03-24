@@ -715,7 +715,11 @@ export default function ClaimDetail() {
         <Button variant="outline" onClick={handleSaveDraft}>
           Save Draft
         </Button>
-        <Button onClick={handleSubmit} className="bg-blue-600 hover:bg-blue-700 text-white">
+        <Button
+          onClick={handleSubmit}
+          disabled={isAutoReject || (selectedConfig && allRequiredDocs.length > 0 && !allRequiredUploaded)}
+          className="bg-blue-600 hover:bg-blue-700 text-white disabled:opacity-50"
+        >
           Submit for Approval
         </Button>
       </div>
