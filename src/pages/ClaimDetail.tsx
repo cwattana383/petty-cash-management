@@ -207,35 +207,6 @@ export default function ClaimDetail() {
           )}
         </div>
 
-        {/* Row 2: 4-step progress indicator */}
-        <div className="flex items-center gap-1 pb-3 overflow-x-auto">
-          {STEPS.map((step, idx) => {
-            const isActive = activeStep === idx;
-            const isDone = stepComplete[idx];
-            return (
-              <button
-                key={step.num}
-                onClick={() => scrollToStep(idx)}
-                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium transition-colors whitespace-nowrap ${
-                  isActive
-                    ? "bg-primary text-primary-foreground"
-                    : isDone
-                    ? "bg-emerald-100 text-emerald-800"
-                    : "bg-muted text-muted-foreground"
-                }`}
-              >
-                {isDone && !isActive ? (
-                  <CheckCircle2 className="h-3.5 w-3.5" />
-                ) : (
-                  <span className="h-4 w-4 rounded-full border border-current flex items-center justify-center text-[10px] font-bold">
-                    {step.num}
-                  </span>
-                )}
-                {step.label}
-              </button>
-            );
-          })}
-        </div>
       </div>
 
       <div className="space-y-8 mt-6">
