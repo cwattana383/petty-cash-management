@@ -334,18 +334,6 @@ export default function ExpenseLineItems({
           </div>
         )}
 
-        {/* Summary */}
-        <div className="rounded-lg border border-border bg-muted/30 p-4">
-          <p className="text-[13px] font-semibold text-foreground mb-3">Summary</p>
-          <div className="grid grid-cols-2 gap-y-2 text-[13px]">
-            <span className="text-muted-foreground">Total Gross:</span>
-            <span className="text-right font-medium">{fmt(totalGross)} THB</span>
-            <span className="text-muted-foreground">Total Net:</span>
-            <span className="text-right font-medium">{fmt(totalNet)} THB</span>
-            <span className="text-muted-foreground">Total VAT:</span>
-            <span className="text-right font-medium">{fmt(totalVat)} THB</span>
-          </div>
-        </div>
       </CardContent>
     </Card>
   );
