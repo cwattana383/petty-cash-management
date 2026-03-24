@@ -268,6 +268,7 @@ export default function ClaimDetail() {
                     setExpenseType(v);
                     setSubExpenseType("");
                     setGlAccount("");
+                    setVatType("");
                     setDocUploads({});
                     setErrors((p) => ({ ...p, expenseType: "" }));
                   }}>
