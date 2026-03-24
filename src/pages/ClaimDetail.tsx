@@ -213,7 +213,7 @@ export default function ClaimDetail() {
         {/* ══════════════════════════════════════════════
             STEP 1 — CARD TRANSACTION (Read-Only)
            ══════════════════════════════════════════════ */}
-        <section ref={(el) => { sectionRefs.current[0] = el; }} className="scroll-mt-28">
+        <section>
           <SectionDivider num={1} label="Card Transaction" />
           <Card className="bg-muted/40 border border-border rounded-xl">
             <CardContent className="pt-5 pb-5">
