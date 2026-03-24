@@ -16,6 +16,7 @@ import {
 } from "lucide-react";
 import { formatBEDate } from "@/lib/utils";
 import { useClaims } from "@/lib/claims-context";
+import { getLevel1Options, getLevel2Options, getExpenseConfig } from "@/lib/expense-type-config";
 import { useToast } from "@/hooks/use-toast";
 import { useState, useEffect, useCallback, useRef } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
@@ -36,23 +37,6 @@ const actionConfig: Record<string, { color: string; icon: React.ElementType }> =
   "Request Info": { color: "border-blue-400 bg-blue-50", icon: AlertCircle },
   Delegated: { color: "border-purple-400 bg-purple-50", icon: Send },
 };
-
-const EXPENSE_TYPES = [
-  "Transportation — Domestic",
-  "Transportation — Overseas",
-  "Meals & Entertainment",
-  "Accommodation",
-  "Office Supplies",
-  "Other",
-];
-
-const GL_ACCOUNTS = [
-  "51200 Travel Expense",
-  "51201 Taxi & Cab",
-  "51300 Meal Expense",
-  "51400 Accommodation",
-  "51500 Office Supply",
-];
 
 const COST_CENTERS = [
   "CC-FIN-001 Finance",
@@ -99,6 +83,7 @@ export default function ClaimDetail() {
   // Editable fields
   const [purpose, setPurpose] = useState("");
   const [expenseType, setExpenseType] = useState("");
+  const [subExpenseType, setSubExpenseType] = useState("");
   const [glAccount, setGlAccount] = useState("");
   const [costCenter, setCostCenter] = useState("");
   const [projectCode, setProjectCode] = useState("");
@@ -171,6 +156,7 @@ export default function ClaimDetail() {
     const newErrors: Record<string, string> = {};
     if (!purpose.trim()) newErrors.purpose = "Purpose is required";
     if (!expenseType) newErrors.expenseType = "Expense Type is required";
+    if (!subExpenseType) newErrors.subExpenseType = "Sub Expense Type is required";
     if (!glAccount) newErrors.glAccount = "GL Account is required";
     if (isOverseas && overseasApprovalStatus !== "approved") {
       newErrors.overseas = "Travel approval is required before submitting.";
@@ -273,28 +259,82 @@ export default function ClaimDetail() {
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-1.5">
-              <Label className="text-[13px] font-semibold text-foreground">Expense Type <span className="text-destructive">*</span></Label>
-              <Select value={expenseType} onValueChange={(v) => { setExpenseType(v); setErrors((p) => ({ ...p, expenseType: "" })); }}>
+              <Label className="text-[13px] font-semibold text-foreground">Expense Type (Level 1) <span className="text-destructive">*</span></Label>
+              <Select value={expenseType} onValueChange={(v) => {
+                setExpenseType(v);
+                setSubExpenseType("");
+                setGlAccount("");
+                setErrors((p) => ({ ...p, expenseType: "" }));
+              }}>
                 <SelectTrigger className="text-[13px]"><SelectValue placeholder="Select expense type" /></SelectTrigger>
                 <SelectContent>
-                  {EXPENSE_TYPES.map((t) => <SelectItem key={t} value={t} className="text-[13px]">{t}</SelectItem>)}
+                  {getLevel1Options().map((t) => <SelectItem key={t} value={t} className="text-[13px]">{t}</SelectItem>)}
                 </SelectContent>
               </Select>
               {errors.expenseType && <p className="text-xs text-destructive">{errors.expenseType}</p>}
             </div>
 
             <div className="space-y-1.5">
-              <Label className="text-[13px] font-semibold text-foreground">GL Account <span className="text-destructive">*</span></Label>
-              <Select value={glAccount} onValueChange={(v) => { setGlAccount(v); setErrors((p) => ({ ...p, glAccount: "" })); }}>
-                <SelectTrigger className="text-[13px]"><SelectValue placeholder="Select GL account" /></SelectTrigger>
+              <Label className="text-[13px] font-semibold text-foreground">Sub Expense Type (Level 2) <span className="text-destructive">*</span></Label>
+              <Select
+                value={subExpenseType}
+                onValueChange={(v) => {
+                  setSubExpenseType(v);
+                  const config = getExpenseConfig(expenseType, v);
+                  if (config?.glCode) {
+                    setGlAccount(config.glCode);
+                  } else {
+                    setGlAccount("");
+                  }
+                  setErrors((p) => ({ ...p, subExpenseType: "" }));
+                }}
+                disabled={!expenseType}
+              >
+                <SelectTrigger className="text-[13px]"><SelectValue placeholder={expenseType ? "Select sub type" : "Select expense type first"} /></SelectTrigger>
                 <SelectContent>
-                  {GL_ACCOUNTS.map((g) => <SelectItem key={g} value={g} className="text-[13px]">{g}</SelectItem>)}
+                  {getLevel2Options(expenseType).map((t) => <SelectItem key={t} value={t} className="text-[13px]">{t}</SelectItem>)}
                 </SelectContent>
               </Select>
+              {errors.subExpenseType && <p className="text-xs text-destructive">{errors.subExpenseType}</p>}
+            </div>
+
+            <div className="space-y-1.5">
+              <Label className="text-[13px] font-semibold text-foreground">GL Account <span className="text-destructive">*</span></Label>
+              <Input value={glAccount} readOnly className="bg-muted/40 border-border text-[13px]" placeholder="Auto-filled from sub expense type" />
               {errors.glAccount && <p className="text-xs text-destructive">{errors.glAccount}</p>}
             </div>
 
+            <div className="space-y-1.5">
+              <Label className="text-[13px] font-semibold text-foreground">Cost Center</Label>
+              <Select value={costCenter} onValueChange={setCostCenter}>
+                <SelectTrigger className="text-[13px]"><SelectValue placeholder="Select cost center" /></SelectTrigger>
+                <SelectContent>
+                  {COST_CENTERS.map((c) => <SelectItem key={c} value={c} className="text-[13px]">{c}</SelectItem>)}
+                </SelectContent>
+              </Select>
+            </div>
           </div>
+
+          {/* Policy info banner */}
+          {expenseType && subExpenseType && (() => {
+            const config = getExpenseConfig(expenseType, subExpenseType);
+            if (!config) return null;
+            const ruleColors: Record<string, string> = {
+              "Auto Approve": "bg-emerald-50 border-emerald-200 text-emerald-800",
+              "Requires Approval": "bg-amber-50 border-amber-200 text-amber-800",
+              "Auto Reject": "bg-red-50 border-red-200 text-red-800",
+            };
+            return (
+              <div className={`mt-3 rounded-lg border px-3 py-2 text-xs flex items-center gap-2 ${ruleColors[config.policyRule] || ""}`}>
+                <Info className="h-3.5 w-3.5 shrink-0" />
+                <span>
+                  <strong>Policy:</strong> {config.policyRule}
+                  {config.threshold !== null && <> — Threshold: ฿{config.threshold.toLocaleString()}</>}
+                  {config.notes && <> | {config.notes}</>}
+                </span>
+              </div>
+            );
+          })()}
         </CardContent>
       </Card>
 
