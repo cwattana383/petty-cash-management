@@ -349,7 +349,7 @@ export default function ClaimDetail() {
            ══════════════════════════════════════════════ */}
         {selectedConfig && !isAutoReject && (allRequiredDocs.length > 0 || allOptionalDocs.length > 0) && (
           <section>
-            <SectionDivider num={4} label="Documents" />
+            <SectionDivider num={3} label="Documents" />
             <Card className="border border-border rounded-xl">
               <CardContent className="pt-5 space-y-5">
                 {/* Required docs */}
