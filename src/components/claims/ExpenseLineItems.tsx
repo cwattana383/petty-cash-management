@@ -177,9 +177,6 @@ export default function ExpenseLineItems({
             Enter details from the receipt — multiple items can be added.
           </p>
         </div>
-        <Button variant="outline" size="sm" className="gap-1 text-xs" onClick={addLineItem}>
-          <Plus className="h-3 w-3" /> Add Line Item
-        </Button>
       </CardHeader>
       <CardContent className="space-y-6">
         {items.map((item, idx) => {
