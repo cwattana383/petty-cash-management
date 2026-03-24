@@ -17,8 +17,8 @@ const OCR_FIELDS: OcrField[] = [
   { label: "ชื่อผู้ซื้อ", value: "บริษัท CP Axtra จำกัด", status: "✅ ตรงกัน", color: "green" },
   { label: "Buyer Address", value: "1468 ถ.พัฒนาการ กทม.", status: "⚠️ ตรงบางส่วน", color: "amber" },
   { label: "หมายเลขบัตรเครดิต", value: "XXXX-XXXX-XXXX-1234", status: "✅ ตรงกัน", color: "green" },
-  { label: "ยอดเงินในเอกสาร", value: "฿1,500.00", status: "✅ ตรงกับรายการ", color: "green" },
-  { label: "วันที่ในเอกสาร", value: "28/02/2569", status: "✅ อยู่ในช่วงเวลา", color: "green" },
+  { label: "ยอดเงินในเอกสาร", value: "฿1,500.00", status: "✅ ตรงกับitems", color: "green" },
+  { label: "daysที่ในเอกสาร", value: "28/02/2569", status: "✅ อยู่ในช่วงเวลา", color: "green" },
   { label: "Invoice No.Tax Invoice", value: "INV-2025-0892", status: "ℹ️ Saveแล้ว", color: "grey" },
 ];
 

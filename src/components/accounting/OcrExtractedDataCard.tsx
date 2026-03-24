@@ -29,7 +29,7 @@ interface Props {
 
 export default function OcrExtractedDataCard({ drawerItem }: Props) {
   const initialFields: OcrField[] = [
-    { field: "Tax ID (เลขผู้เสียภาษี)", value: "0105556176009", status: "match" },
+    { field: "Tax ID", value: "0105556176009", status: "match" },
     { field: "Buyer Name", value: drawerItem.merchantName, status: "match" },
     { field: "Buyer Address", value: "123 Sukhumvit Rd., Khlong Toei, Bangkok 10110", status: "partial" },
     { field: "Invoice Amount", value: drawerItem.amount, status: "match" },

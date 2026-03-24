@@ -199,7 +199,7 @@ export default function CreateClaim() {
               {isManualExpense ? "Create Manual Expense" : "Create Expense"}
             </h1>
             <p className="text-muted-foreground text-sm">
-              {isManualExpense ? "กรอกข้อมูลรายการเบิกด้วยตนเอง (ไม่ผูกกับเอกสาร)" : "Fill in expense request details"}
+              {isManualExpense ? "กรอกข้อมูลitemsเบิกด้วยตนเอง (ไม่ผูกกับเอกสาร)" : "Fill in expense request details"}
             </p>
           </div>
         </div>
@@ -279,7 +279,7 @@ export default function CreateClaim() {
                         <PopoverTrigger asChild>
                           <Button variant="outline" className={cn("h-8 text-sm w-32 justify-start text-left font-normal", !line.invoiceDate && "text-muted-foreground")}>
                             <CalendarIcon className="mr-1 h-3.5 w-3.5" />
-                            {line.invoiceDate ? formatBEDate(line.invoiceDate) : "วันที่..."}
+                            {line.invoiceDate ? formatBEDate(line.invoiceDate) : "daysที่..."}
                           </Button>
                         </PopoverTrigger>
                         <PopoverContent className="w-auto p-0" align="start">
@@ -386,7 +386,7 @@ export default function CreateClaim() {
                             className={cn("h-8 text-sm w-32 justify-start text-left font-normal", !line.invoiceDate && "text-muted-foreground")}
                           >
                             <CalendarIcon className="mr-1 h-3.5 w-3.5" />
-                            {line.invoiceDate ? formatBEDate(line.invoiceDate) : "วันที่..."}
+                            {line.invoiceDate ? formatBEDate(line.invoiceDate) : "daysที่..."}
                           </Button>
                         </PopoverTrigger>
                         <PopoverContent className="w-auto p-0" align="start">
@@ -550,7 +550,7 @@ export default function CreateClaim() {
                 {docLines.length === 0 && manualLines.length === 0 && (
                   <TableRow>
                     <TableCell colSpan={17} className="text-center text-muted-foreground py-8">
-                      ยังไม่มีรายการ — กด "+ Add Item" เพื่อเพิ่มรายการ
+                      ยังไม่มีitems — กด "+ Add Item" เพื่อAdditems
                     </TableCell>
                   </TableRow>
                 )}

@@ -48,7 +48,7 @@ export default function Reports() {
             <CalendarDays className="h-5 w-5 text-blue-600" />
           </div>
           <p className="text-sm text-blue-800 font-medium">
-            📅 รายงานประจำเดือน — ระบบจะส่งรายงานให้ HR และ Finance อัตโนมัติทุกวันที่ 9 ของเดือน
+            📅 Reportsประจำเดือน — ระบบจะส่งReportsให้ HR และ Finance อัตโนมัติทุกdaysที่ 9 ของเดือน
           </p>
         </CardContent>
       </Card>
@@ -56,14 +56,14 @@ export default function Reports() {
       {/* Month-End Deduction Summary */}
       <Card>
         <CardHeader className="pb-3">
-          <CardTitle className="text-base">สรุปรายงานสิ้นเดือน — กุมภาพันธ์ 2569</CardTitle>
+          <CardTitle className="text-base">สรุปReportsสิ้นเดือน — กุมภาพันธ์ 2569</CardTitle>
         </CardHeader>
         <CardContent className="p-0">
           <table className="w-full text-sm">
             <thead>
               <tr className="border-b bg-muted/50">
                 <th className="text-left px-6 py-3 font-semibold">Status</th>
-                <th className="text-right px-6 py-3 font-semibold">จำนวนรายการ</th>
+                <th className="text-right px-6 py-3 font-semibold">จำนวนitems</th>
                 <th className="text-right px-6 py-3 font-semibold">ยอดรวม</th>
               </tr>
             </thead>
@@ -76,15 +76,15 @@ export default function Reports() {
                       {row.status}
                     </span>
                   </td>
-                  <td className="text-right px-6 py-3 font-mono">{row.count} รายการ</td>
+                  <td className="text-right px-6 py-3 font-mono">{row.count} items</td>
                   <td className="text-right px-6 py-3 font-mono">฿{row.amount.toLocaleString()}</td>
                 </tr>
               ))}
             </tbody>
             <tfoot>
               <tr className="border-t-2 bg-muted/30 font-semibold">
-                <td className="px-6 py-3">รวมทั้งหมด</td>
-                <td className="text-right px-6 py-3 font-mono">{grandTotalCount} รายการ</td>
+                <td className="px-6 py-3">รวมAll</td>
+                <td className="text-right px-6 py-3 font-mono">{grandTotalCount} items</td>
                 <td className="text-right px-6 py-3 font-mono">฿{grandTotalAmount.toLocaleString()}</td>
               </tr>
             </tfoot>

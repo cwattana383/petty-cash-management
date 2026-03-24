@@ -112,7 +112,7 @@ export const EXPENSE_TYPE_CONFIG: ExpenseTypeConfigItem[] = [
     currency: "THB",
     glCode: "5300-002",
     requiredDocs: [
-      { id: "receipt", label: "ใบเสร็จค่าจอดรถ (≤4 วัน / 96 ชั่วโมง)", required: true },
+      { id: "receipt", label: "ใบเสร็จค่าจอดรถ (≤4 days / 96 ชั่วโมง)", required: true },
     ],
     optionalDocs: [],
   },
@@ -126,10 +126,10 @@ export const EXPENSE_TYPE_CONFIG: ExpenseTypeConfigItem[] = [
     requiredDocs: [
       { id: "invoice", label: "Invoice / ใบเสร็จจากบริษัทรถเช่า", required: true },
       { id: "cga_booking", label: "หลักฐานการจองผ่าน CGA Booking", required: true },
-      { id: "travel_approval", label: "หนังสืออนุมัติเดินทาง (Travel Approval)", required: true },
+      { id: "travel_approval", label: "หนังสือApproveเดินทาง (Travel Approval)", required: true },
     ],
     optionalDocs: [
-      { id: "outside_contract_approval", label: "อนุมัติจาก Associate Director (กรณีนอกสัญญา)", required: false },
+      { id: "outside_contract_approval", label: "Approveจาก Associate Director (กรณีนอกสัญญา)", required: false },
     ],
   },
   {
@@ -141,7 +141,7 @@ export const EXPENSE_TYPE_CONFIG: ExpenseTypeConfigItem[] = [
     glCode: "5300-001",
     requiredDocs: [
       { id: "eticket", label: "E-Ticket / ตั๋วเครื่องบิน", required: true },
-      { id: "director_approval", label: "หนังสืออนุมัติจาก Director ขึ้นไป (HQ) หรือ SGM (สโตร์)", required: true },
+      { id: "director_approval", label: "หนังสือApproveจาก Director ขึ้นไป (HQ) หรือ SGM (สโตร์)", required: true },
       { id: "cga_booking", label: "หลักฐานการจองผ่าน Agency / CGA", required: true },
       { id: "tax_invoice", label: "Tax Invoice (Tax Invoice)", required: true },
     ],
@@ -174,9 +174,9 @@ export const EXPENSE_TYPE_CONFIG: ExpenseTypeConfigItem[] = [
       { id: "eticket", label: "E-Ticket / ตั๋วเครื่องบิน", required: true },
       { id: "boarding_pass", label: "Boarding Pass", required: true },
       { id: "tax_invoice", label: "Tax Invoice / Invoice", required: true },
-      { id: "travel_approval", label: "หนังสืออนุมัติเดินทางต่างประเทศ (Chief Level ขึ้นไป)", required: true },
+      { id: "travel_approval", label: "หนังสือApproveเดินทางต่างประเทศ (Chief Level ขึ้นไป)", required: true },
       { id: "cga_booking", label: "หลักฐานการจองผ่าน Agency / CGA", required: true },
-      { id: "travel_insurance", label: "Travel Insurance Certificate (แจ้ง HR ล่วงหน้า ≥7 วัน)", required: true },
+      { id: "travel_insurance", label: "Travel Insurance Certificate (แจ้ง HR ล่วงหน้า ≥7 days)", required: true },
     ],
     optionalDocs: [
       { id: "upgrade_memo", label: "หนังสืออธิบายเหตุผลขอนั่ง Business Class", required: false },
@@ -207,7 +207,7 @@ export const EXPENSE_TYPE_CONFIG: ExpenseTypeConfigItem[] = [
     glCode: "5400-001",
     requiredDocs: [
       { id: "perdiem_form", label: "แบบฟอร์มเบิกเบี้ยเลี้ยงเดินทาง", required: true },
-      { id: "travel_approval", label: "หนังสืออนุมัติเดินทาง", required: true },
+      { id: "travel_approval", label: "หนังสือApproveเดินทาง", required: true },
     ],
     optionalDocs: [
       { id: "receipt", label: "ใบเสร็จอาหาร (ถ้ามี)", required: false },
@@ -254,7 +254,7 @@ export const EXPENSE_TYPE_CONFIG: ExpenseTypeConfigItem[] = [
     glCode: "5400-001",
     requiredDocs: [
       { id: "perdiem_form", label: "Per Diem Claim Form (Overseas)", required: true },
-      { id: "travel_approval", label: "หนังสืออนุมัติเดินทางต่างประเทศ", required: true },
+      { id: "travel_approval", label: "หนังสือApproveเดินทางต่างประเทศ", required: true },
     ],
     optionalDocs: [
       { id: "receipt", label: "ใบเสร็จอาหาร (ถ้ามี)", required: false },
@@ -302,7 +302,7 @@ export const EXPENSE_TYPE_CONFIG: ExpenseTypeConfigItem[] = [
     requiredDocs: [
       { id: "hotel_folio", label: "Hotel Folio / ใบเสร็จโรงแรม", required: true },
       { id: "tax_invoice", label: "Tax Invoice (Tax Invoice)", required: true },
-      { id: "travel_approval", label: "หนังสืออนุมัติเดินทาง", required: true },
+      { id: "travel_approval", label: "หนังสือApproveเดินทาง", required: true },
       { id: "cga_booking", label: "หลักฐานการจองผ่าน CGA / Agency", required: true },
     ],
     optionalDocs: [
@@ -321,7 +321,7 @@ export const EXPENSE_TYPE_CONFIG: ExpenseTypeConfigItem[] = [
     requiredDocs: [
       { id: "hotel_folio", label: "Hotel Folio / ใบเสร็จโรงแรม", required: true },
       { id: "tax_invoice", label: "Invoice / Tax Invoice", required: true },
-      { id: "travel_approval", label: "หนังสืออนุมัติเดินทางต่างประเทศ", required: true },
+      { id: "travel_approval", label: "หนังสือApproveเดินทางต่างประเทศ", required: true },
       { id: "cga_booking", label: "หลักฐานการจองผ่าน Agency / CGA", required: true },
     ],
     optionalDocs: [
@@ -356,7 +356,7 @@ export const EXPENSE_TYPE_CONFIG: ExpenseTypeConfigItem[] = [
     requiredDocs: [
       { id: "receipt", label: "Receipt", required: true },
       { id: "tax_invoice", label: "Tax Invoice (Tax Invoice)", required: true },
-      { id: "it_approval", label: "หนังสืออนุมัติจากแผนก IT (>2,000 THB)", required: true },
+      { id: "it_approval", label: "หนังสือApproveจากแผนก IT (>2,000 THB)", required: true },
       { id: "pr", label: "Purchase Requisition (PR)", required: true },
     ],
     optionalDocs: [],
@@ -389,7 +389,7 @@ export const EXPENSE_TYPE_CONFIG: ExpenseTypeConfigItem[] = [
     requiredDocs: [
       { id: "death_cert", label: "ใบมรณะบัตร", required: true },
       { id: "welfare_form", label: "แบบฟอร์มขอรับสวัสดิการ", required: true },
-      { id: "wreath_receipt", label: "ใบเสร็จค่าWreathจริง (≤2,000 THB)", required: true },
+      { id: "wreath_receipt", label: "ใบเสร็จWreath Expenseจริง (≤2,000 THB)", required: true },
     ],
     optionalDocs: [
       { id: "marriage_cert", label: "สำเนาทะเบียนสมรส (กรณีคู่สมรสเสียชีวิต)", required: false },

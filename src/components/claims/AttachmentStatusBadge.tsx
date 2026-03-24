@@ -54,7 +54,7 @@ export default function AttachmentStatusBadge({ fileCount, ocrStatus, onAttach, 
         ❌ 1 files — ไม่ผ่าน
       </Badge>
       <button className="text-xs text-primary underline flex items-center gap-0.5" onClick={onAttach}>
-        <Pencil className="h-3 w-3" /> แก้ไข
+        <Pencil className="h-3 w-3" /> Edit
       </button>
     </div>
   );

@@ -57,7 +57,7 @@ export default function EmployeeProfileCreate() {
       return;
     }
     setRoles(form.roles);
-    toast.success(`เพิ่มพนักงาน ${form.firstName} ${form.lastName} สำเร็จ`);
+    toast.success(`Addพนักงาน ${form.firstName} ${form.lastName} สำเร็จ`);
     // Navigate to /claims and reload to reflect new role
     navigate("/claims");
     setTimeout(() => window.location.reload(), 100);
@@ -73,7 +73,7 @@ export default function EmployeeProfileCreate() {
         </Button>
         <div>
           <h1 className="text-2xl font-bold text-foreground">Create Employee Profile</h1>
-          <p className="text-sm text-muted-foreground">เพิ่มข้อมูลพนักงานใหม่เข้าสู่ระบบ</p>
+          <p className="text-sm text-muted-foreground">AddEmployee Informationใหม่เข้าสู่ระบบ</p>
         </div>
       </div>
 

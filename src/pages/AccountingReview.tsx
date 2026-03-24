@@ -173,7 +173,7 @@ export default function AccountingReview() {
   const handleSingleConfirm = () => {
     if (!drawerItemId) return;
     updateStatus([drawerItemId]);
-    toast({ title: "ส่งรายการไปยัง ERP เรียบร้อย", description: `${drawerItemId} — สถานะเปลี่ยนเป็น Ready for ERP` });
+    toast({ title: "ส่งitemsไปยัง ERP เรียบร้อย", description: `${drawerItemId} — สถานะเปลี่ยนเป็น Ready for ERP` });
     setDrawerItemId(null);
     setConfirmDialogOpen(false);
   };
@@ -181,7 +181,7 @@ export default function AccountingReview() {
   const handleBulkConfirm = () => {
     const ids = Array.from(selectedIds);
     updateStatus(ids);
-    toast({ title: "ส่งรายการไปยัง ERP เรียบร้อย", description: `${ids.length} รายการถูกส่งไปยัง ERP` });
+    toast({ title: "ส่งitemsไปยัง ERP เรียบร้อย", description: `${ids.length} itemsถูกส่งไปยัง ERP` });
     setSelectedIds(new Set());
     setBulkConfirmOpen(false);
   };
@@ -193,7 +193,7 @@ export default function AccountingReview() {
         item.id === drawerItemId ? { ...item, status: "Exception" } : item
       )
     );
-    toast({ title: "รายการถูก flag เป็น Exception แล้ว — แจ้งพนักงานเรียบร้อย", description: `${drawerItemId} — เหตุผล: ${exceptionReason}` });
+    toast({ title: "itemsถูก flag เป็น Exception แล้ว — แจ้งพนักงานเรียบร้อย", description: `${drawerItemId} — เหตุผล: ${exceptionReason}` });
     setDrawerItemId(null);
     setExceptionDialogOpen(false);
     setExceptionReason("");
@@ -238,7 +238,7 @@ export default function AccountingReview() {
         <Card className="border-blue-200 bg-blue-50/50">
           <CardContent className="pt-6">
             <p className="text-sm text-blue-700 mb-4 font-medium">
-              รายงานประจำเดือน — ส่งให้ HR และ Finance ทุกวันที่ 9 ของเดือน
+              Reportsประจำเดือน — ส่งให้ HR และ Finance ทุกdaysที่ 9 ของเดือน
             </p>
             <div className="grid grid-cols-5 gap-4">
               {metrics.map((m) => (
@@ -277,7 +277,7 @@ export default function AccountingReview() {
               <TabsTrigger value="exception">Exception</TabsTrigger>
               <TabsTrigger value="ready">พร้อมส่ง ERP</TabsTrigger>
               <TabsTrigger value="reimbursed">ส่ง ERP แล้ว</TabsTrigger>
-              <TabsTrigger value="all">ทั้งหมด</TabsTrigger>
+              <TabsTrigger value="all">All</TabsTrigger>
             </TabsList>
           </Tabs>
           {selectedIds.size > 0 && (
@@ -556,7 +556,7 @@ export default function AccountingReview() {
           <AlertDialogHeader>
             <AlertDialogTitle>ยืนยันการส่ง ERP</AlertDialogTitle>
             <AlertDialogDescription>
-              ยืนยันการส่งรายการนี้ไปยัง Oracle ERP ใช่หรือไม่?
+              ยืนยันการส่งitemsนี้ไปยัง Oracle ERP ใช่หรือไม่?
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
@@ -572,7 +572,7 @@ export default function AccountingReview() {
           <AlertDialogHeader>
             <AlertDialogTitle>ยืนยันการส่ง ERP</AlertDialogTitle>
             <AlertDialogDescription>
-              ยืนยันการส่ง {selectedIds.size} รายการไปยัง Oracle ERP ใช่หรือไม่?
+              ยืนยันการส่ง {selectedIds.size} itemsไปยัง Oracle ERP ใช่หรือไม่?
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
@@ -606,7 +606,7 @@ export default function AccountingReview() {
             <div className="space-y-2">
               <Label>ข้อความถึงพนักงาน</Label>
               <Textarea
-                placeholder="ระบุรายละเอียดเพิ่มเติม..."
+                placeholder="ระบุรายละเอียดAddเติม..."
                 value={exceptionNote}
                 onChange={(e) => setExceptionNote(e.target.value)}
               />
