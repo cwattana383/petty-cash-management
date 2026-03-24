@@ -16,6 +16,7 @@ import {
 } from "lucide-react";
 import { formatBEDate } from "@/lib/utils";
 import { useClaims } from "@/lib/claims-context";
+import { getLevel1Options, getLevel2Options, getExpenseConfig } from "@/lib/expense-type-config";
 import { useToast } from "@/hooks/use-toast";
 import { useState, useEffect, useCallback, useRef } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
