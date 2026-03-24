@@ -238,7 +238,7 @@ export default function ClaimDetail() {
         {/* ══════════════════════════════════════════════
             STEP 2 — BUSINESS INFO
            ══════════════════════════════════════════════ */}
-        <section ref={(el) => { sectionRefs.current[1] = el; }} className="scroll-mt-28">
+        <section>
           <SectionDivider num={2} label="Business Info" />
           <Card className="border border-border rounded-xl">
             <CardContent className="pt-5 space-y-4">
