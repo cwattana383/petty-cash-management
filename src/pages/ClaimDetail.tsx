@@ -342,38 +342,14 @@ export default function ClaimDetail() {
           </Card>
         </section>
 
-        {/* ══════════════════════════════════════════════
-            STEP 3 — RECEIPT / TAX INVOICE DETAILS
-           ══════════════════════════════════════════════ */}
-        {selectedConfig && !isAutoReject && (
-          <section>
-            <SectionDivider num={3} label="Receipt / Tax Invoice Details" />
-            <ExpenseLineItems
-              subExpenseType={subExpenseType}
-              glCode={glAccount}
-              onValidationChange={setLineItemsValid}
-              onTotalChange={setLineItemsTotal}
-              hasTaxInvoiceDoc={!!docUploads["tax_invoice"]}
-            />
 
-            {/* Amount mismatch warning */}
-            {amountMismatch && (
-              <div className="rounded-lg border border-amber-300 bg-amber-50 px-4 py-3 flex items-start gap-2 mt-3">
-                <AlertTriangle className="h-4 w-4 text-amber-600 shrink-0 mt-0.5" />
-                <p className="text-[13px] text-amber-800">
-                  ⚠️ The total on the receipt ({fmt(lineItemsTotal)} THB) does not match the card transaction amount ({fmt(txnAmount)} THB). Please verify and upload the correct document.
-                </p>
-              </div>
-            )}
-          </section>
-        )}
 
         {/* ══════════════════════════════════════════════
             STEP 4 — DOCUMENTS
            ══════════════════════════════════════════════ */}
         {selectedConfig && !isAutoReject && (allRequiredDocs.length > 0 || allOptionalDocs.length > 0) && (
           <section>
-            <SectionDivider num={4} label="Documents" />
+            <SectionDivider num={3} label="Documents" />
             <Card className="border border-border rounded-xl">
               <CardContent className="pt-5 space-y-5">
                 {/* Required docs */}
