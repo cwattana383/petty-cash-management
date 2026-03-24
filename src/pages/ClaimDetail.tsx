@@ -301,8 +301,14 @@ export default function ClaimDetail() {
                   {errors.subExpenseType && <p className="text-xs text-destructive">{errors.subExpenseType}</p>}
                 </div>
 
+                {/* VAT Type */}
+                <div className="space-y-1.5">
+                  <Label className="text-[13px] font-semibold text-foreground">VAT Type</Label>
+                  <Input value={selectedConfig ? (getVatTypeConfig(getDefaultVatType(subExpenseType) || "no_vat")?.label || "No VAT") : ""} readOnly className="bg-muted/40 border-border text-[13px]" placeholder="Auto-filled from sub expense type" />
+                </div>
+
                 {/* GL Account */}
-                <div className="space-y-1.5 md:col-span-2">
+                <div className="space-y-1.5">
                   <Label className="text-[13px] font-semibold text-foreground">GL Account (auto-suggested)</Label>
                   <Input value={glAccount} readOnly className="bg-muted/40 border-border text-[13px]" placeholder="Auto-filled from sub expense type" />
                 </div>
