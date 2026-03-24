@@ -347,12 +347,6 @@ export default function ExpenseLineItems({
             <span className="text-right font-medium">{fmt(totalNet)} THB</span>
             <span className="text-muted-foreground">Total VAT:</span>
             <span className="text-right font-medium">{fmt(totalVat)} THB</span>
-            {glCode && (
-              <>
-                <span className="text-muted-foreground">GL Code:</span>
-                <span className="text-right font-medium">{glCode}</span>
-              </>
-            )}
           </div>
         </div>
       </CardContent>
