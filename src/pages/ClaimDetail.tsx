@@ -188,6 +188,7 @@ export default function ClaimDetail() {
   };
 
   const handleSubmit = () => {
+    if (isAutoReject) return;
     const newErrors: Record<string, string> = {};
     if (!purpose.trim()) newErrors.purpose = "Purpose is required";
     if (!expenseType) newErrors.expenseType = "Expense Type is required";
@@ -196,8 +197,8 @@ export default function ClaimDetail() {
     if (isOverseas && overseasApprovalStatus !== "approved") {
       newErrors.overseas = "Travel approval is required before submitting.";
     }
-    if (uploadedFiles.length === 0) {
-      newErrors.documents = "At least one document must be uploaded before submitting.";
+    if (!allRequiredUploaded) {
+      newErrors.documents = "All required documents must be uploaded before submitting.";
     }
 
     if (Object.keys(newErrors).length > 0) {
