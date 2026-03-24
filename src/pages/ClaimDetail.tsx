@@ -636,7 +636,7 @@ export default function ClaimDetail() {
         </Button>
         <Button
           onClick={handleSubmit}
-          disabled={isAutoReject || (selectedConfig && allRequiredDocs.length > 0 && !allRequiredUploaded)}
+          disabled={isAutoReject || !lineItemsValid || (selectedConfig && allRequiredDocs.length > 0 && !allRequiredUploaded)}
           className="bg-blue-600 hover:bg-blue-700 text-white disabled:opacity-50"
         >
           Submit for Approval
