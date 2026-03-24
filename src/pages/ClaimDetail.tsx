@@ -479,38 +479,6 @@ export default function ClaimDetail() {
         </Card>
       )}
 
-      {/* Section 2 — Transaction Details (read-only) */}
-      <Card className="border border-border rounded-xl">
-        <CardHeader><CardTitle className="text-base font-bold">Transaction Details</CardTitle></CardHeader>
-        <CardContent>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-4">
-            <div className="space-y-1.5">
-              <Label className="text-[13px] font-semibold text-foreground">Transaction No.</Label>
-              <Input value={claim.claimNo} readOnly className="bg-muted/40 border-border text-[13px]" />
-            </div>
-            <div className="space-y-1.5">
-              <Label className="text-[13px] font-semibold text-foreground">Transaction Date</Label>
-              <Input value={formatBEDate(claim.createdDate)} readOnly className="bg-muted/40 border-border text-[13px]" />
-            </div>
-            <div className="space-y-1.5">
-              <Label className="text-[13px] font-semibold text-foreground">Merchant Name</Label>
-              <Input value={claim.merchantName || "GRAB TAXI"} readOnly className="bg-muted/40 border-border text-[13px]" />
-            </div>
-            <div className="space-y-1.5">
-              <Label className="text-[13px] font-semibold text-foreground">Amount</Label>
-              <Input
-                value={claim.totalAmount.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-                readOnly
-                className="bg-muted/40 border-border text-right text-[13px]"
-              />
-            </div>
-            <div className="space-y-1.5 md:col-span-2">
-              <Label className="text-[13px] font-semibold text-foreground">Description</Label>
-              <Input value={claim.purpose} readOnly className="bg-muted/40 border-border text-[13px]" />
-            </div>
-          </div>
-        </CardContent>
-      </Card>
 
       {/* Section 4 — Overseas Travel Approval Alert (conditional) */}
       {isOverseas && (
