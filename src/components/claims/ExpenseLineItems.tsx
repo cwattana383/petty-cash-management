@@ -252,14 +252,6 @@ export default function ExpenseLineItems({
                       ))}
                     </SelectContent>
                   </Select>
-                  {item.vatTypeAutoFilled && !item.vatTypeChanged && (
-                    <div className="flex items-center gap-1.5 mt-1">
-                      <Info className="h-3 w-3 text-blue-500 shrink-0" />
-                      <p className="text-[11px] text-blue-600">
-                        Auto-set to {vatConfig?.label}. Change if receipt differs.
-                      </p>
-                    </div>
-                  )}
                 </div>
 
                 {/* Net Amount */}
