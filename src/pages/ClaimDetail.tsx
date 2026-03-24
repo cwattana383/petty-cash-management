@@ -292,6 +292,7 @@ export default function ClaimDetail() {
                       setDocUploads({});
                       const config = getExpenseConfig(expenseType, v);
                       setGlAccount(config?.glCode || "");
+                      setVatType(getDefaultVatType(v) || "no_vat");
                       setErrors((p) => ({ ...p, subExpenseType: "" }));
                     }}
                     disabled={!expenseType}
