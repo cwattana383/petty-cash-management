@@ -17,6 +17,7 @@ import {
 import { formatBEDate } from "@/lib/utils";
 import { useClaims } from "@/lib/claims-context";
 import { getLevel1Options, getLevel2Options, getExpenseConfig } from "@/lib/expense-type-config";
+import ExpenseLineItems from "@/components/claims/ExpenseLineItems";
 import { useToast } from "@/hooks/use-toast";
 import { useState, useEffect, useCallback, useRef } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
@@ -102,6 +103,7 @@ export default function ClaimDetail() {
 
   // Validation
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const [lineItemsValid, setLineItemsValid] = useState(true);
 
   // Derived config
   const selectedConfig = expenseType && subExpenseType ? getExpenseConfig(expenseType, subExpenseType) : null;
@@ -199,6 +201,9 @@ export default function ClaimDetail() {
     }
     if (!allRequiredUploaded) {
       newErrors.documents = "All required documents must be uploaded before submitting.";
+    }
+    if (!lineItemsValid) {
+      newErrors.lineItems = "Please complete all required fields in expense line items.";
     }
 
     if (Object.keys(newErrors).length > 0) {
@@ -407,6 +412,16 @@ export default function ClaimDetail() {
           )}
         </CardContent>
       </Card>
+
+      {/* Expense Line Items with VAT */}
+      {selectedConfig && !isAutoReject && (
+        <ExpenseLineItems
+          subExpenseType={subExpenseType}
+          glCode={glAccount}
+          onValidationChange={setLineItemsValid}
+          hasTaxInvoiceDoc={uploadedFiles.some((f) => f.name.toLowerCase().includes("inv")) || !!docUploads["tax_invoice"]}
+        />
+      )}
 
       {/* Required & Optional Documents Section */}
       {selectedConfig && !isAutoReject && (allRequiredDocs.length > 0 || allOptionalDocs.length > 0) && (
@@ -621,7 +636,7 @@ export default function ClaimDetail() {
         </Button>
         <Button
           onClick={handleSubmit}
-          disabled={isAutoReject || (selectedConfig && allRequiredDocs.length > 0 && !allRequiredUploaded)}
+          disabled={isAutoReject || !lineItemsValid || (selectedConfig && allRequiredDocs.length > 0 && !allRequiredUploaded)}
           className="bg-blue-600 hover:bg-blue-700 text-white disabled:opacity-50"
         >
           Submit for Approval
