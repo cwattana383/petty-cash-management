@@ -103,6 +103,7 @@ export default function ClaimDetail() {
 
   // Validation
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const [lineItemsValid, setLineItemsValid] = useState(true);
 
   // Derived config
   const selectedConfig = expenseType && subExpenseType ? getExpenseConfig(expenseType, subExpenseType) : null;
