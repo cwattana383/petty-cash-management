@@ -45,12 +45,6 @@ const actionConfig: Record<string, { color: string; icon: React.ElementType }> =
   Delegated: { color: "border-purple-400 bg-purple-50", icon: Send },
 };
 
-const STEPS = [
-  { num: 1, label: "Card Transaction" },
-  { num: 2, label: "Business Info" },
-  { num: 3, label: "Receipt Details" },
-  { num: 4, label: "Documents" },
-];
 
 export default function ClaimDetail() {
   const { id } = useParams();
