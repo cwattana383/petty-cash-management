@@ -58,7 +58,7 @@ export default function CreateClaim() {
       accountCode: "",
       description: doc.name,
       expenseType: "",
-      amount: parseFloat(doc.ocrData?.find((f) => f.label === "จำนวนเงิน")?.value?.replace(/,/g, "") || "0") || 0,
+      amount: parseFloat(doc.ocrData?.find((f) => f.label === "Amount")?.value?.replace(/,/g, "") || "0") || 0,
       vatCode: doc.ocrData?.find((f) => f.label === "VAT Code")?.value || "",
       vatAmount: parseFloat(doc.ocrData?.find((f) => f.label === "VAT Amount")?.value?.replace(/,/g, "") || "0") || 0,
       totalAmount: 0,
@@ -124,9 +124,9 @@ export default function CreateClaim() {
   const [requester, setRequester] = useState<RequesterData>({
     requestType: "Owner",
     employeeId: "",
-    employee: "สมชาย ใจดี",
+    employee: "Somchai Jaidee",
     store: currentUser.branch,
-    company: "บริษัท ซีพี แอ็กซ์ตร้า จำกัด (มหาชน)",
+    company: "CP Axtra Public Company Limited",
     telephone: "0657778899",
     email: "somchai@cpaxtra.co.th",
     division: "92029 – Accounting",
@@ -199,7 +199,7 @@ export default function CreateClaim() {
               {isManualExpense ? "Create Manual Expense" : "Create Expense"}
             </h1>
             <p className="text-muted-foreground text-sm">
-              {isManualExpense ? "กรอกข้อมูลรายการเบิกด้วยตนเอง (ไม่ผูกกับเอกสาร)" : "Fill in expense request details"}
+              {isManualExpense ? "Fill in expense item details manually (not linked to a document)" : "Fill in expense request details"}
             </p>
           </div>
         </div>
@@ -279,7 +279,7 @@ export default function CreateClaim() {
                         <PopoverTrigger asChild>
                           <Button variant="outline" className={cn("h-8 text-sm w-32 justify-start text-left font-normal", !line.invoiceDate && "text-muted-foreground")}>
                             <CalendarIcon className="mr-1 h-3.5 w-3.5" />
-                            {line.invoiceDate ? formatBEDate(line.invoiceDate) : "วันที่..."}
+                            {line.invoiceDate ? formatBEDate(line.invoiceDate) : "Date..."}
                           </Button>
                         </PopoverTrigger>
                         <PopoverContent className="w-auto p-0" align="start">
@@ -288,7 +288,7 @@ export default function CreateClaim() {
                       </Popover>
                     </TableCell>
                     <TableCell>
-                      <Input placeholder="เลขที่..." value={line.invoiceNumber} onChange={(e) => updateDocLine(line.id, "invoiceNumber", e.target.value)} className="h-8 text-sm w-24" />
+                      <Input placeholder="Invoice No...." value={line.invoiceNumber} onChange={(e) => updateDocLine(line.id, "invoiceNumber", e.target.value)} className="h-8 text-sm w-24" />
                     </TableCell>
                     <TableCell>
                       <div className="flex items-center gap-2">
@@ -307,18 +307,18 @@ export default function CreateClaim() {
                       </Select>
                     </TableCell>
                     <TableCell>
-                      <Input placeholder="ชื่อผู้ขาย..." value={line.supplierName} onChange={(e) => updateDocLine(line.id, "supplierName", e.target.value)} className="h-8 text-sm w-28" />
+                      <Input placeholder="Supplier name..." value={line.supplierName} onChange={(e) => updateDocLine(line.id, "supplierName", e.target.value)} className="h-8 text-sm w-28" />
                     </TableCell>
                     <TableCell>
                       <Select value={line.accountCode} onValueChange={(v) => updateDocLine(line.id, "accountCode", v)}>
-                        <SelectTrigger className="h-8 text-sm w-44"><SelectValue placeholder="เลือกรหัสบัญชี" /></SelectTrigger>
+                        <SelectTrigger className="h-8 text-sm w-44"><SelectValue placeholder="Select GL Code" /></SelectTrigger>
                         <SelectContent>
                           {accountCodes.map((ac) => (<SelectItem key={ac.code} value={ac.code}>{ac.code} - {ac.name}</SelectItem>))}
                         </SelectContent>
                       </Select>
                     </TableCell>
                     <TableCell>
-                      <Input placeholder="รายละเอียด..." value={line.description} onChange={(e) => updateDocLine(line.id, "description", e.target.value)} className="h-8 text-sm" />
+                      <Input placeholder="Description..." value={line.description} onChange={(e) => updateDocLine(line.id, "description", e.target.value)} className="h-8 text-sm" />
                     </TableCell>
                     <TableCell>
                       <Select value={line.expenseType} onValueChange={(v) => updateDocLine(line.id, "expenseType", v)}>
@@ -333,7 +333,7 @@ export default function CreateClaim() {
                     </TableCell>
                     <TableCell>
                       <Select value={line.vatCode} onValueChange={(v) => updateDocLine(line.id, "vatCode", v)}>
-                        <SelectTrigger className="h-8 text-sm w-32"><SelectValue placeholder="เลือก VAT" /></SelectTrigger>
+                        <SelectTrigger className="h-8 text-sm w-32"><SelectValue placeholder="Select VAT" /></SelectTrigger>
                         <SelectContent>
                           <SelectItem value="AVG">AVG</SelectItem>
                           <SelectItem value="Claim 100%">Claim 100%</SelectItem>
@@ -350,7 +350,7 @@ export default function CreateClaim() {
                     </TableCell>
                     <TableCell>
                       <Select value={line.whtCode} onValueChange={(v) => updateDocLine(line.id, "whtCode", v)}>
-                        <SelectTrigger className="h-8 text-sm w-36"><SelectValue placeholder="เลือก WHT" /></SelectTrigger>
+                        <SelectTrigger className="h-8 text-sm w-36"><SelectValue placeholder="Select WHT" /></SelectTrigger>
                         <SelectContent>
                           <SelectItem value="Advertising 3">Advertising 3</SelectItem>
                           <SelectItem value="Advertising 53">Advertising 53</SelectItem>
@@ -386,7 +386,7 @@ export default function CreateClaim() {
                             className={cn("h-8 text-sm w-32 justify-start text-left font-normal", !line.invoiceDate && "text-muted-foreground")}
                           >
                             <CalendarIcon className="mr-1 h-3.5 w-3.5" />
-                            {line.invoiceDate ? formatBEDate(line.invoiceDate) : "วันที่..."}
+                            {line.invoiceDate ? formatBEDate(line.invoiceDate) : "Date..."}
                           </Button>
                         </PopoverTrigger>
                         <PopoverContent className="w-auto p-0" align="start">
@@ -402,7 +402,7 @@ export default function CreateClaim() {
                       </Popover>
                     </TableCell>
                     <TableCell>
-                      <Input placeholder="เลขที่..." className="h-8 text-sm w-24" />
+                      <Input placeholder="Invoice No...." className="h-8 text-sm w-24" />
                     </TableCell>
                     <TableCell>
                       {line.attachedFile ? (
@@ -425,7 +425,7 @@ export default function CreateClaim() {
                             }}
                           />
                           <span className="inline-flex items-center gap-1 text-xs text-primary hover:underline">
-                            <Paperclip className="h-3.5 w-3.5" /> แนบไฟล์
+                            <Paperclip className="h-3.5 w-3.5" /> Attach Files
                           </span>
                         </label>
                       )}
@@ -443,12 +443,12 @@ export default function CreateClaim() {
                       </Select>
                     </TableCell>
                     <TableCell>
-                      <Input placeholder="ชื่อผู้ขาย..." className="h-8 text-sm w-28" />
+                      <Input placeholder="Supplier name..." className="h-8 text-sm w-28" />
                     </TableCell>
                     <TableCell>
                       <Select onValueChange={(v) => updateManualLine(line.id, "accountCode", v)}>
                         <SelectTrigger className="h-8 text-sm w-44">
-                          <SelectValue placeholder="เลือกรหัสบัญชี" />
+                          <SelectValue placeholder="Select GL Code" />
                         </SelectTrigger>
                         <SelectContent>
                           {accountCodes.map((ac) => (
@@ -459,7 +459,7 @@ export default function CreateClaim() {
                     </TableCell>
                     <TableCell>
                       <Input
-                        placeholder="รายละเอียด..."
+                        placeholder="Description..."
                         value={line.description}
                         onChange={(e) => updateManualLine(line.id, "description", e.target.value)}
                         className="h-8 text-sm"
@@ -487,7 +487,7 @@ export default function CreateClaim() {
                     <TableCell>
                       <Select value={line.vatCode} onValueChange={(v) => updateManualLine(line.id, "vatCode", v)}>
                         <SelectTrigger className="h-8 text-sm w-32">
-                          <SelectValue placeholder="เลือก VAT" />
+                          <SelectValue placeholder="Select VAT" />
                         </SelectTrigger>
                         <SelectContent>
                           <SelectItem value="AVG">AVG</SelectItem>
@@ -514,7 +514,7 @@ export default function CreateClaim() {
                     <TableCell>
                       <Select value={line.whtCode} onValueChange={(v) => updateManualLine(line.id, "whtCode", v)}>
                         <SelectTrigger className="h-8 text-sm w-36">
-                          <SelectValue placeholder="เลือก WHT" />
+                          <SelectValue placeholder="Select WHT" />
                         </SelectTrigger>
                         <SelectContent>
                           <SelectItem value="Advertising 3">Advertising 3</SelectItem>
@@ -550,7 +550,7 @@ export default function CreateClaim() {
                 {docLines.length === 0 && manualLines.length === 0 && (
                   <TableRow>
                     <TableCell colSpan={17} className="text-center text-muted-foreground py-8">
-                      ยังไม่มีรายการ — กด "+ Add Item" เพื่อเพิ่มรายการ
+                      No items yet — click "+ Add Item" to add items
                     </TableCell>
                   </TableRow>
                 )}

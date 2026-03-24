@@ -35,15 +35,15 @@ export interface UploadedDoc {
 }
 
 export const mockOcrFields: OcrField[] = [
-  { label: "เลขประจำตัวผู้เสียภาษี", value: "0107567000414", confidence: 95 },
-  { label: "วันเดือนปี", value: "19/12/2025", confidence: 90 },
-  { label: "เลขที่", value: "054", confidence: 85 },
-  { label: "ชื่อ ผู้มีหน้าที่หักภาษี ณ ที่จ่าย", value: "บริษัท ซีพี แอ็กซ์ตร้า จำกัด (มหาชน)", confidence: 95 },
-  { label: "ที่อยู่ผู้ซื้อ", value: "123 ถนนสุขุมวิท คลองเตย กรุงเทพมหานคร 10110", confidence: 88 },
-  { label: "สาขา", value: "สำนักงานใหญ่", confidence: 88 },
-  { label: "ประเภทรายได้", value: "ค่าบริการ", confidence: 80 },
-  { label: "อัตราภาษี", value: "3", confidence: 90 },
-  { label: "จำนวนเงิน", value: "10,000.00", confidence: 95 },
+  { label: "Tax ID", value: "0107567000414", confidence: 95 },
+  { label: "Date", value: "19/12/2025", confidence: 90 },
+  { label: "Invoice No.", value: "054", confidence: 85 },
+  { label: "Withholding Tax Payer Name", value: "CP Axtra Public Company Limited", confidence: 95 },
+  { label: "Buyer Address", value: "123 Sukhumvit Road, Khlong Toei, Bangkok 10110", confidence: 88 },
+  { label: "Branch", value: "Head Office", confidence: 88 },
+  { label: "Income Type", value: "Service Fee", confidence: 80 },
+  { label: "Tax Rate", value: "3", confidence: 90 },
+  { label: "Amount", value: "10,000.00", confidence: 95 },
   { label: "VAT Code", value: "V7", confidence: 92 },
   { label: "VAT Amount", value: "700.00", confidence: 90 },
   { label: "WHT Code", value: "W3", confidence: 88 },
@@ -78,8 +78,8 @@ export function checkDuplicate(
 ): { isDuplicate: boolean; duplicateOfId?: string } {
   if (!newDoc.ocrData) return { isDuplicate: false };
 
-  const newTaxId = newDoc.ocrData.find((f) => f.label === "เลขประจำตัวผู้เสียภาษี")?.value || "";
-  const newInvoiceNo = newDoc.ocrData.find((f) => f.label === "เลขที่")?.value || "";
+  const newTaxId = newDoc.ocrData.find((f) => f.label === "Tax ID")?.value || "";
+  const newInvoiceNo = newDoc.ocrData.find((f) => f.label === "Invoice No.")?.value || "";
 
   if (!newTaxId || !newInvoiceNo) return { isDuplicate: false };
 
@@ -87,8 +87,8 @@ export function checkDuplicate(
     if (d.id === newDoc.id) return false;
     if (!d.ocrData) return false;
     if (d.status === "DUPLICATE_BLOCKED" || d.status === "REJECTED") return false;
-    const dTaxId = d.ocrData.find((f) => f.label === "เลขประจำตัวผู้เสียภาษี")?.value || "";
-    const dInvoiceNo = d.ocrData.find((f) => f.label === "เลขที่")?.value || "";
+    const dTaxId = d.ocrData.find((f) => f.label === "Tax ID")?.value || "";
+    const dInvoiceNo = d.ocrData.find((f) => f.label === "Invoice No.")?.value || "";
     return dTaxId === newTaxId && dInvoiceNo === newInvoiceNo;
   });
 
@@ -119,9 +119,9 @@ export function validateBuyerEntity(
     addressAliases: string[];
   }>
 ): BuyerValidationResult {
-  const extractedTaxId = ocrData.find((f) => f.label === "เลขประจำตัวผู้เสียภาษี")?.value || "";
-  const extractedName = ocrData.find((f) => f.label === "ชื่อ ผู้มีหน้าที่หักภาษี ณ ที่จ่าย")?.value || "";
-  const extractedAddress = ocrData.find((f) => f.label === "ที่อยู่ผู้ซื้อ")?.value || "";
+  const extractedTaxId = ocrData.find((f) => f.label === "Tax ID")?.value || "";
+  const extractedName = ocrData.find((f) => f.label === "Withholding Tax Payer Name")?.value || "";
+  const extractedAddress = ocrData.find((f) => f.label === "Buyer Address")?.value || "";
 
   if (!extractedTaxId) return { isMatch: true }; // Can't validate without tax ID
 
@@ -137,7 +137,7 @@ export function validateBuyerEntity(
         extractedTaxId,
         extractedName,
         extractedAddress,
-        expectedTaxId: "ไม่พบ Tax ID นี้ในระบบ",
+        expectedTaxId: "Tax ID not found in the system",
         expectedName: "",
         expectedAddress: "",
       },

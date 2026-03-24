@@ -167,7 +167,7 @@ export default function ClaimDetail() {
           : s
       ),
       comments: comment
-        ? [...claim.comments, { id: `cm-${Date.now()}`, userId: "u2", userName: "สมหญิง แก้วใส", text: comment, date: new Date().toISOString().slice(0, 10) }]
+        ? [...claim.comments, { id: `cm-${Date.now()}`, userId: "u2", userName: "Somying Kaewsai", text: comment, date: new Date().toISOString().slice(0, 10) }]
         : claim.comments,
     });
     toast({ title: `Claim ${actionLabel}`, description: `${claim.claimNo} has been ${actionLabel.toLowerCase()}` });

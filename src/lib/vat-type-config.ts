@@ -12,7 +12,7 @@ export const VAT_TYPE_CONFIG: VatTypeConfigItem[] = [
   {
     id: "claim_100",
     label: "Claim 100",
-    description: "Input VAT claimable 100% — ใบกำกับภาษีครบถ้วน (NF items)",
+    description: "Input VAT claimable 100% — Full tax invoice available (NF items)",
     vatRate: 0.07,
     calcMethod: "exclusive",
     requiresTaxInvoice: true,
@@ -21,7 +21,7 @@ export const VAT_TYPE_CONFIG: VatTypeConfigItem[] = [
   {
     id: "unclaim_100",
     label: "Un-Claim 100",
-    description: "VAT not claimable — รวมเป็นต้นทุน (FF items เช่น ถุงใส่ผัก)",
+    description: "VAT not claimable — Absorbed into cost (FF items e.g. produce bags)",
     vatRate: 0.07,
     calcMethod: "inclusive",
     requiresTaxInvoice: true,
@@ -30,7 +30,7 @@ export const VAT_TYPE_CONFIG: VatTypeConfigItem[] = [
   {
     id: "avg",
     label: "AVG",
-    description: "Average VAT — ค่าใช้จ่ายส่วนกลางแบ่งตามสัดส่วน NF:FF",
+    description: "Average VAT — Shared expenses split by NF:FF ratio",
     vatRate: 0.07,
     calcMethod: "average",
     requiresTaxInvoice: true,
@@ -39,7 +39,7 @@ export const VAT_TYPE_CONFIG: VatTypeConfigItem[] = [
   {
     id: "no_vat",
     label: "No VAT",
-    description: "ไม่มีใบกำกับภาษี — ซัพพลายเออร์ไม่ได้จด VAT หรือได้รับยกเว้น",
+    description: "No tax invoice — Supplier not VAT-registered or exempt",
     vatRate: 0,
     calcMethod: "none",
     requiresTaxInvoice: false,
@@ -53,7 +53,7 @@ export const DEFAULT_VAT_BY_SUBTYPE: Record<string, string> = {
   "Train / Inter-city Bus": "no_vat",
   "Personal Car — Mileage": "no_vat",
   "EV Car — Mileage": "no_vat",
-  "Toll Fees / ค่าทางด่วน": "no_vat",
+  "Toll Fees": "no_vat",
   "Airport Parking": "no_vat",
   "Car Rental": "claim_100",
   "Airline — Domestic": "claim_100",
@@ -70,7 +70,7 @@ export const DEFAULT_VAT_BY_SUBTYPE: Record<string, string> = {
   "Stationery / Printing": "claim_100",
   "IT Equipment": "claim_100",
   "Medical / OPD": "no_vat",
-  "Funeral — Wreath (พวงหรีด)": "no_vat",
+  "Funeral — Wreath": "no_vat",
   "Government License / Permit": "no_vat",
   "Community / Cultural": "no_vat",
   "Wet Waste Disposal": "no_vat",

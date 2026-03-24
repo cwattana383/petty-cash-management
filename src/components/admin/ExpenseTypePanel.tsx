@@ -32,21 +32,21 @@ const now = () => new Date().toISOString().replace("T", " ").slice(0, 19);
 
 const initialData: ExpenseTypeRow[] = [
   { id: "1", groupingTh: "Entertainment", subExpenseType: "Client Meal — HoReCa / Business Visit", accountNameEn: "Eating Places/Restaurants", active: true, updatedAt: "2026-03-23 10:00:00" },
-  { id: "2", groupingTh: "Entertainment", subExpenseType: "Trainer / Guest Entertainment (ค่าเลี้ยงวิทยากร/แขก)", accountNameEn: "Eating Places/Restaurants", active: true, updatedAt: "2026-03-23 10:00:00" },
-  { id: "3", groupingTh: "Entertainment", subExpenseType: "Entertainment >3,000 THB (ต้องอนุมัติ)", accountNameEn: "Eating Places/Restaurants", active: true, updatedAt: "2026-03-23 10:00:00" },
+  { id: "2", groupingTh: "Entertainment", subExpenseType: "Trainer / Guest Entertainment (Trainer/Guest Meals)", accountNameEn: "Eating Places/Restaurants", active: true, updatedAt: "2026-03-23 10:00:00" },
+  { id: "3", groupingTh: "Entertainment", subExpenseType: "Entertainment >3,000 THB (Requires Approval)", accountNameEn: "Eating Places/Restaurants", active: true, updatedAt: "2026-03-23 10:00:00" },
   { id: "4", groupingTh: "Entertainment", subExpenseType: "Motion Picture / Non-Business Entertainment", accountNameEn: "Motion Picture Theaters", active: false, updatedAt: "2026-03-23 10:00:00" },
-  { id: "5", groupingTh: "Hotel", subExpenseType: "Hotel — Domestic Standard Rate (ระดับ ASGM–Division Mgr)", accountNameEn: "Hotels/Motels/Resorts", active: true, updatedAt: "2026-03-23 10:00:00" },
-  { id: "6", groupingTh: "Hotel", subExpenseType: "Hotel — Domestic SGM/Senior Mgr (พักคู่)", accountNameEn: "Hotels/Motels/Resorts", active: true, updatedAt: "2026-03-23 10:00:00" },
-  { id: "7", groupingTh: "Hotel", subExpenseType: "Hotel — Domestic Associate Director–Chief (พักเดี่ยว)", accountNameEn: "Hotels/Motels/Resorts", active: true, updatedAt: "2026-03-23 10:00:00" },
-  { id: "8", groupingTh: "Hotel", subExpenseType: "Hotel — Domestic GCEO/CEO BU (พักเดี่ยว)", accountNameEn: "Hotels/Motels/Resorts", active: true, updatedAt: "2026-03-23 10:00:00" },
-  { id: "9", groupingTh: "Hotel", subExpenseType: "Hotel — Domestic Special Area (พื้นที่พิเศษ: เกาะ/Event ขนาดใหญ่)", accountNameEn: "Hotels/Motels/Resorts", active: true, updatedAt: "2026-03-23 10:00:00" },
+  { id: "5", groupingTh: "Hotel", subExpenseType: "Hotel — Domestic Standard Rate (ASGM–Division Mgr Level)", accountNameEn: "Hotels/Motels/Resorts", active: true, updatedAt: "2026-03-23 10:00:00" },
+  { id: "6", groupingTh: "Hotel", subExpenseType: "Hotel — Domestic SGM/Senior Mgr (Twin Sharing)", accountNameEn: "Hotels/Motels/Resorts", active: true, updatedAt: "2026-03-23 10:00:00" },
+  { id: "7", groupingTh: "Hotel", subExpenseType: "Hotel — Domestic Associate Director–Chief (Single Room)", accountNameEn: "Hotels/Motels/Resorts", active: true, updatedAt: "2026-03-23 10:00:00" },
+  { id: "8", groupingTh: "Hotel", subExpenseType: "Hotel — Domestic GCEO/CEO BU (Single Room)", accountNameEn: "Hotels/Motels/Resorts", active: true, updatedAt: "2026-03-23 10:00:00" },
+  { id: "9", groupingTh: "Hotel", subExpenseType: "Hotel — Domestic Special Area (Special Area: Island/Large Event)", accountNameEn: "Hotels/Motels/Resorts", active: true, updatedAt: "2026-03-23 10:00:00" },
   { id: "10", groupingTh: "Hotel", subExpenseType: "Hotel — International Group A & B (Senior Dir/Chief Level)", accountNameEn: "Holiday Inn", active: true, updatedAt: "2026-03-23 10:00:00" },
   { id: "11", groupingTh: "Hotel", subExpenseType: "Hotel — International Group A & B (Assoc Dir–Director)", accountNameEn: "Holiday Inn", active: true, updatedAt: "2026-03-23 10:00:00" },
   { id: "12", groupingTh: "Hotel", subExpenseType: "Hotel — International Group A & B (Sr.Mgr/SGM/Area Mgr)", accountNameEn: "Holiday Inn", active: true, updatedAt: "2026-03-23 10:00:00" },
   { id: "13", groupingTh: "Hotel", subExpenseType: "Hotel — International Group C (ASEAN & Others)", accountNameEn: "Holiday Inn", active: true, updatedAt: "2026-03-23 10:00:00" },
-  { id: "14", groupingTh: "Meals & Entertainment", subExpenseType: "Meals — Per Diem Domestic Travel (ค่าเบี้ยเลี้ยงในประเทศ)", accountNameEn: "Eating Places/Restaurants", active: true, updatedAt: "2026-03-23 10:00:00" },
-  { id: "15", groupingTh: "Meals & Entertainment", subExpenseType: "Meals — Staff Meeting / Stock Count (ค่าอาหารประชุม/นับสต็อค)", accountNameEn: "Eating Places/Restaurants", active: true, updatedAt: "2026-03-23 10:00:00" },
-  { id: "16", groupingTh: "Meals & Entertainment", subExpenseType: "Meals — Night Shift Special Operation (กะดึก)", accountNameEn: "Eating Places/Restaurants", active: true, updatedAt: "2026-03-23 10:00:00" },
+  { id: "14", groupingTh: "Meals & Entertainment", subExpenseType: "Meals — Per Diem Domestic Travel (Domestic Per Diem)", accountNameEn: "Eating Places/Restaurants", active: true, updatedAt: "2026-03-23 10:00:00" },
+  { id: "15", groupingTh: "Meals & Entertainment", subExpenseType: "Meals — Staff Meeting / Stock Count (Meeting/Stock Count Meals)", accountNameEn: "Eating Places/Restaurants", active: true, updatedAt: "2026-03-23 10:00:00" },
+  { id: "16", groupingTh: "Meals & Entertainment", subExpenseType: "Meals — Night Shift Special Operation (Night Shift)", accountNameEn: "Eating Places/Restaurants", active: true, updatedAt: "2026-03-23 10:00:00" },
   { id: "17", groupingTh: "Meals & Entertainment", subExpenseType: "Meals — Overseas Per Diem Group A & B CEO/GCEO", accountNameEn: "Eating Places/Restaurants", active: true, updatedAt: "2026-03-23 10:00:00" },
   { id: "18", groupingTh: "Meals & Entertainment", subExpenseType: "Meals — Overseas Per Diem Group A & B Senior Dir/Chief", accountNameEn: "Eating Places/Restaurants", active: true, updatedAt: "2026-03-23 10:00:00" },
   { id: "19", groupingTh: "Meals & Entertainment", subExpenseType: "Meals — Overseas Per Diem Group A & B Assoc Dir–Director", accountNameEn: "Eating Places/Restaurants", active: true, updatedAt: "2026-03-23 10:00:00" },
@@ -323,7 +323,7 @@ export default function ExpenseTypePanel() {
           <div className="space-y-4 py-2">
             <div className="space-y-2">
               <Label htmlFor="grouping">Expense Type <span className="text-destructive">*</span></Label>
-              <Input id="grouping" value={formGrouping} onChange={(e) => setFormGrouping(e.target.value)} placeholder="e.g. ค่าเดินทาง, ค่าที่พัก" />
+              <Input id="grouping" value={formGrouping} onChange={(e) => setFormGrouping(e.target.value)} placeholder="e.g. Travel, Accommodation" />
             </div>
             <div className="space-y-2">
               <Label htmlFor="subExpenseType">Sub Expense Type</Label>

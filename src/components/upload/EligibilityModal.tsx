@@ -25,7 +25,7 @@ export default function EligibilityModal({
             Ineligible Documents
           </DialogTitle>
           <DialogDescription>
-            กรุณายืนยันเอกสารให้เรียบร้อยก่อนสร้างรายการเบิก เฉพาะเอกสารที่ผ่านการ Verify แล้วเท่านั้นที่สามารถใช้ได้
+            Please verify all documents before creating a claim. Only verified documents can be used.
           </DialogDescription>
         </DialogHeader>
 

@@ -17,7 +17,7 @@ const now = new Date();
 const minutesAgo = (m: number) => new Date(now.getTime() - m * 60000).toISOString();
 
 const initialNotifications: Notification[] = [
-  { id: "n1", title: "Claim Approved", message: "Your claim EC-2025-001 for Business Travel - Bangkok to Chiang Mai has been approved by สมหญิง แก้วใส.", type: "APPROVAL", target_transaction_id: "c1", read_flag: false, created_at: minutesAgo(5), user_id: "u1" },
+  { id: "n1", title: "Claim Approved", message: "Your claim EC-2025-001 for Business Travel - Bangkok to Chiang Mai has been approved by Somying Kaewsai.", type: "APPROVAL", target_transaction_id: "c1", read_flag: false, created_at: minutesAgo(5), user_id: "u1" },
   { id: "n2", title: "Claim Rejected", message: "Your claim EC-2025-004 for Taxi to Airport has been rejected. Please review the comments.", type: "REJECTION", target_transaction_id: "c4", read_flag: false, created_at: minutesAgo(30), user_id: "u1" },
   { id: "n3", title: "Additional Info Required", message: "Approver requested more information for claim EC-2025-005 - Conference Registration. Please provide receipts.", type: "NEED_INFO", target_transaction_id: "c5", read_flag: false, created_at: minutesAgo(120), user_id: "u1" },
   { id: "n4", title: "System Maintenance", message: "Scheduled maintenance on Feb 15, 2025. The system will be unavailable from 00:00–02:00.", type: "SYSTEM", target_transaction_id: "", read_flag: true, created_at: minutesAgo(1440), user_id: "u1" },
