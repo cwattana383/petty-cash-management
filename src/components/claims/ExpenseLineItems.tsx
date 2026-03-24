@@ -203,16 +203,6 @@ export default function ExpenseLineItems({
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {/* Supplier Name */}
-                <div className="space-y-1.5">
-                  <Label className="text-[13px] font-semibold text-foreground">Supplier Name</Label>
-                  <Input
-                    className="text-[13px]"
-                    placeholder="Supplier / Vendor name"
-                    value={item.supplierName}
-                    onChange={(e) => updateItem(item.id, { supplierName: e.target.value })}
-                  />
-                </div>
 
                 {/* Gross Amount */}
                 <div className="space-y-1.5">
