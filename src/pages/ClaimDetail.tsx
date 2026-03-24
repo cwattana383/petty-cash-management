@@ -88,17 +88,27 @@ export default function ClaimDetail() {
   const [costCenter, setCostCenter] = useState("");
   const [projectCode, setProjectCode] = useState("");
 
+  // Document uploads per doc slot (keyed by doc id)
+  const [docUploads, setDocUploads] = useState<Record<string, UploadedFile>>({});
+
   // Overseas approval
   const [overseasApprovalStatus, setOverseasApprovalStatus] = useState<"pending" | "approved">("pending");
   const [travelApprovalFiles, setTravelApprovalFiles] = useState<UploadedFile[]>([]);
 
-  // Documents
+  // Documents (legacy general uploads)
   const [activeDocTab, setActiveDocTab] = useState<DocTab>("tax-invoice");
   const [uploadedFiles, setUploadedFiles] = useState<UploadedFile[]>([]);
   const fileCounter = useRef(0);
 
   // Validation
   const [errors, setErrors] = useState<Record<string, string>>({});
+
+  // Derived config
+  const selectedConfig = expenseType && subExpenseType ? getExpenseConfig(expenseType, subExpenseType) : null;
+  const isAutoReject = selectedConfig?.policyRule === "Auto Reject";
+  const allRequiredDocs = selectedConfig?.requiredDocs || [];
+  const allOptionalDocs = selectedConfig?.optionalDocs || [];
+  const allRequiredUploaded = allRequiredDocs.length === 0 || allRequiredDocs.every((d) => docUploads[d.id]);
 
   const simulateUpload = useCallback((files: UploadedFile[], setFiles: React.Dispatch<React.SetStateAction<UploadedFile[]>>) => {
     const simFile = SIMULATED_FILES[fileCounter.current % SIMULATED_FILES.length];
