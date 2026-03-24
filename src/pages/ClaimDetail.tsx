@@ -325,7 +325,7 @@ export default function ClaimDetail() {
             STEP 3 — RECEIPT / TAX INVOICE DETAILS
            ══════════════════════════════════════════════ */}
         {selectedConfig && !isAutoReject && (
-          <section ref={(el) => { sectionRefs.current[2] = el; }} className="scroll-mt-28">
+          <section>
             <SectionDivider num={3} label="Receipt / Tax Invoice Details" />
             <ExpenseLineItems
               subExpenseType={subExpenseType}
