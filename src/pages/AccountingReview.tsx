@@ -173,7 +173,7 @@ export default function AccountingReview() {
   const handleSingleConfirm = () => {
     if (!drawerItemId) return;
     updateStatus([drawerItemId]);
-    toast({ title: "ส่งitemsไปยัง ERP เรียบร้อย", description: `${drawerItemId} — Statusเปลี่ยนเป็น Ready for ERP` });
+    toast({ title: "Items sent to ERP successfully", description: `${drawerItemId} — Status changed to Ready for ERP` });
     setDrawerItemId(null);
     setConfirmDialogOpen(false);
   };
@@ -181,7 +181,7 @@ export default function AccountingReview() {
   const handleBulkConfirm = () => {
     const ids = Array.from(selectedIds);
     updateStatus(ids);
-    toast({ title: "ส่งitemsไปยัง ERP เรียบร้อย", description: `${ids.length} itemsถูกส่งไปยัง ERP` });
+    toast({ title: "Items sent to ERP successfully", description: `${ids.length} items sent to ERP` });
     setSelectedIds(new Set());
     setBulkConfirmOpen(false);
   };
@@ -193,7 +193,7 @@ export default function AccountingReview() {
         item.id === drawerItemId ? { ...item, status: "Exception" } : item
       )
     );
-    toast({ title: "itemsถูก flag เป็น Exception แล้ว — แจ้งพนักงานเรียบร้อย", description: `${drawerItemId} — เหตุผล: ${exceptionReason}` });
+    toast({ title: "Items flagged as Exception — employee notified", description: `${drawerItemId} — Reason: ${exceptionReason}` });
     setDrawerItemId(null);
     setExceptionDialogOpen(false);
     setExceptionReason("");
@@ -238,7 +238,7 @@ export default function AccountingReview() {
         <Card className="border-blue-200 bg-blue-50/50">
           <CardContent className="pt-6">
             <p className="text-sm text-blue-700 mb-4 font-medium">
-              Reportsประจำเดือน — ส่งให้ HR และ Finance ทุกdaysที่ 9 ของเดือน
+              Monthly Report — sent to HR and Finance on the 9th of each month
             </p>
             <div className="grid grid-cols-5 gap-4">
               {metrics.map((m) => (
@@ -265,7 +265,7 @@ export default function AccountingReview() {
               ))}
             </div>
             <p className="text-xs text-muted-foreground mt-3">
-              อัปเดตล่าสุด: 11 มี.ค. 2569 07:00 — ส่ง ERP ครั้งล่าสุด: 9 มี.ค. 2569 09:15
+              Last updated: 11 Mar 2026 07:00 — Last ERP export: 9 Mar 2026 09:15
             </p>
           </CardContent>
         </Card>
@@ -275,8 +275,8 @@ export default function AccountingReview() {
             <TabsList>
               <TabsTrigger value="pending">Pending Review</TabsTrigger>
               <TabsTrigger value="exception">Exception</TabsTrigger>
-              <TabsTrigger value="ready">พร้อมส่ง ERP</TabsTrigger>
-              <TabsTrigger value="reimbursed">ส่ง ERP แล้ว</TabsTrigger>
+              <TabsTrigger value="ready">Ready for ERP</TabsTrigger>
+              <TabsTrigger value="reimbursed">Sent to ERP</TabsTrigger>
               <TabsTrigger value="all">All</TabsTrigger>
             </TabsList>
           </Tabs>
@@ -383,7 +383,7 @@ export default function AccountingReview() {
             <div className="mx-4 mt-4 mb-2">
               <h3 className="text-sm font-semibold text-foreground mb-2 flex items-center gap-2">
                 <Paperclip className="h-4 w-4" />
-                เอกสารแนบ
+                Attachments
                 <Badge variant="secondary" className="text-xs">📎 {drawerItem.attachedFiles.length}</Badge>
               </h3>
               <div className="space-y-1">
@@ -445,13 +445,13 @@ export default function AccountingReview() {
             {taxInvoiceDoc ? (
               <div className="mx-4 mb-2">
                 <p className="text-xs text-muted-foreground mb-1">
-                  🔍 OCR ทำงานจากเอกสาร: <span className="font-medium text-foreground">{taxInvoiceDoc.name}</span> (Tax Invoice)
+                  🔍 OCR processed from document: <span className="font-medium text-foreground">{taxInvoiceDoc.name}</span> (Tax Invoice)
                 </p>
               </div>
             ) : (
               <div className="mx-4 mb-2">
                 <p className="text-xs text-orange-600">
-                  ⚠️ ไม่พบเอกสารประเภท "Tax Invoice" — ไม่สามารถดึงข้อมูล OCR ได้
+                  ⚠️ No "Tax Invoice" document found — unable to extract OCR data
                 </p>
               </div>
             )}
@@ -462,7 +462,7 @@ export default function AccountingReview() {
               <details className="group">
                 <summary className="flex items-center gap-2 cursor-pointer select-none py-2">
                   <ChevronDown className="h-4 w-4 text-muted-foreground transition-transform group-open:rotate-180" />
-                  <h3 className="text-sm font-semibold text-foreground">ประวัติการดำเนินการ (Audit Trail)</h3>
+                  <h3 className="text-sm font-semibold text-foreground">Action History (Audit Trail)</h3>
                 </summary>
                 <div className="ml-2 mt-2 border-l-2 border-muted pl-4 space-y-4 pb-2">
                   {[
@@ -494,7 +494,7 @@ export default function AccountingReview() {
                   onClick={() => setConfirmDialogOpen(true)}
                 >
                   <Send className="h-4 w-4 mr-2" />
-                  ยืนยัน & ส่ง ERP
+                  ยืนยัน & Export to ERP
                 </Button>
                 <Button
                   variant="outline"
@@ -508,7 +508,7 @@ export default function AccountingReview() {
             )}
             {drawerItem.status === "Ready for ERP" && (
               <div className="text-center">
-                <Badge className="bg-blue-100 text-blue-800 border-blue-300" variant="outline">✅ ส่ง ERP แล้ว</Badge>
+                <Badge className="bg-blue-100 text-blue-800 border-blue-300" variant="outline">✅ Sent to ERP</Badge>
               </div>
             )}
             {drawerItem.status === "Exception" && (
@@ -554,7 +554,7 @@ export default function AccountingReview() {
       <AlertDialog open={confirmDialogOpen} onOpenChange={setConfirmDialogOpen}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>ยืนยันการส่ง ERP</AlertDialogTitle>
+            <AlertDialogTitle>ยืนยันการExport to ERP</AlertDialogTitle>
             <AlertDialogDescription>
               ยืนยันการส่งitemsนี้ไปยัง Oracle ERP ใช่หรือไม่?
             </AlertDialogDescription>
@@ -570,7 +570,7 @@ export default function AccountingReview() {
       <AlertDialog open={bulkConfirmOpen} onOpenChange={setBulkConfirmOpen}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>ยืนยันการส่ง ERP</AlertDialogTitle>
+            <AlertDialogTitle>ยืนยันการExport to ERP</AlertDialogTitle>
             <AlertDialogDescription>
               ยืนยันการส่ง {selectedIds.size} itemsไปยัง Oracle ERP ใช่หรือไม่?
             </AlertDialogDescription>

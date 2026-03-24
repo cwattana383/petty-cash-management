@@ -73,7 +73,7 @@ export default function EmployeeProfileCreate() {
         </Button>
         <div>
           <h1 className="text-2xl font-bold text-foreground">Create Employee Profile</h1>
-          <p className="text-sm text-muted-foreground">AddEmployee Informationใหม่เข้าสู่ระบบ</p>
+          <p className="text-sm text-muted-foreground">AddEmployee Informationใหม่เข้าสู่System</p>
         </div>
       </div>
 

@@ -777,7 +777,7 @@ const mockExpenseRules = [
 
 const mockExpenseDelegates = [
   { delegator: "Somying Kaewsai", delegate: "Somchai Jaidee", startDate: "2026-02-01", endDate: "2026-02-28", status: "Active" },
-  { delegator: "ธนา พิทักษ์", delegate: "Pim Dee", startDate: "2026-03-01", endDate: "2026-03-15", status: "Scheduled" },
+  { delegator: "Thana Pitak", delegate: "Pim Dee", startDate: "2026-03-01", endDate: "2026-03-15", status: "Scheduled" },
 ];
 
 // ExpenseTypePanel is now imported from @/components/admin/ExpenseTypePanel

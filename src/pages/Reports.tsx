@@ -48,7 +48,7 @@ export default function Reports() {
             <CalendarDays className="h-5 w-5 text-blue-600" />
           </div>
           <p className="text-sm text-blue-800 font-medium">
-            📅 Reportsประจำเดือน — ระบบจะส่งReportsให้ HR และ Finance อัตโนมัติทุกdaysที่ 9 ของเดือน
+            📅 Reportsประจำเดือน — Systemจะส่งReportsให้ HR และ Finance อัตโนมัติทุกdaysที่ 9 ของเดือน
           </p>
         </CardContent>
       </Card>
