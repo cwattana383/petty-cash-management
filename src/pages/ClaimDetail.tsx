@@ -410,6 +410,16 @@ export default function ClaimDetail() {
         </CardContent>
       </Card>
 
+      {/* Expense Line Items with VAT */}
+      {selectedConfig && !isAutoReject && (
+        <ExpenseLineItems
+          subExpenseType={subExpenseType}
+          glCode={glAccount}
+          onValidationChange={setLineItemsValid}
+          hasTaxInvoiceDoc={uploadedFiles.some((f) => f.name.toLowerCase().includes("inv")) || !!docUploads["tax_invoice"]}
+        />
+      )}
+
       {/* Required & Optional Documents Section */}
       {selectedConfig && !isAutoReject && (allRequiredDocs.length > 0 || allOptionalDocs.length > 0) && (
         <Card className="border border-border rounded-xl">
