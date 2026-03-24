@@ -45,12 +45,6 @@ const actionConfig: Record<string, { color: string; icon: React.ElementType }> =
   Delegated: { color: "border-purple-400 bg-purple-50", icon: Send },
 };
 
-const STEPS = [
-  { num: 1, label: "Card Transaction" },
-  { num: 2, label: "Business Info" },
-  { num: 3, label: "Receipt Details" },
-  { num: 4, label: "Documents" },
-];
 
 export default function ClaimDetail() {
   const { id } = useParams();
@@ -80,23 +74,6 @@ export default function ClaimDetail() {
   // Validation
   const [errors, setErrors] = useState<Record<string, string>>({});
 
-  // Scroll tracking for progress indicator
-  const sectionRefs = useRef<(HTMLElement | null)[]>([null, null, null, null]);
-  const [activeStep, setActiveStep] = useState(0);
-
-  useEffect(() => {
-    const handleScroll = () => {
-      const offsets = sectionRefs.current.map((ref) => ref?.getBoundingClientRect().top ?? Infinity);
-      const threshold = 160;
-      let current = 0;
-      for (let i = offsets.length - 1; i >= 0; i--) {
-        if (offsets[i] <= threshold) { current = i; break; }
-      }
-      setActiveStep(current);
-    };
-    window.addEventListener("scroll", handleScroll, { passive: true });
-    return () => window.removeEventListener("scroll", handleScroll);
-  }, []);
 
   // Derived config
   const selectedConfig = expenseType && subExpenseType ? getExpenseConfig(expenseType, subExpenseType) : null;
@@ -112,7 +89,7 @@ export default function ClaimDetail() {
   const step2Complete = !!purpose.trim() && !!expenseType && !!subExpenseType && !!glAccount;
   const step3Complete = lineItemsValid && selectedConfig != null && !isAutoReject;
   const step4Complete = allRequiredUploaded && step2Complete;
-  const stepComplete = [step1Complete, step2Complete, step3Complete, step4Complete];
+  
 
   // Missing required docs for tooltip
   const missingDocs = allRequiredDocs.filter((d) => !docUploads[d.id]).map((d) => d.label);
@@ -198,9 +175,6 @@ export default function ClaimDetail() {
     setComment("");
   };
 
-  const scrollToStep = (idx: number) => {
-    sectionRefs.current[idx]?.scrollIntoView({ behavior: "smooth", block: "start" });
-  };
 
   const fmt = (n: number) => n.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 
@@ -233,42 +207,13 @@ export default function ClaimDetail() {
           )}
         </div>
 
-        {/* Row 2: 4-step progress indicator */}
-        <div className="flex items-center gap-1 pb-3 overflow-x-auto">
-          {STEPS.map((step, idx) => {
-            const isActive = activeStep === idx;
-            const isDone = stepComplete[idx];
-            return (
-              <button
-                key={step.num}
-                onClick={() => scrollToStep(idx)}
-                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium transition-colors whitespace-nowrap ${
-                  isActive
-                    ? "bg-primary text-primary-foreground"
-                    : isDone
-                    ? "bg-emerald-100 text-emerald-800"
-                    : "bg-muted text-muted-foreground"
-                }`}
-              >
-                {isDone && !isActive ? (
-                  <CheckCircle2 className="h-3.5 w-3.5" />
-                ) : (
-                  <span className="h-4 w-4 rounded-full border border-current flex items-center justify-center text-[10px] font-bold">
-                    {step.num}
-                  </span>
-                )}
-                {step.label}
-              </button>
-            );
-          })}
-        </div>
       </div>
 
       <div className="space-y-8 mt-6">
         {/* ══════════════════════════════════════════════
             STEP 1 — CARD TRANSACTION (Read-Only)
            ══════════════════════════════════════════════ */}
-        <section ref={(el) => { sectionRefs.current[0] = el; }} className="scroll-mt-28">
+        <section>
           <SectionDivider num={1} label="Card Transaction" />
           <Card className="bg-muted/40 border border-border rounded-xl">
             <CardContent className="pt-5 pb-5">
@@ -293,7 +238,7 @@ export default function ClaimDetail() {
         {/* ══════════════════════════════════════════════
             STEP 2 — BUSINESS INFO
            ══════════════════════════════════════════════ */}
-        <section ref={(el) => { sectionRefs.current[1] = el; }} className="scroll-mt-28">
+        <section>
           <SectionDivider num={2} label="Business Info" />
           <Card className="border border-border rounded-xl">
             <CardContent className="pt-5 space-y-4">
@@ -380,7 +325,7 @@ export default function ClaimDetail() {
             STEP 3 — RECEIPT / TAX INVOICE DETAILS
            ══════════════════════════════════════════════ */}
         {selectedConfig && !isAutoReject && (
-          <section ref={(el) => { sectionRefs.current[2] = el; }} className="scroll-mt-28">
+          <section>
             <SectionDivider num={3} label="Receipt / Tax Invoice Details" />
             <ExpenseLineItems
               subExpenseType={subExpenseType}
@@ -406,7 +351,7 @@ export default function ClaimDetail() {
             STEP 4 — DOCUMENTS
            ══════════════════════════════════════════════ */}
         {selectedConfig && !isAutoReject && (allRequiredDocs.length > 0 || allOptionalDocs.length > 0) && (
-          <section ref={(el) => { sectionRefs.current[3] = el; }} className="scroll-mt-28">
+          <section>
             <SectionDivider num={4} label="Documents" />
             <Card className="border border-border rounded-xl">
               <CardContent className="pt-5 space-y-5">
