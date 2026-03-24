@@ -22,7 +22,7 @@ import {
   approvalTypes, approverTypes, conditionTypes, expenseCategoryOptions,
 } from "./employee-types";
 
-const mockApprovers = ["สมชาย ใจดี", "สมหญิง รักดี", "ประวิทย์ มั่นคง", "วิภา สุขใจ", "อนันต์ สดใส"];
+const mockApprovers = ["Somchai Jaidee", "Somying Rakdee", "Prawit Munkong", "Wipa Sukjai", "Anan Sodsai"];
 
 const emptyLevel = (seq: number): Omit<ApprovalLevel, "id"> => ({
   level: seq, approvalType: "Both", approverType: "Direct Manager",
@@ -58,14 +58,14 @@ export default function ApprovalChainTab() {
 
   const validate = (): boolean => {
     const e: Record<string, string> = {};
-    if (!form.approverName) e.approverName = "กรุณาเลือก Approver";
-    if (!form.effectiveFrom) e.effectiveFrom = "กรุณาระบุ";
-    if (form.effectiveTo && form.effectiveTo <= form.effectiveFrom) e.effectiveTo = "ต้องมากกว่า Effective From";
+    if (!form.approverName) e.approverName = "Please select an Approver";
+    if (!form.effectiveFrom) e.effectiveFrom = "Please specify";
+    if (form.effectiveTo && form.effectiveTo <= form.effectiveFrom) e.effectiveTo = "Must be after Effective From";
     if (form.conditionType === "Amount Threshold") {
-      if (form.amountFrom > form.amountTo && form.amountTo > 0) e.amountFrom = "Amount From ต้อง <= Amount To";
+      if (form.amountFrom > form.amountTo && form.amountTo > 0) e.amountFrom = "Amount From must be <= Amount To";
     }
     const dup = levels.find((l) => l.level === form.level && l.id !== editId);
-    if (dup) e.level = "Level ซ้ำ";
+    if (dup) e.level = "Duplicate Level";
     setErrors(e);
     return Object.keys(e).length === 0;
   };
@@ -74,17 +74,17 @@ export default function ApprovalChainTab() {
     if (!validate()) return;
     if (editId) {
       setLevels((prev) => prev.map((l) => (l.id === editId ? { ...form, id: editId } : l)));
-      toast.success("แก้ไข Approval Level สำเร็จ");
+      toast.success("Approval Level updated successfully");
     } else {
       setLevels((prev) => [...prev, { ...form, id: crypto.randomUUID() }].sort((a, b) => a.level - b.level));
-      toast.success("เพิ่ม Approval Level สำเร็จ");
+      toast.success("Approval Level added successfully");
     }
     setOpen(false);
   };
 
   const remove = (id: string) => {
     setLevels((prev) => prev.filter((l) => l.id !== id));
-    toast.success("ลบ Approval Level สำเร็จ");
+    toast.success("Approval Level deleted successfully");
   };
 
   const set = (field: string, value: any) => setForm((p) => ({ ...p, [field]: value }));
@@ -111,7 +111,7 @@ export default function ApprovalChainTab() {
       </CardHeader>
       <CardContent>
         {levels.length === 0 ? (
-          <p className="text-sm text-muted-foreground text-center py-8">ยังไม่มี Approval Information กดปุ่ม + Add Approver เพื่อเพิ่ม</p>
+          <p className="text-sm text-muted-foreground text-center py-8">No Approval Information yet. Click + Add Approver to add.</p>
         ) : (
           <Table>
             <TableHeader>
@@ -152,7 +152,7 @@ export default function ApprovalChainTab() {
             <div className="space-y-1">
               <Label>Approver <span className="text-destructive">*</span></Label>
               <Select value={form.approverName} onValueChange={(v) => set("approverName", v)}>
-                <SelectTrigger><SelectValue placeholder="เลือก Approver" /></SelectTrigger>
+                <SelectTrigger><SelectValue placeholder="Select Approver" /></SelectTrigger>
                 <SelectContent>{mockApprovers.map((a) => <SelectItem key={a} value={a}>{a}</SelectItem>)}</SelectContent>
               </Select>
               {errors.approverName && <p className="text-xs text-destructive">{errors.approverName}</p>}
@@ -175,8 +175,8 @@ export default function ApprovalChainTab() {
             </div>
           </div>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setOpen(false)}>ยกเลิก</Button>
-            <Button onClick={handleSave}>บันทึก</Button>
+            <Button variant="outline" onClick={() => setOpen(false)}>Cancel</Button>
+            <Button onClick={handleSave}>Save</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>

@@ -23,7 +23,7 @@ const departments = ["9993010460 Finance and Accounting", "Sales", "Marketing", 
 const branches = ["099999 – HO", "Bangkok", "Chiang Mai", "Phuket", "Pattaya", "Khon Kaen"];
 const costCenters = ["9999", "CC-100", "CC-200", "CC-300", "CC-400", "CC-500"];
 const roles = ["Cardholder", "Approver", "Admin"];
-const companies = ["บริษัท ซีพี แอ็กซ์ตร้า จำกัด (มหาชน)", "ABC Corporation", "XYZ Holdings", "DEF Group"];
+const companies = ["CP Axtra Public Company Limited", "ABC Corporation", "XYZ Holdings", "DEF Group"];
 const stores = ["Head Office", "Store Bangkok", "Store Chiang Mai", "Store Phuket"];
 const divisions = ["92029 – Accounting", "Division A", "Division B", "Division C", "Division D"];
 
@@ -35,7 +35,7 @@ export default function EmployeeProfileCreate() {
     lastName: "ใจดี",
     email: "somchai@cpaxtra.co.th",
     storeHeadOffice: "",
-    company: "บริษัท ซีพี แอ็กซ์ตร้า จำกัด (มหาชน)",
+    company: "CP Axtra Public Company Limited",
     division: "92029 – Accounting",
     telephone: "0657778899",
     department: "9993010460 Finance and Accounting",
@@ -108,7 +108,7 @@ export default function EmployeeProfileCreate() {
                 <Input id="email" type="email" placeholder="เช่น somchai@company.com" value={form.email} onChange={(e) => handleChange("email", e.target.value)} />
               </div>
               <div className="space-y-2">
-                <Label>สาขา/สำนักงานใหญ่ (Store / Head Office)</Label>
+                <Label>Branch/Head Office (Store / Head Office)</Label>
                 <Select value={form.storeHeadOffice} onValueChange={(v) => handleChange("storeHeadOffice", v)}>
                   <SelectTrigger><SelectValue placeholder="เลือก Store / Head Office" /></SelectTrigger>
                   <SelectContent>{stores.map((s) => <SelectItem key={s} value={s}>{s}</SelectItem>)}</SelectContent>
@@ -125,7 +125,7 @@ export default function EmployeeProfileCreate() {
 
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
               <div className="space-y-2">
-                <Label>แผนก (Department) <span className="text-destructive">*</span></Label>
+                <Label>Department <span className="text-destructive">*</span></Label>
                 <Select value={form.department} onValueChange={(v) => handleChange("department", v)}>
                   <SelectTrigger><SelectValue placeholder="เลือกแผนก" /></SelectTrigger>
                   <SelectContent>{departments.map((d) => <SelectItem key={d} value={d}>{d}</SelectItem>)}</SelectContent>
@@ -139,9 +139,9 @@ export default function EmployeeProfileCreate() {
                 </Select>
               </div>
               <div className="space-y-2">
-                <Label>สาขา (Branch) <span className="text-destructive">*</span></Label>
+                <Label>Branch <span className="text-destructive">*</span></Label>
                 <Select value={form.branch} onValueChange={(v) => handleChange("branch", v)}>
-                  <SelectTrigger><SelectValue placeholder="เลือกสาขา" /></SelectTrigger>
+                  <SelectTrigger><SelectValue placeholder="เลือกBranch" /></SelectTrigger>
                   <SelectContent>{branches.map((b) => <SelectItem key={b} value={b}>{b}</SelectItem>)}</SelectContent>
                 </Select>
               </div>
@@ -195,8 +195,8 @@ export default function EmployeeProfileCreate() {
 
       {/* Footer Buttons */}
       <div className="flex justify-end gap-3 pt-4 border-t">
-        <Button type="button" variant="outline" onClick={() => navigate("/admin")}>ยกเลิก</Button>
-        <Button onClick={handleSubmit}><Save className="h-4 w-4 mr-2" />บันทึก</Button>
+        <Button type="button" variant="outline" onClick={() => navigate("/admin")}>Cancel</Button>
+        <Button onClick={handleSubmit}><Save className="h-4 w-4 mr-2" />Save</Button>
       </div>
     </div>
   );

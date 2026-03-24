@@ -55,7 +55,7 @@ interface NotificationSettings {
 
 // --- Template Variables ---
 const templateVariables = [
-  { key: "{{cardholder_name}}", label: "Cardholder Name", mock: "สมชาย ใจดี" },
+  { key: "{{cardholder_name}}", label: "Cardholder Name", mock: "Somchai Jaidee" },
   { key: "{{pending_count}}", label: "Pending Invoice Count", mock: "5" },
   { key: "{{max_due_date}}", label: "Latest Due Date", mock: "2026-03-15" },
   { key: "{{upload_all_link}}", label: "Upload All Link", mock: "https://app.example.com/transactions?status=PENDING_INVOICE" },

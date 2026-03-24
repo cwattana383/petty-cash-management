@@ -26,11 +26,11 @@ export const EXPENSE_TYPE_CONFIG: ExpenseTypeConfigItem[] = [
     currency: "THB",
     glCode: "5300-002",
     requiredDocs: [
-      { id: "receipt", label: "ใบเสร็จรับเงิน / Receipt", required: true },
+      { id: "receipt", label: "Receipt", required: true },
       { id: "claim_form", label: "Travelling Expenses Claim Form", required: true },
     ],
     optionalDocs: [
-      { id: "memo", label: "Memo / Business Purpose (กรณีเกิน Threshold)", required: false },
+      { id: "memo", label: "Memo / Business Purpose (when exceeding Threshold)", required: false },
     ],
   },
   {
@@ -44,7 +44,7 @@ export const EXPENSE_TYPE_CONFIG: ExpenseTypeConfigItem[] = [
       { id: "claim_form", label: "Travelling Expenses Claim Form", required: true },
     ],
     optionalDocs: [
-      { id: "receipt", label: "ใบเสร็จ / ตั๋ว (ถ้ามี — ไม่บังคับ ≤200 THB)", required: false },
+      { id: "receipt", label: "Receipt / Ticket (if available — optional ≤200 THB)", required: false },
     ],
   },
   {
@@ -55,7 +55,7 @@ export const EXPENSE_TYPE_CONFIG: ExpenseTypeConfigItem[] = [
     currency: "THB",
     glCode: "5300-002",
     requiredDocs: [
-      { id: "ticket", label: "ตั๋วรถไฟ / รถทัวร์", required: true },
+      { id: "ticket", label: "Train / Inter-city Bus Ticket", required: true },
       { id: "claim_form", label: "Travelling Expenses Claim Form", required: true },
     ],
     optionalDocs: [],
@@ -93,13 +93,13 @@ export const EXPENSE_TYPE_CONFIG: ExpenseTypeConfigItem[] = [
   },
   {
     level1: "Transportation — Domestic",
-    level2: "Toll Fees / ค่าทางด่วน",
+    level2: "Toll Fees",
     policyRule: "Auto Approve",
     threshold: 3500,
     currency: "THB",
     glCode: "5300-002",
     requiredDocs: [
-      { id: "receipt", label: "ใบเสร็จค่าทางด่วน", required: true },
+      { id: "receipt", label: "ใบเสร็จToll Fees", required: true },
       { id: "claim_form", label: "Travelling Expenses Claim Form", required: true },
     ],
     optionalDocs: [],
@@ -143,7 +143,7 @@ export const EXPENSE_TYPE_CONFIG: ExpenseTypeConfigItem[] = [
       { id: "eticket", label: "E-Ticket / ตั๋วเครื่องบิน", required: true },
       { id: "director_approval", label: "หนังสืออนุมัติจาก Director ขึ้นไป (HQ) หรือ SGM (สโตร์)", required: true },
       { id: "cga_booking", label: "หลักฐานการจองผ่าน Agency / CGA", required: true },
-      { id: "tax_invoice", label: "ใบกำกับภาษี (Tax Invoice)", required: true },
+      { id: "tax_invoice", label: "Tax Invoice (Tax Invoice)", required: true },
     ],
     optionalDocs: [
       { id: "boarding_pass", label: "Boarding Pass", required: false },
@@ -173,7 +173,7 @@ export const EXPENSE_TYPE_CONFIG: ExpenseTypeConfigItem[] = [
     requiredDocs: [
       { id: "eticket", label: "E-Ticket / ตั๋วเครื่องบิน", required: true },
       { id: "boarding_pass", label: "Boarding Pass", required: true },
-      { id: "tax_invoice", label: "ใบกำกับภาษี / Invoice", required: true },
+      { id: "tax_invoice", label: "Tax Invoice / Invoice", required: true },
       { id: "travel_approval", label: "หนังสืออนุมัติเดินทางต่างประเทศ (Chief Level ขึ้นไป)", required: true },
       { id: "cga_booking", label: "หลักฐานการจองผ่าน Agency / CGA", required: true },
       { id: "travel_insurance", label: "Travel Insurance Certificate (แจ้ง HR ล่วงหน้า ≥7 วัน)", required: true },
@@ -222,10 +222,10 @@ export const EXPENSE_TYPE_CONFIG: ExpenseTypeConfigItem[] = [
     currency: "THB",
     glCode: "5400-001",
     requiredDocs: [
-      { id: "receipt", label: "ใบเสร็จรับเงิน / Receipt", required: true },
+      { id: "receipt", label: "Receipt", required: true },
     ],
     optionalDocs: [
-      { id: "tax_invoice", label: "ใบกำกับภาษี (Tax Invoice)", required: false },
+      { id: "tax_invoice", label: "Tax Invoice (Tax Invoice)", required: false },
       { id: "business_purpose", label: "วัตถุประสงค์ทางธุรกิจ (Business Purpose)", required: false },
     ],
   },
@@ -237,7 +237,7 @@ export const EXPENSE_TYPE_CONFIG: ExpenseTypeConfigItem[] = [
     currency: "THB",
     glCode: "5400-002",
     requiredDocs: [
-      { id: "receipt", label: "ใบเสร็จรับเงิน / Receipt", required: true },
+      { id: "receipt", label: "Receipt", required: true },
       { id: "headcount", label: "จำนวนพนักงานที่รับอาหาร (Head Count)", required: true },
       { id: "job_type", label: "ประเภทงาน (Year-end Stock Take / Cycle Stock / Layout Remodeling / Special Project)", required: true },
       { id: "work_hours_proof", label: "หลักฐานการทำงาน ≥8 ชั่วโมง", required: true },
@@ -270,9 +270,9 @@ export const EXPENSE_TYPE_CONFIG: ExpenseTypeConfigItem[] = [
     glCode: "5400-003",
     requiredDocs: [
       { id: "entertainment_form", label: "Entertainment Expense Claim Form (CA005)", required: true },
-      { id: "receipt", label: "ใบเสร็จรับเงิน / Receipt", required: true },
-      { id: "tax_invoice", label: "ใบกำกับภาษี (Tax Invoice)", required: true },
-      { id: "attendee_list", label: "รายชื่อผู้เข้าร่วม (ชื่อ + บริษัท + ตำแหน่ง)", required: true },
+      { id: "receipt", label: "Receipt", required: true },
+      { id: "tax_invoice", label: "Tax Invoice (Tax Invoice)", required: true },
+      { id: "attendee_list", label: "Attendee List (ชื่อ + บริษัท + ตำแหน่ง)", required: true },
       { id: "business_purpose", label: "วัตถุประสงค์ทางธุรกิจ (Business Purpose)", required: true },
     ],
     optionalDocs: [
@@ -301,7 +301,7 @@ export const EXPENSE_TYPE_CONFIG: ExpenseTypeConfigItem[] = [
     glCode: "5200-001",
     requiredDocs: [
       { id: "hotel_folio", label: "Hotel Folio / ใบเสร็จโรงแรม", required: true },
-      { id: "tax_invoice", label: "ใบกำกับภาษี (Tax Invoice)", required: true },
+      { id: "tax_invoice", label: "Tax Invoice (Tax Invoice)", required: true },
       { id: "travel_approval", label: "หนังสืออนุมัติเดินทาง", required: true },
       { id: "cga_booking", label: "หลักฐานการจองผ่าน CGA / Agency", required: true },
     ],
@@ -320,7 +320,7 @@ export const EXPENSE_TYPE_CONFIG: ExpenseTypeConfigItem[] = [
     glCode: "5200-001",
     requiredDocs: [
       { id: "hotel_folio", label: "Hotel Folio / ใบเสร็จโรงแรม", required: true },
-      { id: "tax_invoice", label: "Invoice / ใบกำกับภาษี", required: true },
+      { id: "tax_invoice", label: "Invoice / Tax Invoice", required: true },
       { id: "travel_approval", label: "หนังสืออนุมัติเดินทางต่างประเทศ", required: true },
       { id: "cga_booking", label: "หลักฐานการจองผ่าน Agency / CGA", required: true },
     ],
@@ -339,8 +339,8 @@ export const EXPENSE_TYPE_CONFIG: ExpenseTypeConfigItem[] = [
     currency: "THB",
     glCode: "5500-001",
     requiredDocs: [
-      { id: "receipt", label: "ใบเสร็จรับเงิน / Receipt (บังคับ >500 THB)", required: true },
-      { id: "tax_invoice", label: "ใบกำกับภาษี (Tax Invoice)", required: true },
+      { id: "receipt", label: "Receipt (บังคับ >500 THB)", required: true },
+      { id: "tax_invoice", label: "Tax Invoice (Tax Invoice)", required: true },
     ],
     optionalDocs: [
       { id: "nt_catalog_ref", label: "NT Catalog Reference (กรณีสินค้าอยู่ใน Catalog)", required: false },
@@ -354,8 +354,8 @@ export const EXPENSE_TYPE_CONFIG: ExpenseTypeConfigItem[] = [
     currency: "THB",
     glCode: "5500-002",
     requiredDocs: [
-      { id: "receipt", label: "ใบเสร็จรับเงิน / Receipt", required: true },
-      { id: "tax_invoice", label: "ใบกำกับภาษี (Tax Invoice)", required: true },
+      { id: "receipt", label: "Receipt", required: true },
+      { id: "tax_invoice", label: "Tax Invoice (Tax Invoice)", required: true },
       { id: "it_approval", label: "หนังสืออนุมัติจากแผนก IT (>2,000 THB)", required: true },
       { id: "pr", label: "Purchase Requisition (PR)", required: true },
     ],
@@ -381,7 +381,7 @@ export const EXPENSE_TYPE_CONFIG: ExpenseTypeConfigItem[] = [
   },
   {
     level1: "Other",
-    level2: "Funeral — Wreath (พวงหรีด)",
+    level2: "Funeral — Wreath",
     policyRule: "Auto Approve",
     threshold: 2000,
     currency: "THB",
@@ -389,7 +389,7 @@ export const EXPENSE_TYPE_CONFIG: ExpenseTypeConfigItem[] = [
     requiredDocs: [
       { id: "death_cert", label: "ใบมรณะบัตร", required: true },
       { id: "welfare_form", label: "แบบฟอร์มขอรับสวัสดิการ", required: true },
-      { id: "wreath_receipt", label: "ใบเสร็จค่าพวงหรีดจริง (≤2,000 THB)", required: true },
+      { id: "wreath_receipt", label: "ใบเสร็จค่าWreathจริง (≤2,000 THB)", required: true },
     ],
     optionalDocs: [
       { id: "marriage_cert", label: "สำเนาทะเบียนสมรส (กรณีคู่สมรสเสียชีวิต)", required: false },
@@ -406,7 +406,7 @@ export const EXPENSE_TYPE_CONFIG: ExpenseTypeConfigItem[] = [
     glCode: "5600-005",
     requiredDocs: [
       { id: "gov_receipt", label: "ใบเสร็จจากหน่วยงานราชการ", required: true },
-      { id: "license_copy", label: "ใบอนุญาตฉบับใหม่ / ใบต่ออายุ", required: true },
+      { id: "license_copy", label: "New License / Renewal Document", required: true },
     ],
     optionalDocs: [],
   },
@@ -418,9 +418,9 @@ export const EXPENSE_TYPE_CONFIG: ExpenseTypeConfigItem[] = [
     currency: "THB",
     glCode: "5600-006",
     requiredDocs: [
-      { id: "receipt", label: "ใบเสร็จรับเงิน / หลักฐานการชำระ", required: true },
-      { id: "activity_memo", label: "บันทึกอธิบายกิจกรรมและความเชื่อมโยงกับชุมชน", required: true },
-      { id: "sgm_approval", label: "อนุมัติจาก SGM / Store Manager", required: true },
+      { id: "receipt", label: "Receipt / Payment Evidence", required: true },
+      { id: "activity_memo", label: "Memo Explaining Activity and Community Connection", required: true },
+      { id: "sgm_approval", label: "Approval from SGM / Store Manager", required: true },
     ],
     optionalDocs: [],
   },
@@ -432,8 +432,8 @@ export const EXPENSE_TYPE_CONFIG: ExpenseTypeConfigItem[] = [
     currency: "THB",
     glCode: "5600-007",
     requiredDocs: [
-      { id: "receipt", label: "ใบเสร็จจากผู้ให้บริการกำจัดขยะ", required: true },
-      { id: "urgent_memo", label: "บันทึกอธิบายเหตุผลที่ไม่สามารถรอ Direct Payment", required: true },
+      { id: "receipt", label: "Receipt from Waste Disposal Service Provider", required: true },
+      { id: "urgent_memo", label: "Memo Explaining Why Direct Payment Cannot Be Waited For", required: true },
     ],
     optionalDocs: [],
   },
@@ -445,8 +445,8 @@ export const EXPENSE_TYPE_CONFIG: ExpenseTypeConfigItem[] = [
     currency: "THB",
     glCode: "5600-008",
     requiredDocs: [
-      { id: "receipt", label: "ใบเสร็จ / หลักฐานการชดเชย", required: true },
-      { id: "incident_report", label: "บันทึกเหตุการณ์ (Incident Report)", required: true },
+      { id: "receipt", label: "Receipt / Compensation Evidence", required: true },
+      { id: "incident_report", label: "Incident Report", required: true },
     ],
     optionalDocs: [],
   },
@@ -459,7 +459,7 @@ export const EXPENSE_TYPE_CONFIG: ExpenseTypeConfigItem[] = [
     glCode: null,
     requiredDocs: [],
     optionalDocs: [],
-    notes: "ห้ามเบิกเงินสดผ่านบัตร — LOA FW-FN-001",
+    notes: "Cash withdrawal via card is prohibited — LOA FW-FN-001",
   },
   {
     level1: "Other",
@@ -470,7 +470,7 @@ export const EXPENSE_TYPE_CONFIG: ExpenseTypeConfigItem[] = [
     glCode: null,
     requiredDocs: [],
     optionalDocs: [],
-    notes: "ค่าใช้จ่ายส่วนตัวไม่สามารถเบิกได้ทุกกรณี",
+    notes: "Personal expenses cannot be reimbursed under any circumstances",
   },
 ];
 

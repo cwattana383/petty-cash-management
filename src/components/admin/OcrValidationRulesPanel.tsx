@@ -27,7 +27,7 @@ export default function OcrValidationRulesPanel() {
 
   const [config, setConfig] = useState<OcrConfig>({ ...DEFAULTS });
   const [lastUpdated] = useState("2026-03-18 14:32");
-  const [updatedBy] = useState("สมชาย ใจดี");
+  const [updatedBy] = useState("Somchai Jaidee");
 
   const update = (field: keyof OcrConfig, value: number) => {
     setConfig((prev) => ({ ...prev, [field]: value }));

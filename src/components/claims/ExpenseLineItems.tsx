@@ -287,7 +287,7 @@ export default function ExpenseLineItems({
                       onChange={(e) => updateItem(item.id, { taxInvoiceNumber: e.target.value })}
                     />
                     {requiresTaxInvoice && !item.taxInvoiceNumber.trim() && (
-                      <p className="text-xs text-destructive">กรุณาระบุเลขที่ใบกำกับภาษี</p>
+                      <p className="text-xs text-destructive">Please enter the tax invoice number</p>
                     )}
                   </div>
                 )}
@@ -306,7 +306,7 @@ export default function ExpenseLineItems({
                     onChange={(e) => updateItem(item.id, { vatChangeReason: e.target.value })}
                   />
                   {!item.vatChangeReason.trim() && (
-                    <p className="text-xs text-destructive">กรุณาระบุเหตุผลที่เปลี่ยน VAT Type</p>
+                    <p className="text-xs text-destructive">Please specifyเหตุผลที่เปลี่ยน VAT Type</p>
                   )}
                 </div>
               )}
@@ -315,7 +315,7 @@ export default function ExpenseLineItems({
               {item.vatTypeId === "no_vat" && hasTaxInvoiceDoc && (
                 <div className="rounded-lg border border-amber-300 bg-amber-50 px-4 py-3">
                   <p className="text-[13px] text-amber-800 mb-2">
-                    คุณแนบใบกำกับภาษี — ต้องการเปลี่ยน VAT Type เป็น Claim 100 หรือไม่?
+                    คุณแนบTax Invoice — ต้องการเปลี่ยน VAT Type เป็น Claim 100 หรือไม่?
                   </p>
                   <div className="flex gap-2">
                     <Button size="sm" variant="outline" className="text-xs border-blue-300 text-blue-700 hover:bg-blue-50" onClick={() => handleSwitchToClaim100(item.id)}>
@@ -333,7 +333,7 @@ export default function ExpenseLineItems({
         {showVatDocWarning && (
           <div className="rounded-lg border border-amber-300 bg-amber-50 px-4 py-3 flex items-center gap-2">
             <AlertTriangle className="h-4 w-4 text-amber-600 shrink-0" />
-            <p className="text-[13px] text-amber-800">⚠️ VAT Type นี้ต้องแนบใบกำกับภาษี</p>
+            <p className="text-[13px] text-amber-800">⚠️ VAT Type นี้ต้องแนบTax Invoice</p>
           </div>
         )}
 

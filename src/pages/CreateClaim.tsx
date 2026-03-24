@@ -58,7 +58,7 @@ export default function CreateClaim() {
       accountCode: "",
       description: doc.name,
       expenseType: "",
-      amount: parseFloat(doc.ocrData?.find((f) => f.label === "จำนวนเงิน")?.value?.replace(/,/g, "") || "0") || 0,
+      amount: parseFloat(doc.ocrData?.find((f) => f.label === "Amount")?.value?.replace(/,/g, "") || "0") || 0,
       vatCode: doc.ocrData?.find((f) => f.label === "VAT Code")?.value || "",
       vatAmount: parseFloat(doc.ocrData?.find((f) => f.label === "VAT Amount")?.value?.replace(/,/g, "") || "0") || 0,
       totalAmount: 0,
@@ -124,9 +124,9 @@ export default function CreateClaim() {
   const [requester, setRequester] = useState<RequesterData>({
     requestType: "Owner",
     employeeId: "",
-    employee: "สมชาย ใจดี",
+    employee: "Somchai Jaidee",
     store: currentUser.branch,
-    company: "บริษัท ซีพี แอ็กซ์ตร้า จำกัด (มหาชน)",
+    company: "CP Axtra Public Company Limited",
     telephone: "0657778899",
     email: "somchai@cpaxtra.co.th",
     division: "92029 – Accounting",
@@ -288,7 +288,7 @@ export default function CreateClaim() {
                       </Popover>
                     </TableCell>
                     <TableCell>
-                      <Input placeholder="เลขที่..." value={line.invoiceNumber} onChange={(e) => updateDocLine(line.id, "invoiceNumber", e.target.value)} className="h-8 text-sm w-24" />
+                      <Input placeholder="Invoice No...." value={line.invoiceNumber} onChange={(e) => updateDocLine(line.id, "invoiceNumber", e.target.value)} className="h-8 text-sm w-24" />
                     </TableCell>
                     <TableCell>
                       <div className="flex items-center gap-2">
@@ -402,7 +402,7 @@ export default function CreateClaim() {
                       </Popover>
                     </TableCell>
                     <TableCell>
-                      <Input placeholder="เลขที่..." className="h-8 text-sm w-24" />
+                      <Input placeholder="Invoice No...." className="h-8 text-sm w-24" />
                     </TableCell>
                     <TableCell>
                       {line.attachedFile ? (
@@ -425,7 +425,7 @@ export default function CreateClaim() {
                             }}
                           />
                           <span className="inline-flex items-center gap-1 text-xs text-primary hover:underline">
-                            <Paperclip className="h-3.5 w-3.5" /> แนบไฟล์
+                            <Paperclip className="h-3.5 w-3.5" /> แนบfiles
                           </span>
                         </label>
                       )}

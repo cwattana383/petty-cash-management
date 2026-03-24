@@ -92,7 +92,7 @@ export default function EntityDrawer({ open, onOpenChange, entity, mode: initial
   const addTaxId = () => {
     setForm((prev) => ({
       ...prev,
-      taxIds: [...prev.taxIds, { id: crypto.randomUUID(), taxId: "", branchType: "สำนักงานใหญ่", branchNo: "", isPrimary: false }],
+      taxIds: [...prev.taxIds, { id: crypto.randomUUID(), taxId: "", branchType: "Head Office", branchNo: "", isPrimary: false }],
     }));
   };
 
@@ -290,8 +290,8 @@ export default function EntityDrawer({ open, onOpenChange, entity, mode: initial
                         >
                           <SelectTrigger><SelectValue /></SelectTrigger>
                           <SelectContent>
-                            <SelectItem value="สำนักงานใหญ่">สำนักงานใหญ่</SelectItem>
-                            <SelectItem value="สาขา">สาขา</SelectItem>
+                            <SelectItem value="Head Office">Head Office</SelectItem>
+                            <SelectItem value="Branch">Branch</SelectItem>
                           </SelectContent>
                         </Select>
                       </div>
@@ -302,8 +302,8 @@ export default function EntityDrawer({ open, onOpenChange, entity, mode: initial
                         <Input
                           value={t.branchNo}
                           onChange={(e) => updateTaxId(t.id, "branchNo", e.target.value.replace(/\D/g, ""))}
-                          disabled={isReadOnly || t.branchType === "สำนักงานใหญ่"}
-                          placeholder={t.branchType === "สาขา" ? "e.g. 00001" : "-"}
+                          disabled={isReadOnly || t.branchType === "Head Office"}
+                          placeholder={t.branchType === "Branch" ? "e.g. 00001" : "-"}
                         />
                       </div>
                       <div className="space-y-1">

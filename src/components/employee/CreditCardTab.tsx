@@ -44,7 +44,7 @@ export default function CreditCardTab({
           <div className="space-y-2">
             <Label>Cardholder Name</Label>
             <Input
-              placeholder="ชื่อบนบัตร"
+              placeholder="Name on Card"
               value={holder}
               onChange={(e) => onChangeHolder?.(e.target.value)}
             />

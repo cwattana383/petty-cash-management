@@ -96,7 +96,7 @@ const adminMenu = [
 
 // --- Mock data ---
 const mockEmployees = [
-  { name: "สมชาย ใจดี", code: "EMP001", dept: "9993010460 Finance and Accounting", role: "Director - Accounting", branch: "099999 – HO", costCenter: "9999" },
+  { name: "Somchai Jaidee", code: "EMP001", dept: "9993010460 Finance and Accounting", role: "Director - Accounting", branch: "099999 – HO", costCenter: "9999" },
 ];
 
 const roleColors: Record<string, string> = {
@@ -156,10 +156,10 @@ const mockSyncLogs = [
 // --- Mock data for Organization Data ---
 const mockDepartments = [
   { code: "DEPT-IT", name: "Information Technology", head: "สมศักดิ์ วิชาญ", employees: 25 },
-  { code: "DEPT-MK", name: "Marketing", head: "สมหญิง แก้วใส", employees: 12 },
-  { code: "DEPT-HR", name: "Human Resources", head: "วิภา สุขใจ", employees: 8 },
+  { code: "DEPT-MK", name: "Marketing", head: "Somying Kaewsai", employees: 12 },
+  { code: "DEPT-HR", name: "Human Resources", head: "Wipa Sukjai", employees: 8 },
   { code: "DEPT-FN", name: "Finance", head: "พิมพ์ ดี", employees: 10 },
-  { code: "DEPT-SL", name: "Sales", head: "สมชาย ใจดี", employees: 30 },
+  { code: "DEPT-SL", name: "Sales", head: "Somchai Jaidee", employees: 30 },
 ];
 
 const mockOrgCostCenters = [
@@ -776,7 +776,7 @@ const mockExpenseRules = [
 ];
 
 const mockExpenseDelegates = [
-  { delegator: "สมหญิง แก้วใส", delegate: "สมชาย ใจดี", startDate: "2026-02-01", endDate: "2026-02-28", status: "Active" },
+  { delegator: "Somying Kaewsai", delegate: "Somchai Jaidee", startDate: "2026-02-01", endDate: "2026-02-28", status: "Active" },
   { delegator: "ธนา พิทักษ์", delegate: "พิมพ์ ดี", startDate: "2026-03-01", endDate: "2026-03-15", status: "Scheduled" },
 ];
 

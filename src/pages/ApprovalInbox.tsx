@@ -20,35 +20,35 @@ interface AttachedDoc {
 }
 
 const DOC_TYPE_COLORS: Record<string, string> = {
-  "ใบกำกับภาษี": "bg-blue-100 text-blue-800 border-blue-300",
-  "ใบเสร็จรับเงิน": "bg-green-100 text-green-800 border-green-300",
-  "ใบอนุมัติเดินทาง": "bg-purple-100 text-purple-800 border-purple-300",
-  "รายชื่อผู้เข้าร่วม": "bg-yellow-100 text-yellow-800 border-yellow-300",
-  "รายงานการเดินทาง": "bg-cyan-100 text-cyan-800 border-cyan-300",
-  "เอกสารอื่นๆ": "bg-gray-100 text-gray-600 border-gray-300",
+  "Tax Invoice": "bg-blue-100 text-blue-800 border-blue-300",
+  "Receipt": "bg-green-100 text-green-800 border-green-300",
+  "Travel Approval Form": "bg-purple-100 text-purple-800 border-purple-300",
+  "Attendee List": "bg-yellow-100 text-yellow-800 border-yellow-300",
+  "Travel Report": "bg-cyan-100 text-cyan-800 border-cyan-300",
+  "Other Documents": "bg-gray-100 text-gray-600 border-gray-300",
 };
 
 const mockAttachments: Record<string, AttachedDoc[]> = {
   "TXN20250128001": [
-    { name: "receipt_taxi.pdf", size: "1.2 MB", docType: "ใบกำกับภาษี", url: "#" },
-    { name: "trip_approval.pdf", size: "340 KB", docType: "ใบอนุมัติเดินทาง", url: "#" },
+    { name: "receipt_taxi.pdf", size: "1.2 MB", docType: "Tax Invoice", url: "#" },
+    { name: "trip_approval.pdf", size: "340 KB", docType: "Travel Approval Form", url: "#" },
   ],
   "TXN20250128002": [
-    { name: "invoice_dinner.pdf", size: "2.1 MB", docType: "ใบกำกับภาษี", url: "#" },
-    { name: "attendee_list.xlsx", size: "85 KB", docType: "รายชื่อผู้เข้าร่วม", url: "#" },
-    { name: "dinner_photo.jpg", size: "3.4 MB", docType: "เอกสารอื่นๆ", url: "#" },
+    { name: "invoice_dinner.pdf", size: "2.1 MB", docType: "Tax Invoice", url: "#" },
+    { name: "attendee_list.xlsx", size: "85 KB", docType: "Attendee List", url: "#" },
+    { name: "dinner_photo.jpg", size: "3.4 MB", docType: "Other Documents", url: "#" },
   ],
   "TXN20250127001": [
-    { name: "boarding_pass.pdf", size: "520 KB", docType: "เอกสารอื่นๆ", url: "#" },
-    { name: "flight_invoice.pdf", size: "1.8 MB", docType: "ใบกำกับภาษี", url: "#" },
-    { name: "travel_report.pdf", size: "2.5 MB", docType: "รายงานการเดินทาง", url: "#" },
+    { name: "boarding_pass.pdf", size: "520 KB", docType: "Other Documents", url: "#" },
+    { name: "flight_invoice.pdf", size: "1.8 MB", docType: "Tax Invoice", url: "#" },
+    { name: "travel_report.pdf", size: "2.5 MB", docType: "Travel Report", url: "#" },
   ],
   "TXN20250127002": [
-    { name: "hotel_receipt.jpg", size: "4.2 MB", docType: "ใบเสร็จรับเงิน", url: "#" },
-    { name: "hotel_tax_invoice.pdf", size: "1.1 MB", docType: "ใบกำกับภาษี", url: "#" },
+    { name: "hotel_receipt.jpg", size: "4.2 MB", docType: "Receipt", url: "#" },
+    { name: "hotel_tax_invoice.pdf", size: "1.1 MB", docType: "Tax Invoice", url: "#" },
   ],
   "TXN20250126001": [
-    { name: "supplies_receipt.pdf", size: "890 KB", docType: "ใบกำกับภาษี", url: "#" },
+    { name: "supplies_receipt.pdf", size: "890 KB", docType: "Tax Invoice", url: "#" },
   ],
 };
 
@@ -254,7 +254,7 @@ export default function ApprovalInbox() {
           <div className="space-y-2">
             {docsDialog?.docs.map((doc, idx) => (
               <div key={idx} className="flex items-center gap-3 p-3 border rounded-lg hover:bg-muted/30 transition-colors">
-                <Badge variant="outline" className={DOC_TYPE_COLORS[doc.docType] || DOC_TYPE_COLORS["เอกสารอื่นๆ"]}>
+                <Badge variant="outline" className={DOC_TYPE_COLORS[doc.docType] || DOC_TYPE_COLORS["Other Documents"]}>
                   {doc.docType}
                 </Badge>
                 <button
@@ -335,7 +335,7 @@ export default function ApprovalInbox() {
           <div className="space-y-3">
             {previewFile && (
               <div className="mb-2">
-                <Badge variant="outline" className={DOC_TYPE_COLORS[previewFile.docType] || DOC_TYPE_COLORS["เอกสารอื่นๆ"]}>
+                <Badge variant="outline" className={DOC_TYPE_COLORS[previewFile.docType] || DOC_TYPE_COLORS["Other Documents"]}>
                   {previewFile.docType}
                 </Badge>
               </div>

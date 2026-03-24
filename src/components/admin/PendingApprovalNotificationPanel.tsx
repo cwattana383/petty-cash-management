@@ -55,7 +55,7 @@ interface NotificationSettings {
 
 // --- Template Variables ---
 const templateVariables = [
-  { key: "{{approver_name}}", label: "Approver Name", mock: "สมหญิง แก้วใส" },
+  { key: "{{approver_name}}", label: "Approver Name", mock: "Somying Kaewsai" },
   { key: "{{pending_count}}", label: "Pending Approval Count", mock: "4" },
   { key: "{{oldest_submission_date}}", label: "Oldest Submission Date", mock: "2026-02-20" },
   { key: "{{approval_inbox_link}}", label: "Approval Inbox Link", mock: "https://app.example.com/approvals?status=PENDING" },
@@ -65,7 +65,7 @@ const templateVariables = [
 const mockPendingApprovals = [
   {
     claim_id: "CLM-20260228-0012",
-    requester_name: "สมชาย ใจดี",
+    requester_name: "Somchai Jaidee",
     submission_date: "2026-02-28",
     amount: "12,500.00",
     currency: "THB",
@@ -74,7 +74,7 @@ const mockPendingApprovals = [
   },
   {
     claim_id: "CLM-20260227-0008",
-    requester_name: "วิภา สุขใจ",
+    requester_name: "Wipa Sukjai",
     submission_date: "2026-02-27",
     amount: "3,200.00",
     currency: "THB",

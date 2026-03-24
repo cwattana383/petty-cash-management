@@ -33,7 +33,7 @@ export interface ApprovalLevel {
 }
 
 export const cardTypes = ["Visa", "Mastercard", "JCB", "American Express"];
-export const banks = ["กสิกรไทย (KBANK)", "กรุงเทพ (BBL)", "ไทยพาณิชย์ (SCB)", "กรุงไทย (KTB)", "ทหารไทยธนชาต (TTB)"];
+export const banks = ["Kasikorn (KBANK)", "Bangkok Bank (BBL)", "Siam Commercial (SCB)", "Krungthai (KTB)", "TMBThanachart (TTB)"];
 export const approvalTypes: ApprovalLevel["approvalType"][] = ["Expense Claim", "Corporate Card", "Both"];
 export const approverTypes: ApprovalLevel["approverType"][] = ["Direct Manager", "Specific User", "Role Based", "Cost Center Manager"];
 export const conditionTypes: ApprovalLevel["conditionType"][] = ["Always", "Amount Threshold", "Category Based"];

@@ -6,7 +6,7 @@ export function cn(...inputs: ClassValue[]) {
 }
 
 /**
- * Format any date to DD/MM/YYYY in Buddhist Era (พ.ศ. = CE + 543).
+ * Format any date to DD/MM/YYYY in Buddhist Era (BE = CE + 543).
  * Accepts: Date object, ISO string "YYYY-MM-DD", or "YYYY-MM-DDTHH:mm:ss".
  * Returns "" for falsy input.
  */

@@ -60,7 +60,7 @@ export default function ReceiptInformation({ data, onChange, errors }: Props) {
         {/* Buyer Tax ID */}
         <div>
           <div className="flex items-center justify-between mb-1">
-            <Label className="text-xs text-muted-foreground">Buyer Tax ID (เลขประจำตัวผู้เสียภาษี) <span className="text-destructive">*</span></Label>
+            <Label className="text-xs text-muted-foreground">Buyer Tax ID (Tax ID) <span className="text-destructive">*</span></Label>
             {confidenceBadge(data.buyerTaxIdConf)}
           </div>
           <Input value={data.buyerTaxId} onChange={(e) => set("buyerTaxId", e.target.value)} className={`h-8 text-sm ${data.buyerTaxIdConf < 80 ? "border-yellow-400 bg-yellow-50" : ""}`} />

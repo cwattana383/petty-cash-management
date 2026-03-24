@@ -40,63 +40,63 @@ const initialMockItems: MockItem[] = [
   { id: "TXN20250129003", merchantName: "PTT GAS STATION", description: "Service Stations", amount: "฿850", status: "Pending Invoice", deductionPeriod: "—", attachedFiles: [], date: "2026-02-28" },
   { id: "TXN20250129004", merchantName: "SOMTUM RESTAURANT", description: "Eating Places and Restaurants", amount: "฿1,250", status: "Pending Invoice", deductionPeriod: "—", attachedFiles: [], date: "2026-02-28" },
   { id: "TXN20250129005", merchantName: "THAI AIRWAYS", description: "Airlines", amount: "฿15,000", status: "Pending Invoice", deductionPeriod: "—", attachedFiles: [], date: "2026-02-28" },
-  { id: "TXN20260227021", merchantName: "Siam Amazing Park", description: "Amusement Parks", amount: "฿7,900", status: "Auto Reject", deductionPeriod: "งวดที่ 3 / มี.ค. 2569", attachedFiles: [], date: "2026-02-27" },
-  { id: "TXN20260227002", merchantName: "Tiger Kingdom", description: "Tourist Attractions", amount: "฿4,500", status: "Auto Reject", deductionPeriod: "งวดที่ 3 / มี.ค. 2569", attachedFiles: [], date: "2026-02-27" },
-  { id: "TXN20260227053", merchantName: "The Street", description: "Dance Halls", amount: "฿2,500", status: "Auto Reject", deductionPeriod: "งวดที่ 3 / มี.ค. 2569", attachedFiles: [], date: "2026-02-27" },
+  { id: "TXN20260227021", merchantName: "Siam Amazing Park", description: "Amusement Parks", amount: "฿7,900", status: "Auto Reject", deductionPeriod: "Period 3 / Mar 2026", attachedFiles: [], date: "2026-02-27" },
+  { id: "TXN20260227002", merchantName: "Tiger Kingdom", description: "Tourist Attractions", amount: "฿4,500", status: "Auto Reject", deductionPeriod: "Period 3 / Mar 2026", attachedFiles: [], date: "2026-02-27" },
+  { id: "TXN20260227053", merchantName: "The Street", description: "Dance Halls", amount: "฿2,500", status: "Auto Reject", deductionPeriod: "Period 3 / Mar 2026", attachedFiles: [], date: "2026-02-27" },
   { id: "TXN20260227114", merchantName: "The Nine", description: "Drinking Places (Bars)", amount: "฿1,250", status: "Reject", deductionPeriod: "N/A", attachedFiles: [
-    { name: "bar_receipt.pdf", size: "1.2 MB", docType: "ใบเสร็จรับเงิน" },
+    { name: "bar_receipt.pdf", size: "1.2 MB", docType: "Receipt" },
   ], date: "2026-02-27" },
-  { id: "TXN20260227025", merchantName: "Stone Hill Golf Club", description: "Sporting and Recreational Camps", amount: "฿55,000", status: "Final Reject", deductionPeriod: "งวดที่ 3 / มี.ค. 2569", attachedFiles: [
-    { name: "golf_invoice.pdf", size: "2.1 MB", docType: "ใบกำกับภาษี" },
-    { name: "golf_approval.pdf", size: "340 KB", docType: "ใบอนุมัติเดินทาง" },
+  { id: "TXN20260227025", merchantName: "Stone Hill Golf Club", description: "Sporting and Recreational Camps", amount: "฿55,000", status: "Final Reject", deductionPeriod: "Period 3 / Mar 2026", attachedFiles: [
+    { name: "golf_invoice.pdf", size: "2.1 MB", docType: "Tax Invoice" },
+    { name: "golf_approval.pdf", size: "340 KB", docType: "Travel Approval Form" },
   ], date: "2026-02-27" },
   { id: "TXN20260227071", merchantName: "Top", description: "Grocery Stores", amount: "฿799", status: "Auto Approved", deductionPeriod: "—", attachedFiles: [
-    { name: "grocery_receipt.pdf", size: "890 KB", docType: "ใบกำกับภาษี" },
+    { name: "grocery_receipt.pdf", size: "890 KB", docType: "Tax Invoice" },
   ], date: "2026-02-27" },
   { id: "TXN20260227078", merchantName: "KFC", description: "Fast Food Restaurants", amount: "฿279", status: "Auto Approved", deductionPeriod: "—", attachedFiles: [
-    { name: "kfc_tax_invoice.pdf", size: "1.1 MB", docType: "ใบกำกับภาษี" },
-    { name: "kfc_receipt.jpg", size: "2.3 MB", docType: "ใบเสร็จรับเงิน" },
+    { name: "kfc_tax_invoice.pdf", size: "1.1 MB", docType: "Tax Invoice" },
+    { name: "kfc_receipt.jpg", size: "2.3 MB", docType: "Receipt" },
   ], date: "2026-02-27" },
   { id: "TXN20260227013", merchantName: "Suki Teenoi", description: "Eating Places and Restaurants", amount: "฿499", status: "Auto Approved", deductionPeriod: "—", attachedFiles: [
-    { name: "suki_receipt.pdf", size: "780 KB", docType: "ใบกำกับภาษี" },
-    { name: "attendee_list.pdf", size: "120 KB", docType: "รายชื่อผู้เข้าร่วม" },
+    { name: "suki_receipt.pdf", size: "780 KB", docType: "Tax Invoice" },
+    { name: "attendee_list.pdf", size: "120 KB", docType: "Attendee List" },
   ], date: "2026-02-27" },
   { id: "TXN20260227124", merchantName: "Good Car Service", description: "Car Rental Agencies", amount: "฿3,000", status: "Auto Approved", deductionPeriod: "—", attachedFiles: [
-    { name: "car_rental_invoice.pdf", size: "1.5 MB", docType: "ใบกำกับภาษี" },
-    { name: "car_rental_receipt.pdf", size: "980 KB", docType: "ใบเสร็จรับเงิน" },
-    { name: "trip_report.pdf", size: "2.8 MB", docType: "รายงานการเดินทาง" },
+    { name: "car_rental_invoice.pdf", size: "1.5 MB", docType: "Tax Invoice" },
+    { name: "car_rental_receipt.pdf", size: "980 KB", docType: "Receipt" },
+    { name: "trip_report.pdf", size: "2.8 MB", docType: "Travel Report" },
   ], date: "2026-02-27" },
   { id: "TXN20260227065", merchantName: "Rama 9 Hospital", description: "Hospitals", amount: "฿2,500", status: "Auto Approved", deductionPeriod: "—", attachedFiles: [
-    { name: "hospital_receipt.pdf", size: "1.3 MB", docType: "ใบกำกับภาษี" },
+    { name: "hospital_receipt.pdf", size: "1.3 MB", docType: "Tax Invoice" },
   ], date: "2026-02-27" },
-  { id: "TXN20260227088", merchantName: "Lazada Express", description: "Courier Services", amount: "฿12,500", status: "Exception", deductionPeriod: "งวดที่ 3 / มี.ค. 2569", attachedFiles: [
-    { name: "lazada_invoice.pdf", size: "1.8 MB", docType: "ใบกำกับภาษี" },
-    { name: "lazada_receipt.pdf", size: "650 KB", docType: "ใบเสร็จรับเงิน" },
+  { id: "TXN20260227088", merchantName: "Lazada Express", description: "Courier Services", amount: "฿12,500", status: "Exception", deductionPeriod: "Period 3 / Mar 2026", attachedFiles: [
+    { name: "lazada_invoice.pdf", size: "1.8 MB", docType: "Tax Invoice" },
+    { name: "lazada_receipt.pdf", size: "650 KB", docType: "Receipt" },
   ], date: "2026-02-27" },
-  { id: "TXN20260227091", merchantName: "JD Central", description: "Computer Software Stores", amount: "฿8,900", status: "Exception", deductionPeriod: "งวดที่ 3 / มี.ค. 2569", attachedFiles: [
-    { name: "jd_tax_invoice.pdf", size: "2.0 MB", docType: "ใบกำกับภาษี" },
-    { name: "jd_receipt.pdf", size: "1.1 MB", docType: "ใบเสร็จรับเงิน" },
-    { name: "jd_other.pdf", size: "450 KB", docType: "เอกสารอื่นๆ" },
+  { id: "TXN20260227091", merchantName: "JD Central", description: "Computer Software Stores", amount: "฿8,900", status: "Exception", deductionPeriod: "Period 3 / Mar 2026", attachedFiles: [
+    { name: "jd_tax_invoice.pdf", size: "2.0 MB", docType: "Tax Invoice" },
+    { name: "jd_receipt.pdf", size: "1.1 MB", docType: "Receipt" },
+    { name: "jd_other.pdf", size: "450 KB", docType: "Other Documents" },
   ], date: "2026-02-27" },
-  { id: "TXN20260227095", merchantName: "Flash Express", description: "Courier Services", amount: "฿3,200", status: "Exception", deductionPeriod: "งวดที่ 3 / มี.ค. 2569", attachedFiles: [
-    { name: "flash_receipt.pdf", size: "920 KB", docType: "ใบกำกับภาษี" },
+  { id: "TXN20260227095", merchantName: "Flash Express", description: "Courier Services", amount: "฿3,200", status: "Exception", deductionPeriod: "Period 3 / Mar 2026", attachedFiles: [
+    { name: "flash_receipt.pdf", size: "920 KB", docType: "Tax Invoice" },
   ], date: "2026-02-27" },
-  { id: "TXN20260228001", merchantName: "GRAB TAXI", description: "Taxicabs and Limousines", amount: "฿1,200", status: "Reimbursed", deductionPeriod: "งวดที่ 2 / ก.พ. 2569", attachedFiles: [
-    { name: "grab_receipt2.pdf", size: "1.0 MB", docType: "ใบกำกับภาษี" },
+  { id: "TXN20260228001", merchantName: "GRAB TAXI", description: "Taxicabs and Limousines", amount: "฿1,200", status: "Reimbursed", deductionPeriod: "Period 2 / Feb 2026", attachedFiles: [
+    { name: "grab_receipt2.pdf", size: "1.0 MB", docType: "Tax Invoice" },
   ], date: "2026-02-15" },
-  { id: "TXN20260228002", merchantName: "Starbucks", description: "Eating Places and Restaurants", amount: "฿350", status: "Reimbursed", deductionPeriod: "งวดที่ 2 / ก.พ. 2569", attachedFiles: [
-    { name: "starbucks_receipt.pdf", size: "680 KB", docType: "ใบกำกับภาษี" },
-    { name: "starbucks_other.jpg", size: "3.1 MB", docType: "เอกสารอื่นๆ" },
+  { id: "TXN20260228002", merchantName: "Starbucks", description: "Eating Places and Restaurants", amount: "฿350", status: "Reimbursed", deductionPeriod: "Period 2 / Feb 2026", attachedFiles: [
+    { name: "starbucks_receipt.pdf", size: "680 KB", docType: "Tax Invoice" },
+    { name: "starbucks_other.jpg", size: "3.1 MB", docType: "Other Documents" },
   ], date: "2026-02-15" },
 ];
 
 const DOC_TYPE_COLORS: Record<string, string> = {
-  "ใบกำกับภาษี": "bg-blue-100 text-blue-800 border-blue-300",
-  "ใบเสร็จรับเงิน": "bg-green-100 text-green-800 border-green-300",
-  "ใบอนุมัติเดินทาง": "bg-purple-100 text-purple-800 border-purple-300",
-  "รายชื่อผู้เข้าร่วม": "bg-yellow-100 text-yellow-800 border-yellow-300",
-  "รายงานการเดินทาง": "bg-cyan-100 text-cyan-800 border-cyan-300",
-  "เอกสารอื่นๆ": "bg-gray-100 text-gray-600 border-gray-300",
+  "Tax Invoice": "bg-blue-100 text-blue-800 border-blue-300",
+  "Receipt": "bg-green-100 text-green-800 border-green-300",
+  "Travel Approval Form": "bg-purple-100 text-purple-800 border-purple-300",
+  "Attendee List": "bg-yellow-100 text-yellow-800 border-yellow-300",
+  "Travel Report": "bg-cyan-100 text-cyan-800 border-cyan-300",
+  "Other Documents": "bg-gray-100 text-gray-600 border-gray-300",
 };
 
 const statusColors: Record<string, string> = {
@@ -158,8 +158,8 @@ export default function AccountingReview() {
 
   const isDrawerOpen = !!drawerItem;
 
-  // Get the tax invoice doc for OCR (first one tagged as ใบกำกับภาษี)
-  const taxInvoiceDoc = drawerItem?.attachedFiles.find((f) => f.docType === "ใบกำกับภาษี");
+  // Get the tax invoice doc for OCR (first one tagged as Tax Invoice)
+  const taxInvoiceDoc = drawerItem?.attachedFiles.find((f) => f.docType === "Tax Invoice");
   const activeDoc = drawerItem?.attachedFiles[activeDocIndex];
 
   const updateStatus = (ids: string[]) => {
@@ -396,7 +396,7 @@ export default function AccountingReview() {
                       activeDocIndex === idx ? "bg-primary/10 border border-primary/30" : "hover:bg-muted/50"
                     )}
                   >
-                    <Badge variant="outline" className={cn("text-[10px] px-1.5 py-0 shrink-0", DOC_TYPE_COLORS[doc.docType] || DOC_TYPE_COLORS["เอกสารอื่นๆ"])}>
+                    <Badge variant="outline" className={cn("text-[10px] px-1.5 py-0 shrink-0", DOC_TYPE_COLORS[doc.docType] || DOC_TYPE_COLORS["Other Documents"])}>
                       {doc.docType}
                     </Badge>
                     <span className="truncate font-medium">{doc.name}</span>
@@ -411,8 +411,8 @@ export default function AccountingReview() {
               <div className="mx-4 mb-4">
                 <div className="flex items-center gap-1 border-b mb-0">
                   {drawerItem.attachedFiles.map((doc, idx) => {
-                    const tabLabel = doc.docType === "ใบกำกับภาษี"
-                      ? "ใบกำกับภาษี"
+                    const tabLabel = doc.docType === "Tax Invoice"
+                      ? "Tax Invoice"
                       : `${doc.docType} ${idx + 1}`;
                     return (
                       <button
@@ -441,17 +441,17 @@ export default function AccountingReview() {
               </div>
             )}
 
-            {/* OCR Extracted Data — only for ใบกำกับภาษี */}
+            {/* OCR Extracted Data — only for Tax Invoice */}
             {taxInvoiceDoc ? (
               <div className="mx-4 mb-2">
                 <p className="text-xs text-muted-foreground mb-1">
-                  🔍 OCR ทำงานจากเอกสาร: <span className="font-medium text-foreground">{taxInvoiceDoc.name}</span> (ใบกำกับภาษี)
+                  🔍 OCR ทำงานจากเอกสาร: <span className="font-medium text-foreground">{taxInvoiceDoc.name}</span> (Tax Invoice)
                 </p>
               </div>
             ) : (
               <div className="mx-4 mb-2">
                 <p className="text-xs text-orange-600">
-                  ⚠️ ไม่พบเอกสารประเภท "ใบกำกับภาษี" — ไม่สามารถดึงข้อมูล OCR ได้
+                  ⚠️ ไม่พบเอกสารประเภท "Tax Invoice" — ไม่สามารถดึงข้อมูล OCR ได้
                 </p>
               </div>
             )}
@@ -597,7 +597,7 @@ export default function AccountingReview() {
                   <SelectValue placeholder="เลือกเหตุผล..." />
                 </SelectTrigger>
                 <SelectContent>
-                  {["Tax ID ไม่ตรง", "ที่อยู่ไม่ตรง", "จำนวนเงินเกิน tolerance", "เอกสารไม่ชัดเจน", "อื่นๆ"].map((r) => (
+                  {["Tax ID ไม่ตรง", "ที่อยู่ไม่ตรง", "Amountเกิน tolerance", "เอกสารไม่ชัดเจน", "อื่นๆ"].map((r) => (
                     <SelectItem key={r} value={r}>{r}</SelectItem>
                   ))}
                 </SelectContent>
