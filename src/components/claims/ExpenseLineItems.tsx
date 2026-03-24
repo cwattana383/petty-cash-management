@@ -203,16 +203,6 @@ export default function ExpenseLineItems({
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {/* Supplier Name */}
-                <div className="space-y-1.5">
-                  <Label className="text-[13px] font-semibold text-foreground">Supplier Name</Label>
-                  <Input
-                    className="text-[13px]"
-                    placeholder="Supplier / Vendor name"
-                    value={item.supplierName}
-                    onChange={(e) => updateItem(item.id, { supplierName: e.target.value })}
-                  />
-                </div>
 
                 {/* Gross Amount */}
                 <div className="space-y-1.5">
@@ -270,24 +260,6 @@ export default function ExpenseLineItems({
                 </div>
 
 
-                {/* Tax Invoice Number (conditional) */}
-                {showTaxField && (
-                  <div className="space-y-1.5 md:col-span-2">
-                    <Label className="text-[13px] font-semibold text-foreground">
-                      Tax Invoice Number
-                      {requiresTaxInvoice && <span className="text-destructive"> *</span>}
-                    </Label>
-                    <Input
-                      className="text-[13px]"
-                      placeholder="e.g. INV-2025-001234"
-                      value={item.taxInvoiceNumber}
-                      onChange={(e) => updateItem(item.id, { taxInvoiceNumber: e.target.value })}
-                    />
-                    {requiresTaxInvoice && !item.taxInvoiceNumber.trim() && (
-                      <p className="text-xs text-destructive">Please enter the tax invoice number</p>
-                    )}
-                  </div>
-                )}
               </div>
 
               {/* VAT type changed — reason */}
@@ -326,13 +298,6 @@ export default function ExpenseLineItems({
           );
         })}
 
-        {/* VAT doc warning */}
-        {showVatDocWarning && (
-          <div className="rounded-lg border border-amber-300 bg-amber-50 px-4 py-3 flex items-center gap-2">
-            <AlertTriangle className="h-4 w-4 text-amber-600 shrink-0" />
-            <p className="text-[13px] text-amber-800">⚠️ This VAT Type requires a Tax Invoice attachment</p>
-          </div>
-        )}
 
       </CardContent>
     </Card>
