@@ -305,13 +305,6 @@ export default function MyClaims() {
                           : status === "Reject" ? "N/A" : "—"}
                       </TableCell>
                     )}
-                    <TableCell onClick={(e) => e.stopPropagation()}>
-                      <AttachmentStatusBadge
-                        fileCount={att?.totalFileCount || 0}
-                        ocrStatus={att?.ocrStatus || "none"}
-                        onAttach={(e) => handleOpenUploadDialog(e, c.id)}
-                      />
-                    </TableCell>
                   </TableRow>
                 );
               })
