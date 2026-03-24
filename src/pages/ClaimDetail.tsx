@@ -308,7 +308,18 @@ export default function ClaimDetail() {
                 {/* VAT Type */}
                 <div className="space-y-1.5">
                   <Label className="text-[13px] font-semibold text-foreground">VAT Type</Label>
-                  <Input value={selectedConfig ? (getVatTypeConfig(getDefaultVatType(subExpenseType) || "no_vat")?.label || "No VAT") : ""} readOnly className="bg-muted/40 border-border text-[13px]" placeholder="Auto-filled from sub expense type" />
+                  <Select value={vatType} onValueChange={setVatType}>
+                    <SelectTrigger className="text-[13px]">
+                      <SelectValue placeholder="Auto-filled from sub expense type" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {VAT_TYPE_CONFIG.map((vt) => (
+                        <SelectItem key={vt.id} value={vt.id} className="text-[13px]">
+                          {vt.label}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                 </div>
 
                 {/* GL Account */}
