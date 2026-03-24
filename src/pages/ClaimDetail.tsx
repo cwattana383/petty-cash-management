@@ -175,9 +175,6 @@ export default function ClaimDetail() {
     setComment("");
   };
 
-  const scrollToStep = (idx: number) => {
-    sectionRefs.current[idx]?.scrollIntoView({ behavior: "smooth", block: "start" });
-  };
 
   const fmt = (n: number) => n.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 
