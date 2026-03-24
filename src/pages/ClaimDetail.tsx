@@ -259,7 +259,7 @@ export default function ClaimDetail() {
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-1.5">
-              <Label className="text-[13px] font-semibold text-foreground">Expense Type (Level 1) <span className="text-destructive">*</span></Label>
+              <Label className="text-[13px] font-semibold text-foreground">Expense Type <span className="text-destructive">*</span></Label>
               <Select value={expenseType} onValueChange={(v) => {
                 setExpenseType(v);
                 setSubExpenseType("");
