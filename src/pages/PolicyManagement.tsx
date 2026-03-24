@@ -13,11 +13,18 @@ import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 import { MccPolicyMaster, PolicyType } from "@/lib/corporate-card-types";
 import { mockMccPolicies } from "@/lib/corporate-card-mock-data";
+import { getLevel1Options, getLevel2Options } from "@/lib/expense-type-config";
 
 const POLICY_TYPE_BADGE: Record<PolicyType, { label: string; className: string }> = {
   AUTO_APPROVE: { label: "Auto Approve", className: "bg-emerald-100 text-emerald-800 border-emerald-200" },
   AUTO_REJECT: { label: "Auto Reject", className: "bg-red-100 text-red-800 border-red-200" },
   REQUIRES_APPROVAL: { label: "Requires Approval", className: "bg-amber-100 text-amber-800 border-amber-200" },
+};
+
+const ROW_BG: Record<PolicyType, string> = {
+  AUTO_REJECT: "bg-[#FCE4D6]",
+  REQUIRES_APPROVAL: "bg-[#FFEB9C]",
+  AUTO_APPROVE: "",
 };
 
 const PAGE_SIZE = 20;
@@ -35,12 +42,15 @@ export default function PolicyManagement() {
   const [search, setSearch] = useState("");
   const [activeFilter, setActiveFilter] = useState("all");
   const [expenseTypeFilter, setExpenseTypeFilter] = useState("all");
+  const [subExpenseTypeFilter, setSubExpenseTypeFilter] = useState("all");
   const [page, setPage] = useState(1);
 
   // Modal
   const [modalOpen, setModalOpen] = useState(false);
   const [editingPolicy, setEditingPolicy] = useState<MccPolicyMaster | null>(null);
   const [form, setForm] = useState<MccPolicyMaster>({ ...emptyPolicy });
+  const [formLevel1, setFormLevel1] = useState("");
+  const [formLevel2, setFormLevel2] = useState("");
   const [formErrors, setFormErrors] = useState<Record<string, string>>({});
 
   // Delete
@@ -50,15 +60,21 @@ export default function PolicyManagement() {
   const [bulkOpen, setBulkOpen] = useState(false);
 
   const expenseTypeOptions = useMemo(() => {
-    const cats = Array.from(new Set(policies.map((p) => p.category))).sort();
-    return cats;
+    return Array.from(new Set(policies.map((p) => p.category))).sort();
   }, [policies]);
+
+  const subExpenseTypeOptions = useMemo(() => {
+    let data = policies;
+    if (expenseTypeFilter !== "all") data = data.filter((p) => p.category === expenseTypeFilter);
+    return Array.from(new Set(data.map((p) => p.description_subtype).filter(Boolean))).sort();
+  }, [policies, expenseTypeFilter]);
 
   const filtered = useMemo(() => {
     let data = [...policies];
     if (activeFilter === "active") data = data.filter((p) => p.active_flag);
     else if (activeFilter === "inactive") data = data.filter((p) => !p.active_flag);
     if (expenseTypeFilter !== "all") data = data.filter((p) => p.category === expenseTypeFilter);
+    if (subExpenseTypeFilter !== "all") data = data.filter((p) => p.description_subtype === subExpenseTypeFilter);
     if (search) {
       const s = search.toLowerCase();
       data = data.filter((p) =>
@@ -71,7 +87,7 @@ export default function PolicyManagement() {
     }
     data.sort((a, b) => a.category.localeCompare(b.category));
     return data;
-  }, [policies, activeFilter, expenseTypeFilter, search]);
+  }, [policies, activeFilter, expenseTypeFilter, subExpenseTypeFilter, search]);
 
   const totalPages = Math.ceil(filtered.length / PAGE_SIZE);
   const paged = filtered.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
@@ -79,6 +95,8 @@ export default function PolicyManagement() {
   const openAdd = () => {
     setEditingPolicy(null);
     setForm({ ...emptyPolicy, updated_at: new Date().toISOString() });
+    setFormLevel1("");
+    setFormLevel2("");
     setFormErrors({});
     setModalOpen(true);
   };
@@ -86,14 +104,16 @@ export default function PolicyManagement() {
   const openEdit = (p: MccPolicyMaster) => {
     setEditingPolicy(p);
     setForm({ ...p });
+    setFormLevel1(p.category);
+    setFormLevel2(p.description_subtype);
     setFormErrors({});
     setModalOpen(true);
   };
 
   const validateForm = (): boolean => {
     const errors: Record<string, string> = {};
-    if (!form.category.trim()) errors.category = "Required";
-    if (!form.description_subtype.trim()) errors.description_subtype = "Required";
+    if (!formLevel1.trim()) errors.category = "Required";
+    if (!formLevel2.trim()) errors.description_subtype = "Required";
     if (form.policy_type === "AUTO_APPROVE" && form.threshold_amount !== null && form.threshold_amount <= 0)
       errors.threshold_amount = "Must be > 0";
     setFormErrors(errors);
@@ -103,7 +123,7 @@ export default function PolicyManagement() {
   const handleSave = () => {
     if (!validateForm()) return;
     const now = new Date().toISOString();
-    const updated = { ...form, updated_at: now };
+    const updated = { ...form, category: formLevel1, description_subtype: formLevel2, updated_at: now };
     if (form.policy_type !== "AUTO_APPROVE") updated.threshold_amount = null;
 
     if (editingPolicy) {
@@ -153,12 +173,21 @@ export default function PolicyManagement() {
           <Search className="absolute left-2 top-2.5 h-3.5 w-3.5 text-muted-foreground" />
           <Input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Search expense type, description, MCC..." className="pl-7 h-9 text-sm" />
         </div>
-        <Select value={expenseTypeFilter} onValueChange={setExpenseTypeFilter}>
+        <Select value={expenseTypeFilter} onValueChange={(v) => { setExpenseTypeFilter(v); setSubExpenseTypeFilter("all"); }}>
           <SelectTrigger className="w-[180px] h-9 text-sm"><SelectValue placeholder="Expense Type" /></SelectTrigger>
           <SelectContent>
             <SelectItem value="all">All Expense Types</SelectItem>
             {expenseTypeOptions.map((cat) => (
               <SelectItem key={cat} value={cat}>{cat}</SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+        <Select value={subExpenseTypeFilter} onValueChange={setSubExpenseTypeFilter}>
+          <SelectTrigger className="w-[200px] h-9 text-sm"><SelectValue placeholder="Sub Expense Type" /></SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">All Sub Types</SelectItem>
+            {subExpenseTypeOptions.map((st) => (
+              <SelectItem key={st} value={st}>{st}</SelectItem>
             ))}
           </SelectContent>
         </Select>
@@ -181,6 +210,7 @@ export default function PolicyManagement() {
             <TableHeader>
               <TableRow>
                 <TableHead>Expense Type</TableHead>
+                <TableHead className="min-w-[180px]">Sub Expense Type</TableHead>
                 <TableHead className="w-[100px]">MCC Code (Ref)</TableHead>
                 <TableHead className="w-[160px]">MCC Code Description</TableHead>
                 <TableHead className="min-w-[260px]">Description / Sub-type</TableHead>
@@ -193,10 +223,11 @@ export default function PolicyManagement() {
             </TableHeader>
             <TableBody>
               {paged.length === 0 ? (
-                <TableRow><TableCell colSpan={9} className="text-center py-12 text-muted-foreground">No policies found.</TableCell></TableRow>
+                <TableRow><TableCell colSpan={10} className="text-center py-12 text-muted-foreground">No policies found.</TableCell></TableRow>
               ) : paged.map((p) => (
-                <TableRow key={p.mcc_code}>
+                <TableRow key={p.mcc_code} className={ROW_BG[p.policy_type]}>
                   <TableCell>{p.category}</TableCell>
+                  <TableCell className="text-sm">{p.description_subtype || "—"}</TableCell>
                   <TableCell className="text-xs font-mono">{p.mcc_code_ref || "—"}</TableCell>
                   <TableCell className="text-xs">{p.mcc_code_description || "—"}</TableCell>
                   <TableCell className="text-sm">{p.description_subtype || "—"}</TableCell>
@@ -255,10 +286,27 @@ export default function PolicyManagement() {
             <DialogDescription>{editingPolicy ? "Update this policy rule." : "Create a new policy rule."}</DialogDescription>
           </DialogHeader>
           <div className="space-y-4 py-2">
-            <div className="space-y-1.5">
-              <Label>Expense Type <span className="text-destructive">*</span></Label>
-              <Input value={form.category} onChange={(e) => setForm({ ...form, category: e.target.value })} placeholder="e.g. Entertainment, Hotel" />
-              {formErrors.category && <p className="text-xs text-destructive">{formErrors.category}</p>}
+            <div className="grid grid-cols-2 gap-3">
+              <div className="space-y-1.5">
+                <Label>Expense Type <span className="text-destructive">*</span></Label>
+                <Select value={formLevel1} onValueChange={(v) => { setFormLevel1(v); setFormLevel2(""); setForm({ ...form, category: v }); }}>
+                  <SelectTrigger><SelectValue placeholder="Select expense type" /></SelectTrigger>
+                  <SelectContent>
+                    {getLevel1Options().map((t) => <SelectItem key={t} value={t}>{t}</SelectItem>)}
+                  </SelectContent>
+                </Select>
+                {formErrors.category && <p className="text-xs text-destructive">{formErrors.category}</p>}
+              </div>
+              <div className="space-y-1.5">
+                <Label>Sub Expense Type <span className="text-destructive">*</span></Label>
+                <Select value={formLevel2} onValueChange={(v) => { setFormLevel2(v); setForm({ ...form, description_subtype: v }); }} disabled={!formLevel1}>
+                  <SelectTrigger><SelectValue placeholder={formLevel1 ? "Select sub type" : "Select expense type first"} /></SelectTrigger>
+                  <SelectContent>
+                    {getLevel2Options(formLevel1).map((t) => <SelectItem key={t} value={t}>{t}</SelectItem>)}
+                  </SelectContent>
+                </Select>
+                {formErrors.description_subtype && <p className="text-xs text-destructive">{formErrors.description_subtype}</p>}
+              </div>
             </div>
             <div className="grid grid-cols-2 gap-3">
               <div className="space-y-1.5">
@@ -269,11 +317,6 @@ export default function PolicyManagement() {
                 <Label>MCC Code Description</Label>
                 <Input value={form.mcc_code_description} onChange={(e) => setForm({ ...form, mcc_code_description: e.target.value })} placeholder="e.g. Restaurants" />
               </div>
-            </div>
-            <div className="space-y-1.5">
-              <Label>Description / Sub-type <span className="text-destructive">*</span></Label>
-              <Input value={form.description_subtype} onChange={(e) => setForm({ ...form, description_subtype: e.target.value })} placeholder="e.g. Client Meal — HoReCa / Business Visit" />
-              {formErrors.description_subtype && <p className="text-xs text-destructive">{formErrors.description_subtype}</p>}
             </div>
             <div className="space-y-1.5">
               <Label>Policy Type</Label>
