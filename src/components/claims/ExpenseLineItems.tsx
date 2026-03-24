@@ -177,9 +177,6 @@ export default function ExpenseLineItems({
             Enter details from the receipt — multiple items can be added.
           </p>
         </div>
-        <Button variant="outline" size="sm" className="gap-1 text-xs" onClick={addLineItem}>
-          <Plus className="h-3 w-3" /> Add Line Item
-        </Button>
       </CardHeader>
       <CardContent className="space-y-6">
         {items.map((item, idx) => {
@@ -255,14 +252,6 @@ export default function ExpenseLineItems({
                       ))}
                     </SelectContent>
                   </Select>
-                  {item.vatTypeAutoFilled && !item.vatTypeChanged && (
-                    <div className="flex items-center gap-1.5 mt-1">
-                      <Info className="h-3 w-3 text-blue-500 shrink-0" />
-                      <p className="text-[11px] text-blue-600">
-                        Auto-set to {vatConfig?.label}. Change if receipt differs.
-                      </p>
-                    </div>
-                  )}
                 </div>
 
                 {/* Net Amount */}
@@ -283,16 +272,6 @@ export default function ExpenseLineItems({
                   <Input readOnly className="bg-muted/40 text-[13px] text-right" value={fmt(item.vatAmount)} />
                 </div>
 
-                {/* Note (optional, single line) */}
-                <div className="space-y-1.5">
-                  <Label className="text-[13px] text-muted-foreground">Note (optional)</Label>
-                  <Input
-                    className="text-[13px]"
-                    placeholder="Additional note for this line"
-                    value={item.note}
-                    onChange={(e) => updateItem(item.id, { note: e.target.value })}
-                  />
-                </div>
 
                 {/* Tax Invoice Number (conditional) */}
                 {showTaxField && (
@@ -368,12 +347,6 @@ export default function ExpenseLineItems({
             <span className="text-right font-medium">{fmt(totalNet)} THB</span>
             <span className="text-muted-foreground">Total VAT:</span>
             <span className="text-right font-medium">{fmt(totalVat)} THB</span>
-            {glCode && (
-              <>
-                <span className="text-muted-foreground">GL Code:</span>
-                <span className="text-right font-medium">{glCode}</span>
-              </>
-            )}
           </div>
         </div>
       </CardContent>
