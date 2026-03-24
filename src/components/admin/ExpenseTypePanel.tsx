@@ -22,6 +22,7 @@ import { useToast } from "@/hooks/use-toast";
 interface ExpenseTypeRow {
   id: string;
   groupingTh: string;
+  subExpenseType: string;
   accountNameEn: string;
   active: boolean;
   updatedAt: string;
