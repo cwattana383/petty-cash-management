@@ -275,7 +275,7 @@ export default function ClaimDetail() {
             </div>
 
             <div className="space-y-1.5">
-              <Label className="text-[13px] font-semibold text-foreground">Sub Expense Type (Level 2) <span className="text-destructive">*</span></Label>
+              <Label className="text-[13px] font-semibold text-foreground">Sub Expense Type <span className="text-destructive">*</span></Label>
               <Select
                 value={subExpenseType}
                 onValueChange={(v) => {
