@@ -16,7 +16,7 @@ import {
 import { formatBEDate } from "@/lib/utils";
 import { useClaims } from "@/lib/claims-context";
 import { getLevel1Options, getLevel2Options, getExpenseConfig } from "@/lib/expense-type-config";
-import { getVatTypeConfig, getDefaultVatType } from "@/lib/vat-type-config";
+import { VAT_TYPE_CONFIG, getVatTypeConfig, getDefaultVatType } from "@/lib/vat-type-config";
 import ExpenseLineItems from "@/components/claims/ExpenseLineItems";
 import { useToast } from "@/hooks/use-toast";
 import { useState, useEffect, useCallback, useRef } from "react";
