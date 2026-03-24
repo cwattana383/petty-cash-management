@@ -89,7 +89,7 @@ export default function ClaimDetail() {
   const step2Complete = !!purpose.trim() && !!expenseType && !!subExpenseType && !!glAccount;
   const step3Complete = lineItemsValid && selectedConfig != null && !isAutoReject;
   const step4Complete = allRequiredUploaded && step2Complete;
-  const stepComplete = [step1Complete, step2Complete, step3Complete, step4Complete];
+  
 
   // Missing required docs for tooltip
   const missingDocs = allRequiredDocs.filter((d) => !docUploads[d.id]).map((d) => d.label);
