@@ -58,7 +58,7 @@ const initialData: ExpenseTypeRow[] = [
   { id: "25", groupingTh: "Meals & Entertainment", subExpenseType: "Grocery / Supermarket Purchase", accountNameEn: "Grocery Stores/Supermarkets", active: true, updatedAt: "2026-03-23 10:00:00" },
 ];
 
-let nextId = 123;
+let nextId = 26;
 
 export default function ExpenseTypePanel() {
   const { toast } = useToast();
