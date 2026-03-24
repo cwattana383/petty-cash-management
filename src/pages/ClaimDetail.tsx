@@ -156,6 +156,7 @@ export default function ClaimDetail() {
     const newErrors: Record<string, string> = {};
     if (!purpose.trim()) newErrors.purpose = "Purpose is required";
     if (!expenseType) newErrors.expenseType = "Expense Type is required";
+    if (!subExpenseType) newErrors.subExpenseType = "Sub Expense Type is required";
     if (!glAccount) newErrors.glAccount = "GL Account is required";
     if (isOverseas && overseasApprovalStatus !== "approved") {
       newErrors.overseas = "Travel approval is required before submitting.";
