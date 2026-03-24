@@ -148,7 +148,7 @@ export default function MyClaims() {
     }));
     setClaimStatuses((prev) => ({ ...prev, [claimId]: "Pending Approval" }));
     resetDialog();
-    toast({ title: "Submitted for approval", description: `แนบ ${totalFiles} files — status changed to Pending Approval` });
+    toast({ title: "Submitted for approval", description: `Attached ${totalFiles} files — status changed to Pending Approval` });
   };
 
   // Warning dialog: submit without document
