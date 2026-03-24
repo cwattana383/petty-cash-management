@@ -147,6 +147,31 @@ export default function ClaimDetail() {
     }, 400);
   }, []);
 
+  const simulateDocSlotUpload = useCallback((docId: string) => {
+    const simFile = SIMULATED_FILES[fileCounter.current % SIMULATED_FILES.length];
+    fileCounter.current += 1;
+    const newFile: UploadedFile = {
+      id: `doc-${docId}-${Date.now()}`,
+      name: simFile.name,
+      type: simFile.type,
+      size: simFile.size,
+      progress: 0,
+      ocrStatus: "uploading",
+    };
+    setDocUploads((prev) => ({ ...prev, [docId]: newFile }));
+
+    let prog = 0;
+    const interval = setInterval(() => {
+      prog += 25;
+      if (prog >= 100) {
+        clearInterval(interval);
+        setDocUploads((prev) => prev[docId] ? ({ ...prev, [docId]: { ...prev[docId], progress: 100, ocrStatus: "passed" } }) : prev);
+      } else {
+        setDocUploads((prev) => prev[docId] ? ({ ...prev, [docId]: { ...prev[docId], progress: prog } }) : prev);
+      }
+    }, 300);
+  }, []);
+
   if (!claim) {
     return (
       <div className="flex flex-col items-center justify-center py-20">
