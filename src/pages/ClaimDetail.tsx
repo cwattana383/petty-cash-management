@@ -342,27 +342,139 @@ export default function ClaimDetail() {
           </div>
 
           {/* Policy info banner */}
-          {expenseType && subExpenseType && (() => {
-            const config = getExpenseConfig(expenseType, subExpenseType);
-            if (!config) return null;
-            const ruleColors: Record<string, string> = {
-              "Auto Approve": "bg-emerald-50 border-emerald-200 text-emerald-800",
-              "Requires Approval": "bg-amber-50 border-amber-200 text-amber-800",
-              "Auto Reject": "bg-red-50 border-red-200 text-red-800",
-            };
-            return (
-              <div className={`mt-3 rounded-lg border px-3 py-2 text-xs flex items-center gap-2 ${ruleColors[config.policyRule] || ""}`}>
-                <Info className="h-3.5 w-3.5 shrink-0" />
-                <span>
-                  <strong>Policy:</strong> {config.policyRule}
-                  {config.threshold !== null && <> — Threshold: ฿{config.threshold.toLocaleString()}</>}
-                  {config.notes && <> | {config.notes}</>}
-                </span>
-              </div>
-            );
-          })()}
+          {selectedConfig && (
+            <div className="space-y-3 mt-3">
+              {selectedConfig.policyRule === "Auto Reject" && (
+                <div className="rounded-lg border border-red-300 bg-red-50 px-4 py-3 flex items-center gap-2">
+                  <XCircle className="h-4 w-4 text-red-600 shrink-0" />
+                  <p className="text-[13px] text-red-800 font-medium">
+                    This expense type cannot be reimbursed per company policy.
+                  </p>
+                </div>
+              )}
+              {selectedConfig.policyRule === "Requires Approval" && (
+                <div className="rounded-lg border border-amber-300 bg-amber-50 px-4 py-3 flex items-center gap-2">
+                  <AlertTriangle className="h-4 w-4 text-amber-600 shrink-0" />
+                  <p className="text-[13px] text-amber-800 font-medium">
+                    This expense requires manager approval before processing.
+                  </p>
+                </div>
+              )}
+              {selectedConfig.policyRule === "Auto Approve" && (
+                <div className="rounded-lg border border-emerald-300 bg-emerald-50 px-4 py-3 flex items-center gap-2">
+                  <CheckCircle className="h-4 w-4 text-emerald-600 shrink-0" />
+                  <p className="text-[13px] text-emerald-800 font-medium">
+                    This expense will be auto-approved{selectedConfig.threshold !== null && <> if within threshold (THB {selectedConfig.threshold.toLocaleString()})</>}.
+                  </p>
+                </div>
+              )}
+            </div>
+          )}
         </CardContent>
       </Card>
+
+      {/* Required & Optional Documents Section */}
+      {selectedConfig && !isAutoReject && (allRequiredDocs.length > 0 || allOptionalDocs.length > 0) && (
+        <Card className="border border-border rounded-xl">
+          <CardHeader>
+            <CardTitle className="text-base font-bold">Required Documents</CardTitle>
+            <p className="text-[13px] text-muted-foreground mt-0.5">Upload all required documents before submitting.</p>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            {/* Required docs */}
+            {allRequiredDocs.length > 0 && (
+              <div className="space-y-2">
+                <p className="text-xs font-semibold text-red-700 flex items-center gap-1.5">
+                  <span className="h-2 w-2 rounded-full bg-red-500 inline-block" />
+                  Required — must upload before submit
+                </p>
+                <div className="space-y-2">
+                  {allRequiredDocs.map((doc) => {
+                    const uploaded = docUploads[doc.id];
+                    return (
+                      <div key={doc.id} className={`flex items-center gap-3 p-3 rounded-lg border ${uploaded ? "border-emerald-200 bg-emerald-50/50" : "border-border bg-background"}`}>
+                        <div className="shrink-0">
+                          {uploaded ? (
+                            <CheckCircle2 className="h-5 w-5 text-emerald-600" />
+                          ) : (
+                            <AlertTriangle className="h-5 w-5 text-amber-500" />
+                          )}
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <p className="text-[13px] font-medium text-foreground">{doc.label}</p>
+                          {uploaded && (
+                            <p className="text-xs text-muted-foreground mt-0.5">{uploaded.name} • {uploaded.size}</p>
+                          )}
+                        </div>
+                        {uploaded ? (
+                          <Button variant="ghost" size="sm" className="text-xs" onClick={() => setDocUploads((prev) => { const n = { ...prev }; delete n[doc.id]; return n; })}>
+                            Remove
+                          </Button>
+                        ) : (
+                          <Button variant="outline" size="sm" className="text-xs gap-1" onClick={() => simulateDocSlotUpload(doc.id)}>
+                            <Upload className="h-3 w-3" /> Upload
+                          </Button>
+                        )}
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
+
+            {/* Optional docs */}
+            {allOptionalDocs.length > 0 && (
+              <div className="space-y-2">
+                <p className="text-xs font-semibold text-amber-700 flex items-center gap-1.5">
+                  <span className="h-2 w-2 rounded-full bg-amber-400 inline-block" />
+                  Optional — recommended but not required
+                </p>
+                <div className="space-y-2">
+                  {allOptionalDocs.map((doc) => {
+                    const uploaded = docUploads[doc.id];
+                    return (
+                      <div key={doc.id} className={`flex items-center gap-3 p-3 rounded-lg border ${uploaded ? "border-emerald-200 bg-emerald-50/50" : "border-dashed border-border bg-background"}`}>
+                        <div className="shrink-0">
+                          {uploaded ? (
+                            <CheckCircle2 className="h-5 w-5 text-emerald-600" />
+                          ) : (
+                            <FileText className="h-5 w-5 text-muted-foreground" />
+                          )}
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <p className="text-[13px] text-muted-foreground">{doc.label}</p>
+                          {uploaded && (
+                            <p className="text-xs text-muted-foreground mt-0.5">{uploaded.name} • {uploaded.size}</p>
+                          )}
+                        </div>
+                        {uploaded ? (
+                          <Button variant="ghost" size="sm" className="text-xs" onClick={() => setDocUploads((prev) => { const n = { ...prev }; delete n[doc.id]; return n; })}>
+                            Remove
+                          </Button>
+                        ) : (
+                          <Button variant="outline" size="sm" className="text-xs gap-1" onClick={() => simulateDocSlotUpload(doc.id)}>
+                            <Upload className="h-3 w-3" /> Upload
+                          </Button>
+                        )}
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
+
+            {/* Notes */}
+            {selectedConfig.notes && (
+              <div className="rounded-lg border border-blue-200 bg-blue-50 px-4 py-3">
+                <p className="text-xs text-blue-700 flex items-start gap-1.5">
+                  <Info className="h-3.5 w-3.5 shrink-0 mt-0.5" />
+                  {selectedConfig.notes}
+                </p>
+              </div>
+            )}
+          </CardContent>
+        </Card>
+      )}
 
       {/* Section 2 — Transaction Details (read-only) */}
       <Card className="border border-border rounded-xl">
