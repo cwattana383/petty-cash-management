@@ -38,23 +38,6 @@ const actionConfig: Record<string, { color: string; icon: React.ElementType }> =
   Delegated: { color: "border-purple-400 bg-purple-50", icon: Send },
 };
 
-const EXPENSE_TYPES = [
-  "Transportation — Domestic",
-  "Transportation — Overseas",
-  "Meals & Entertainment",
-  "Accommodation",
-  "Office Supplies",
-  "Other",
-];
-
-const GL_ACCOUNTS = [
-  "51200 Travel Expense",
-  "51201 Taxi & Cab",
-  "51300 Meal Expense",
-  "51400 Accommodation",
-  "51500 Office Supply",
-];
-
 const COST_CENTERS = [
   "CC-FIN-001 Finance",
   "CC-IT-002 IT",
