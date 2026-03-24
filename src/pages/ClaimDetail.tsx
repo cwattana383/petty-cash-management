@@ -259,7 +259,7 @@ export default function ClaimDetail() {
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-1.5">
-              <Label className="text-[13px] font-semibold text-foreground">Expense Type (Level 1) <span className="text-destructive">*</span></Label>
+              <Label className="text-[13px] font-semibold text-foreground">Expense Type <span className="text-destructive">*</span></Label>
               <Select value={expenseType} onValueChange={(v) => {
                 setExpenseType(v);
                 setSubExpenseType("");
@@ -275,7 +275,7 @@ export default function ClaimDetail() {
             </div>
 
             <div className="space-y-1.5">
-              <Label className="text-[13px] font-semibold text-foreground">Sub Expense Type (Level 2) <span className="text-destructive">*</span></Label>
+              <Label className="text-[13px] font-semibold text-foreground">Sub Expense Type <span className="text-destructive">*</span></Label>
               <Select
                 value={subExpenseType}
                 onValueChange={(v) => {
@@ -304,15 +304,6 @@ export default function ClaimDetail() {
               {errors.glAccount && <p className="text-xs text-destructive">{errors.glAccount}</p>}
             </div>
 
-            <div className="space-y-1.5">
-              <Label className="text-[13px] font-semibold text-foreground">Cost Center</Label>
-              <Select value={costCenter} onValueChange={setCostCenter}>
-                <SelectTrigger className="text-[13px]"><SelectValue placeholder="Select cost center" /></SelectTrigger>
-                <SelectContent>
-                  {COST_CENTERS.map((c) => <SelectItem key={c} value={c} className="text-[13px]">{c}</SelectItem>)}
-                </SelectContent>
-              </Select>
-            </div>
           </div>
 
           {/* Policy info banner */}
