@@ -83,6 +83,7 @@ export default function ClaimDetail() {
   // Editable fields
   const [purpose, setPurpose] = useState("");
   const [expenseType, setExpenseType] = useState("");
+  const [subExpenseType, setSubExpenseType] = useState("");
   const [glAccount, setGlAccount] = useState("");
   const [costCenter, setCostCenter] = useState("");
   const [projectCode, setProjectCode] = useState("");
