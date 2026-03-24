@@ -278,7 +278,7 @@ export default function MyClaims() {
               <TableHead className="text-right">Amount</TableHead>
               <TableHead>Status</TableHead>
               {(activeTab === "rejected" || activeTab === "all") && <TableHead>Deduction Period</TableHead>}
-              <TableHead>Attached File</TableHead>
+              
             </TableRow>
           </TableHeader>
           <TableBody>
