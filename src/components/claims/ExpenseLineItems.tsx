@@ -272,16 +272,6 @@ export default function ExpenseLineItems({
                   <Input readOnly className="bg-muted/40 text-[13px] text-right" value={fmt(item.vatAmount)} />
                 </div>
 
-                {/* Note (optional, single line) */}
-                <div className="space-y-1.5">
-                  <Label className="text-[13px] text-muted-foreground">Note (optional)</Label>
-                  <Input
-                    className="text-[13px]"
-                    placeholder="Additional note for this line"
-                    value={item.note}
-                    onChange={(e) => updateItem(item.id, { note: e.target.value })}
-                  />
-                </div>
 
                 {/* Tax Invoice Number (conditional) */}
                 {showTaxField && (
