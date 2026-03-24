@@ -283,7 +283,7 @@ export default function MyClaims() {
           </TableHeader>
           <TableBody>
             {filtered.length === 0 ? (
-              <TableRow><TableCell colSpan={(activeTab === "rejected" || activeTab === "all") ? 8 : 7} className="text-center text-muted-foreground py-8">No transactions found for this status.</TableCell></TableRow>
+              <TableRow><TableCell colSpan={(activeTab === "rejected" || activeTab === "all") ? 7 : 6} className="text-center text-muted-foreground py-8">No transactions found for this status.</TableCell></TableRow>
             ) : (
               filtered.map((c) => {
                 const status = getStatus(c);
