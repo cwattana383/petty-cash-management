@@ -273,7 +273,7 @@ export default function AccountingReview() {
         <div className="flex items-center justify-between">
           <Tabs value={activeTab} onValueChange={setActiveTab}>
             <TabsList>
-              <TabsTrigger value="pending">รอตรวจสอบ</TabsTrigger>
+              <TabsTrigger value="pending">Pending Review</TabsTrigger>
               <TabsTrigger value="exception">Exception</TabsTrigger>
               <TabsTrigger value="ready">พร้อมส่ง ERP</TabsTrigger>
               <TabsTrigger value="reimbursed">ส่ง ERP แล้ว</TabsTrigger>

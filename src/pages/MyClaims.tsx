@@ -50,7 +50,7 @@ function getDeductionPeriod(txnDate: string): string {
   const d = addMonths(new Date(txnDate), 1);
   const beYear = d.getFullYear() + 543;
   const period = d.getMonth() + 1;
-  return `งวดที่ ${period} / ${THAI_MONTHS_SHORT[d.getMonth()]} ${beYear}`;
+  return `Period ${period} / ${THAI_MONTHS_SHORT[d.getMonth()]} ${beYear}`;
 }
 
 // Upload dialog flow states
