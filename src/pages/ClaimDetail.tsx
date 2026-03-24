@@ -317,6 +317,7 @@ export default function ClaimDetail() {
                 value={subExpenseType}
                 onValueChange={(v) => {
                   setSubExpenseType(v);
+                  setDocUploads({});
                   const config = getExpenseConfig(expenseType, v);
                   if (config?.glCode) {
                     setGlAccount(config.glCode);
