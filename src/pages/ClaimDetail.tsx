@@ -351,7 +351,7 @@ export default function ClaimDetail() {
             STEP 4 — DOCUMENTS
            ══════════════════════════════════════════════ */}
         {selectedConfig && !isAutoReject && (allRequiredDocs.length > 0 || allOptionalDocs.length > 0) && (
-          <section ref={(el) => { sectionRefs.current[3] = el; }} className="scroll-mt-28">
+          <section>
             <SectionDivider num={4} label="Documents" />
             <Card className="border border-border rounded-xl">
               <CardContent className="pt-5 space-y-5">
