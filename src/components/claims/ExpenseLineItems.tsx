@@ -190,9 +190,6 @@ export default function ExpenseLineItems({
               className="border border-border rounded-lg p-4 space-y-4 bg-background"
             >
               <div className="flex items-center justify-between">
-                <p className="text-[13px] font-semibold text-foreground">
-                  Line Item #{idx + 1}
-                </p>
                 {items.length > 1 && (
                   <Button
                     variant="ghost"
