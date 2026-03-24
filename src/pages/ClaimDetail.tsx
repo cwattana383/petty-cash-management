@@ -81,7 +81,7 @@ export default function ClaimDetail() {
   const [errors, setErrors] = useState<Record<string, string>>({});
 
   // Scroll tracking for progress indicator
-  const sectionRefs = useRef<(HTMLDivElement | null)[]>([null, null, null, null]);
+  const sectionRefs = useRef<(HTMLElement | null)[]>([null, null, null, null]);
   const [activeStep, setActiveStep] = useState(0);
 
   useEffect(() => {
