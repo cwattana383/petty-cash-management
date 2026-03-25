@@ -17,7 +17,8 @@ import { useClaims } from "@/lib/claims-context";
 import { getLevel1Options, getLevel2Options, getExpenseConfig } from "@/lib/expense-type-config";
 import { VAT_TYPE_CONFIG, getDefaultVatType } from "@/lib/vat-type-config";
 import ExpenseLineItems from "@/components/claims/ExpenseLineItems";
-import OcrVerifyModal, { type OcrExtractedData } from "@/components/claims/OcrVerifyModal";
+import OcrVerifyModal, { type OcrExtractedData, type ValidationContext } from "@/components/claims/OcrVerifyModal";
+import { mockCompanyIdentities } from "@/components/admin/EntityTypes";
 import { useToast } from "@/hooks/use-toast";
 import { useState, useCallback, useRef } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
@@ -99,6 +100,8 @@ export default function ClaimDetail() {
   const canSubmit = step2Complete && step3Complete && step4Complete && !isAutoReject && !anyDocProcessingOrToVerify;
 
   // Mock OCR data generation
+  const activeEntity = mockCompanyIdentities.find((e) => e.status === "Active");
+
   const generateMockOcrData = (): OcrExtractedData => ({
     taxInvoiceNo: Math.random() > 0.2 ? `INV-${Date.now().toString().slice(-6)}` : "",
     date: Math.random() > 0.1 ? "28/02/2569" : "",
@@ -106,6 +109,8 @@ export default function ClaimDetail() {
     netAmount: Math.random() > 0.1 ? "1,401.87" : "",
     vatAmount: Math.random() > 0.1 ? "98.13" : "",
     totalAmount: Math.random() > 0.05 ? "1,500.00" : "",
+    buyerTaxId: Math.random() > 0.2 ? (activeEntity?.taxId || "0107567000414") : "9999999999999",
+    buyerAddress: Math.random() > 0.2 ? "บริษัท ซีพี แอ็กซ์ตร้า จำกัด (มหาชน) 123 Sukhumvit Road Bangkok" : "Unknown Company",
   });
 
   const simulateDocSlotUpload = useCallback((docId: string, file: File) => {
@@ -573,12 +578,23 @@ export default function ClaimDetail() {
           open={verifyModal.open}
           onClose={() => setVerifyModal(null)}
           onConfirm={(data) => handleVerifyConfirm(verifyModal.docId, data)}
+          onRemoveReupload={() => {
+            const docId = verifyModal.docId;
+            setDocUploads((prev) => { const n = { ...prev }; delete n[docId]; return n; });
+            setVerifyModal(null);
+          }}
           fileName={docUploads[verifyModal.docId].name}
           fileType={docUploads[verifyModal.docId].type}
           initialData={docUploads[verifyModal.docId].ocrData || {
             taxInvoiceNo: "", date: "", vendorName: "",
             netAmount: "", vatAmount: "", totalAmount: "",
           }}
+          validationContext={activeEntity ? {
+            companyTaxId: activeEntity.taxId,
+            companyAddress: activeEntity.address,
+            bankAmount: claim.totalAmount,
+            transactionDate: claim.createdDate,
+          } : undefined}
         />
       )}
     </div>
