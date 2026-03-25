@@ -111,12 +111,9 @@ export interface BuyerValidationResult {
 export function validateBuyerEntity(
   ocrData: OcrField[],
   entities: Array<{
-    taxIds: Array<{ taxId: string }>;
+    taxId: string;
     legalNameTh: string;
-    legalNameEn: string;
-    aliases: string[];
-    addressTh: { addressLine1: string };
-    addressAliases: string[];
+    address: string;
   }>
 ): BuyerValidationResult {
   const extractedTaxId = ocrData.find((f) => f.label === "Tax ID")?.value || "";
@@ -126,9 +123,7 @@ export function validateBuyerEntity(
   if (!extractedTaxId) return { isMatch: true }; // Can't validate without tax ID
 
   // Find matching entity by Tax ID
-  const matchedEntity = entities.find((e) =>
-    e.taxIds.some((t) => t.taxId === extractedTaxId)
-  );
+  const matchedEntity = entities.find((e) => e.taxId === extractedTaxId);
 
   if (!matchedEntity) {
     return {
@@ -144,12 +139,10 @@ export function validateBuyerEntity(
     };
   }
 
-  // Check name match (fuzzy - check if extracted name contains or is contained by any known name/alias)
-  const allNames = [matchedEntity.legalNameTh, matchedEntity.legalNameEn, ...matchedEntity.aliases];
-  const nameMatch = allNames.some((n) =>
-    n.toLowerCase().includes(extractedName.toLowerCase()) ||
-    extractedName.toLowerCase().includes(n.toLowerCase())
-  );
+  // Check name match (fuzzy)
+  const nameMatch =
+    matchedEntity.legalNameTh.toLowerCase().includes(extractedName.toLowerCase()) ||
+    extractedName.toLowerCase().includes(matchedEntity.legalNameTh.toLowerCase());
 
   if (!nameMatch && extractedName) {
     return {
@@ -158,9 +151,9 @@ export function validateBuyerEntity(
         extractedTaxId,
         extractedName,
         extractedAddress,
-        expectedTaxId: matchedEntity.taxIds[0]?.taxId,
+        expectedTaxId: matchedEntity.taxId,
         expectedName: matchedEntity.legalNameTh,
-        expectedAddress: matchedEntity.addressTh.addressLine1,
+        expectedAddress: matchedEntity.address,
       },
     };
   }
