@@ -15,6 +15,7 @@ import CreateClaim from "./pages/CreateClaim";
 import ClaimDetail from "./pages/ClaimDetail";
 import ApprovalInbox from "./pages/ApprovalInbox";
 import AccountingReview from "./pages/AccountingReview";
+import AccountingClaimDetail from "./pages/AccountingClaimDetail";
 import Reports from "./pages/Reports";
 
 import Admin from "./pages/Admin";
