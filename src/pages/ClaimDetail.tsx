@@ -408,6 +408,31 @@ export default function ClaimDetail() {
             </div>
           </div>
         </div>
+
+        {/* Read-only OCR Verify Modal for approver */}
+        <OcrVerifyModal
+          open={approverDocModal}
+          onClose={() => setApproverDocModal(false)}
+          readOnly
+          fileName="receipt_taxi.pdf"
+          fileType="PDF"
+          initialData={{
+            taxInvoiceNo: "IV-2026-00421",
+            date: "01/03/2569",
+            vendorName: "Grab Taxi",
+            netAmount: fmt(claim.totalAmount / 1.07),
+            vatAmount: fmt(claim.totalAmount - claim.totalAmount / 1.07),
+            totalAmount: fmt(claim.totalAmount),
+            buyerTaxId: "0107536000315",
+            buyerAddress: "CPAxtra Public Company Limited, Bangkok",
+          }}
+          validationContext={activeEntity ? {
+            companyTaxId: activeEntity.taxId,
+            companyAddress: activeEntity.address,
+            bankAmount: claim.totalAmount,
+            transactionDate: claim.createdDate,
+          } : undefined}
+        />
       </div>
     );
   }
