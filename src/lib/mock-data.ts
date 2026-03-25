@@ -164,8 +164,36 @@ export const mockClaims: ClaimHeader[] = [
     totalAmount: 3200, totalVat: 224, status: "Pending Invoice", createdDate: "2026-02-21", submittedDate: "2026-02-22",
     lines: [], approvalHistory: [{ stepNo: 1, approverId: "u1", approverName: "Somchai Jaidee", action: "Pending", comment: "", actionDate: null }], comments: [],
   },
+  // ─── Pending Approval claims (for Approval Inbox) ───
+  {
+    id: "pa1", claimNo: "TXN20260301001", requesterId: "u6", requesterName: "Somying Prasertsuk",
+    company: "CP Axtra Co., Ltd.", branch: "Bangkok", department: "Commercial — HoReCa", costCenter: "CC-COM-01",
+    purpose: "Airline — Domestic (Bangkok → Chiang Mai, Sales Visit)", merchantName: "THAI AIRWAYS", currency: "THB", paymentMethod: "Corporate Card",
+    totalAmount: 8500, totalVat: 0, status: "Pending Approval", createdDate: "2026-03-01", submittedDate: "2026-03-01",
+    lines: [], approvalHistory: [{ stepNo: 1, approverId: "u1", approverName: "Somchai Jaidee", action: "Pending", comment: "", actionDate: null }], comments: [],
+  },
+  {
+    id: "pa2", claimNo: "TXN20260301002", requesterId: "u7", requesterName: "Nattapon Wichai",
+    company: "CP Axtra Co., Ltd.", branch: "Bangkok", department: "Operations — Supply Chain", costCenter: "CC-OPS-01",
+    purpose: "Car Rental (3 days, site inspection Rayong)", merchantName: "BUDGET CAR RENTAL", currency: "THB", paymentMethod: "Corporate Card",
+    totalAmount: 12000, totalVat: 0, status: "Pending Approval", createdDate: "2026-03-02", submittedDate: "2026-03-02",
+    lines: [], approvalHistory: [{ stepNo: 1, approverId: "u1", approverName: "Somchai Jaidee", action: "Pending", comment: "", actionDate: null }], comments: [],
+  },
+  {
+    id: "pa3", claimNo: "TXN20260305001", requesterId: "u8", requesterName: "Kannika Thongsuk",
+    company: "CP Axtra Co., Ltd.", branch: "Bangkok", department: "Finance — Accounting", costCenter: "CC-FIN-01",
+    purpose: "Airline — Overseas (Bangkok → Singapore, Regional Meeting)", merchantName: "SINGAPORE AIRLINES", currency: "THB", paymentMethod: "Corporate Card",
+    totalAmount: 42500, totalVat: 0, status: "Pending Approval", createdDate: "2026-03-05", submittedDate: "2026-03-05",
+    lines: [], approvalHistory: [{ stepNo: 1, approverId: "u1", approverName: "Somchai Jaidee", action: "Pending", comment: "", actionDate: null }], comments: [],
+  },
+  {
+    id: "pa4", claimNo: "TXN20260310001", requesterId: "u6", requesterName: "Somying Prasertsuk",
+    company: "CP Axtra Co., Ltd.", branch: "Bangkok", department: "Commercial — HoReCa", costCenter: "CC-COM-01",
+    purpose: "Car Rental (2 days, customer event Pattaya)", merchantName: "AVIS RENT A CAR", currency: "THB", paymentMethod: "Corporate Card",
+    totalAmount: 9200, totalVat: 0, status: "Pending Approval", createdDate: "2026-03-10", submittedDate: "2026-03-10",
+    lines: [], approvalHistory: [{ stepNo: 1, approverId: "u1", approverName: "Somchai Jaidee", action: "Pending", comment: "", actionDate: null }], comments: [],
+  },
 ];
-
 export const mockBankTransactions: BankTransaction[] = [
   { id: "TXN-001", txnDate: "2025-02-01", amount: 15200, merchant: "Thai Airways", cardholderName: "Somchai Jaidee", reference: "REF-001", status: "Matched", linkedClaimId: "c1" },
   { id: "TXN-002", txnDate: "2025-02-03", amount: 850, merchant: "Starbucks Siam", cardholderName: "Somying Kaewsai", reference: "REF-002", status: "Unmatched", linkedClaimId: null },

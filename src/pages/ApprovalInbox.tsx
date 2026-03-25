@@ -29,26 +29,18 @@ const DOC_TYPE_COLORS: Record<string, string> = {
 };
 
 const mockAttachments: Record<string, AttachedDoc[]> = {
-  "TXN20250128001": [
-    { name: "receipt_taxi.pdf", size: "1.2 MB", docType: "Tax Invoice", url: "#" },
-    { name: "trip_approval.pdf", size: "340 KB", docType: "Travel Approval Form", url: "#" },
+  "TXN20260301001": [
+    { name: "flight_bkk_cnx.pdf", size: "1.4 MB", docType: "Tax Invoice", url: "#" },
   ],
-  "TXN20250128002": [
-    { name: "invoice_dinner.pdf", size: "2.1 MB", docType: "Tax Invoice", url: "#" },
-    { name: "attendee_list.xlsx", size: "85 KB", docType: "Attendee List", url: "#" },
-    { name: "dinner_photo.jpg", size: "3.4 MB", docType: "Other Documents", url: "#" },
+  "TXN20260301002": [
+    { name: "car_rental_invoice.pdf", size: "980 KB", docType: "Tax Invoice", url: "#" },
   ],
-  "TXN20250127001": [
-    { name: "boarding_pass.pdf", size: "520 KB", docType: "Other Documents", url: "#" },
-    { name: "flight_invoice.pdf", size: "1.8 MB", docType: "Tax Invoice", url: "#" },
-    { name: "travel_report.pdf", size: "2.5 MB", docType: "Travel Report", url: "#" },
+  "TXN20260305001": [
+    { name: "sia_eticket.pdf", size: "520 KB", docType: "Other Documents", url: "#" },
+    { name: "tax_invoice_sia.pdf", size: "1.8 MB", docType: "Tax Invoice", url: "#" },
   ],
-  "TXN20250127002": [
-    { name: "hotel_receipt.jpg", size: "4.2 MB", docType: "Receipt", url: "#" },
-    { name: "hotel_tax_invoice.pdf", size: "1.1 MB", docType: "Tax Invoice", url: "#" },
-  ],
-  "TXN20250126001": [
-    { name: "supplies_receipt.pdf", size: "890 KB", docType: "Tax Invoice", url: "#" },
+  "TXN20260310001": [
+    { name: "car_rental_pattaya.pdf", size: "1.1 MB", docType: "Tax Invoice", url: "#" },
   ],
 };
 
