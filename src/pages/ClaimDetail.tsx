@@ -609,10 +609,18 @@ function DocRow({
   label: string;
   uploaded?: UploadedFile;
   optional?: boolean;
-  onUpload: () => void;
+  onUpload: (file: File) => void;
   onVerify: () => void;
   onDelete: () => void;
 }) {
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) onUpload(file);
+    if (fileInputRef.current) fileInputRef.current.value = "";
+  };
+
   const statusBadge = () => {
     if (!uploaded) return null;
     switch (uploaded.ocrStatus) {
@@ -645,6 +653,13 @@ function DocRow({
 
   return (
     <div className={`flex items-center gap-3 p-3 rounded-lg border ${borderClass}`}>
+      <input
+        ref={fileInputRef}
+        type="file"
+        accept=".pdf"
+        className="hidden"
+        onChange={handleFileChange}
+      />
       <div className="shrink-0">
         {!uploaded && (optional ? <FileText className="h-5 w-5 text-muted-foreground" /> : <AlertTriangle className="h-5 w-5 text-amber-500" />)}
         {uploaded?.ocrStatus === "verified" && <CheckCircle2 className="h-5 w-5 text-emerald-600" />}
@@ -668,7 +683,7 @@ function DocRow({
           </Button>
         )}
         {!uploaded && (
-          <Button variant="outline" size="sm" className="text-xs gap-1" onClick={onUpload}>
+          <Button variant="outline" size="sm" className="text-xs gap-1" onClick={() => fileInputRef.current?.click()}>
             <Upload className="h-3 w-3" /> Upload
           </Button>
         )}
