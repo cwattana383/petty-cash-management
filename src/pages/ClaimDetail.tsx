@@ -113,14 +113,13 @@ export default function ClaimDetail() {
     totalAmount: Math.random() > 0.05 ? "1,500.00" : "",
   });
 
-  const simulateDocSlotUpload = useCallback((docId: string) => {
-    const simFile = SIMULATED_FILES[fileCounter.current % SIMULATED_FILES.length];
-    fileCounter.current += 1;
+  const simulateDocSlotUpload = useCallback((docId: string, file: File) => {
+    const fileSizeStr = file.size < 1024 ? `${file.size} B` : file.size < 1048576 ? `${(file.size / 1024).toFixed(1)} KB` : `${(file.size / 1048576).toFixed(1)} MB`;
     const newFile: UploadedFile = {
       id: `doc-${docId}-${Date.now()}`,
-      name: simFile.name,
-      type: simFile.type,
-      size: simFile.size,
+      name: file.name,
+      type: "PDF",
+      size: fileSizeStr,
       ocrStatus: "processing",
     };
     setDocUploads((prev) => ({ ...prev, [docId]: newFile }));
