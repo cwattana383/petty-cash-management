@@ -35,11 +35,8 @@ interface UploadedFile {
   ocrData?: OcrExtractedData;
 }
 
-const SIMULATED_FILES = [
-  { name: "INV-2025-0129.pdf", type: "PDF", size: "245 KB" },
-  { name: "receipt-grab.jpg", type: "JPG", size: "1.2 MB" },
-  { name: "taxi-receipt-scan.png", type: "PNG", size: "890 KB" },
-];
+
+
 
 const actionConfig: Record<string, { color: string; icon: React.ElementType }> = {
   Pending: { color: "border-yellow-400 bg-yellow-50", icon: Clock },
