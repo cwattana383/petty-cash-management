@@ -578,12 +578,23 @@ export default function ClaimDetail() {
           open={verifyModal.open}
           onClose={() => setVerifyModal(null)}
           onConfirm={(data) => handleVerifyConfirm(verifyModal.docId, data)}
+          onRemoveReupload={() => {
+            const docId = verifyModal.docId;
+            setDocUploads((prev) => { const n = { ...prev }; delete n[docId]; return n; });
+            setVerifyModal(null);
+          }}
           fileName={docUploads[verifyModal.docId].name}
           fileType={docUploads[verifyModal.docId].type}
           initialData={docUploads[verifyModal.docId].ocrData || {
             taxInvoiceNo: "", date: "", vendorName: "",
             netAmount: "", vatAmount: "", totalAmount: "",
           }}
+          validationContext={activeEntity ? {
+            companyTaxId: activeEntity.taxId,
+            companyAddress: activeEntity.address,
+            bankAmount: claim.totalAmount,
+            transactionDate: claim.createdDate,
+          } : undefined}
         />
       )}
     </div>
