@@ -355,7 +355,7 @@ export default function AccountingReview() {
                         ) : item.attachedFiles.length > 0 ? (
                           <span
                             className="inline-flex items-center gap-1.5 text-primary cursor-pointer hover:underline"
-                            onClick={() => openDrawer(item.id)}
+                            onClick={(e) => { e.stopPropagation(); openDrawer(item.id); }}
                           >
                             <Paperclip className="h-3.5 w-3.5" />
                             <Badge variant="secondary" className="text-xs px-1.5 py-0">
