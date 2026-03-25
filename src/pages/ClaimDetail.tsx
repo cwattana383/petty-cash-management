@@ -93,6 +93,7 @@ export default function ClaimDetail() {
   // Approver view state
   const [showRejectInput, setShowRejectInput] = useState(false);
   const [rejectReason, setRejectReason] = useState("");
+  const [approverDocModal, setApproverDocModal] = useState(false);
 
   // Validation
   const [errors, setErrors] = useState<Record<string, string>>({});
