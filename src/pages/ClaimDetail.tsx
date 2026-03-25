@@ -338,10 +338,10 @@ export default function ClaimDetail() {
 
                 {/* VAT Type */}
                 <div className="space-y-1.5">
-                  <Label className="text-[13px] font-semibold text-foreground">VAT Type</Label>
-                  <Select value={vatType} onValueChange={setVatType}>
+                  <Label className="text-[13px] font-semibold text-foreground">VAT Type <span className="text-destructive">*</span></Label>
+                  <Select value={vatType} onValueChange={(v) => { setVatType(v); setErrors((p) => ({ ...p, vatType: "" })); }}>
                     <SelectTrigger className="text-[13px]">
-                      <SelectValue placeholder="Auto-filled from sub expense type" />
+                      <SelectValue placeholder="Select VAT Type" />
                     </SelectTrigger>
                     <SelectContent>
                       {VAT_TYPE_CONFIG.map((vt) => (
@@ -351,6 +351,7 @@ export default function ClaimDetail() {
                       ))}
                     </SelectContent>
                   </Select>
+                  {errors.vatType && <p className="text-xs text-destructive">{errors.vatType}</p>}
                 </div>
 
                 {/* GL Account */}
