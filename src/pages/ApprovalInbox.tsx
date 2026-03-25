@@ -180,8 +180,8 @@ export default function ApprovalInbox() {
                 pendingClaims.map((a) => {
                   const docs = getAttachedDocs(a.claimNo);
                   return (
-                    <TableRow key={a.id} className={selectedIds.has(a.id) ? "bg-muted/50" : ""}>
-                      <TableCell>
+                    <TableRow key={a.id} className={`${selectedIds.has(a.id) ? "bg-muted/50" : ""} cursor-pointer hover:bg-muted/30`} onClick={() => navigate(`/claims/${a.id}?mode=approve`)}>
+                      <TableCell onClick={(e) => e.stopPropagation()}>
                         <Checkbox
                           checked={selectedIds.has(a.id)}
                           onCheckedChange={() => toggleSelect(a.id)}
