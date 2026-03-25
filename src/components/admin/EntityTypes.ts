@@ -13,6 +13,7 @@ export const createEmptyEntity = (nextCode: string): CompanyIdentity => ({
   id: crypto.randomUUID(),
   companyCode: nextCode,
   legalNameTh: "",
+  legalNameEn: "",
   taxId: "",
   address: "",
   status: "Active",
