@@ -75,6 +75,7 @@ export default function ClaimDetail() {
   // Step 4 documents
   const [docUploads, setDocUploads] = useState<Record<string, UploadedFile>>({});
   const fileCounter = useRef(0);
+  const [verifyModal, setVerifyModal] = useState<{ open: boolean; docId: string } | null>(null);
 
   // Validation
   const [errors, setErrors] = useState<Record<string, string>>({});
@@ -85,21 +86,32 @@ export default function ClaimDetail() {
   const isAutoReject = selectedConfig?.policyRule === "Auto Reject";
   const allRequiredDocs = selectedConfig?.requiredDocs || [];
   const allOptionalDocs = selectedConfig?.optionalDocs || [];
-  const allRequiredUploaded = allRequiredDocs.length === 0 || allRequiredDocs.every((d) => docUploads[d.id]);
-  const uploadedRequiredCount = allRequiredDocs.filter((d) => docUploads[d.id]).length;
+  const allRequiredVerified = allRequiredDocs.length === 0 || allRequiredDocs.every((d) => docUploads[d.id]?.ocrStatus === "verified");
+  const uploadedRequiredCount = allRequiredDocs.filter((d) => docUploads[d.id]?.ocrStatus === "verified").length;
   const docProgressPercent = allRequiredDocs.length > 0 ? (uploadedRequiredCount / allRequiredDocs.length) * 100 : 100;
+  const anyDocProcessingOrToVerify = Object.values(docUploads).some((f) => f.ocrStatus === "processing" || f.ocrStatus === "to_verify");
 
   // Step completion
   const step1Complete = true; // always complete (read-only)
   const step2Complete = !!purpose.trim() && !!expenseType && !!subExpenseType && !!glAccount;
   const step3Complete = lineItemsValid && selectedConfig != null && !isAutoReject;
-  const step4Complete = allRequiredUploaded && step2Complete;
+  const step4Complete = allRequiredVerified && step2Complete;
   
 
   // Missing required docs for tooltip
-  const missingDocs = allRequiredDocs.filter((d) => !docUploads[d.id]).map((d) => d.label);
+  const missingDocs = allRequiredDocs.filter((d) => !docUploads[d.id] || docUploads[d.id].ocrStatus !== "verified").map((d) => d.label);
 
-  const canSubmit = step2Complete && step3Complete && step4Complete && !isAutoReject;
+  const canSubmit = step2Complete && step3Complete && step4Complete && !isAutoReject && !anyDocProcessingOrToVerify;
+
+  // Mock OCR data generation
+  const generateMockOcrData = (): OcrExtractedData => ({
+    taxInvoiceNo: Math.random() > 0.2 ? `INV-${Date.now().toString().slice(-6)}` : "",
+    date: Math.random() > 0.1 ? "28/02/2569" : "",
+    vendorName: Math.random() > 0.15 ? "GRAB TAXI" : "",
+    netAmount: Math.random() > 0.1 ? "1,401.87" : "",
+    vatAmount: Math.random() > 0.1 ? "98.13" : "",
+    totalAmount: Math.random() > 0.05 ? "1,500.00" : "",
+  });
 
   const simulateDocSlotUpload = useCallback((docId: string) => {
     const simFile = SIMULATED_FILES[fileCounter.current % SIMULATED_FILES.length];
@@ -109,21 +121,28 @@ export default function ClaimDetail() {
       name: simFile.name,
       type: simFile.type,
       size: simFile.size,
-      progress: 0,
-      ocrStatus: "uploading",
+      ocrStatus: "processing",
     };
     setDocUploads((prev) => ({ ...prev, [docId]: newFile }));
 
-    let prog = 0;
-    const interval = setInterval(() => {
-      prog += 25;
-      if (prog >= 100) {
-        clearInterval(interval);
-        setDocUploads((prev) => prev[docId] ? ({ ...prev, [docId]: { ...prev[docId], progress: 100, ocrStatus: "passed" } }) : prev);
-      } else {
-        setDocUploads((prev) => prev[docId] ? ({ ...prev, [docId]: { ...prev[docId], progress: prog } }) : prev);
-      }
-    }, 300);
+    // Simulate OCR processing (2.5s)
+    setTimeout(() => {
+      const ocrData = generateMockOcrData();
+      setDocUploads((prev) =>
+        prev[docId]
+          ? { ...prev, [docId]: { ...prev[docId], ocrStatus: "to_verify", ocrData } }
+          : prev
+      );
+    }, 2500);
+  }, []);
+
+  const handleVerifyConfirm = useCallback((docId: string, data: OcrExtractedData) => {
+    setDocUploads((prev) =>
+      prev[docId]
+        ? { ...prev, [docId]: { ...prev[docId], ocrStatus: "verified", ocrData: data } }
+        : prev
+    );
+    setVerifyModal(null);
   }, []);
 
   if (!claim) {
