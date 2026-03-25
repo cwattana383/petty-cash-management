@@ -296,7 +296,6 @@ export default function ClaimDetail() {
                     setSubExpenseType("");
                     setGlAccount("");
                     setVatType("");
-                    setDocUploads({});
                     setErrors((p) => ({ ...p, expenseType: "" }));
                   }}>
                     <SelectTrigger className="text-[13px]"><SelectValue placeholder="Select expense type" /></SelectTrigger>
