@@ -129,7 +129,7 @@ function runValidations(data: OcrExtractedData, ctx: ValidationContext): Validat
   return results;
 }
 
-export default function OcrVerifyModal({ open, onClose, onConfirm, onRemoveReupload, fileName, fileType, initialData, validationContext }: OcrVerifyModalProps) {
+export default function OcrVerifyModal({ open, onClose, onConfirm, onRemoveReupload, fileName, fileType, initialData, validationContext, readOnly }: OcrVerifyModalProps) {
   const [data, setData] = useState<OcrExtractedData>(initialData);
   const [zoom, setZoom] = useState(100);
 
