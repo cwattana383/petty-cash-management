@@ -650,6 +650,12 @@ function DocRow({
             <CheckCircle2 className="h-3 w-3" /> Verified
           </Badge>
         );
+      case "wrong_doc_type":
+        return (
+          <Badge variant="outline" className="border-red-300 bg-red-50 text-red-600 text-[11px] gap-1">
+            <XCircle className="h-3 w-3" /> Wrong Document Type
+          </Badge>
+        );
     }
   };
 
@@ -657,45 +663,63 @@ function DocRow({
     ? optional ? "border-dashed border-border bg-background" : "border-border bg-background"
     : uploaded.ocrStatus === "verified"
       ? "border-emerald-200 bg-emerald-50/50"
-      : "border-border bg-background";
+      : uploaded.ocrStatus === "wrong_doc_type"
+        ? "border-red-200 bg-red-50/50"
+        : "border-border bg-background";
 
   return (
-    <div className={`flex items-center gap-3 p-3 rounded-lg border ${borderClass}`}>
-      <input
-        ref={fileInputRef}
-        type="file"
-        accept=".pdf"
-        className="hidden"
-        onChange={handleFileChange}
-      />
-      <div className="shrink-0">
-        {!uploaded && (optional ? <FileText className="h-5 w-5 text-muted-foreground" /> : <AlertTriangle className="h-5 w-5 text-amber-500" />)}
-        {uploaded?.ocrStatus === "verified" && <CheckCircle2 className="h-5 w-5 text-emerald-600" />}
-        {uploaded?.ocrStatus === "processing" && <Loader2 className="h-5 w-5 text-muted-foreground animate-spin" />}
-        {uploaded?.ocrStatus === "to_verify" && <AlertCircle className="h-5 w-5 text-orange-500" />}
+    <div className="space-y-0">
+      <div className={`flex items-center gap-3 p-3 rounded-lg border ${borderClass}`}>
+        <input
+          ref={fileInputRef}
+          type="file"
+          accept=".pdf"
+          className="hidden"
+          onChange={handleFileChange}
+        />
+        <div className="shrink-0">
+          {!uploaded && (optional ? <FileText className="h-5 w-5 text-muted-foreground" /> : <AlertTriangle className="h-5 w-5 text-amber-500" />)}
+          {uploaded?.ocrStatus === "verified" && <CheckCircle2 className="h-5 w-5 text-emerald-600" />}
+          {uploaded?.ocrStatus === "processing" && <Loader2 className="h-5 w-5 text-muted-foreground animate-spin" />}
+          {uploaded?.ocrStatus === "to_verify" && <AlertCircle className="h-5 w-5 text-orange-500" />}
+          {uploaded?.ocrStatus === "wrong_doc_type" && <XCircle className="h-5 w-5 text-red-500" />}
+        </div>
+        <div className="flex-1 min-w-0">
+          <p className={`text-[13px] font-medium ${optional && !uploaded ? "text-muted-foreground" : "text-foreground"}`}>{uploaded ? uploaded.name : label}</p>
+          {uploaded && uploaded.ocrStatus !== "wrong_doc_type" && <p className="text-xs text-muted-foreground mt-0.5">{uploaded.detectedDocType ? `${uploaded.detectedDocType}` : label} • {uploaded.size}</p>}
+          {uploaded?.ocrStatus === "wrong_doc_type" && <p className="text-xs text-red-500 mt-0.5">{uploaded.size}</p>}
+        </div>
+        <div className="flex items-center gap-2 shrink-0">
+          {statusBadge()}
+          {uploaded?.ocrStatus === "to_verify" && (
+            <Button variant="outline" size="sm" className="text-xs" onClick={onVerify}>
+              Verify
+            </Button>
+          )}
+          {uploaded?.ocrStatus === "wrong_doc_type" && (
+            <Button variant="outline" size="sm" className="text-xs text-red-600 border-red-300 hover:bg-red-50" onClick={onDelete}>
+              Remove & Re-upload
+            </Button>
+          )}
+          {uploaded && uploaded.ocrStatus !== "wrong_doc_type" && (
+            <Button variant="ghost" size="icon" className="h-7 w-7 text-muted-foreground hover:text-destructive" onClick={onDelete}>
+              <Trash2 className="h-3.5 w-3.5" />
+            </Button>
+          )}
+          {!uploaded && (
+            <Button variant="outline" size="sm" className="text-xs gap-1" onClick={() => fileInputRef.current?.click()}>
+              <Upload className="h-3 w-3" /> Upload
+            </Button>
+          )}
+        </div>
       </div>
-      <div className="flex-1 min-w-0">
-        <p className={`text-[13px] font-medium ${optional && !uploaded ? "text-muted-foreground" : "text-foreground"}`}>{uploaded ? uploaded.name : label}</p>
-        {uploaded && <p className="text-xs text-muted-foreground mt-0.5">{label} • {uploaded.size}</p>}
-      </div>
-      <div className="flex items-center gap-2 shrink-0">
-        {statusBadge()}
-        {uploaded?.ocrStatus === "to_verify" && (
-          <Button variant="outline" size="sm" className="text-xs" onClick={onVerify}>
-            Verify
-          </Button>
-        )}
-        {uploaded && (
-          <Button variant="ghost" size="icon" className="h-7 w-7 text-muted-foreground hover:text-destructive" onClick={onDelete}>
-            <Trash2 className="h-3.5 w-3.5" />
-          </Button>
-        )}
-        {!uploaded && (
-          <Button variant="outline" size="sm" className="text-xs gap-1" onClick={() => fileInputRef.current?.click()}>
-            <Upload className="h-3 w-3" /> Upload
-          </Button>
-        )}
-      </div>
+      {uploaded?.ocrStatus === "wrong_doc_type" && (
+        <div className="mt-2 rounded-lg border border-red-200 bg-red-50 px-4 py-3">
+          <p className="text-xs text-red-700">
+            This document type is not accepted. Please upload one of the following: Receipt, Tax Invoice, Receipt/Tax Invoice, or Abbreviated Receipt.
+          </p>
+        </div>
+      )}
     </div>
   );
 }
