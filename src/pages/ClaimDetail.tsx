@@ -375,36 +375,26 @@ export default function ClaimDetail() {
         {/* ══════════════════════════════════════════════
             STEP 4 — DOCUMENTS
            ══════════════════════════════════════════════ */}
-        {selectedConfig && !isAutoReject && (allRequiredDocs.length > 0 || allOptionalDocs.length > 0) && (
+        {selectedConfig && !isAutoReject && (
           <section>
             <SectionDivider num={3} label="Documents" />
             <Card className="border border-border rounded-xl">
               <CardContent className="pt-5 space-y-5">
-                {/* Required docs */}
-                {allRequiredDocs.length > 0 && (
-                  <div className="space-y-2">
-                    <p className="text-[13px] font-semibold text-red-700 flex items-center gap-1.5">
-                      <span className="h-2.5 w-2.5 rounded-full bg-red-500 inline-block" />
-                      Required — Attach file before Submit
-                    </p>
-                    <div className="space-y-2">
-                      {allRequiredDocs.map((doc) => {
-                        const uploaded = docUploads[doc.id];
-                        return (
-                          <DocRow
-                            key={doc.id}
-                            docId={doc.id}
-                            label={doc.label}
-                            uploaded={uploaded}
-                            onUpload={(file) => simulateDocSlotUpload(doc.id, file)}
-                            onVerify={() => setVerifyModal({ open: true, docId: doc.id })}
-                            onDelete={() => setDocUploads((prev) => { const n = { ...prev }; delete n[doc.id]; return n; })}
-                          />
-                        );
-                      })}
-                    </div>
-                  </div>
-                )}
+                {/* Required — single fixed slot */}
+                <div className="space-y-2">
+                  <p className="text-[13px] font-semibold text-red-700 flex items-center gap-1.5">
+                    <span className="h-2.5 w-2.5 rounded-full bg-red-500 inline-block" />
+                    Required — Attach file before Submit
+                  </p>
+                  <DocRow
+                    docId={REQUIRED_DOC_ID}
+                    label="Receipt / Tax Invoice *"
+                    uploaded={requiredDoc}
+                    onUpload={(file) => simulateDocSlotUpload(REQUIRED_DOC_ID, file)}
+                    onVerify={() => setVerifyModal({ open: true, docId: REQUIRED_DOC_ID })}
+                    onDelete={() => setDocUploads((prev) => { const n = { ...prev }; delete n[REQUIRED_DOC_ID]; return n; })}
+                  />
+                </div>
 
                 {/* Optional docs */}
                 {allOptionalDocs.length > 0 && (
@@ -433,24 +423,36 @@ export default function ClaimDetail() {
                   </div>
                 )}
 
-                {/* Progress summary */}
-                {allRequiredDocs.length > 0 && (
-                  <div className="space-y-2">
-                    <p className="text-[13px] text-muted-foreground">
-                      Verified {uploadedRequiredCount}/{allRequiredDocs.length} required documents.
-                    </p>
-                    <Progress value={docProgressPercent} className="h-2" />
-                  </div>
+                {/* Status message */}
+                {!requiredDoc && (
+                  <p className="text-[13px] text-amber-600 flex items-center gap-1.5">
+                    <AlertTriangle className="h-3.5 w-3.5 shrink-0" />
+                    Upload and verify your receipt or tax invoice to submit.
+                  </p>
                 )}
-
-                {/* Warning if docs need verification */}
-                {anyDocProcessingOrToVerify && (
-                  <div className="rounded-lg border border-amber-200 bg-amber-50 px-4 py-3">
-                    <p className="text-xs text-amber-700 flex items-start gap-1.5">
-                      <AlertTriangle className="h-3.5 w-3.5 shrink-0 mt-0.5" />
-                      Please verify all uploaded documents before submitting.
-                    </p>
-                  </div>
+                {requiredDoc?.ocrStatus === "processing" && (
+                  <p className="text-[13px] text-muted-foreground flex items-center gap-1.5">
+                    <Loader2 className="h-3.5 w-3.5 animate-spin shrink-0" />
+                    Processing document...
+                  </p>
+                )}
+                {requiredDoc?.ocrStatus === "to_verify" && (
+                  <p className="text-[13px] text-amber-600 flex items-center gap-1.5">
+                    <AlertTriangle className="h-3.5 w-3.5 shrink-0" />
+                    Upload and verify your receipt or tax invoice to submit.
+                  </p>
+                )}
+                {requiredDoc?.ocrStatus === "verified" && (
+                  <p className="text-[13px] text-emerald-600 flex items-center gap-1.5">
+                    <CheckCircle2 className="h-3.5 w-3.5 shrink-0" />
+                    Document verified.
+                  </p>
+                )}
+                {requiredDoc?.ocrStatus === "wrong_doc_type" && (
+                  <p className="text-[13px] text-amber-600 flex items-center gap-1.5">
+                    <AlertTriangle className="h-3.5 w-3.5 shrink-0" />
+                    Upload and verify your receipt or tax invoice to submit.
+                  </p>
                 )}
 
                 {/* Notes from config */}
