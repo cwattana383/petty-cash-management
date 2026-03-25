@@ -35,11 +35,8 @@ interface UploadedFile {
   ocrData?: OcrExtractedData;
 }
 
-const SIMULATED_FILES = [
-  { name: "INV-2025-0129.pdf", type: "PDF", size: "245 KB" },
-  { name: "receipt-grab.jpg", type: "JPG", size: "1.2 MB" },
-  { name: "taxi-receipt-scan.png", type: "PNG", size: "890 KB" },
-];
+
+
 
 const actionConfig: Record<string, { color: string; icon: React.ElementType }> = {
   Pending: { color: "border-yellow-400 bg-yellow-50", icon: Clock },
@@ -74,7 +71,7 @@ export default function ClaimDetail() {
 
   // Step 4 documents
   const [docUploads, setDocUploads] = useState<Record<string, UploadedFile>>({});
-  const fileCounter = useRef(0);
+  
   const [verifyModal, setVerifyModal] = useState<{ open: boolean; docId: string } | null>(null);
 
   // Validation
@@ -113,14 +110,13 @@ export default function ClaimDetail() {
     totalAmount: Math.random() > 0.05 ? "1,500.00" : "",
   });
 
-  const simulateDocSlotUpload = useCallback((docId: string) => {
-    const simFile = SIMULATED_FILES[fileCounter.current % SIMULATED_FILES.length];
-    fileCounter.current += 1;
+  const simulateDocSlotUpload = useCallback((docId: string, file: File) => {
+    const fileSizeStr = file.size < 1024 ? `${file.size} B` : file.size < 1048576 ? `${(file.size / 1024).toFixed(1)} KB` : `${(file.size / 1048576).toFixed(1)} MB`;
     const newFile: UploadedFile = {
       id: `doc-${docId}-${Date.now()}`,
-      name: simFile.name,
-      type: simFile.type,
-      size: simFile.size,
+      name: file.name,
+      type: "PDF",
+      size: fileSizeStr,
       ocrStatus: "processing",
     };
     setDocUploads((prev) => ({ ...prev, [docId]: newFile }));
@@ -390,7 +386,7 @@ export default function ClaimDetail() {
                             docId={doc.id}
                             label={doc.label}
                             uploaded={uploaded}
-                            onUpload={() => simulateDocSlotUpload(doc.id)}
+                            onUpload={(file) => simulateDocSlotUpload(doc.id, file)}
                             onVerify={() => setVerifyModal({ open: true, docId: doc.id })}
                             onDelete={() => setDocUploads((prev) => { const n = { ...prev }; delete n[doc.id]; return n; })}
                           />
@@ -417,7 +413,7 @@ export default function ClaimDetail() {
                             label={doc.label}
                             uploaded={uploaded}
                             optional
-                            onUpload={() => simulateDocSlotUpload(doc.id)}
+                            onUpload={(file) => simulateDocSlotUpload(doc.id, file)}
                             onVerify={() => setVerifyModal({ open: true, docId: doc.id })}
                             onDelete={() => setDocUploads((prev) => { const n = { ...prev }; delete n[doc.id]; return n; })}
                           />
@@ -609,10 +605,18 @@ function DocRow({
   label: string;
   uploaded?: UploadedFile;
   optional?: boolean;
-  onUpload: () => void;
+  onUpload: (file: File) => void;
   onVerify: () => void;
   onDelete: () => void;
 }) {
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) onUpload(file);
+    if (fileInputRef.current) fileInputRef.current.value = "";
+  };
+
   const statusBadge = () => {
     if (!uploaded) return null;
     switch (uploaded.ocrStatus) {
@@ -645,6 +649,13 @@ function DocRow({
 
   return (
     <div className={`flex items-center gap-3 p-3 rounded-lg border ${borderClass}`}>
+      <input
+        ref={fileInputRef}
+        type="file"
+        accept=".pdf"
+        className="hidden"
+        onChange={handleFileChange}
+      />
       <div className="shrink-0">
         {!uploaded && (optional ? <FileText className="h-5 w-5 text-muted-foreground" /> : <AlertTriangle className="h-5 w-5 text-amber-500" />)}
         {uploaded?.ocrStatus === "verified" && <CheckCircle2 className="h-5 w-5 text-emerald-600" />}
@@ -668,7 +679,7 @@ function DocRow({
           </Button>
         )}
         {!uploaded && (
-          <Button variant="outline" size="sm" className="text-xs gap-1" onClick={onUpload}>
+          <Button variant="outline" size="sm" className="text-xs gap-1" onClick={() => fileInputRef.current?.click()}>
             <Upload className="h-3 w-3" /> Upload
           </Button>
         )}
