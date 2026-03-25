@@ -10,26 +10,29 @@ import { Progress } from "@/components/ui/progress";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import {
   ArrowLeft, Check, X, MessageSquare, Clock, CheckCircle, XCircle,
-  AlertCircle, Send, AlertTriangle, Upload, FileText, Image,
-  Loader2, CheckCircle2, Info, Landmark, CreditCard
+  AlertCircle, Send, AlertTriangle, Upload, FileText,
+  Loader2, CheckCircle2, Info, CreditCard, Trash2
 } from "lucide-react";
 import { formatBEDate } from "@/lib/utils";
 import { useClaims } from "@/lib/claims-context";
 import { getLevel1Options, getLevel2Options, getExpenseConfig } from "@/lib/expense-type-config";
-import { VAT_TYPE_CONFIG, getVatTypeConfig, getDefaultVatType } from "@/lib/vat-type-config";
+import { VAT_TYPE_CONFIG, getDefaultVatType } from "@/lib/vat-type-config";
 import ExpenseLineItems from "@/components/claims/ExpenseLineItems";
+import OcrVerifyModal, { type OcrExtractedData } from "@/components/claims/OcrVerifyModal";
 import { useToast } from "@/hooks/use-toast";
-import { useState, useEffect, useCallback, useRef } from "react";
+import { useState, useCallback, useRef } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 
 /* ─── Types ─── */
+type DocOcrStatus = "processing" | "to_verify" | "verified";
+
 interface UploadedFile {
   id: string;
   name: string;
   type: string;
   size: string;
-  progress: number;
-  ocrStatus: "uploading" | "processing" | "passed" | "incomplete";
+  ocrStatus: DocOcrStatus;
+  ocrData?: OcrExtractedData;
 }
 
 const SIMULATED_FILES = [
@@ -72,6 +75,7 @@ export default function ClaimDetail() {
   // Step 4 documents
   const [docUploads, setDocUploads] = useState<Record<string, UploadedFile>>({});
   const fileCounter = useRef(0);
+  const [verifyModal, setVerifyModal] = useState<{ open: boolean; docId: string } | null>(null);
 
   // Validation
   const [errors, setErrors] = useState<Record<string, string>>({});
@@ -82,21 +86,32 @@ export default function ClaimDetail() {
   const isAutoReject = selectedConfig?.policyRule === "Auto Reject";
   const allRequiredDocs = selectedConfig?.requiredDocs || [];
   const allOptionalDocs = selectedConfig?.optionalDocs || [];
-  const allRequiredUploaded = allRequiredDocs.length === 0 || allRequiredDocs.every((d) => docUploads[d.id]);
-  const uploadedRequiredCount = allRequiredDocs.filter((d) => docUploads[d.id]).length;
+  const allRequiredVerified = allRequiredDocs.length === 0 || allRequiredDocs.every((d) => docUploads[d.id]?.ocrStatus === "verified");
+  const uploadedRequiredCount = allRequiredDocs.filter((d) => docUploads[d.id]?.ocrStatus === "verified").length;
   const docProgressPercent = allRequiredDocs.length > 0 ? (uploadedRequiredCount / allRequiredDocs.length) * 100 : 100;
+  const anyDocProcessingOrToVerify = Object.values(docUploads).some((f) => f.ocrStatus === "processing" || f.ocrStatus === "to_verify");
 
   // Step completion
   const step1Complete = true; // always complete (read-only)
   const step2Complete = !!purpose.trim() && !!expenseType && !!subExpenseType && !!glAccount;
   const step3Complete = lineItemsValid && selectedConfig != null && !isAutoReject;
-  const step4Complete = allRequiredUploaded && step2Complete;
+  const step4Complete = allRequiredVerified && step2Complete;
   
 
   // Missing required docs for tooltip
-  const missingDocs = allRequiredDocs.filter((d) => !docUploads[d.id]).map((d) => d.label);
+  const missingDocs = allRequiredDocs.filter((d) => !docUploads[d.id] || docUploads[d.id].ocrStatus !== "verified").map((d) => d.label);
 
-  const canSubmit = step2Complete && step3Complete && step4Complete && !isAutoReject;
+  const canSubmit = step2Complete && step3Complete && step4Complete && !isAutoReject && !anyDocProcessingOrToVerify;
+
+  // Mock OCR data generation
+  const generateMockOcrData = (): OcrExtractedData => ({
+    taxInvoiceNo: Math.random() > 0.2 ? `INV-${Date.now().toString().slice(-6)}` : "",
+    date: Math.random() > 0.1 ? "28/02/2569" : "",
+    vendorName: Math.random() > 0.15 ? "GRAB TAXI" : "",
+    netAmount: Math.random() > 0.1 ? "1,401.87" : "",
+    vatAmount: Math.random() > 0.1 ? "98.13" : "",
+    totalAmount: Math.random() > 0.05 ? "1,500.00" : "",
+  });
 
   const simulateDocSlotUpload = useCallback((docId: string) => {
     const simFile = SIMULATED_FILES[fileCounter.current % SIMULATED_FILES.length];
@@ -106,21 +121,28 @@ export default function ClaimDetail() {
       name: simFile.name,
       type: simFile.type,
       size: simFile.size,
-      progress: 0,
-      ocrStatus: "uploading",
+      ocrStatus: "processing",
     };
     setDocUploads((prev) => ({ ...prev, [docId]: newFile }));
 
-    let prog = 0;
-    const interval = setInterval(() => {
-      prog += 25;
-      if (prog >= 100) {
-        clearInterval(interval);
-        setDocUploads((prev) => prev[docId] ? ({ ...prev, [docId]: { ...prev[docId], progress: 100, ocrStatus: "passed" } }) : prev);
-      } else {
-        setDocUploads((prev) => prev[docId] ? ({ ...prev, [docId]: { ...prev[docId], progress: prog } }) : prev);
-      }
-    }, 300);
+    // Simulate OCR processing (2.5s)
+    setTimeout(() => {
+      const ocrData = generateMockOcrData();
+      setDocUploads((prev) =>
+        prev[docId]
+          ? { ...prev, [docId]: { ...prev[docId], ocrStatus: "to_verify", ocrData } }
+          : prev
+      );
+    }, 2500);
+  }, []);
+
+  const handleVerifyConfirm = useCallback((docId: string, data: OcrExtractedData) => {
+    setDocUploads((prev) =>
+      prev[docId]
+        ? { ...prev, [docId]: { ...prev[docId], ocrStatus: "verified", ocrData: data } }
+        : prev
+    );
+    setVerifyModal(null);
   }, []);
 
   if (!claim) {
@@ -146,7 +168,7 @@ export default function ClaimDetail() {
     if (!purpose.trim()) newErrors.purpose = "Purpose is required";
     if (!expenseType) newErrors.expenseType = "Expense Type is required";
     if (!subExpenseType) newErrors.subExpenseType = "Sub Expense Type is required";
-    if (!allRequiredUploaded) newErrors.documents = "All required documents must be uploaded.";
+    if (!allRequiredVerified) newErrors.documents = "All required documents must be uploaded and verified.";
 
     if (Object.keys(newErrors).length > 0) {
       setErrors(newErrors);
@@ -363,27 +385,15 @@ export default function ClaimDetail() {
                       {allRequiredDocs.map((doc) => {
                         const uploaded = docUploads[doc.id];
                         return (
-                          <div key={doc.id} className={`flex items-center gap-3 p-3 rounded-lg border ${uploaded ? "border-emerald-200 bg-emerald-50/50" : "border-border bg-background"}`}>
-                            <div className="shrink-0">
-                              {uploaded ? <CheckCircle2 className="h-5 w-5 text-emerald-600" /> : <AlertTriangle className="h-5 w-5 text-amber-500" />}
-                            </div>
-                            <div className="flex-1 min-w-0">
-                              <p className="text-[13px] font-medium text-foreground">{doc.label}</p>
-                              {uploaded && <p className="text-xs text-muted-foreground mt-0.5">{uploaded.name} • {uploaded.size}</p>}
-                            </div>
-                            {uploaded ? (
-                              <div className="flex gap-1 shrink-0">
-                                <Button variant="ghost" size="sm" className="text-xs">Preview</Button>
-                                <Button variant="ghost" size="sm" className="text-xs text-destructive" onClick={() => setDocUploads((prev) => { const n = { ...prev }; delete n[doc.id]; return n; })}>
-                                  Remove
-                                </Button>
-                              </div>
-                            ) : (
-                              <Button variant="outline" size="sm" className="text-xs gap-1 shrink-0" onClick={() => simulateDocSlotUpload(doc.id)}>
-                                <Upload className="h-3 w-3" /> Upload
-                              </Button>
-                            )}
-                          </div>
+                          <DocRow
+                            key={doc.id}
+                            docId={doc.id}
+                            label={doc.label}
+                            uploaded={uploaded}
+                            onUpload={() => simulateDocSlotUpload(doc.id)}
+                            onVerify={() => setVerifyModal({ open: true, docId: doc.id })}
+                            onDelete={() => setDocUploads((prev) => { const n = { ...prev }; delete n[doc.id]; return n; })}
+                          />
                         );
                       })}
                     </div>
@@ -401,27 +411,16 @@ export default function ClaimDetail() {
                       {allOptionalDocs.map((doc) => {
                         const uploaded = docUploads[doc.id];
                         return (
-                          <div key={doc.id} className={`flex items-center gap-3 p-3 rounded-lg border ${uploaded ? "border-emerald-200 bg-emerald-50/50" : "border-dashed border-border bg-background"}`}>
-                            <div className="shrink-0">
-                              {uploaded ? <CheckCircle2 className="h-5 w-5 text-emerald-600" /> : <FileText className="h-5 w-5 text-muted-foreground" />}
-                            </div>
-                            <div className="flex-1 min-w-0">
-                              <p className="text-[13px] text-muted-foreground">{doc.label}</p>
-                              {uploaded && <p className="text-xs text-muted-foreground mt-0.5">{uploaded.name} • {uploaded.size}</p>}
-                            </div>
-                            {uploaded ? (
-                              <div className="flex gap-1 shrink-0">
-                                <Button variant="ghost" size="sm" className="text-xs">Preview</Button>
-                                <Button variant="ghost" size="sm" className="text-xs text-destructive" onClick={() => setDocUploads((prev) => { const n = { ...prev }; delete n[doc.id]; return n; })}>
-                                  Remove
-                                </Button>
-                              </div>
-                            ) : (
-                              <Button variant="outline" size="sm" className="text-xs gap-1 shrink-0" onClick={() => simulateDocSlotUpload(doc.id)}>
-                                <Upload className="h-3 w-3" /> Upload
-                              </Button>
-                            )}
-                          </div>
+                          <DocRow
+                            key={doc.id}
+                            docId={doc.id}
+                            label={doc.label}
+                            uploaded={uploaded}
+                            optional
+                            onUpload={() => simulateDocSlotUpload(doc.id)}
+                            onVerify={() => setVerifyModal({ open: true, docId: doc.id })}
+                            onDelete={() => setDocUploads((prev) => { const n = { ...prev }; delete n[doc.id]; return n; })}
+                          />
                         );
                       })}
                     </div>
@@ -432,9 +431,19 @@ export default function ClaimDetail() {
                 {allRequiredDocs.length > 0 && (
                   <div className="space-y-2">
                     <p className="text-[13px] text-muted-foreground">
-                      Uploaded {uploadedRequiredCount}/{allRequiredDocs.length} required documents.
+                      Verified {uploadedRequiredCount}/{allRequiredDocs.length} required documents.
                     </p>
                     <Progress value={docProgressPercent} className="h-2" />
+                  </div>
+                )}
+
+                {/* Warning if docs need verification */}
+                {anyDocProcessingOrToVerify && (
+                  <div className="rounded-lg border border-amber-200 bg-amber-50 px-4 py-3">
+                    <p className="text-xs text-amber-700 flex items-start gap-1.5">
+                      <AlertTriangle className="h-3.5 w-3.5 shrink-0 mt-0.5" />
+                      Please verify all uploaded documents before submitting.
+                    </p>
                   </div>
                 )}
 
@@ -551,6 +560,21 @@ export default function ClaimDetail() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      {/* OCR Verify Modal */}
+      {verifyModal && verifyModal.open && docUploads[verifyModal.docId] && (
+        <OcrVerifyModal
+          open={verifyModal.open}
+          onClose={() => setVerifyModal(null)}
+          onConfirm={(data) => handleVerifyConfirm(verifyModal.docId, data)}
+          fileName={docUploads[verifyModal.docId].name}
+          fileType={docUploads[verifyModal.docId].type}
+          initialData={docUploads[verifyModal.docId].ocrData || {
+            taxInvoiceNo: "", date: "", vendorName: "",
+            netAmount: "", vatAmount: "", totalAmount: "",
+          }}
+        />
+      )}
     </div>
   );
 }
@@ -573,6 +597,82 @@ function Row({ label, value, className }: { label: string; value: string; classN
     <div className={className}>
       <p className="text-muted-foreground text-[12px]">{label}</p>
       <p className="font-medium">{value}</p>
+    </div>
+  );
+}
+
+/* ─── DocRow ─── */
+function DocRow({
+  docId, label, uploaded, optional, onUpload, onVerify, onDelete,
+}: {
+  docId: string;
+  label: string;
+  uploaded?: UploadedFile;
+  optional?: boolean;
+  onUpload: () => void;
+  onVerify: () => void;
+  onDelete: () => void;
+}) {
+  const statusBadge = () => {
+    if (!uploaded) return null;
+    switch (uploaded.ocrStatus) {
+      case "processing":
+        return (
+          <Badge variant="outline" className="border-gray-300 bg-gray-50 text-gray-600 text-[11px] gap-1">
+            <Loader2 className="h-3 w-3 animate-spin" /> Processing
+          </Badge>
+        );
+      case "to_verify":
+        return (
+          <Badge variant="outline" className="border-orange-300 bg-orange-50 text-orange-600 text-[11px]">
+            To Verify
+          </Badge>
+        );
+      case "verified":
+        return (
+          <Badge variant="outline" className="border-emerald-300 bg-emerald-50 text-emerald-600 text-[11px] gap-1">
+            <CheckCircle2 className="h-3 w-3" /> Verified
+          </Badge>
+        );
+    }
+  };
+
+  const borderClass = !uploaded
+    ? optional ? "border-dashed border-border bg-background" : "border-border bg-background"
+    : uploaded.ocrStatus === "verified"
+      ? "border-emerald-200 bg-emerald-50/50"
+      : "border-border bg-background";
+
+  return (
+    <div className={`flex items-center gap-3 p-3 rounded-lg border ${borderClass}`}>
+      <div className="shrink-0">
+        {!uploaded && (optional ? <FileText className="h-5 w-5 text-muted-foreground" /> : <AlertTriangle className="h-5 w-5 text-amber-500" />)}
+        {uploaded?.ocrStatus === "verified" && <CheckCircle2 className="h-5 w-5 text-emerald-600" />}
+        {uploaded?.ocrStatus === "processing" && <Loader2 className="h-5 w-5 text-muted-foreground animate-spin" />}
+        {uploaded?.ocrStatus === "to_verify" && <AlertCircle className="h-5 w-5 text-orange-500" />}
+      </div>
+      <div className="flex-1 min-w-0">
+        <p className={`text-[13px] font-medium ${optional && !uploaded ? "text-muted-foreground" : "text-foreground"}`}>{uploaded ? uploaded.name : label}</p>
+        {uploaded && <p className="text-xs text-muted-foreground mt-0.5">{label} • {uploaded.size}</p>}
+      </div>
+      <div className="flex items-center gap-2 shrink-0">
+        {statusBadge()}
+        {uploaded?.ocrStatus === "to_verify" && (
+          <Button variant="outline" size="sm" className="text-xs" onClick={onVerify}>
+            Verify
+          </Button>
+        )}
+        {uploaded && (
+          <Button variant="ghost" size="icon" className="h-7 w-7 text-muted-foreground hover:text-destructive" onClick={onDelete}>
+            <Trash2 className="h-3.5 w-3.5" />
+          </Button>
+        )}
+        {!uploaded && (
+          <Button variant="outline" size="sm" className="text-xs gap-1" onClick={onUpload}>
+            <Upload className="h-3 w-3" /> Upload
+          </Button>
+        )}
+      </div>
     </div>
   );
 }
