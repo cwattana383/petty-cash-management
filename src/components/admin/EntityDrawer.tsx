@@ -144,15 +144,6 @@ export default function EntityDrawer({ open, onOpenChange, entity, mode: initial
               </div>
             </div>
 
-            {/* Company Code (read-only) */}
-            <div className="space-y-1.5">
-              <Label className="text-xs text-muted-foreground">Company Code (auto-generated)</Label>
-              <Input
-                value={form.companyCode}
-                disabled
-                className="bg-muted text-muted-foreground"
-              />
-            </div>
           </div>
         </ScrollArea>
 
