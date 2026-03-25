@@ -71,7 +71,7 @@ export default function ClaimDetail() {
 
   // Step 4 documents
   const [docUploads, setDocUploads] = useState<Record<string, UploadedFile>>({});
-  const fileCounter = useRef(0);
+  
   const [verifyModal, setVerifyModal] = useState<{ open: boolean; docId: string } | null>(null);
 
   // Validation
