@@ -57,6 +57,7 @@ const App = () => (
                         <Route path="/policy-management" element={<PolicyManagement />} />
                         <Route path="/admin" element={<Admin />} />
                         <Route path="/admin/employee/create" element={<EmployeeProfileCreate />} />
+                        <Route path="/admin/export-config" element={<AdminExportConfig />} />
                         <Route path="/profile" element={<Profile />} />
                         <Route path="*" element={<NotFound />} />
                       </Routes>
