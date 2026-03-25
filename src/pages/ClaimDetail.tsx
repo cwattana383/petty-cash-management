@@ -323,9 +323,9 @@ export default function ClaimDetail() {
                       setSubExpenseType(v);
                       
                       const config = getExpenseConfig(expenseType, v);
-                      setGlAccount(config?.glCode || "");
+                      setGlAccount("");
                       setVatType("");
-                      setErrors((p) => ({ ...p, subExpenseType: "", vatType: "" }));
+                      setErrors((p) => ({ ...p, subExpenseType: "", vatType: "", glAccount: "" }));
                     }}
                     disabled={!expenseType}
                   >
