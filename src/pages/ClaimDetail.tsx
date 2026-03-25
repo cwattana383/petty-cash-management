@@ -93,6 +93,10 @@ export default function ClaimDetail() {
   
   const [verifyModal, setVerifyModal] = useState<{ open: boolean; docId: string } | null>(null);
 
+  // Approver view state
+  const [showRejectInput, setShowRejectInput] = useState(false);
+  const [rejectReason, setRejectReason] = useState("");
+
   // Validation
   const [errors, setErrors] = useState<Record<string, string>>({});
 
