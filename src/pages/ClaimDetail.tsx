@@ -10,16 +10,17 @@ import { Progress } from "@/components/ui/progress";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import {
   ArrowLeft, Check, X, MessageSquare, Clock, CheckCircle, XCircle,
-  AlertCircle, Send, AlertTriangle, Upload, FileText, Image,
-  Loader2, CheckCircle2, Info, Landmark, CreditCard
+  AlertCircle, Send, AlertTriangle, Upload, FileText,
+  Loader2, CheckCircle2, Info, CreditCard, Trash2
 } from "lucide-react";
 import { formatBEDate } from "@/lib/utils";
 import { useClaims } from "@/lib/claims-context";
 import { getLevel1Options, getLevel2Options, getExpenseConfig } from "@/lib/expense-type-config";
-import { VAT_TYPE_CONFIG, getVatTypeConfig, getDefaultVatType } from "@/lib/vat-type-config";
+import { VAT_TYPE_CONFIG, getDefaultVatType } from "@/lib/vat-type-config";
 import ExpenseLineItems from "@/components/claims/ExpenseLineItems";
+import OcrVerifyModal, { type OcrExtractedData } from "@/components/claims/OcrVerifyModal";
 import { useToast } from "@/hooks/use-toast";
-import { useState, useEffect, useCallback, useRef } from "react";
+import { useState, useCallback, useRef } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 
 /* ─── Types ─── */
