@@ -39,6 +39,19 @@ interface UploadedFile {
 const REQUIRED_DOC_ID = "receipt_tax_invoice";
 const ACCEPTED_DOC_TYPES = ["Receipt", "Tax Invoice", "Receipt / Tax Invoice", "Abbreviated Receipt"];
 
+const GL_ACCOUNT_OPTIONS = [
+  { code: "5300-001", name: "Travel - Air Ticket" },
+  { code: "5300-002", name: "Travel - Ground Transport" },
+  { code: "5300-004", name: "Travel - Fuel & EV Charging" },
+  { code: "5300-003", name: "Travel - Car Rental" },
+  { code: "5300-005", name: "Travel - Courier & Delivery" },
+  { code: "5400-001", name: "Meals & Per Diem" },
+  { code: "5400-002", name: "Meals - Beverages" },
+  { code: "5400-003", name: "Entertainment Expense" },
+  { code: "5200-001", name: "Hotel & Accommodation" },
+  { code: "5500-001", name: "Personal Expense" },
+];
+
 
 
 
