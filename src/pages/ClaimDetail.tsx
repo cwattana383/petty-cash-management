@@ -120,14 +120,25 @@ export default function ClaimDetail() {
     };
     setDocUploads((prev) => ({ ...prev, [docId]: newFile }));
 
-    // Simulate OCR processing (2.5s)
+    // Simulate OCR processing — classify document type then extract fields (2.5s)
     setTimeout(() => {
-      const ocrData = generateMockOcrData();
-      setDocUploads((prev) =>
-        prev[docId]
-          ? { ...prev, [docId]: { ...prev[docId], ocrStatus: "to_verify", ocrData } }
-          : prev
-      );
+      // 85% chance accepted doc type, 15% wrong type
+      const isAccepted = Math.random() > 0.15;
+      if (isAccepted) {
+        const detectedType = ACCEPTED_DOC_TYPES[Math.floor(Math.random() * ACCEPTED_DOC_TYPES.length)];
+        const ocrData = generateMockOcrData();
+        setDocUploads((prev) =>
+          prev[docId]
+            ? { ...prev, [docId]: { ...prev[docId], ocrStatus: "to_verify", ocrData, detectedDocType: detectedType } }
+            : prev
+        );
+      } else {
+        setDocUploads((prev) =>
+          prev[docId]
+            ? { ...prev, [docId]: { ...prev[docId], ocrStatus: "wrong_doc_type", detectedDocType: "Unknown" } }
+            : prev
+        );
+      }
     }, 2500);
   }, []);
 
