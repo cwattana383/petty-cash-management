@@ -2,6 +2,7 @@ export interface CompanyIdentity {
   id: string;
   companyCode: string;
   legalNameTh: string;
+  legalNameEn: string;
   taxId: string;
   address: string;
   status: "Active" | "Inactive";
@@ -12,6 +13,7 @@ export const createEmptyEntity = (nextCode: string): CompanyIdentity => ({
   id: crypto.randomUUID(),
   companyCode: nextCode,
   legalNameTh: "",
+  legalNameEn: "",
   taxId: "",
   address: "",
   status: "Active",
@@ -23,6 +25,7 @@ export const mockCompanyIdentities: CompanyIdentity[] = [
     id: "1",
     companyCode: "CORP-01",
     legalNameTh: "CP Axtra Public Company Limited",
+    legalNameEn: "CP Axtra Public Company Limited",
     taxId: "0107567000414",
     address: "123 Sukhumvit Road, Khlong Toei, Khlong Toei, Bangkok 10110",
     status: "Active",
