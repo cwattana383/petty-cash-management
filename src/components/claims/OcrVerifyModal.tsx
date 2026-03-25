@@ -33,12 +33,13 @@ interface ValidationResult {
 interface OcrVerifyModalProps {
   open: boolean;
   onClose: () => void;
-  onConfirm: (data: OcrExtractedData) => void;
+  onConfirm?: (data: OcrExtractedData) => void;
   onRemoveReupload?: () => void;
   fileName: string;
   fileType: string;
   initialData: OcrExtractedData;
   validationContext?: ValidationContext;
+  readOnly?: boolean;
 }
 
 const FIELDS: { key: keyof OcrExtractedData; label: string; placeholder: string }[] = [
@@ -128,7 +129,7 @@ function runValidations(data: OcrExtractedData, ctx: ValidationContext): Validat
   return results;
 }
 
-export default function OcrVerifyModal({ open, onClose, onConfirm, onRemoveReupload, fileName, fileType, initialData, validationContext }: OcrVerifyModalProps) {
+export default function OcrVerifyModal({ open, onClose, onConfirm, onRemoveReupload, fileName, fileType, initialData, validationContext, readOnly }: OcrVerifyModalProps) {
   const [data, setData] = useState<OcrExtractedData>(initialData);
   const [zoom, setZoom] = useState(100);
 
@@ -162,12 +163,18 @@ export default function OcrVerifyModal({ open, onClose, onConfirm, onRemoveReupl
                 return (
                   <div key={f.key} className="space-y-1.5">
                     <Label className="text-[13px] font-medium text-foreground">{f.label}</Label>
-                    <Input
-                      value={data[f.key]}
-                      onChange={(e) => handleChange(f.key, e.target.value)}
-                      placeholder={f.placeholder}
-                      className={`text-[13px] ${isEmpty ? "border-destructive" : ""}`}
-                    />
+                    {readOnly ? (
+                      <p className="text-[13px] text-foreground border border-border rounded-md px-3 py-2 bg-muted/30">
+                        {data[f.key] || "—"}
+                      </p>
+                    ) : (
+                      <Input
+                        value={data[f.key]}
+                        onChange={(e) => handleChange(f.key, e.target.value)}
+                        placeholder={f.placeholder}
+                        className={`text-[13px] ${isEmpty ? "border-destructive" : ""}`}
+                      />
+                    )}
                   </div>
                 );
               })}
@@ -240,7 +247,9 @@ export default function OcrVerifyModal({ open, onClose, onConfirm, onRemoveReupl
 
         {/* Footer */}
         <div className="px-6 py-3 border-t border-border flex justify-end gap-3">
-          {hasBlockingFailure && onRemoveReupload ? (
+          {readOnly ? (
+            <Button variant="outline" onClick={onClose}>Cancel</Button>
+          ) : hasBlockingFailure && onRemoveReupload ? (
             <>
               <Button variant="outline" onClick={onClose}>Cancel</Button>
               <Button variant="destructive" onClick={() => { onRemoveReupload(); onClose(); }}>
@@ -251,7 +260,7 @@ export default function OcrVerifyModal({ open, onClose, onConfirm, onRemoveReupl
             <>
               <Button variant="outline" onClick={onClose}>Cancel</Button>
               <Button
-                onClick={() => onConfirm(data)}
+                onClick={() => onConfirm?.(data)}
                 className="bg-emerald-600 hover:bg-emerald-700 text-white"
               >
                 Confirm
