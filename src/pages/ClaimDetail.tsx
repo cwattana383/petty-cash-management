@@ -174,7 +174,7 @@ export default function ClaimDetail() {
     if (!purpose.trim()) newErrors.purpose = "Purpose is required";
     if (!expenseType) newErrors.expenseType = "Expense Type is required";
     if (!subExpenseType) newErrors.subExpenseType = "Sub Expense Type is required";
-    if (!allRequiredVerified) newErrors.documents = "All required documents must be uploaded and verified.";
+    if (!requiredDocVerified) newErrors.documents = "Please upload and verify your receipt or tax invoice.";
 
     if (Object.keys(newErrors).length > 0) {
       setErrors(newErrors);
