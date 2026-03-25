@@ -92,7 +92,7 @@ export default function ClaimDetail() {
 
   // Step completion
   const step1Complete = true; // always complete (read-only)
-  const step2Complete = !!purpose.trim() && !!expenseType && !!subExpenseType && !!glAccount;
+  const step2Complete = !!purpose.trim() && !!expenseType && !!subExpenseType && !!glAccount && !!vatType;
   const step3Complete = lineItemsValid && selectedConfig != null && !isAutoReject;
   const step4Complete = requiredDocVerified && step2Complete;
   
