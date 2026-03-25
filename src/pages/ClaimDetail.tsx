@@ -315,7 +315,7 @@ export default function ClaimDetail() {
                     value={subExpenseType}
                     onValueChange={(v) => {
                       setSubExpenseType(v);
-                      setDocUploads({});
+                      
                       const config = getExpenseConfig(expenseType, v);
                       setGlAccount(config?.glCode || "");
                       setVatType(getDefaultVatType(v) || "no_vat");
