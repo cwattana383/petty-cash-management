@@ -23,13 +23,15 @@ import { useState, useEffect, useCallback, useRef } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 
 /* ─── Types ─── */
+type DocOcrStatus = "processing" | "to_verify" | "verified";
+
 interface UploadedFile {
   id: string;
   name: string;
   type: string;
   size: string;
-  progress: number;
-  ocrStatus: "uploading" | "processing" | "passed" | "incomplete";
+  ocrStatus: DocOcrStatus;
+  ocrData?: OcrExtractedData;
 }
 
 const SIMULATED_FILES = [
