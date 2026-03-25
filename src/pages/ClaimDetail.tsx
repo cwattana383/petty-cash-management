@@ -39,6 +39,19 @@ interface UploadedFile {
 const REQUIRED_DOC_ID = "receipt_tax_invoice";
 const ACCEPTED_DOC_TYPES = ["Receipt", "Tax Invoice", "Receipt / Tax Invoice", "Abbreviated Receipt"];
 
+const GL_ACCOUNT_OPTIONS = [
+  { code: "5300-001", name: "Travel - Air Ticket" },
+  { code: "5300-002", name: "Travel - Ground Transport" },
+  { code: "5300-004", name: "Travel - Fuel & EV Charging" },
+  { code: "5300-003", name: "Travel - Car Rental" },
+  { code: "5300-005", name: "Travel - Courier & Delivery" },
+  { code: "5400-001", name: "Meals & Per Diem" },
+  { code: "5400-002", name: "Meals - Beverages" },
+  { code: "5400-003", name: "Entertainment Expense" },
+  { code: "5200-001", name: "Hotel & Accommodation" },
+  { code: "5500-001", name: "Personal Expense" },
+];
+
 
 
 
@@ -179,6 +192,7 @@ export default function ClaimDetail() {
     if (!expenseType) newErrors.expenseType = "Expense Type is required";
     if (!subExpenseType) newErrors.subExpenseType = "Sub Expense Type is required";
     if (!vatType) newErrors.vatType = "Please select VAT Type";
+    if (!glAccount) newErrors.glAccount = "Please select GL Account";
     if (!requiredDocVerified) newErrors.documents = "Please upload and verify your receipt or tax invoice.";
 
     if (Object.keys(newErrors).length > 0) {
@@ -323,9 +337,9 @@ export default function ClaimDetail() {
                       setSubExpenseType(v);
                       
                       const config = getExpenseConfig(expenseType, v);
-                      setGlAccount(config?.glCode || "");
+                      setGlAccount("");
                       setVatType("");
-                      setErrors((p) => ({ ...p, subExpenseType: "", vatType: "" }));
+                      setErrors((p) => ({ ...p, subExpenseType: "", vatType: "", glAccount: "" }));
                     }}
                     disabled={!expenseType}
                   >
@@ -357,8 +371,20 @@ export default function ClaimDetail() {
 
                 {/* GL Account */}
                 <div className="space-y-1.5">
-                  <Label className="text-[13px] font-semibold text-foreground">GL Account (auto-suggested)</Label>
-                  <Input value={glAccount} readOnly className="bg-muted/40 border-border text-[13px]" placeholder="Auto-filled from sub expense type" />
+                  <Label className="text-[13px] font-semibold text-foreground">GL Account <span className="text-destructive">*</span></Label>
+                  <Select value={glAccount} onValueChange={(v) => { setGlAccount(v); setErrors((p) => ({ ...p, glAccount: "" })); }}>
+                    <SelectTrigger className="text-[13px]">
+                      <SelectValue placeholder="Select GL Account" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {GL_ACCOUNT_OPTIONS.map((gl) => (
+                        <SelectItem key={gl.code} value={gl.code} className="text-[13px]">
+                          {gl.code} — {gl.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  {errors.glAccount && <p className="text-xs text-destructive">{errors.glAccount}</p>}
                 </div>
               </div>
 
