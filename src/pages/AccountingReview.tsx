@@ -132,7 +132,13 @@ export default function AccountingReview() {
   const { toast } = useToast();
 
   const filtered = tabStatusMap[activeTab]
-    ? items.filter((item) => tabStatusMap[activeTab]!.includes(item.status))
+    ? items.filter((item) => {
+        const matchesStatus = tabStatusMap[activeTab]!.includes(item.status);
+        if (activeTab === "pending") {
+          return matchesStatus && item.attachedFiles.length > 0;
+        }
+        return matchesStatus;
+      })
     : items;
 
   const itemsWithFiles = filtered.filter((i) => i.attachedFiles.length > 0);
@@ -144,7 +150,7 @@ export default function AccountingReview() {
     const num = parseFloat(item.amount.replace(/[฿,]/g, ""));
     return sum + num;
   }, 0);
-  const pendingCount = items.filter((i) => ["Pending Invoice", "Auto Approved"].includes(i.status)).length;
+  const pendingCount = items.filter((i) => ["Pending Invoice", "Auto Approved"].includes(i.status) && i.attachedFiles.length > 0).length;
   const readyCount = items.filter((i) => i.status === "Ready for ERP").length;
   const exceptionCount = items.filter((i) => ["Auto Reject", "Reject", "Final Reject", "Exception"].includes(i.status)).length;
 
