@@ -24,7 +24,7 @@ import { useState, useCallback, useRef } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 
 /* ─── Types ─── */
-type DocOcrStatus = "processing" | "to_verify" | "verified";
+type DocOcrStatus = "processing" | "to_verify" | "verified" | "wrong_doc_type";
 
 interface UploadedFile {
   id: string;
@@ -33,7 +33,11 @@ interface UploadedFile {
   size: string;
   ocrStatus: DocOcrStatus;
   ocrData?: OcrExtractedData;
+  detectedDocType?: string;
 }
+
+const REQUIRED_DOC_ID = "receipt_tax_invoice";
+const ACCEPTED_DOC_TYPES = ["Receipt", "Tax Invoice", "Receipt / Tax Invoice", "Abbreviated Receipt"];
 
 
 
