@@ -130,6 +130,7 @@ export default function AccountingReview() {
   const [exceptionReason, setExceptionReason] = useState("");
   const [exceptionNote, setExceptionNote] = useState("");
   const [activeDocIndex, setActiveDocIndex] = useState(0);
+  const navigate = useNavigate();
   const { toast } = useToast();
 
   const filtered = tabStatusMap[activeTab]
