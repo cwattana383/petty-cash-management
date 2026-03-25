@@ -389,7 +389,7 @@ export default function ClaimDetail() {
                             docId={doc.id}
                             label={doc.label}
                             uploaded={uploaded}
-                            onUpload={() => simulateDocSlotUpload(doc.id)}
+                            onUpload={(file) => simulateDocSlotUpload(doc.id, file)}
                             onVerify={() => setVerifyModal({ open: true, docId: doc.id })}
                             onDelete={() => setDocUploads((prev) => { const n = { ...prev }; delete n[doc.id]; return n; })}
                           />
