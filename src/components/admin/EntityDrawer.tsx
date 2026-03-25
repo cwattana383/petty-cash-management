@@ -99,6 +99,18 @@ export default function EntityDrawer({ open, onOpenChange, entity, mode: initial
               {errors.legalNameTh && <p className="text-xs text-destructive">{errors.legalNameTh}</p>}
             </div>
 
+            {/* Legal Entity Name (EN) */}
+            <div className="space-y-1.5">
+              <Label className="text-xs">Legal Entity Name (EN) <span className="text-destructive">*</span></Label>
+              <Input
+                value={form.legalNameEn}
+                onChange={(e) => updateField("legalNameEn", e.target.value)}
+                disabled={isReadOnly}
+                className={errors.legalNameEn ? "border-destructive" : ""}
+              />
+              {errors.legalNameEn && <p className="text-xs text-destructive">{errors.legalNameEn}</p>}
+            </div>
+
             {/* Tax ID */}
             <div className="space-y-1.5">
               <Label className="text-xs">Tax ID (13 digits) <span className="text-destructive">*</span></Label>
