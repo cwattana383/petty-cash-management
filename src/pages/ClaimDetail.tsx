@@ -385,27 +385,15 @@ export default function ClaimDetail() {
                       {allRequiredDocs.map((doc) => {
                         const uploaded = docUploads[doc.id];
                         return (
-                          <div key={doc.id} className={`flex items-center gap-3 p-3 rounded-lg border ${uploaded ? "border-emerald-200 bg-emerald-50/50" : "border-border bg-background"}`}>
-                            <div className="shrink-0">
-                              {uploaded ? <CheckCircle2 className="h-5 w-5 text-emerald-600" /> : <AlertTriangle className="h-5 w-5 text-amber-500" />}
-                            </div>
-                            <div className="flex-1 min-w-0">
-                              <p className="text-[13px] font-medium text-foreground">{doc.label}</p>
-                              {uploaded && <p className="text-xs text-muted-foreground mt-0.5">{uploaded.name} • {uploaded.size}</p>}
-                            </div>
-                            {uploaded ? (
-                              <div className="flex gap-1 shrink-0">
-                                <Button variant="ghost" size="sm" className="text-xs">Preview</Button>
-                                <Button variant="ghost" size="sm" className="text-xs text-destructive" onClick={() => setDocUploads((prev) => { const n = { ...prev }; delete n[doc.id]; return n; })}>
-                                  Remove
-                                </Button>
-                              </div>
-                            ) : (
-                              <Button variant="outline" size="sm" className="text-xs gap-1 shrink-0" onClick={() => simulateDocSlotUpload(doc.id)}>
-                                <Upload className="h-3 w-3" /> Upload
-                              </Button>
-                            )}
-                          </div>
+                          <DocRow
+                            key={doc.id}
+                            docId={doc.id}
+                            label={doc.label}
+                            uploaded={uploaded}
+                            onUpload={() => simulateDocSlotUpload(doc.id)}
+                            onVerify={() => setVerifyModal({ open: true, docId: doc.id })}
+                            onDelete={() => setDocUploads((prev) => { const n = { ...prev }; delete n[doc.id]; return n; })}
+                          />
                         );
                       })}
                     </div>
@@ -423,27 +411,16 @@ export default function ClaimDetail() {
                       {allOptionalDocs.map((doc) => {
                         const uploaded = docUploads[doc.id];
                         return (
-                          <div key={doc.id} className={`flex items-center gap-3 p-3 rounded-lg border ${uploaded ? "border-emerald-200 bg-emerald-50/50" : "border-dashed border-border bg-background"}`}>
-                            <div className="shrink-0">
-                              {uploaded ? <CheckCircle2 className="h-5 w-5 text-emerald-600" /> : <FileText className="h-5 w-5 text-muted-foreground" />}
-                            </div>
-                            <div className="flex-1 min-w-0">
-                              <p className="text-[13px] text-muted-foreground">{doc.label}</p>
-                              {uploaded && <p className="text-xs text-muted-foreground mt-0.5">{uploaded.name} • {uploaded.size}</p>}
-                            </div>
-                            {uploaded ? (
-                              <div className="flex gap-1 shrink-0">
-                                <Button variant="ghost" size="sm" className="text-xs">Preview</Button>
-                                <Button variant="ghost" size="sm" className="text-xs text-destructive" onClick={() => setDocUploads((prev) => { const n = { ...prev }; delete n[doc.id]; return n; })}>
-                                  Remove
-                                </Button>
-                              </div>
-                            ) : (
-                              <Button variant="outline" size="sm" className="text-xs gap-1 shrink-0" onClick={() => simulateDocSlotUpload(doc.id)}>
-                                <Upload className="h-3 w-3" /> Upload
-                              </Button>
-                            )}
-                          </div>
+                          <DocRow
+                            key={doc.id}
+                            docId={doc.id}
+                            label={doc.label}
+                            uploaded={uploaded}
+                            optional
+                            onUpload={() => simulateDocSlotUpload(doc.id)}
+                            onVerify={() => setVerifyModal({ open: true, docId: doc.id })}
+                            onDelete={() => setDocUploads((prev) => { const n = { ...prev }; delete n[doc.id]; return n; })}
+                          />
                         );
                       })}
                     </div>
@@ -454,9 +431,19 @@ export default function ClaimDetail() {
                 {allRequiredDocs.length > 0 && (
                   <div className="space-y-2">
                     <p className="text-[13px] text-muted-foreground">
-                      Uploaded {uploadedRequiredCount}/{allRequiredDocs.length} required documents.
+                      Verified {uploadedRequiredCount}/{allRequiredDocs.length} required documents.
                     </p>
                     <Progress value={docProgressPercent} className="h-2" />
+                  </div>
+                )}
+
+                {/* Warning if docs need verification */}
+                {anyDocProcessingOrToVerify && (
+                  <div className="rounded-lg border border-amber-200 bg-amber-50 px-4 py-3">
+                    <p className="text-xs text-amber-700 flex items-start gap-1.5">
+                      <AlertTriangle className="h-3.5 w-3.5 shrink-0 mt-0.5" />
+                      Please verify all uploaded documents before submitting.
+                    </p>
                   </div>
                 )}
 
