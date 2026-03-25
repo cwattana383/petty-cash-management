@@ -333,7 +333,7 @@ export default function AccountingReview() {
                       className={cn(drawerItemId === item.id && "bg-accent", "cursor-pointer hover:bg-muted/50")}
                       onClick={() => navigate(`/accounting/${item.id}`)}
                     >
-                      <TableCell>
+                      <TableCell onClick={(e) => e.stopPropagation()}>
                         <Checkbox
                           checked={selectedIds.has(item.id)}
                           onCheckedChange={() => toggleSelect(item.id)}
