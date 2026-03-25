@@ -600,3 +600,79 @@ function Row({ label, value, className }: { label: string; value: string; classN
     </div>
   );
 }
+
+/* ─── DocRow ─── */
+function DocRow({
+  docId, label, uploaded, optional, onUpload, onVerify, onDelete,
+}: {
+  docId: string;
+  label: string;
+  uploaded?: UploadedFile;
+  optional?: boolean;
+  onUpload: () => void;
+  onVerify: () => void;
+  onDelete: () => void;
+}) {
+  const statusBadge = () => {
+    if (!uploaded) return null;
+    switch (uploaded.ocrStatus) {
+      case "processing":
+        return (
+          <Badge variant="outline" className="border-gray-300 bg-gray-50 text-gray-600 text-[11px] gap-1">
+            <Loader2 className="h-3 w-3 animate-spin" /> Processing
+          </Badge>
+        );
+      case "to_verify":
+        return (
+          <Badge variant="outline" className="border-orange-300 bg-orange-50 text-orange-600 text-[11px]">
+            To Verify
+          </Badge>
+        );
+      case "verified":
+        return (
+          <Badge variant="outline" className="border-emerald-300 bg-emerald-50 text-emerald-600 text-[11px] gap-1">
+            <CheckCircle2 className="h-3 w-3" /> Verified
+          </Badge>
+        );
+    }
+  };
+
+  const borderClass = !uploaded
+    ? optional ? "border-dashed border-border bg-background" : "border-border bg-background"
+    : uploaded.ocrStatus === "verified"
+      ? "border-emerald-200 bg-emerald-50/50"
+      : "border-border bg-background";
+
+  return (
+    <div className={`flex items-center gap-3 p-3 rounded-lg border ${borderClass}`}>
+      <div className="shrink-0">
+        {!uploaded && (optional ? <FileText className="h-5 w-5 text-muted-foreground" /> : <AlertTriangle className="h-5 w-5 text-amber-500" />)}
+        {uploaded?.ocrStatus === "verified" && <CheckCircle2 className="h-5 w-5 text-emerald-600" />}
+        {uploaded?.ocrStatus === "processing" && <Loader2 className="h-5 w-5 text-muted-foreground animate-spin" />}
+        {uploaded?.ocrStatus === "to_verify" && <AlertCircle className="h-5 w-5 text-orange-500" />}
+      </div>
+      <div className="flex-1 min-w-0">
+        <p className={`text-[13px] font-medium ${optional && !uploaded ? "text-muted-foreground" : "text-foreground"}`}>{uploaded ? uploaded.name : label}</p>
+        {uploaded && <p className="text-xs text-muted-foreground mt-0.5">{label} • {uploaded.size}</p>}
+      </div>
+      <div className="flex items-center gap-2 shrink-0">
+        {statusBadge()}
+        {uploaded?.ocrStatus === "to_verify" && (
+          <Button variant="outline" size="sm" className="text-xs" onClick={onVerify}>
+            Verify
+          </Button>
+        )}
+        {uploaded && (
+          <Button variant="ghost" size="icon" className="h-7 w-7 text-muted-foreground hover:text-destructive" onClick={onDelete}>
+            <Trash2 className="h-3.5 w-3.5" />
+          </Button>
+        )}
+        {!uploaded && (
+          <Button variant="outline" size="sm" className="text-xs gap-1" onClick={onUpload}>
+            <Upload className="h-3 w-3" /> Upload
+          </Button>
+        )}
+      </div>
+    </div>
+  );
+}
