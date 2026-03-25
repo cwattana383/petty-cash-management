@@ -357,8 +357,20 @@ export default function ClaimDetail() {
 
                 {/* GL Account */}
                 <div className="space-y-1.5">
-                  <Label className="text-[13px] font-semibold text-foreground">GL Account (auto-suggested)</Label>
-                  <Input value={glAccount} readOnly className="bg-muted/40 border-border text-[13px]" placeholder="Auto-filled from sub expense type" />
+                  <Label className="text-[13px] font-semibold text-foreground">GL Account <span className="text-destructive">*</span></Label>
+                  <Select value={glAccount} onValueChange={(v) => { setGlAccount(v); setErrors((p) => ({ ...p, glAccount: "" })); }}>
+                    <SelectTrigger className="text-[13px]">
+                      <SelectValue placeholder="Select GL Account" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {GL_ACCOUNT_OPTIONS.map((gl) => (
+                        <SelectItem key={gl.code} value={gl.code} className="text-[13px]">
+                          {gl.code} — {gl.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  {errors.glAccount && <p className="text-xs text-destructive">{errors.glAccount}</p>}
                 </div>
               </div>
 
