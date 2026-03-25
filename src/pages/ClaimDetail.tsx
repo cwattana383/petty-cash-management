@@ -332,8 +332,11 @@ export default function ClaimDetail() {
             <SectionDivider num={3} label="Documents" />
             <Card className="border border-border rounded-xl">
               <CardContent className="pt-5 space-y-4">
-                {/* Mock verified document */}
-                <div className="flex items-center gap-3 p-3 rounded-lg border border-emerald-200 bg-emerald-50/50">
+                {/* Clickable verified document row */}
+                <div
+                  className="flex items-center gap-3 p-3 rounded-lg border border-emerald-200 bg-emerald-50/50 cursor-pointer hover:bg-emerald-100/60 transition-colors"
+                  onClick={() => setApproverDocModal(true)}
+                >
                   <CheckCircle2 className="h-5 w-5 text-emerald-600 shrink-0" />
                   <div className="flex-1 min-w-0">
                     <p className="text-[13px] font-medium text-foreground">receipt_taxi.pdf</p>
