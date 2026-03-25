@@ -28,22 +28,4 @@ export const mockCompanyIdentities: CompanyIdentity[] = [
     status: "Active",
     lastUpdated: "2026-02-10",
   },
-  {
-    id: "2",
-    companyCode: "CORP-02",
-    legalNameTh: "ABC Trading Company Limited",
-    taxId: "0105564012345",
-    address: "456 Phahonyothin Road, Chatuchak, Chatuchak, Bangkok 10900",
-    status: "Active",
-    lastUpdated: "2026-01-15",
-  },
-  {
-    id: "3",
-    companyCode: "CORP-03",
-    legalNameTh: "ABC Logistics Company Limited",
-    taxId: "0105565098765",
-    address: "789 Bangna-Trad Road, Bangna, Bangna, Bangkok 10260",
-    status: "Active",
-    lastUpdated: "2026-02-05",
-  },
 ];
