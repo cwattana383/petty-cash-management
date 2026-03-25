@@ -247,7 +247,9 @@ export default function OcrVerifyModal({ open, onClose, onConfirm, onRemoveReupl
 
         {/* Footer */}
         <div className="px-6 py-3 border-t border-border flex justify-end gap-3">
-          {hasBlockingFailure && onRemoveReupload ? (
+          {readOnly ? (
+            <Button variant="outline" onClick={onClose}>Cancel</Button>
+          ) : hasBlockingFailure && onRemoveReupload ? (
             <>
               <Button variant="outline" onClick={onClose}>Cancel</Button>
               <Button variant="destructive" onClick={() => { onRemoveReupload(); onClose(); }}>
@@ -258,7 +260,7 @@ export default function OcrVerifyModal({ open, onClose, onConfirm, onRemoveReupl
             <>
               <Button variant="outline" onClick={onClose}>Cancel</Button>
               <Button
-                onClick={() => onConfirm(data)}
+                onClick={() => onConfirm?.(data)}
                 className="bg-emerald-600 hover:bg-emerald-700 text-white"
               >
                 Confirm
