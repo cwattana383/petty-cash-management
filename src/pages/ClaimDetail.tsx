@@ -92,7 +92,7 @@ export default function ClaimDetail() {
 
   // Step completion
   const step1Complete = true; // always complete (read-only)
-  const step2Complete = !!purpose.trim() && !!expenseType && !!subExpenseType && !!glAccount;
+  const step2Complete = !!purpose.trim() && !!expenseType && !!subExpenseType && !!glAccount && !!vatType;
   const step3Complete = lineItemsValid && selectedConfig != null && !isAutoReject;
   const step4Complete = requiredDocVerified && step2Complete;
   
@@ -178,6 +178,7 @@ export default function ClaimDetail() {
     if (!purpose.trim()) newErrors.purpose = "Purpose is required";
     if (!expenseType) newErrors.expenseType = "Expense Type is required";
     if (!subExpenseType) newErrors.subExpenseType = "Sub Expense Type is required";
+    if (!vatType) newErrors.vatType = "Please select VAT Type";
     if (!requiredDocVerified) newErrors.documents = "Please upload and verify your receipt or tax invoice.";
 
     if (Object.keys(newErrors).length > 0) {
@@ -323,8 +324,8 @@ export default function ClaimDetail() {
                       
                       const config = getExpenseConfig(expenseType, v);
                       setGlAccount(config?.glCode || "");
-                      setVatType(getDefaultVatType(v) || "no_vat");
-                      setErrors((p) => ({ ...p, subExpenseType: "" }));
+                      setVatType("");
+                      setErrors((p) => ({ ...p, subExpenseType: "", vatType: "" }));
                     }}
                     disabled={!expenseType}
                   >
@@ -338,10 +339,10 @@ export default function ClaimDetail() {
 
                 {/* VAT Type */}
                 <div className="space-y-1.5">
-                  <Label className="text-[13px] font-semibold text-foreground">VAT Type</Label>
-                  <Select value={vatType} onValueChange={setVatType}>
+                  <Label className="text-[13px] font-semibold text-foreground">VAT Type <span className="text-destructive">*</span></Label>
+                  <Select value={vatType} onValueChange={(v) => { setVatType(v); setErrors((p) => ({ ...p, vatType: "" })); }}>
                     <SelectTrigger className="text-[13px]">
-                      <SelectValue placeholder="Auto-filled from sub expense type" />
+                      <SelectValue placeholder="Select VAT Type" />
                     </SelectTrigger>
                     <SelectContent>
                       {VAT_TYPE_CONFIG.map((vt) => (
@@ -351,6 +352,7 @@ export default function ClaimDetail() {
                       ))}
                     </SelectContent>
                   </Select>
+                  {errors.vatType && <p className="text-xs text-destructive">{errors.vatType}</p>}
                 </div>
 
                 {/* GL Account */}
