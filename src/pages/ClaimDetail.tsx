@@ -100,6 +100,8 @@ export default function ClaimDetail() {
   const canSubmit = step2Complete && step3Complete && step4Complete && !isAutoReject && !anyDocProcessingOrToVerify;
 
   // Mock OCR data generation
+  const activeEntity = mockCompanyIdentities.find((e) => e.status === "Active");
+
   const generateMockOcrData = (): OcrExtractedData => ({
     taxInvoiceNo: Math.random() > 0.2 ? `INV-${Date.now().toString().slice(-6)}` : "",
     date: Math.random() > 0.1 ? "28/02/2569" : "",
@@ -107,6 +109,8 @@ export default function ClaimDetail() {
     netAmount: Math.random() > 0.1 ? "1,401.87" : "",
     vatAmount: Math.random() > 0.1 ? "98.13" : "",
     totalAmount: Math.random() > 0.05 ? "1,500.00" : "",
+    buyerTaxId: Math.random() > 0.2 ? (activeEntity?.taxId || "0107567000414") : "9999999999999",
+    buyerAddress: Math.random() > 0.2 ? "บริษัท ซีพี แอ็กซ์ตร้า จำกัด (มหาชน) 123 Sukhumvit Road Bangkok" : "Unknown Company",
   });
 
   const simulateDocSlotUpload = useCallback((docId: string, file: File) => {
