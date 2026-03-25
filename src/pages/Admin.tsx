@@ -194,8 +194,7 @@ function EntitiesPanel() {
       list = list.filter((e) =>
         e.companyCode.toLowerCase().includes(q) ||
         e.legalNameTh.toLowerCase().includes(q) ||
-        e.legalNameEn.toLowerCase().includes(q) ||
-        e.taxIds.some((t) => t.taxId.includes(q))
+        e.taxId.includes(q)
       );
     }
     if (statusFilter !== "all") list = list.filter((e) => e.status === statusFilter);
@@ -204,6 +203,15 @@ function EntitiesPanel() {
 
   const totalPages = Math.max(1, Math.ceil(filtered.length / pageSize));
   const pageData = filtered.slice((page - 1) * pageSize, page * pageSize);
+
+  const getNextCode = () => {
+    const nums = entities.map((e) => {
+      const m = e.companyCode.match(/CORP-(\d+)/);
+      return m ? parseInt(m[1], 10) : 0;
+    });
+    const next = Math.max(0, ...nums) + 1;
+    return `CORP-${String(next).padStart(2, "0")}`;
+  };
 
   const openDrawer = (entity: CompanyIdentity | null, mode: "view" | "edit" | "create") => {
     setSelectedEntity(entity);
@@ -227,14 +235,7 @@ function EntitiesPanel() {
     setEntities((prev) => prev.map((e) => e.id === id ? { ...e, status: e.status === "Active" ? "Inactive" as const : "Active" as const, lastUpdated: new Date().toISOString().split("T")[0] } : e));
   };
 
-  const existingCodes = entities.map((e) => e.companyCode.toUpperCase());
-  const existingTaxIds = entities.flatMap((e) => e.taxIds.map((t) => t.taxId));
-
-  const getPrimaryTaxId = (e: CompanyIdentity) => e.taxIds.find((t) => t.isPrimary)?.taxId || e.taxIds[0]?.taxId || "-";
-  const getPrimaryBranchType = (e: CompanyIdentity) => {
-    const primary = e.taxIds.find((t) => t.isPrimary) || e.taxIds[0];
-    return primary?.branchType || "-";
-  };
+  const existingTaxIds = entities.map((e) => e.taxId);
 
   return (
     <div className="space-y-4">
@@ -245,7 +246,6 @@ function EntitiesPanel() {
         </Button>
       </div>
 
-      {/* Search & Filter */}
       <div className="flex items-center gap-3">
         <div className="relative flex-1 max-w-sm">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
@@ -273,33 +273,25 @@ function EntitiesPanel() {
               <TableRow>
                 <TableHead>Company Code</TableHead>
                 <TableHead>Legal Entity Name (TH)</TableHead>
-                <TableHead>Primary Tax ID</TableHead>
-                <TableHead>Branch Type</TableHead>
-                <TableHead>Effective Start</TableHead>
-                <TableHead>Effective End</TableHead>
+                <TableHead>Tax ID</TableHead>
                 <TableHead>Status</TableHead>
-                <TableHead>Last Updated</TableHead>
                 <TableHead className="text-right">Action</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {pageData.length === 0 && (
-                <TableRow><TableCell colSpan={9} className="text-center text-muted-foreground py-8">No entities found</TableCell></TableRow>
+                <TableRow><TableCell colSpan={5} className="text-center text-muted-foreground py-8">No entities found</TableCell></TableRow>
               )}
               {pageData.map((e) => (
                 <TableRow key={e.id} className="cursor-pointer hover:bg-muted/50" onClick={() => openDrawer(e, "view")}>
                   <TableCell className="font-medium">{e.companyCode}</TableCell>
                   <TableCell>{e.legalNameTh}</TableCell>
-                  <TableCell><code className="text-xs bg-muted px-1.5 py-0.5 rounded">{getPrimaryTaxId(e)}</code></TableCell>
-                  <TableCell><Badge variant="outline">{getPrimaryBranchType(e)}</Badge></TableCell>
-                  <TableCell className="text-sm">{e.effectiveStartDate}</TableCell>
-                  <TableCell className="text-sm">{e.effectiveEndDate || "-"}</TableCell>
+                  <TableCell><code className="text-xs bg-muted px-1.5 py-0.5 rounded">{e.taxId}</code></TableCell>
                   <TableCell>
                     <Badge className={e.status === "Active" ? "bg-green-100 text-green-800" : "bg-gray-100 text-gray-600"}>
                       {e.status}
                     </Badge>
                   </TableCell>
-                  <TableCell className="text-sm">{e.lastUpdated}</TableCell>
                   <TableCell className="text-right">
                     <div className="flex items-center justify-end gap-1" onClick={(ev) => ev.stopPropagation()}>
                       <Button size="icon" variant="ghost" className="h-7 w-7" onClick={() => openDrawer(e, "view")} title="View">
@@ -320,7 +312,6 @@ function EntitiesPanel() {
         </CardContent>
       </Card>
 
-      {/* Pagination */}
       {totalPages > 1 && (
         <div className="flex items-center justify-between text-sm">
           <span className="text-muted-foreground">Showing {(page - 1) * pageSize + 1}–{Math.min(page * pageSize, filtered.length)} of {filtered.length}</span>
@@ -342,8 +333,8 @@ function EntitiesPanel() {
         entity={selectedEntity}
         mode={drawerMode}
         onSave={handleSave}
-        existingCodes={existingCodes}
         existingTaxIds={existingTaxIds}
+        nextCode={getNextCode()}
       />
     </div>
   );
