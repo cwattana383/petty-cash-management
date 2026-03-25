@@ -532,8 +532,8 @@ export default function ClaimDetail() {
             </TooltipTrigger>
             {!canSubmit && (
               <TooltipContent side="top" className="max-w-xs text-xs">
-                {missingDocs.length > 0
-                  ? `Please attach all required documents: ${missingDocs.join(", ")}`
+                {!requiredDocVerified
+                  ? "Please upload and verify your receipt or tax invoice."
                   : "Please complete all required fields in each step."}
               </TooltipContent>
             )}
