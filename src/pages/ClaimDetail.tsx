@@ -192,6 +192,7 @@ export default function ClaimDetail() {
     if (!expenseType) newErrors.expenseType = "Expense Type is required";
     if (!subExpenseType) newErrors.subExpenseType = "Sub Expense Type is required";
     if (!vatType) newErrors.vatType = "Please select VAT Type";
+    if (!glAccount) newErrors.glAccount = "Please select GL Account";
     if (!requiredDocVerified) newErrors.documents = "Please upload and verify your receipt or tax invoice.";
 
     if (Object.keys(newErrors).length > 0) {
