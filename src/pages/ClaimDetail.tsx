@@ -6,7 +6,6 @@ import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Progress } from "@/components/ui/progress";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import {
   ArrowLeft, Check, X, MessageSquare, Clock, CheckCircle, XCircle,
@@ -24,7 +23,7 @@ import { useState, useCallback, useRef } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 
 /* ─── Types ─── */
-type DocOcrStatus = "processing" | "to_verify" | "verified";
+type DocOcrStatus = "processing" | "to_verify" | "verified" | "wrong_doc_type";
 
 interface UploadedFile {
   id: string;
@@ -33,7 +32,11 @@ interface UploadedFile {
   size: string;
   ocrStatus: DocOcrStatus;
   ocrData?: OcrExtractedData;
+  detectedDocType?: string;
 }
+
+const REQUIRED_DOC_ID = "receipt_tax_invoice";
+const ACCEPTED_DOC_TYPES = ["Receipt", "Tax Invoice", "Receipt / Tax Invoice", "Abbreviated Receipt"];
 
 
 
@@ -81,22 +84,17 @@ export default function ClaimDetail() {
   // Derived config
   const selectedConfig = expenseType && subExpenseType ? getExpenseConfig(expenseType, subExpenseType) : null;
   const isAutoReject = selectedConfig?.policyRule === "Auto Reject";
-  const allRequiredDocs = selectedConfig?.requiredDocs || [];
   const allOptionalDocs = selectedConfig?.optionalDocs || [];
-  const allRequiredVerified = allRequiredDocs.length === 0 || allRequiredDocs.every((d) => docUploads[d.id]?.ocrStatus === "verified");
-  const uploadedRequiredCount = allRequiredDocs.filter((d) => docUploads[d.id]?.ocrStatus === "verified").length;
-  const docProgressPercent = allRequiredDocs.length > 0 ? (uploadedRequiredCount / allRequiredDocs.length) * 100 : 100;
-  const anyDocProcessingOrToVerify = Object.values(docUploads).some((f) => f.ocrStatus === "processing" || f.ocrStatus === "to_verify");
+  const requiredDoc = docUploads[REQUIRED_DOC_ID];
+  const requiredDocVerified = requiredDoc?.ocrStatus === "verified";
+  const anyDocProcessingOrToVerify = requiredDoc?.ocrStatus === "processing" || requiredDoc?.ocrStatus === "to_verify" || requiredDoc?.ocrStatus === "wrong_doc_type";
 
   // Step completion
   const step1Complete = true; // always complete (read-only)
   const step2Complete = !!purpose.trim() && !!expenseType && !!subExpenseType && !!glAccount;
   const step3Complete = lineItemsValid && selectedConfig != null && !isAutoReject;
-  const step4Complete = allRequiredVerified && step2Complete;
+  const step4Complete = requiredDocVerified && step2Complete;
   
-
-  // Missing required docs for tooltip
-  const missingDocs = allRequiredDocs.filter((d) => !docUploads[d.id] || docUploads[d.id].ocrStatus !== "verified").map((d) => d.label);
 
   const canSubmit = step2Complete && step3Complete && step4Complete && !isAutoReject && !anyDocProcessingOrToVerify;
 
@@ -121,14 +119,25 @@ export default function ClaimDetail() {
     };
     setDocUploads((prev) => ({ ...prev, [docId]: newFile }));
 
-    // Simulate OCR processing (2.5s)
+    // Simulate OCR processing — classify document type then extract fields (2.5s)
     setTimeout(() => {
-      const ocrData = generateMockOcrData();
-      setDocUploads((prev) =>
-        prev[docId]
-          ? { ...prev, [docId]: { ...prev[docId], ocrStatus: "to_verify", ocrData } }
-          : prev
-      );
+      // 85% chance accepted doc type, 15% wrong type
+      const isAccepted = Math.random() > 0.15;
+      if (isAccepted) {
+        const detectedType = ACCEPTED_DOC_TYPES[Math.floor(Math.random() * ACCEPTED_DOC_TYPES.length)];
+        const ocrData = generateMockOcrData();
+        setDocUploads((prev) =>
+          prev[docId]
+            ? { ...prev, [docId]: { ...prev[docId], ocrStatus: "to_verify", ocrData, detectedDocType: detectedType } }
+            : prev
+        );
+      } else {
+        setDocUploads((prev) =>
+          prev[docId]
+            ? { ...prev, [docId]: { ...prev[docId], ocrStatus: "wrong_doc_type", detectedDocType: "Unknown" } }
+            : prev
+        );
+      }
     }, 2500);
   }, []);
 
@@ -164,7 +173,7 @@ export default function ClaimDetail() {
     if (!purpose.trim()) newErrors.purpose = "Purpose is required";
     if (!expenseType) newErrors.expenseType = "Expense Type is required";
     if (!subExpenseType) newErrors.subExpenseType = "Sub Expense Type is required";
-    if (!allRequiredVerified) newErrors.documents = "All required documents must be uploaded and verified.";
+    if (!requiredDocVerified) newErrors.documents = "Please upload and verify your receipt or tax invoice.";
 
     if (Object.keys(newErrors).length > 0) {
       setErrors(newErrors);
@@ -287,7 +296,6 @@ export default function ClaimDetail() {
                     setSubExpenseType("");
                     setGlAccount("");
                     setVatType("");
-                    setDocUploads({});
                     setErrors((p) => ({ ...p, expenseType: "" }));
                   }}>
                     <SelectTrigger className="text-[13px]"><SelectValue placeholder="Select expense type" /></SelectTrigger>
@@ -307,7 +315,7 @@ export default function ClaimDetail() {
                     value={subExpenseType}
                     onValueChange={(v) => {
                       setSubExpenseType(v);
-                      setDocUploads({});
+                      
                       const config = getExpenseConfig(expenseType, v);
                       setGlAccount(config?.glCode || "");
                       setVatType(getDefaultVatType(v) || "no_vat");
@@ -365,36 +373,26 @@ export default function ClaimDetail() {
         {/* ══════════════════════════════════════════════
             STEP 4 — DOCUMENTS
            ══════════════════════════════════════════════ */}
-        {selectedConfig && !isAutoReject && (allRequiredDocs.length > 0 || allOptionalDocs.length > 0) && (
+        {selectedConfig && !isAutoReject && (
           <section>
             <SectionDivider num={3} label="Documents" />
             <Card className="border border-border rounded-xl">
               <CardContent className="pt-5 space-y-5">
-                {/* Required docs */}
-                {allRequiredDocs.length > 0 && (
-                  <div className="space-y-2">
-                    <p className="text-[13px] font-semibold text-red-700 flex items-center gap-1.5">
-                      <span className="h-2.5 w-2.5 rounded-full bg-red-500 inline-block" />
-                      Required — Attach file before Submit
-                    </p>
-                    <div className="space-y-2">
-                      {allRequiredDocs.map((doc) => {
-                        const uploaded = docUploads[doc.id];
-                        return (
-                          <DocRow
-                            key={doc.id}
-                            docId={doc.id}
-                            label={doc.label}
-                            uploaded={uploaded}
-                            onUpload={(file) => simulateDocSlotUpload(doc.id, file)}
-                            onVerify={() => setVerifyModal({ open: true, docId: doc.id })}
-                            onDelete={() => setDocUploads((prev) => { const n = { ...prev }; delete n[doc.id]; return n; })}
-                          />
-                        );
-                      })}
-                    </div>
-                  </div>
-                )}
+                {/* Required — single fixed slot */}
+                <div className="space-y-2">
+                  <p className="text-[13px] font-semibold text-red-700 flex items-center gap-1.5">
+                    <span className="h-2.5 w-2.5 rounded-full bg-red-500 inline-block" />
+                    Required — Attach file before Submit
+                  </p>
+                  <DocRow
+                    docId={REQUIRED_DOC_ID}
+                    label="Receipt / Tax Invoice *"
+                    uploaded={requiredDoc}
+                    onUpload={(file) => simulateDocSlotUpload(REQUIRED_DOC_ID, file)}
+                    onVerify={() => setVerifyModal({ open: true, docId: REQUIRED_DOC_ID })}
+                    onDelete={() => setDocUploads((prev) => { const n = { ...prev }; delete n[REQUIRED_DOC_ID]; return n; })}
+                  />
+                </div>
 
                 {/* Optional docs */}
                 {allOptionalDocs.length > 0 && (
@@ -423,24 +421,36 @@ export default function ClaimDetail() {
                   </div>
                 )}
 
-                {/* Progress summary */}
-                {allRequiredDocs.length > 0 && (
-                  <div className="space-y-2">
-                    <p className="text-[13px] text-muted-foreground">
-                      Verified {uploadedRequiredCount}/{allRequiredDocs.length} required documents.
-                    </p>
-                    <Progress value={docProgressPercent} className="h-2" />
-                  </div>
+                {/* Status message */}
+                {!requiredDoc && (
+                  <p className="text-[13px] text-amber-600 flex items-center gap-1.5">
+                    <AlertTriangle className="h-3.5 w-3.5 shrink-0" />
+                    Upload and verify your receipt or tax invoice to submit.
+                  </p>
                 )}
-
-                {/* Warning if docs need verification */}
-                {anyDocProcessingOrToVerify && (
-                  <div className="rounded-lg border border-amber-200 bg-amber-50 px-4 py-3">
-                    <p className="text-xs text-amber-700 flex items-start gap-1.5">
-                      <AlertTriangle className="h-3.5 w-3.5 shrink-0 mt-0.5" />
-                      Please verify all uploaded documents before submitting.
-                    </p>
-                  </div>
+                {requiredDoc?.ocrStatus === "processing" && (
+                  <p className="text-[13px] text-muted-foreground flex items-center gap-1.5">
+                    <Loader2 className="h-3.5 w-3.5 animate-spin shrink-0" />
+                    Processing document...
+                  </p>
+                )}
+                {requiredDoc?.ocrStatus === "to_verify" && (
+                  <p className="text-[13px] text-amber-600 flex items-center gap-1.5">
+                    <AlertTriangle className="h-3.5 w-3.5 shrink-0" />
+                    Upload and verify your receipt or tax invoice to submit.
+                  </p>
+                )}
+                {requiredDoc?.ocrStatus === "verified" && (
+                  <p className="text-[13px] text-emerald-600 flex items-center gap-1.5">
+                    <CheckCircle2 className="h-3.5 w-3.5 shrink-0" />
+                    Document verified.
+                  </p>
+                )}
+                {requiredDoc?.ocrStatus === "wrong_doc_type" && (
+                  <p className="text-[13px] text-amber-600 flex items-center gap-1.5">
+                    <AlertTriangle className="h-3.5 w-3.5 shrink-0" />
+                    Upload and verify your receipt or tax invoice to submit.
+                  </p>
                 )}
 
                 {/* Notes from config */}
@@ -522,8 +532,8 @@ export default function ClaimDetail() {
             </TooltipTrigger>
             {!canSubmit && (
               <TooltipContent side="top" className="max-w-xs text-xs">
-                {missingDocs.length > 0
-                  ? `Please attach all required documents: ${missingDocs.join(", ")}`
+                {!requiredDocVerified
+                  ? "Please upload and verify your receipt or tax invoice."
                   : "Please complete all required fields in each step."}
               </TooltipContent>
             )}
@@ -638,6 +648,12 @@ function DocRow({
             <CheckCircle2 className="h-3 w-3" /> Verified
           </Badge>
         );
+      case "wrong_doc_type":
+        return (
+          <Badge variant="outline" className="border-red-300 bg-red-50 text-red-600 text-[11px] gap-1">
+            <XCircle className="h-3 w-3" /> Wrong Document Type
+          </Badge>
+        );
     }
   };
 
@@ -645,45 +661,63 @@ function DocRow({
     ? optional ? "border-dashed border-border bg-background" : "border-border bg-background"
     : uploaded.ocrStatus === "verified"
       ? "border-emerald-200 bg-emerald-50/50"
-      : "border-border bg-background";
+      : uploaded.ocrStatus === "wrong_doc_type"
+        ? "border-red-200 bg-red-50/50"
+        : "border-border bg-background";
 
   return (
-    <div className={`flex items-center gap-3 p-3 rounded-lg border ${borderClass}`}>
-      <input
-        ref={fileInputRef}
-        type="file"
-        accept=".pdf"
-        className="hidden"
-        onChange={handleFileChange}
-      />
-      <div className="shrink-0">
-        {!uploaded && (optional ? <FileText className="h-5 w-5 text-muted-foreground" /> : <AlertTriangle className="h-5 w-5 text-amber-500" />)}
-        {uploaded?.ocrStatus === "verified" && <CheckCircle2 className="h-5 w-5 text-emerald-600" />}
-        {uploaded?.ocrStatus === "processing" && <Loader2 className="h-5 w-5 text-muted-foreground animate-spin" />}
-        {uploaded?.ocrStatus === "to_verify" && <AlertCircle className="h-5 w-5 text-orange-500" />}
+    <div className="space-y-0">
+      <div className={`flex items-center gap-3 p-3 rounded-lg border ${borderClass}`}>
+        <input
+          ref={fileInputRef}
+          type="file"
+          accept=".pdf"
+          className="hidden"
+          onChange={handleFileChange}
+        />
+        <div className="shrink-0">
+          {!uploaded && (optional ? <FileText className="h-5 w-5 text-muted-foreground" /> : <AlertTriangle className="h-5 w-5 text-amber-500" />)}
+          {uploaded?.ocrStatus === "verified" && <CheckCircle2 className="h-5 w-5 text-emerald-600" />}
+          {uploaded?.ocrStatus === "processing" && <Loader2 className="h-5 w-5 text-muted-foreground animate-spin" />}
+          {uploaded?.ocrStatus === "to_verify" && <AlertCircle className="h-5 w-5 text-orange-500" />}
+          {uploaded?.ocrStatus === "wrong_doc_type" && <XCircle className="h-5 w-5 text-red-500" />}
+        </div>
+        <div className="flex-1 min-w-0">
+          <p className={`text-[13px] font-medium ${optional && !uploaded ? "text-muted-foreground" : "text-foreground"}`}>{uploaded ? uploaded.name : label}</p>
+          {uploaded && uploaded.ocrStatus !== "wrong_doc_type" && <p className="text-xs text-muted-foreground mt-0.5">{uploaded.detectedDocType ? `${uploaded.detectedDocType}` : label} • {uploaded.size}</p>}
+          {uploaded?.ocrStatus === "wrong_doc_type" && <p className="text-xs text-red-500 mt-0.5">{uploaded.size}</p>}
+        </div>
+        <div className="flex items-center gap-2 shrink-0">
+          {statusBadge()}
+          {uploaded?.ocrStatus === "to_verify" && (
+            <Button variant="outline" size="sm" className="text-xs" onClick={onVerify}>
+              Verify
+            </Button>
+          )}
+          {uploaded?.ocrStatus === "wrong_doc_type" && (
+            <Button variant="outline" size="sm" className="text-xs text-red-600 border-red-300 hover:bg-red-50" onClick={onDelete}>
+              Remove & Re-upload
+            </Button>
+          )}
+          {uploaded && uploaded.ocrStatus !== "wrong_doc_type" && (
+            <Button variant="ghost" size="icon" className="h-7 w-7 text-muted-foreground hover:text-destructive" onClick={onDelete}>
+              <Trash2 className="h-3.5 w-3.5" />
+            </Button>
+          )}
+          {!uploaded && (
+            <Button variant="outline" size="sm" className="text-xs gap-1" onClick={() => fileInputRef.current?.click()}>
+              <Upload className="h-3 w-3" /> Upload
+            </Button>
+          )}
+        </div>
       </div>
-      <div className="flex-1 min-w-0">
-        <p className={`text-[13px] font-medium ${optional && !uploaded ? "text-muted-foreground" : "text-foreground"}`}>{uploaded ? uploaded.name : label}</p>
-        {uploaded && <p className="text-xs text-muted-foreground mt-0.5">{label} • {uploaded.size}</p>}
-      </div>
-      <div className="flex items-center gap-2 shrink-0">
-        {statusBadge()}
-        {uploaded?.ocrStatus === "to_verify" && (
-          <Button variant="outline" size="sm" className="text-xs" onClick={onVerify}>
-            Verify
-          </Button>
-        )}
-        {uploaded && (
-          <Button variant="ghost" size="icon" className="h-7 w-7 text-muted-foreground hover:text-destructive" onClick={onDelete}>
-            <Trash2 className="h-3.5 w-3.5" />
-          </Button>
-        )}
-        {!uploaded && (
-          <Button variant="outline" size="sm" className="text-xs gap-1" onClick={() => fileInputRef.current?.click()}>
-            <Upload className="h-3 w-3" /> Upload
-          </Button>
-        )}
-      </div>
+      {uploaded?.ocrStatus === "wrong_doc_type" && (
+        <div className="mt-2 rounded-lg border border-red-200 bg-red-50 px-4 py-3">
+          <p className="text-xs text-red-700">
+            This document type is not accepted. Please upload one of the following: Receipt, Tax Invoice, Receipt/Tax Invoice, or Abbreviated Receipt.
+          </p>
+        </div>
+      )}
     </div>
   );
 }
