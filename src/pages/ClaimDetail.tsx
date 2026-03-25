@@ -67,6 +67,8 @@ const actionConfig: Record<string, { color: string; icon: React.ElementType }> =
 export default function ClaimDetail() {
   const { id } = useParams();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const isApproverView = searchParams.get("mode") === "approve";
   const { getClaimById, updateClaim } = useClaims();
   const { toast } = useToast();
   const claim = getClaimById(id || "");
