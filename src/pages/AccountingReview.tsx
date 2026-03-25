@@ -132,7 +132,13 @@ export default function AccountingReview() {
   const { toast } = useToast();
 
   const filtered = tabStatusMap[activeTab]
-    ? items.filter((item) => tabStatusMap[activeTab]!.includes(item.status))
+    ? items.filter((item) => {
+        const matchesStatus = tabStatusMap[activeTab]!.includes(item.status);
+        if (activeTab === "pending") {
+          return matchesStatus && item.attachedFiles.length > 0;
+        }
+        return matchesStatus;
+      })
     : items;
 
   const itemsWithFiles = filtered.filter((i) => i.attachedFiles.length > 0);
