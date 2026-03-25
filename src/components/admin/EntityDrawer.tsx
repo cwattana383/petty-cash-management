@@ -41,6 +41,7 @@ export default function EntityDrawer({ open, onOpenChange, entity, mode: initial
   const validate = (): boolean => {
     const errs: Record<string, string> = {};
     if (!form.legalNameTh.trim()) errs.legalNameTh = "Legal Entity Name (TH) is required";
+    if (!form.legalNameEn.trim()) errs.legalNameEn = "Legal Entity Name (EN) is required";
     if (!form.taxId) errs.taxId = "Tax ID is required";
     else if (!/^\d{13}$/.test(form.taxId)) errs.taxId = "Tax ID must be exactly 13 digits";
     else {
