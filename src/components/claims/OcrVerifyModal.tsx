@@ -163,12 +163,18 @@ export default function OcrVerifyModal({ open, onClose, onConfirm, onRemoveReupl
                 return (
                   <div key={f.key} className="space-y-1.5">
                     <Label className="text-[13px] font-medium text-foreground">{f.label}</Label>
-                    <Input
-                      value={data[f.key]}
-                      onChange={(e) => handleChange(f.key, e.target.value)}
-                      placeholder={f.placeholder}
-                      className={`text-[13px] ${isEmpty ? "border-destructive" : ""}`}
-                    />
+                    {readOnly ? (
+                      <p className="text-[13px] text-foreground border border-border rounded-md px-3 py-2 bg-muted/30">
+                        {data[f.key] || "—"}
+                      </p>
+                    ) : (
+                      <Input
+                        value={data[f.key]}
+                        onChange={(e) => handleChange(f.key, e.target.value)}
+                        placeholder={f.placeholder}
+                        className={`text-[13px] ${isEmpty ? "border-destructive" : ""}`}
+                      />
+                    )}
                   </div>
                 );
               })}
