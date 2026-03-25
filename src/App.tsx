@@ -15,6 +15,7 @@ import CreateClaim from "./pages/CreateClaim";
 import ClaimDetail from "./pages/ClaimDetail";
 import ApprovalInbox from "./pages/ApprovalInbox";
 import AccountingReview from "./pages/AccountingReview";
+import AccountingClaimDetail from "./pages/AccountingClaimDetail";
 import Reports from "./pages/Reports";
 
 import Admin from "./pages/Admin";
@@ -50,6 +51,7 @@ const App = () => (
                         <Route path="/claims/:id" element={<ClaimDetail />} />
                         <Route path="/approvals" element={<ApprovalInbox />} />
                         <Route path="/accounting" element={<AccountingReview />} />
+                        <Route path="/accounting/:id" element={<AccountingClaimDetail />} />
                         <Route path="/reports" element={<Reports />} />
                         
                         <Route path="/bank-transactions" element={<BankTransactions />} />
