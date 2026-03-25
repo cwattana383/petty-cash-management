@@ -33,12 +33,13 @@ interface ValidationResult {
 interface OcrVerifyModalProps {
   open: boolean;
   onClose: () => void;
-  onConfirm: (data: OcrExtractedData) => void;
+  onConfirm?: (data: OcrExtractedData) => void;
   onRemoveReupload?: () => void;
   fileName: string;
   fileType: string;
   initialData: OcrExtractedData;
   validationContext?: ValidationContext;
+  readOnly?: boolean;
 }
 
 const FIELDS: { key: keyof OcrExtractedData; label: string; placeholder: string }[] = [
