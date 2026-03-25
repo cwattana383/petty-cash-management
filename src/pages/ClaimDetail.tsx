@@ -85,22 +85,17 @@ export default function ClaimDetail() {
   // Derived config
   const selectedConfig = expenseType && subExpenseType ? getExpenseConfig(expenseType, subExpenseType) : null;
   const isAutoReject = selectedConfig?.policyRule === "Auto Reject";
-  const allRequiredDocs = selectedConfig?.requiredDocs || [];
   const allOptionalDocs = selectedConfig?.optionalDocs || [];
-  const allRequiredVerified = allRequiredDocs.length === 0 || allRequiredDocs.every((d) => docUploads[d.id]?.ocrStatus === "verified");
-  const uploadedRequiredCount = allRequiredDocs.filter((d) => docUploads[d.id]?.ocrStatus === "verified").length;
-  const docProgressPercent = allRequiredDocs.length > 0 ? (uploadedRequiredCount / allRequiredDocs.length) * 100 : 100;
-  const anyDocProcessingOrToVerify = Object.values(docUploads).some((f) => f.ocrStatus === "processing" || f.ocrStatus === "to_verify");
+  const requiredDoc = docUploads[REQUIRED_DOC_ID];
+  const requiredDocVerified = requiredDoc?.ocrStatus === "verified";
+  const anyDocProcessingOrToVerify = requiredDoc?.ocrStatus === "processing" || requiredDoc?.ocrStatus === "to_verify" || requiredDoc?.ocrStatus === "wrong_doc_type";
 
   // Step completion
   const step1Complete = true; // always complete (read-only)
   const step2Complete = !!purpose.trim() && !!expenseType && !!subExpenseType && !!glAccount;
   const step3Complete = lineItemsValid && selectedConfig != null && !isAutoReject;
-  const step4Complete = allRequiredVerified && step2Complete;
+  const step4Complete = requiredDocVerified && step2Complete;
   
-
-  // Missing required docs for tooltip
-  const missingDocs = allRequiredDocs.filter((d) => !docUploads[d.id] || docUploads[d.id].ocrStatus !== "verified").map((d) => d.label);
 
   const canSubmit = step2Complete && step3Complete && step4Complete && !isAutoReject && !anyDocProcessingOrToVerify;
 
