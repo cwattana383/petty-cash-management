@@ -22,6 +22,7 @@ import EmployeeProfileCreate from "./pages/EmployeeProfileCreate";
 import Profile from "./pages/Profile";
 import BankTransactions from "./pages/BankTransactions";
 import PolicyManagement from "./pages/PolicyManagement";
+import AdminExportConfig from "./pages/AdminExportConfig";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
