@@ -560,6 +560,21 @@ export default function ClaimDetail() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      {/* OCR Verify Modal */}
+      {verifyModal && verifyModal.open && docUploads[verifyModal.docId] && (
+        <OcrVerifyModal
+          open={verifyModal.open}
+          onClose={() => setVerifyModal(null)}
+          onConfirm={(data) => handleVerifyConfirm(verifyModal.docId, data)}
+          fileName={docUploads[verifyModal.docId].name}
+          fileType={docUploads[verifyModal.docId].type}
+          initialData={docUploads[verifyModal.docId].ocrData || {
+            taxInvoiceNo: "", date: "", vendorName: "",
+            netAmount: "", vatAmount: "", totalAmount: "",
+          }}
+        />
+      )}
     </div>
   );
 }
