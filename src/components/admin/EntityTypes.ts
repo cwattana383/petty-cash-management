@@ -2,6 +2,7 @@ export interface CompanyIdentity {
   id: string;
   companyCode: string;
   legalNameTh: string;
+  legalNameEn: string;
   taxId: string;
   address: string;
   status: "Active" | "Inactive";
