@@ -5,7 +5,6 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Badge } from "@/components/ui/badge";
-import { Checkbox } from "@/components/ui/checkbox";
 import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from "@/components/ui/select";
@@ -17,55 +16,64 @@ import {
 } from "@/components/ui/table";
 import { ShieldCheck, Plus, Pencil, Trash2 } from "lucide-react";
 import { toast } from "sonner";
-import {
-  type ApprovalLevel,
-  approvalTypes, approverTypes, conditionTypes, expenseCategoryOptions,
-} from "./employee-types";
+import { type ApprovalLevel } from "./employee-types";
 
-const mockApprovers = ["Somchai Jaidee", "Somying Rakdee", "Prawit Munkong", "Wipa Sukjai", "Anan Sodsai"];
+const mockApprovers = [
+  { id: "2", name: "Somying Rakdee" },
+  { id: "3", name: "Prawit Munkong" },
+  { id: "5", name: "Anan Sodsai" },
+];
 
-const emptyLevel = (seq: number): Omit<ApprovalLevel, "id"> => ({
-  level: seq, approvalType: "Both", approverType: "Direct Manager",
-  approverName: "", backupApprover: "", conditionType: "Always",
-  amountFrom: 0, amountTo: 0, expenseCategories: [],
-  effectiveFrom: "", effectiveTo: "", active: true,
-  parallelApproval: false, requireAllApprovers: false,
-});
+interface Props {
+  onLevelsChange?: (levels: ApprovalLevel[]) => void;
+  initialLevels?: ApprovalLevel[];
+  readOnly?: boolean;
+}
 
-export default function ApprovalChainTab() {
-  const [levels, setLevels] = useState<ApprovalLevel[]>([]);
+export default function ApprovalChainTab({ onLevelsChange, initialLevels, readOnly }: Props) {
+  const [levels, setLevels] = useState<ApprovalLevel[]>(initialLevels ?? []);
   const [open, setOpen] = useState(false);
   const [editId, setEditId] = useState<string | null>(null);
-  const [form, setForm] = useState<Omit<ApprovalLevel, "id">>(emptyLevel(1));
+  const [formApproverId, setFormApproverId] = useState("");
+  const [formFrom, setFormFrom] = useState("");
+  const [formTo, setFormTo] = useState("");
+  const [formActive, setFormActive] = useState(true);
   const [errors, setErrors] = useState<Record<string, string>>({});
 
-  const nextLevel = () => (levels.length > 0 ? Math.max(...levels.map((l) => l.level)) + 1 : 1);
+  const updateParent = (next: ApprovalLevel[]) => {
+    setLevels(next);
+    onLevelsChange?.(next);
+  };
+
+  const resolveApproverName = (id: string) =>
+    mockApprovers.find((a) => a.id === id)?.name ?? id;
 
   const openAdd = () => {
+    if (levels.length >= 1) return;
     setEditId(null);
-    setForm(emptyLevel(nextLevel()));
+    setFormApproverId("");
+    setFormFrom("");
+    setFormTo("");
+    setFormActive(true);
     setErrors({});
     setOpen(true);
   };
 
   const openEdit = (l: ApprovalLevel) => {
     setEditId(l.id);
-    const { id, ...rest } = l;
-    setForm(rest);
+    setFormApproverId(l.approverId);
+    setFormFrom(l.effectiveFrom);
+    setFormTo(l.effectiveTo);
+    setFormActive(l.status);
     setErrors({});
     setOpen(true);
   };
 
   const validate = (): boolean => {
     const e: Record<string, string> = {};
-    if (!form.approverName) e.approverName = "Please select an Approver";
-    if (!form.effectiveFrom) e.effectiveFrom = "Please specify";
-    if (form.effectiveTo && form.effectiveTo <= form.effectiveFrom) e.effectiveTo = "Must be after Effective From";
-    if (form.conditionType === "Amount Threshold") {
-      if (form.amountFrom > form.amountTo && form.amountTo > 0) e.amountFrom = "Amount From must be <= Amount To";
-    }
-    const dup = levels.find((l) => l.level === form.level && l.id !== editId);
-    if (dup) e.level = "Duplicate Level";
+    if (!formApproverId) e.approverId = "Please select an Approver";
+    if (!formFrom) e.effectiveFrom = "Please specify";
+    if (formTo && formTo <= formFrom) e.effectiveTo = "Must be after Effective From";
     setErrors(e);
     return Object.keys(e).length === 0;
   };
@@ -73,29 +81,25 @@ export default function ApprovalChainTab() {
   const handleSave = () => {
     if (!validate()) return;
     if (editId) {
-      setLevels((prev) => prev.map((l) => (l.id === editId ? { ...form, id: editId } : l)));
+      const next = levels.map((l) =>
+        l.id === editId
+          ? { ...l, approverId: formApproverId, effectiveFrom: formFrom, effectiveTo: formTo, status: formActive }
+          : l
+      );
+      updateParent(next);
       toast.success("Approval Level updated successfully");
     } else {
-      setLevels((prev) => [...prev, { ...form, id: crypto.randomUUID() }].sort((a, b) => a.level - b.level));
+      const next = [...levels, { id: crypto.randomUUID(), approverId: formApproverId, effectiveFrom: formFrom, effectiveTo: formTo, status: formActive }];
+      updateParent(next);
       toast.success("Approval Level added successfully");
     }
     setOpen(false);
   };
 
   const remove = (id: string) => {
-    setLevels((prev) => prev.filter((l) => l.id !== id));
+    const next = levels.filter((l) => l.id !== id);
+    updateParent(next);
     toast.success("Approval Level deleted successfully");
-  };
-
-  const set = (field: string, value: any) => setForm((p) => ({ ...p, [field]: value }));
-
-  const toggleCategory = (cat: string) => {
-    setForm((p) => ({
-      ...p,
-      expenseCategories: p.expenseCategories.includes(cat)
-        ? p.expenseCategories.filter((c) => c !== cat)
-        : [...p.expenseCategories, cat],
-    }));
   };
 
   return (
@@ -105,9 +109,11 @@ export default function ApprovalChainTab() {
           <ShieldCheck className="h-5 w-5 text-primary" />
           Approval Information
         </CardTitle>
-        <Button size="sm" onClick={openAdd}>
-          <Plus className="h-4 w-4 mr-1" /> Add Approver
-        </Button>
+        {!readOnly && levels.length < 1 && (
+          <Button size="sm" onClick={openAdd}>
+            <Plus className="h-4 w-4 mr-1" /> Add Approver
+          </Button>
+        )}
       </CardHeader>
       <CardContent>
         {levels.length === 0 ? (
@@ -120,22 +126,24 @@ export default function ApprovalChainTab() {
                 <TableHead>Effective From</TableHead>
                 <TableHead>Effective To</TableHead>
                 <TableHead>Status</TableHead>
-                <TableHead>Action</TableHead>
+                {!readOnly && <TableHead>Action</TableHead>}
               </TableRow>
             </TableHeader>
             <TableBody>
               {levels.map((l) => (
                 <TableRow key={l.id}>
-                  <TableCell>{l.approverName || "-"}</TableCell>
+                  <TableCell>{resolveApproverName(l.approverId)}</TableCell>
                   <TableCell>{l.effectiveFrom}</TableCell>
                   <TableCell>{l.effectiveTo || "-"}</TableCell>
                   <TableCell>
-                    <Badge variant={l.active ? "default" : "secondary"}>{l.active ? "Active" : "Inactive"}</Badge>
+                    <Badge variant={l.status ? "default" : "secondary"}>{l.status ? "Active" : "Inactive"}</Badge>
                   </TableCell>
-                  <TableCell className="flex gap-1">
-                    <Button size="sm" variant="ghost" onClick={() => openEdit(l)}><Pencil className="h-4 w-4" /></Button>
-                    <Button size="sm" variant="ghost" onClick={() => remove(l.id)}><Trash2 className="h-4 w-4" /></Button>
-                  </TableCell>
+                  {!readOnly && (
+                    <TableCell className="flex gap-1">
+                      <Button size="sm" variant="ghost" onClick={() => openEdit(l)}><Pencil className="h-4 w-4" /></Button>
+                      <Button size="sm" variant="ghost" onClick={() => remove(l.id)}><Trash2 className="h-4 w-4" /></Button>
+                    </TableCell>
+                  )}
                 </TableRow>
               ))}
             </TableBody>
@@ -143,43 +151,49 @@ export default function ApprovalChainTab() {
         )}
       </CardContent>
 
-      <Dialog open={open} onOpenChange={setOpen}>
-        <DialogContent className="max-w-lg max-h-[90vh] overflow-y-auto">
-          <DialogHeader>
-            <DialogTitle>{editId ? "Edit" : "Add"} Approval Level</DialogTitle>
-          </DialogHeader>
-          <div className="space-y-4">
-            <div className="space-y-1">
-              <Label>Approver <span className="text-destructive">*</span></Label>
-              <Select value={form.approverName} onValueChange={(v) => set("approverName", v)}>
-                <SelectTrigger><SelectValue placeholder="Select Approver" /></SelectTrigger>
-                <SelectContent>{mockApprovers.map((a) => <SelectItem key={a} value={a}>{a}</SelectItem>)}</SelectContent>
-              </Select>
-              {errors.approverName && <p className="text-xs text-destructive">{errors.approverName}</p>}
-            </div>
-            <div className="grid grid-cols-2 gap-3">
+      {!readOnly && (
+        <Dialog open={open} onOpenChange={setOpen}>
+          <DialogContent className="max-w-lg max-h-[90vh] overflow-y-auto">
+            <DialogHeader>
+              <DialogTitle>{editId ? "Edit" : "Add"} Approval Level</DialogTitle>
+            </DialogHeader>
+            <div className="space-y-4">
               <div className="space-y-1">
-                <Label>Effective From <span className="text-destructive">*</span></Label>
-                <Input type="date" value={form.effectiveFrom} onChange={(e) => set("effectiveFrom", e.target.value)} />
-                {errors.effectiveFrom && <p className="text-xs text-destructive">{errors.effectiveFrom}</p>}
+                <Label>Approver <span className="text-destructive">*</span></Label>
+                <Select value={formApproverId} onValueChange={setFormApproverId}>
+                  <SelectTrigger><SelectValue placeholder="Select Approver" /></SelectTrigger>
+                  <SelectContent>
+                    {mockApprovers.map((a) => (
+                      <SelectItem key={a.id} value={a.id}>{a.name}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                {errors.approverId && <p className="text-xs text-destructive">{errors.approverId}</p>}
               </div>
-              <div className="space-y-1">
-                <Label>Effective To</Label>
-                <Input type="date" value={form.effectiveTo} onChange={(e) => set("effectiveTo", e.target.value)} />
-                {errors.effectiveTo && <p className="text-xs text-destructive">{errors.effectiveTo}</p>}
+              <div className="grid grid-cols-2 gap-3">
+                <div className="space-y-1">
+                  <Label>Effective From <span className="text-destructive">*</span></Label>
+                  <Input type="date" value={formFrom} onChange={(e) => setFormFrom(e.target.value)} />
+                  {errors.effectiveFrom && <p className="text-xs text-destructive">{errors.effectiveFrom}</p>}
+                </div>
+                <div className="space-y-1">
+                  <Label>Effective To</Label>
+                  <Input type="date" value={formTo} onChange={(e) => setFormTo(e.target.value)} />
+                  {errors.effectiveTo && <p className="text-xs text-destructive">{errors.effectiveTo}</p>}
+                </div>
+              </div>
+              <div className="flex items-center justify-between">
+                <Label>Active</Label>
+                <Switch checked={formActive} onCheckedChange={setFormActive} />
               </div>
             </div>
-            <div className="flex items-center justify-between">
-              <Label>Active</Label>
-              <Switch checked={form.active} onCheckedChange={(v) => set("active", v)} />
-            </div>
-          </div>
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setOpen(false)}>Cancel</Button>
-            <Button onClick={handleSave}>Save</Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+            <DialogFooter>
+              <Button variant="outline" onClick={() => setOpen(false)}>Cancel</Button>
+              <Button onClick={handleSave}>Save</Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+      )}
     </Card>
   );
 }

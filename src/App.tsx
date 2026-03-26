@@ -20,6 +20,8 @@ import Reports from "./pages/Reports";
 
 import Admin from "./pages/Admin";
 import EmployeeProfileCreate from "./pages/EmployeeProfileCreate";
+import EmployeeProfileEdit from "./pages/EmployeeProfileEdit";
+import ExpenseTypeEdit from "./pages/ExpenseTypeEdit";
 import Profile from "./pages/Profile";
 import BankTransactions from "./pages/BankTransactions";
 import PolicyManagement from "./pages/PolicyManagement";
@@ -58,6 +60,11 @@ const App = () => (
                         <Route path="/policy-management" element={<PolicyManagement />} />
                         <Route path="/admin" element={<Admin />} />
                         <Route path="/admin/employee/create" element={<EmployeeProfileCreate />} />
+                        <Route path="/admin/employee/:id" element={<EmployeeProfileEdit />} />
+                        <Route path="/admin/employee/:id/edit" element={<EmployeeProfileEdit />} />
+                        <Route path="/admin/expense-type/create" element={<ExpenseTypeEdit />} />
+                        <Route path="/admin/expense-type/:id" element={<ExpenseTypeEdit />} />
+                        <Route path="/admin/expense-type/:id/edit" element={<ExpenseTypeEdit />} />
                         <Route path="/profile" element={<Profile />} />
                         <Route path="*" element={<NotFound />} />
                       </Routes>

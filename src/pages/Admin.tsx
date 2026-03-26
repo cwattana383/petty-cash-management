@@ -1,12 +1,13 @@
-import { useState, useMemo } from "react";
-import { useNavigate } from "react-router-dom";
+import { useState, useEffect, useMemo } from "react";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import PolicyManagement from "./PolicyManagement";
 import PendingInvoiceNotificationPanel from "@/components/admin/PendingInvoiceNotificationPanel";
 import PendingApprovalNotificationPanel from "@/components/admin/PendingApprovalNotificationPanel";
 import MonthEndReportNotificationPanel from "@/components/admin/MonthEndReportNotificationPanel";
 import ExpenseTypePanel from "@/components/admin/ExpenseTypePanel";
-import GlAccountPanel from "@/components/admin/GlAccountPanel";
 import CategoryPolicyRulesPanel from "@/components/admin/CategoryPolicyRulesPanel";
+import DocumentTypePanel from "@/components/admin/DocumentTypePanel";
+import InviteUserDialog from "@/components/admin/InviteUserDialog";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import {
@@ -22,13 +23,13 @@ import {
   Scale,
   UserCheck,
   Mail,
+  MailPlus,
   AlertCircle,
   Plug,
   Clock,
   CalendarClock,
   Building2,
   Layers,
-  DollarSign,
   MapPin,
   Search,
   Eye,
@@ -37,6 +38,10 @@ import {
   ChevronLeft,
   ChevronRight,
   CreditCard,
+  Trash2,
+  RotateCcw,
+  CheckCircle,
+  FileText,
 } from "lucide-react";
 import EntityDrawer from "@/components/admin/EntityDrawer";
 import OcrValidationRulesPanel from "@/components/admin/OcrValidationRulesPanel";
@@ -78,8 +83,8 @@ const adminMenu = [
     group: "Expense Configuration",
     icon: Shield,
     items: [
+      { key: "documents", label: "Documents", icon: FileText },
       { key: "expense-type", label: "Expense Type", icon: Layers },
-      { key: "gl-account", label: "GL Account", icon: DollarSign },
       { key: "mcc-policy", label: "Policy Management", icon: Shield },
     ],
   },
@@ -95,8 +100,23 @@ const adminMenu = [
 ];
 
 // --- Mock data ---
-const mockEmployees = [
-  { name: "Somchai Jaidee", code: "EMP001", dept: "9993010460 Finance and Accounting", role: "Director - Accounting", branch: "099999 – HO", costCenter: "9999" },
+interface MockEmployee {
+  id: string;
+  employeeCode: string;
+  name: string;
+  email: string;
+  roles: string[];
+  branch: string;
+  department: string;
+  active: boolean;
+}
+
+const initialMockEmployees: MockEmployee[] = [
+  { id: "1", employeeCode: "EMP001", name: "Somchai Jaidee", email: "somchai@cpaxtra.co.th", roles: ["Cardholder", "Admin"], branch: "HO", department: "Finance and Accounting", active: true },
+  { id: "2", employeeCode: "EMP002", name: "Somying Rakdee", email: "somying@cpaxtra.co.th", roles: ["Approver"], branch: "Bangkok", department: "Marketing", active: true },
+  { id: "3", employeeCode: "EMP003", name: "Prawit Munkong", email: "prawit@cpaxtra.co.th", roles: ["Cardholder"], branch: "Chiang Mai", department: "Engineering", active: true },
+  { id: "4", employeeCode: "EMP004", name: "Wipa Sukjai", email: "wipa@cpaxtra.co.th", roles: ["Cardholder", "Approver"], branch: "HO", department: "HR", active: false },
+  { id: "5", employeeCode: "EMP005", name: "Anan Sodsai", email: "anan@cpaxtra.co.th", roles: ["Cardholder"], branch: "Phuket", department: "Sales", active: true },
 ];
 
 const roleColors: Record<string, string> = {
@@ -106,9 +126,9 @@ const roleColors: Record<string, string> = {
 };
 
 const mockRoles = [
-  { role: "Cardholder", permissions: ["Submit Claims", "View Own Claims"], users: 120 },
-  { role: "Approver", permissions: ["Approve Claims", "View Team Claims", "Submit Claims"], users: 15 },
-  { role: "Admin", permissions: ["Full Access"], users: 2 },
+  { id: "1", name: "Cardholder", permissions: ["Submit Claims", "View Own Claims", "Upload Documents"], userCount: 120 },
+  { id: "2", name: "Approver", permissions: ["Approve Claims", "View Team Claims", "Submit Claims"], userCount: 15 },
+  { id: "3", name: "Admin", permissions: ["Full Access", "Manage Users", "Manage Roles", "System Config"], userCount: 2 },
 ];
 
 const mockCostCenters = [
@@ -455,40 +475,194 @@ function BranchesPanel() {
 // --- Content panels ---
 function EmployeesPanel() {
   const navigate = useNavigate();
+  const [employees, setEmployees] = useState<MockEmployee[]>(initialMockEmployees);
+  const [search, setSearch] = useState("");
+  const [debouncedSearch, setDebouncedSearch] = useState("");
+  const [activeFilter, setActiveFilter] = useState<string>("all");
+  const [page, setPage] = useState(1);
+  const [inviteOpen, setInviteOpen] = useState(false);
+  const pageSize = 10;
+
+  useEffect(() => {
+    const timer = setTimeout(() => setDebouncedSearch(search), 300);
+    return () => clearTimeout(timer);
+  }, [search]);
+
+  const filtered = useMemo(() => {
+    let list = employees;
+    if (debouncedSearch) {
+      const q = debouncedSearch.toLowerCase();
+      list = list.filter(
+        (e) =>
+          e.name.toLowerCase().includes(q) ||
+          e.employeeCode.toLowerCase().includes(q) ||
+          e.email.toLowerCase().includes(q) ||
+          e.department.toLowerCase().includes(q)
+      );
+    }
+    if (activeFilter === "active") list = list.filter((e) => e.active);
+    if (activeFilter === "inactive") list = list.filter((e) => !e.active);
+    return list;
+  }, [employees, debouncedSearch, activeFilter]);
+
+  const totalPages = Math.max(1, Math.ceil(filtered.length / pageSize));
+  const pageData = filtered.slice((page - 1) * pageSize, page * pageSize);
+
+  // Stat cards
+  const totalCount = employees.length;
+  const activeCount = employees.filter((e) => e.active).length;
+  const approverCount = employees.filter((e) => e.roles.includes("Approver")).length;
+  const adminCount = employees.filter((e) => e.roles.includes("Admin")).length;
+  const cardholderCount = employees.filter((e) => e.roles.includes("Cardholder")).length;
+
+  const handleDelete = (emp: MockEmployee) => {
+    if (window.confirm(`Delete employee "${emp.name}"?`)) {
+      setEmployees((prev) => prev.filter((e) => e.id !== emp.id));
+    }
+  };
+
+  const handleToggleActive = (id: string, checked: boolean) => {
+    setEmployees((prev) => prev.map((e) => (e.id === id ? { ...e, active: checked } : e)));
+  };
+
   return (
     <div className="space-y-4">
+      {/* Stat cards */}
+      <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
+        {[
+          { label: "Total", value: totalCount, color: "text-foreground" },
+          { label: "Active", value: activeCount, color: "text-green-600" },
+          { label: "Approvers", value: approverCount, color: "text-purple-600" },
+          { label: "Admins", value: adminCount, color: "text-red-600" },
+          { label: "Cardholders", value: cardholderCount, color: "text-blue-600" },
+        ].map((stat) => (
+          <Card key={stat.label}>
+            <CardContent className="p-4 text-center">
+              <p className="text-xs text-muted-foreground">{stat.label}</p>
+              <p className={`text-2xl font-bold ${stat.color}`}>{stat.value}</p>
+            </CardContent>
+          </Card>
+        ))}
+      </div>
+
+      {/* Header / Actions */}
       <div className="flex items-center justify-between">
         <h2 className="text-lg font-semibold">Employee Profiles</h2>
-        <Button size="sm" onClick={() => navigate("/admin/employee/create")}><Plus className="h-4 w-4 mr-2" />Add Employee</Button>
+        <div className="flex items-center gap-2">
+          <Button size="sm" variant="outline" onClick={() => setInviteOpen(true)}>
+            <MailPlus className="h-4 w-4 mr-2" />Invite User
+          </Button>
+          <Button size="sm" onClick={() => navigate("/admin/employee/create")}>
+            <Plus className="h-4 w-4 mr-2" />Add Employee
+          </Button>
+        </div>
       </div>
+
+      {/* Search & Filter */}
+      <div className="flex items-center gap-3">
+        <div className="relative flex-1 max-w-sm">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+          <Input
+            value={search}
+            onChange={(e) => { setSearch(e.target.value); setPage(1); }}
+            placeholder="Search name, code, email..."
+            className="pl-9"
+          />
+        </div>
+        <Select value={activeFilter} onValueChange={(v) => { setActiveFilter(v); setPage(1); }}>
+          <SelectTrigger className="w-36"><SelectValue /></SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">All Status</SelectItem>
+            <SelectItem value="active">Active</SelectItem>
+            <SelectItem value="inactive">Inactive</SelectItem>
+          </SelectContent>
+        </Select>
+        {(search || activeFilter !== "all") && (
+          <Button size="sm" variant="ghost" onClick={() => { setSearch(""); setActiveFilter("all"); setPage(1); }}>
+            <RotateCcw className="mr-1 h-3.5 w-3.5" />Reset
+          </Button>
+        )}
+      </div>
+
+      {/* Table */}
       <Card>
         <CardContent className="p-0">
           <Table>
             <TableHeader>
               <TableRow>
                 <TableHead>Name</TableHead>
-                <TableHead>Code</TableHead>
+                <TableHead>Employee Code</TableHead>
+                <TableHead>Email</TableHead>
                 <TableHead>Department</TableHead>
                 <TableHead>Branch</TableHead>
-                <TableHead>Cost Center</TableHead>
-                <TableHead>Role</TableHead>
+                <TableHead>Roles</TableHead>
+                <TableHead>Active</TableHead>
+                <TableHead className="text-right">Action</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
-              {mockEmployees.map((u) => (
-                <TableRow key={u.code} className="cursor-pointer hover:bg-muted/50">
-                  <TableCell className="font-medium">{u.name}</TableCell>
-                  <TableCell>{u.code}</TableCell>
-                  <TableCell>{u.dept}</TableCell>
-                  <TableCell>{u.branch}</TableCell>
-                  <TableCell><Badge variant="outline">{u.costCenter}</Badge></TableCell>
-                  <TableCell><Badge className={roleColors[u.role]}>{u.role}</Badge></TableCell>
+              {pageData.length === 0 ? (
+                <TableRow>
+                  <TableCell colSpan={8} className="text-center text-muted-foreground py-8">No employees found</TableCell>
                 </TableRow>
-              ))}
+              ) : (
+                pageData.map((emp) => (
+                  <TableRow key={emp.id} className="hover:bg-muted/50">
+                    <TableCell className="font-medium">{emp.name}</TableCell>
+                    <TableCell>{emp.employeeCode}</TableCell>
+                    <TableCell className="text-sm">{emp.email}</TableCell>
+                    <TableCell>{emp.department}</TableCell>
+                    <TableCell>{emp.branch}</TableCell>
+                    <TableCell>
+                      <div className="flex flex-wrap gap-1">
+                        {emp.roles.map((r) => (
+                          <Badge key={r} className={`text-xs ${roleColors[r] ?? ""}`}>{r}</Badge>
+                        ))}
+                      </div>
+                    </TableCell>
+                    <TableCell>
+                      <Switch checked={emp.active} onCheckedChange={(checked) => handleToggleActive(emp.id, checked)} />
+                    </TableCell>
+                    <TableCell className="text-right">
+                      <div className="flex items-center justify-end gap-1">
+                        <Button size="icon" variant="ghost" className="h-7 w-7" onClick={() => navigate(`/admin/employee/${emp.id}?mode=view`)} title="View">
+                          <Eye className="h-3.5 w-3.5" />
+                        </Button>
+                        <Button size="icon" variant="ghost" className="h-7 w-7" onClick={() => navigate(`/admin/employee/${emp.id}/edit`)} title="Edit">
+                          <Pencil className="h-3.5 w-3.5" />
+                        </Button>
+                        <Button size="icon" variant="ghost" className="h-7 w-7 text-destructive" onClick={() => handleDelete(emp)} title="Delete">
+                          <Trash2 className="h-3.5 w-3.5" />
+                        </Button>
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                ))
+              )}
             </TableBody>
           </Table>
         </CardContent>
       </Card>
+
+      {/* Pagination */}
+      {totalPages > 1 && (
+        <div className="flex items-center justify-between text-sm">
+          <span className="text-muted-foreground">
+            Showing {(page - 1) * pageSize + 1}-{Math.min(page * pageSize, filtered.length)} of {filtered.length}
+          </span>
+          <div className="flex items-center gap-1">
+            <Button size="icon" variant="outline" className="h-8 w-8" disabled={page === 1} onClick={() => setPage(page - 1)}>
+              <ChevronLeft className="h-4 w-4" />
+            </Button>
+            <span className="px-2">{page} / {totalPages}</span>
+            <Button size="icon" variant="outline" className="h-8 w-8" disabled={page === totalPages} onClick={() => setPage(page + 1)}>
+              <ChevronRight className="h-4 w-4" />
+            </Button>
+          </div>
+        </div>
+      )}
+
+      <InviteUserDialog open={inviteOpen} onClose={() => setInviteOpen(false)} />
     </div>
   );
 }
@@ -496,17 +670,14 @@ function EmployeesPanel() {
 function RolesPanel() {
   return (
     <div className="space-y-4">
-      <div className="flex items-center justify-between">
-        <h2 className="text-lg font-semibold">Roles & Permissions</h2>
-        <Button size="sm"><Plus className="h-4 w-4 mr-2" />Add Role</Button>
-      </div>
+      <h2 className="text-lg font-semibold">Roles & Permissions</h2>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {mockRoles.map((r) => (
-          <Card key={r.role} className="hover:shadow-md transition-shadow cursor-pointer">
+          <Card key={r.id} className="hover:shadow-md transition-shadow cursor-pointer">
             <CardHeader className="pb-2">
               <div className="flex items-center justify-between">
-                <CardTitle className="text-base">{r.role}</CardTitle>
-                <Badge variant="secondary">{r.users} users</Badge>
+                <CardTitle className="text-base">{r.name}</CardTitle>
+                <Badge variant="secondary">{r.userCount} users</Badge>
               </div>
             </CardHeader>
             <CardContent>
@@ -898,8 +1069,8 @@ const panelMap: Record<string, () => JSX.Element> = {
   costcenters: CostCentersPanel,
   "approval-levels": ApprovalLevelsPanel,
   "approval-limits": ApprovalLimitsPanel,
+  "documents": DocumentTypePanel,
   "expense-type": ExpenseTypePanel,
-  "gl-account": GlAccountPanel,
   "expense-item": ExpenseItemPanel,
   "expense-rules": ExpenseRulesPanel,
   "expense-delegates": ExpenseDelegatesPanel,
@@ -916,7 +1087,8 @@ const panelMap: Record<string, () => JSX.Element> = {
 };
 
 export default function Admin() {
-  const [activeKey, setActiveKey] = useState("employees");
+  const [searchParams] = useSearchParams();
+  const [activeKey, setActiveKey] = useState(() => searchParams.get("tab") || "employees");
   const ActivePanel = panelMap[activeKey] || (() => <div className="p-8 text-muted-foreground">Panel not found</div>);
 
   return (

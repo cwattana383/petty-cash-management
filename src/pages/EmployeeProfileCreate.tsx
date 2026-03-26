@@ -1,64 +1,55 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+import { Switch } from "@/components/ui/switch";
+import { Checkbox } from "@/components/ui/checkbox";
 
 import { ArrowLeft, Save, UserPlus } from "lucide-react";
-import { Checkbox } from "@/components/ui/checkbox";
 import { toast } from "sonner";
 import { useRoles } from "@/lib/role-context";
 import CreditCardTab from "@/components/employee/CreditCardTab";
 import ApprovalChainTab from "@/components/employee/ApprovalChainTab";
+import { type ApprovalLevel } from "@/components/employee/employee-types";
 
-const departments = ["9993010460 Finance and Accounting", "Sales", "Marketing", "Engineering", "Finance", "HR", "Operations"];
-const branches = ["099999 – HO", "Bangkok", "Chiang Mai", "Phuket", "Pattaya", "Khon Kaen"];
-const costCenters = ["9999", "CC-100", "CC-200", "CC-300", "CC-400", "CC-500"];
 const roles = ["Cardholder", "Approver", "Admin"];
-const companies = ["CP Axtra Public Company Limited", "ABC Corporation", "XYZ Holdings", "DEF Group"];
-const stores = ["Head Office", "Store Bangkok", "Store Chiang Mai", "Store Phuket"];
-const divisions = ["92029 – Accounting", "Division A", "Division B", "Division C", "Division D"];
 
 export default function EmployeeProfileCreate() {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const prefillEmail = searchParams.get("email") ?? "";
   const { setRoles } = useRoles();
   const [form, setForm] = useState({
+    employeeCode: "",
     firstName: "Somchai",
     lastName: "Jaidee",
-    email: "somchai@cpaxtra.co.th",
+    email: prefillEmail || "somchai@cpaxtra.co.th",
     storeHeadOffice: "",
-    company: "CP Axtra Public Company Limited",
-    division: "92029 – Accounting",
+    division: "",
     telephone: "0657778899",
-    department: "9993010460 Finance and Accounting",
-    branch: "099999 – HO",
-    costCenter: "9999",
+    department: "",
+    branch: "",
     roles: ["Cardholder"] as string[],
+    active: true,
     creditCardLast4: "",
     cardHolderName: "",
   });
+  const [approvalLevels, setApprovalLevels] = useState<ApprovalLevel[]>([]);
 
-  const handleChange = (field: string, value: string) => {
+  const handleChange = (field: string, value: string | boolean) => {
     setForm((prev) => ({ ...prev, [field]: value }));
   };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!form.firstName || !form.lastName || !form.department || !form.branch || !form.costCenter || form.roles.length === 0) {
+    if (!form.firstName || !form.lastName || !form.department || !form.branch || form.roles.length === 0) {
       toast.error("Please fill in all required fields");
       return;
     }
     setRoles(form.roles);
     toast.success(`Employee ${form.firstName} ${form.lastName} added successfully`);
-    // Navigate to /claims and reload to reflect new role
     navigate("/claims");
     setTimeout(() => window.location.reload(), 100);
   };
@@ -89,16 +80,16 @@ export default function EmployeeProfileCreate() {
           <div className="space-y-5">
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
               <div className="space-y-2">
+                <Label htmlFor="employeeCode">Employee Code</Label>
+                <Input id="employeeCode" placeholder="e.g. EMP001" value={form.employeeCode} onChange={(e) => handleChange("employeeCode", e.target.value)} />
+              </div>
+              <div className="space-y-2">
                 <Label htmlFor="firstName">First Name <span className="text-destructive">*</span></Label>
                 <Input id="firstName" placeholder="e.g. Somchai" value={form.firstName} onChange={(e) => handleChange("firstName", e.target.value)} />
               </div>
               <div className="space-y-2">
                 <Label htmlFor="lastName">Last Name <span className="text-destructive">*</span></Label>
                 <Input id="lastName" placeholder="e.g. Jaidee" value={form.lastName} onChange={(e) => handleChange("lastName", e.target.value)} />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="telephone">Telephone</Label>
-                <Input id="telephone" placeholder="Type a value" value={form.telephone} onChange={(e) => { const val = e.target.value; if (val === "" || /^[\d-]*$/.test(val)) handleChange("telephone", val); }} />
               </div>
             </div>
 
@@ -108,53 +99,31 @@ export default function EmployeeProfileCreate() {
                 <Input id="email" type="email" placeholder="e.g. somchai@company.com" value={form.email} onChange={(e) => handleChange("email", e.target.value)} />
               </div>
               <div className="space-y-2">
-                <Label>Branch/Head Office (Store / Head Office)</Label>
-                <Select value={form.storeHeadOffice} onValueChange={(v) => handleChange("storeHeadOffice", v)}>
-                  <SelectTrigger><SelectValue placeholder="Select Store / Head Office" /></SelectTrigger>
-                  <SelectContent>{stores.map((s) => <SelectItem key={s} value={s}>{s}</SelectItem>)}</SelectContent>
-                </Select>
+                <Label htmlFor="telephone">Telephone</Label>
+                <Input id="telephone" placeholder="Type a value" value={form.telephone} onChange={(e) => { const val = e.target.value; if (val === "" || /^[\d-]*$/.test(val)) handleChange("telephone", val); }} />
               </div>
               <div className="space-y-2">
-                <Label>Company</Label>
-                <Select value={form.company} onValueChange={(v) => handleChange("company", v)}>
-                  <SelectTrigger><SelectValue placeholder="Select Company" /></SelectTrigger>
-                  <SelectContent>{companies.map((c) => <SelectItem key={c} value={c}>{c}</SelectItem>)}</SelectContent>
-                </Select>
+                <Label>Store / Head Office</Label>
+                <Input placeholder="e.g. Head Office" value={form.storeHeadOffice} onChange={(e) => handleChange("storeHeadOffice", e.target.value)} />
               </div>
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
               <div className="space-y-2">
                 <Label>Department <span className="text-destructive">*</span></Label>
-                <Select value={form.department} onValueChange={(v) => handleChange("department", v)}>
-                  <SelectTrigger><SelectValue placeholder="Select Department" /></SelectTrigger>
-                  <SelectContent>{departments.map((d) => <SelectItem key={d} value={d}>{d}</SelectItem>)}</SelectContent>
-                </Select>
+                <Input placeholder="e.g. Finance and Accounting" value={form.department} onChange={(e) => handleChange("department", e.target.value)} />
               </div>
               <div className="space-y-2">
                 <Label>Division</Label>
-                <Select value={form.division} onValueChange={(v) => handleChange("division", v)}>
-                  <SelectTrigger><SelectValue placeholder="Select Division" /></SelectTrigger>
-                  <SelectContent>{divisions.map((d) => <SelectItem key={d} value={d}>{d}</SelectItem>)}</SelectContent>
-                </Select>
+                <Input placeholder="e.g. Accounting" value={form.division} onChange={(e) => handleChange("division", e.target.value)} />
               </div>
               <div className="space-y-2">
                 <Label>Branch <span className="text-destructive">*</span></Label>
-                <Select value={form.branch} onValueChange={(v) => handleChange("branch", v)}>
-                  <SelectTrigger><SelectValue placeholder="Select Branch" /></SelectTrigger>
-                  <SelectContent>{branches.map((b) => <SelectItem key={b} value={b}>{b}</SelectItem>)}</SelectContent>
-                </Select>
+                <Input placeholder="e.g. HO" value={form.branch} onChange={(e) => handleChange("branch", e.target.value)} />
               </div>
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-              <div className="space-y-2">
-                <Label>Cost Center <span className="text-destructive">*</span></Label>
-                <Select value={form.costCenter} onValueChange={(v) => handleChange("costCenter", v)}>
-                  <SelectTrigger><SelectValue placeholder="Select Cost Center" /></SelectTrigger>
-                  <SelectContent>{costCenters.map((c) => <SelectItem key={c} value={c}>{c}</SelectItem>)}</SelectContent>
-                </Select>
-              </div>
               <div className="space-y-2">
                 <Label>Role <span className="text-destructive">*</span></Label>
                 <div className="flex items-center gap-6 h-10">
@@ -176,6 +145,12 @@ export default function EmployeeProfileCreate() {
                   ))}
                 </div>
               </div>
+              <div className="space-y-2">
+                <Label>Active</Label>
+                <div className="flex items-center h-10">
+                  <Switch checked={form.active} onCheckedChange={(v) => handleChange("active", v)} />
+                </div>
+              </div>
             </div>
           </div>
         </CardContent>
@@ -191,7 +166,10 @@ export default function EmployeeProfileCreate() {
       />
 
       {/* Section 3: Approval Chain */}
-      <ApprovalChainTab />
+      <ApprovalChainTab
+        initialLevels={approvalLevels}
+        onLevelsChange={setApprovalLevels}
+      />
 
       {/* Footer Buttons */}
       <div className="flex justify-end gap-3 pt-4 border-t">
