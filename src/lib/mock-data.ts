@@ -112,7 +112,7 @@ export const mockClaims: ClaimHeader[] = [
     id: "a3", claimNo: "TXN20260227013", requesterId: "u1", requesterName: "Somchai Jaidee",
     company: "ABC Co., Ltd.", branch: "Bangkok", department: "9993010460 Finance and Accounting", costCenter: "CC-SALES-01",
     purpose: "Eating Places and Restaurants", merchantName: "Suki Teenoi", currency: "THB", paymentMethod: "Corporate Card",
-    totalAmount: 499, totalVat: 0, status: "Auto Approved", createdDate: "2026-02-27", submittedDate: "2026-02-27",
+    totalAmount: 499, totalVat: 0, status: "Auto Approved", documentStatus: "Verified", createdDate: "2026-02-27", submittedDate: "2026-02-27",
     lines: [], approvalHistory: [], comments: [],
   },
   {
