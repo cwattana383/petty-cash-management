@@ -23,10 +23,10 @@ import SupportingDocsSection, { SupportingFile } from "@/components/claims/Suppo
 import AttachmentStatusBadge, { AttachmentOcrStatus } from "@/components/claims/AttachmentStatusBadge";
 import NoDocumentWarningDialog from "@/components/claims/NoDocumentWarningDialog";
 
-type StatusTab = "pending_invoice" | "rejected" | "approved" | "all";
+type StatusTab = "pending_documents" | "rejected" | "approved" | "all";
 
 const TAB_STATUS_MAP: Record<StatusTab, ClaimStatus[]> = {
-  pending_invoice: ["Pending Invoice"],
+  pending_documents: [],
   rejected: ["Auto Reject", "Reject", "Final Reject"],
   approved: ["Auto Approved", "Manager Approved", "Reimbursed"],
   all: [],
@@ -73,7 +73,7 @@ export default function MyClaims() {
   const navigate = useNavigate();
   const { addNotification } = useNotifications();
   const [search, setSearch] = useState("");
-  const [activeTab, setActiveTab] = useState<StatusTab>("pending_invoice");
+  const [activeTab, setActiveTab] = useState<StatusTab>("pending_documents");
   const [dateFrom, setDateFrom] = useState<Date>(subDays(new Date("2026-02-28"), 6));
   const [dateTo, setDateTo] = useState<Date>(new Date("2026-02-28"));
 
@@ -167,8 +167,13 @@ export default function MyClaims() {
   const filtered = useMemo(() => {
     return mockClaims.filter((c) => {
       const status = getStatus(c);
-      const allowedStatuses = TAB_STATUS_MAP[activeTab];
-      if (allowedStatuses.length > 0 && !allowedStatuses.includes(status)) return false;
+      if (activeTab === "pending_documents") {
+        const docStatus = c.documentStatus || "Pending Documents";
+        if (docStatus !== "Pending Documents") return false;
+      } else {
+        const allowedStatuses = TAB_STATUS_MAP[activeTab];
+        if (allowedStatuses.length > 0 && !allowedStatuses.includes(status)) return false;
+      }
       const txnDate = new Date(c.createdDate);
       const from = new Date(dateFrom);
       from.setHours(0, 0, 0, 0);
@@ -264,7 +269,7 @@ export default function MyClaims() {
         </div>
         <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as StatusTab)}>
           <TabsList>
-            <TabsTrigger value="pending_invoice">Pending Invoice</TabsTrigger>
+            <TabsTrigger value="pending_documents">Pending Document</TabsTrigger>
             <TabsTrigger value="rejected">Rejected</TabsTrigger>
             <TabsTrigger value="approved">Approved</TabsTrigger>
             <TabsTrigger value="all">All</TabsTrigger>
