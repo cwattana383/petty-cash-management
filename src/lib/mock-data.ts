@@ -147,7 +147,7 @@ export const mockClaims: ClaimHeader[] = [
     id: "c8", claimNo: "TXN20250127001", requesterId: "u3", requesterName: "Wichai Charoen",
     company: "ABC Co., Ltd.", branch: "Chiang Mai", department: "9993010460 Finance and Accounting", costCenter: "CC-ENG-01",
     purpose: "Flight to Bangkok for meeting", merchantName: "THAI AIRWAYS", currency: "THB", paymentMethod: "Corporate Card",
-    totalAmount: 12500, totalVat: 0, status: "Pending Invoice", createdDate: "2026-02-23", submittedDate: "2026-02-24",
+    totalAmount: 12500, totalVat: 0, status: "Pending Invoice", documentStatus: "Not Uploaded", createdDate: "2026-02-23", submittedDate: "2026-02-24",
     lines: [], approvalHistory: [{ stepNo: 1, approverId: "u1", approverName: "Somchai Jaidee", action: "Pending", comment: "", actionDate: null }], comments: [],
   },
   {
