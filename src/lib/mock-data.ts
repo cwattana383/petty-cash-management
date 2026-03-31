@@ -70,7 +70,7 @@ export const mockClaims: ClaimHeader[] = [
     id: "r2", claimNo: "TXN20260227002", requesterId: "u1", requesterName: "Somchai Jaidee",
     company: "ABC Co., Ltd.", branch: "Bangkok", department: "9993010460 Finance and Accounting", costCenter: "CC-SALES-01",
     purpose: "Tourist Attractions", merchantName: "Tiger Kingdom", currency: "THB", paymentMethod: "Corporate Card",
-    totalAmount: 4500, totalVat: 0, status: "Auto Reject", createdDate: "2026-02-27", submittedDate: "2026-02-27",
+    totalAmount: 4500, totalVat: 0, status: "Auto Reject", documentStatus: "N/A", createdDate: "2026-02-27", submittedDate: "2026-02-27",
     lines: [], approvalHistory: [], comments: [],
   },
   {
