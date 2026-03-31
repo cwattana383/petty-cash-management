@@ -63,7 +63,7 @@ export const mockClaims: ClaimHeader[] = [
     id: "r1", claimNo: "TXN20260227021", requesterId: "u1", requesterName: "Somchai Jaidee",
     company: "ABC Co., Ltd.", branch: "Bangkok", department: "9993010460 Finance and Accounting", costCenter: "CC-SALES-01",
     purpose: "Amusement Parks", merchantName: "Siam Amazing Park", currency: "THB", paymentMethod: "Corporate Card",
-    totalAmount: 7900, totalVat: 0, status: "Auto Reject", createdDate: "2026-02-27", submittedDate: "2026-02-27",
+    totalAmount: 7900, totalVat: 0, status: "Auto Reject", documentStatus: "N/A", createdDate: "2026-02-27", submittedDate: "2026-02-27",
     lines: [], approvalHistory: [], comments: [],
   },
   {
