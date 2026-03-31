@@ -183,7 +183,7 @@ export const mockClaims: ClaimHeader[] = [
     id: "pa3", claimNo: "TXN20260305001", requesterId: "u8", requesterName: "Kannika Thongsuk",
     company: "CP Axtra Co., Ltd.", branch: "Bangkok", department: "Finance — Accounting", costCenter: "CC-FIN-01",
     purpose: "Airline — Overseas (Bangkok → Singapore, Regional Meeting)", merchantName: "SINGAPORE AIRLINES", currency: "THB", paymentMethod: "Corporate Card",
-    totalAmount: 42500, totalVat: 0, status: "Pending Approval", createdDate: "2026-03-05", submittedDate: "2026-03-05",
+    totalAmount: 42500, totalVat: 0, status: "Pending Approval", documentStatus: "Verified", createdDate: "2026-03-05", submittedDate: "2026-03-05",
     lines: [], approvalHistory: [{ stepNo: 1, approverId: "u1", approverName: "Somchai Jaidee", action: "Pending", comment: "", actionDate: null }], comments: [],
   },
   {
