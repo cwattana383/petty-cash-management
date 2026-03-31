@@ -284,9 +284,9 @@ export default function MyClaims() {
               <TableHead>Merchant Name</TableHead>
               <TableHead>Description</TableHead>
               <TableHead className="text-right">Amount</TableHead>
-              <TableHead>Status</TableHead>
+              <TableHead>Approval Status</TableHead>
+              <TableHead>Document Status</TableHead>
               {(activeTab === "rejected" || activeTab === "all") && <TableHead>Deduction Period</TableHead>}
-              
             </TableRow>
           </TableHeader>
           <TableBody>
