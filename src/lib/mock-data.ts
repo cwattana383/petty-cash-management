@@ -126,7 +126,7 @@ export const mockClaims: ClaimHeader[] = [
     id: "a5", claimNo: "TXN20260227065", requesterId: "u1", requesterName: "Somchai Jaidee",
     company: "ABC Co., Ltd.", branch: "Bangkok", department: "9993010460 Finance and Accounting", costCenter: "CC-SALES-01",
     purpose: "Hospitals", merchantName: "Rama 9 Hospital", currency: "THB", paymentMethod: "Corporate Card",
-    totalAmount: 2500, totalVat: 0, status: "Manager Approved", createdDate: "2026-02-27", submittedDate: "2026-02-27",
+    totalAmount: 2500, totalVat: 0, status: "Manager Approved", documentStatus: "Verified", createdDate: "2026-02-27", submittedDate: "2026-02-27",
     lines: [], approvalHistory: [], comments: [],
   },
   {
