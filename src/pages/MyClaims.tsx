@@ -296,6 +296,7 @@ export default function MyClaims() {
               filtered.map((c) => {
                 const status = getStatus(c);
                 const att = attachments[c.id];
+                const docStatus: DocumentStatus = c.documentStatus || "Not Uploaded";
                 return (
                   <TableRow key={c.id} className="cursor-pointer hover:bg-muted/50" onClick={() => navigate(`/claims/${c.id}`)}>
                     <TableCell className="font-medium">{c.claimNo}</TableCell>
