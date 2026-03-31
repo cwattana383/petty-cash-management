@@ -119,7 +119,7 @@ export const mockClaims: ClaimHeader[] = [
     id: "a4", claimNo: "TXN20260227124", requesterId: "u1", requesterName: "Somchai Jaidee",
     company: "ABC Co., Ltd.", branch: "Bangkok", department: "9993010460 Finance and Accounting", costCenter: "CC-SALES-01",
     purpose: "Car Rental Agencies", merchantName: "Good Car Service", currency: "THB", paymentMethod: "Corporate Card",
-    totalAmount: 3000, totalVat: 0, status: "Manager Approved", createdDate: "2026-02-27", submittedDate: "2026-02-27",
+    totalAmount: 3000, totalVat: 0, status: "Manager Approved", documentStatus: "Verified", createdDate: "2026-02-27", submittedDate: "2026-02-27",
     lines: [], approvalHistory: [], comments: [],
   },
   {
