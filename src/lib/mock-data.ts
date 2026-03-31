@@ -91,7 +91,7 @@ export const mockClaims: ClaimHeader[] = [
     id: "r5", claimNo: "TXN20260227025", requesterId: "u1", requesterName: "Somchai Jaidee",
     company: "ABC Co., Ltd.", branch: "Bangkok", department: "9993010460 Finance and Accounting", costCenter: "CC-SALES-01",
     purpose: "Sporting and Recreational Camps", merchantName: "Stone Hill Golf Club", currency: "THB", paymentMethod: "Corporate Card",
-    totalAmount: 55000, totalVat: 0, status: "Final Reject", createdDate: "2026-02-27", submittedDate: "2026-02-27",
+    totalAmount: 55000, totalVat: 0, status: "Final Reject", documentStatus: "N/A", createdDate: "2026-02-27", submittedDate: "2026-02-27",
     lines: [], approvalHistory: [], comments: [],
   },
   {
