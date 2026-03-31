@@ -64,6 +64,7 @@ export interface ClaimHeader {
   status: ClaimStatus;
   accountingStatus?: AccountingStatus;
   accountCode?: string;
+  documentStatus?: DocumentStatus;
   createdDate: string;
   submittedDate: string | null;
   lines: ClaimLine[];

@@ -190,7 +190,7 @@ export const mockClaims: ClaimHeader[] = [
     id: "pa4", claimNo: "TXN20260310001", requesterId: "u6", requesterName: "Somying Prasertsuk",
     company: "CP Axtra Co., Ltd.", branch: "Bangkok", department: "Commercial — HoReCa", costCenter: "CC-COM-01",
     purpose: "Car Rental (2 days, customer event Pattaya)", merchantName: "AVIS RENT A CAR", currency: "THB", paymentMethod: "Corporate Card",
-    totalAmount: 9200, totalVat: 0, status: "Pending Approval", createdDate: "2026-03-10", submittedDate: "2026-03-10",
+    totalAmount: 9200, totalVat: 0, status: "Pending Approval", documentStatus: "Verified", createdDate: "2026-03-10", submittedDate: "2026-03-10",
     lines: [], approvalHistory: [{ stepNo: 1, approverId: "u1", approverName: "Somchai Jaidee", action: "Pending", comment: "", actionDate: null }], comments: [],
   },
 ];
