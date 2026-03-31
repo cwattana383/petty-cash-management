@@ -23,10 +23,10 @@ import SupportingDocsSection, { SupportingFile } from "@/components/claims/Suppo
 import AttachmentStatusBadge, { AttachmentOcrStatus } from "@/components/claims/AttachmentStatusBadge";
 import NoDocumentWarningDialog from "@/components/claims/NoDocumentWarningDialog";
 
-type StatusTab = "pending_invoice" | "rejected" | "approved" | "all";
+type StatusTab = "pending_documents" | "rejected" | "approved" | "all";
 
 const TAB_STATUS_MAP: Record<StatusTab, ClaimStatus[]> = {
-  pending_invoice: ["Pending Invoice"],
+  pending_documents: [],
   rejected: ["Auto Reject", "Reject", "Final Reject"],
   approved: ["Auto Approved", "Manager Approved", "Reimbursed"],
   all: [],
