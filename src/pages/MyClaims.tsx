@@ -11,7 +11,7 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { Calendar } from "@/components/ui/calendar";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { mockClaims } from "@/lib/mock-data";
-import { ClaimStatus } from "@/lib/types";
+import { ClaimStatus, DocumentStatus } from "@/lib/types";
 import { formatBEDate, cn } from "@/lib/utils";
 import { format, subDays } from "date-fns";
 import { toast } from "@/hooks/use-toast";
@@ -42,6 +42,14 @@ const statusVariant: Record<ClaimStatus, string> = {
   "Auto Approved": "bg-green-100 text-green-800",
   "Manager Approved": "bg-green-100 text-green-800",
   "Reimbursed": "bg-emerald-100 text-emerald-800",
+};
+
+const docStatusVariant: Record<DocumentStatus, string> = {
+  "Not Uploaded": "bg-gray-100 text-gray-800",
+  "Uploaded": "bg-blue-100 text-blue-800",
+  "Verified": "bg-green-100 text-green-800",
+  "Rejected": "bg-red-100 text-red-800",
+  "N/A": "bg-gray-50 text-gray-500",
 };
 
 const THAI_MONTHS_SHORT = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
@@ -276,18 +284,19 @@ export default function MyClaims() {
               <TableHead>Merchant Name</TableHead>
               <TableHead>Description</TableHead>
               <TableHead className="text-right">Amount</TableHead>
-              <TableHead>Status</TableHead>
+              <TableHead>Approval Status</TableHead>
+              <TableHead>Document Status</TableHead>
               {(activeTab === "rejected" || activeTab === "all") && <TableHead>Deduction Period</TableHead>}
-              
             </TableRow>
           </TableHeader>
           <TableBody>
             {filtered.length === 0 ? (
-              <TableRow><TableCell colSpan={(activeTab === "rejected" || activeTab === "all") ? 7 : 6} className="text-center text-muted-foreground py-8">No transactions found for this status.</TableCell></TableRow>
+              <TableRow><TableCell colSpan={(activeTab === "rejected" || activeTab === "all") ? 8 : 7} className="text-center text-muted-foreground py-8">No transactions found for this status.</TableCell></TableRow>
             ) : (
               filtered.map((c) => {
                 const status = getStatus(c);
                 const att = attachments[c.id];
+                const docStatus: DocumentStatus = c.documentStatus || "Not Uploaded";
                 return (
                   <TableRow key={c.id} className="cursor-pointer hover:bg-muted/50" onClick={() => navigate(`/claims/${c.id}`)}>
                     <TableCell className="font-medium">{c.claimNo}</TableCell>
@@ -297,6 +306,9 @@ export default function MyClaims() {
                     <TableCell className="text-right">฿{c.totalAmount.toLocaleString()}</TableCell>
                     <TableCell>
                       <Badge variant="outline" className={statusVariant[status]}>{status}</Badge>
+                    </TableCell>
+                    <TableCell>
+                      <Badge variant="outline" className={docStatusVariant[docStatus]}>{docStatus}</Badge>
                     </TableCell>
                     {(activeTab === "rejected" || activeTab === "all") && (
                       <TableCell className="text-sm">
