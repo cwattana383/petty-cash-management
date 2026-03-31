@@ -307,6 +307,9 @@ export default function MyClaims() {
                     <TableCell>
                       <Badge variant="outline" className={statusVariant[status]}>{status}</Badge>
                     </TableCell>
+                    <TableCell>
+                      <Badge variant="outline" className={docStatusVariant[docStatus]}>{docStatus}</Badge>
+                    </TableCell>
                     {(activeTab === "rejected" || activeTab === "all") && (
                       <TableCell className="text-sm">
                         {["Auto Reject", "Final Reject"].includes(status)
