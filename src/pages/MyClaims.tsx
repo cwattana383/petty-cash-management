@@ -167,8 +167,13 @@ export default function MyClaims() {
   const filtered = useMemo(() => {
     return mockClaims.filter((c) => {
       const status = getStatus(c);
-      const allowedStatuses = TAB_STATUS_MAP[activeTab];
-      if (allowedStatuses.length > 0 && !allowedStatuses.includes(status)) return false;
+      if (activeTab === "pending_documents") {
+        const docStatus = c.documentStatus || "Pending Documents";
+        if (docStatus !== "Pending Documents") return false;
+      } else {
+        const allowedStatuses = TAB_STATUS_MAP[activeTab];
+        if (allowedStatuses.length > 0 && !allowedStatuses.includes(status)) return false;
+      }
       const txnDate = new Date(c.createdDate);
       const from = new Date(dateFrom);
       from.setHours(0, 0, 0, 0);
