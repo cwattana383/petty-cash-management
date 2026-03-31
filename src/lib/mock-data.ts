@@ -42,7 +42,7 @@ export const mockClaims: ClaimHeader[] = [
     id: "c3", claimNo: "TXN20250129003", requesterId: "u1", requesterName: "Somchai Jaidee",
     company: "ABC Co., Ltd.", branch: "Bangkok", department: "9993010460 Finance and Accounting", costCenter: "CC-SALES-01",
     purpose: "Service Stations", merchantName: "PTT GAS STATION", currency: "THB", paymentMethod: "Corporate Card",
-    totalAmount: 850, totalVat: 0, status: "Pending Invoice", createdDate: "2026-02-28", submittedDate: null,
+    totalAmount: 850, totalVat: 0, status: "Pending Invoice", documentStatus: "Not Uploaded", createdDate: "2026-02-28", submittedDate: null,
     lines: [], approvalHistory: [], comments: [],
   },
   {
