@@ -269,7 +269,7 @@ export default function MyClaims() {
         </div>
         <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as StatusTab)}>
           <TabsList>
-            <TabsTrigger value="pending_invoice">Pending Invoice</TabsTrigger>
+            <TabsTrigger value="pending_documents">Pending Document</TabsTrigger>
             <TabsTrigger value="rejected">Rejected</TabsTrigger>
             <TabsTrigger value="approved">Approved</TabsTrigger>
             <TabsTrigger value="all">All</TabsTrigger>
