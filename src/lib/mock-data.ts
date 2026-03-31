@@ -49,7 +49,7 @@ export const mockClaims: ClaimHeader[] = [
     id: "c4", claimNo: "TXN20250129004", requesterId: "u1", requesterName: "Somchai Jaidee",
     company: "ABC Co., Ltd.", branch: "Bangkok", department: "9993010460 Finance and Accounting", costCenter: "CC-SALES-01",
     purpose: "Eating Places and Restaurants", merchantName: "SOMTUM RESTAURANT", currency: "THB", paymentMethod: "Cash",
-    totalAmount: 1250, totalVat: 0, status: "Pending Invoice", createdDate: "2026-02-28", submittedDate: null,
+    totalAmount: 1250, totalVat: 0, status: "Pending Invoice", documentStatus: "Not Uploaded", createdDate: "2026-02-28", submittedDate: null,
     lines: [], approvalHistory: [], comments: [],
   },
   {
