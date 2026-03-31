@@ -11,7 +11,7 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { Calendar } from "@/components/ui/calendar";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { mockClaims } from "@/lib/mock-data";
-import { ClaimStatus } from "@/lib/types";
+import { ClaimStatus, DocumentStatus } from "@/lib/types";
 import { formatBEDate, cn } from "@/lib/utils";
 import { format, subDays } from "date-fns";
 import { toast } from "@/hooks/use-toast";
