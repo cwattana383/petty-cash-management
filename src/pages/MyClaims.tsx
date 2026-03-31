@@ -73,7 +73,7 @@ export default function MyClaims() {
   const navigate = useNavigate();
   const { addNotification } = useNotifications();
   const [search, setSearch] = useState("");
-  const [activeTab, setActiveTab] = useState<StatusTab>("pending_invoice");
+  const [activeTab, setActiveTab] = useState<StatusTab>("pending_documents");
   const [dateFrom, setDateFrom] = useState<Date>(subDays(new Date("2026-02-28"), 6));
   const [dateTo, setDateTo] = useState<Date>(new Date("2026-02-28"));
 
