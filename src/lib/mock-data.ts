@@ -35,7 +35,7 @@ export const mockClaims: ClaimHeader[] = [
     id: "c2", claimNo: "TXN20250129002", requesterId: "u1", requesterName: "Somchai Jaidee",
     company: "ABC Co., Ltd.", branch: "Bangkok", department: "9993010460 Finance and Accounting", costCenter: "CC-SALES-01",
     purpose: "Hotels and Motels", merchantName: "MARRIOTT HOTEL BKK", currency: "THB", paymentMethod: "Corporate Card",
-    totalAmount: 3500, totalVat: 0, status: "Pending Invoice", createdDate: "2026-02-28", submittedDate: null,
+    totalAmount: 3500, totalVat: 0, status: "Pending Invoice", documentStatus: "Not Uploaded", createdDate: "2026-02-28", submittedDate: null,
     lines: [], approvalHistory: [], comments: [],
   },
   {
