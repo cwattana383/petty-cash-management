@@ -176,7 +176,7 @@ export const mockClaims: ClaimHeader[] = [
     id: "pa2", claimNo: "TXN20260301002", requesterId: "u7", requesterName: "Nattapon Wichai",
     company: "CP Axtra Co., Ltd.", branch: "Bangkok", department: "Operations — Supply Chain", costCenter: "CC-OPS-01",
     purpose: "Car Rental (3 days, site inspection Rayong)", merchantName: "BUDGET CAR RENTAL", currency: "THB", paymentMethod: "Corporate Card",
-    totalAmount: 12000, totalVat: 0, status: "Pending Approval", createdDate: "2026-03-02", submittedDate: "2026-03-02",
+    totalAmount: 12000, totalVat: 0, status: "Pending Approval", documentStatus: "Verified", createdDate: "2026-03-02", submittedDate: "2026-03-02",
     lines: [], approvalHistory: [{ stepNo: 1, approverId: "u1", approverName: "Somchai Jaidee", action: "Pending", comment: "", actionDate: null }], comments: [],
   },
   {
