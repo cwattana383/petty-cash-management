@@ -3,7 +3,7 @@ export type PaymentMethod = "Cash" | "Corporate Card" | "Personal Card" | "Bank 
 export type ExpenseType = "Travel" | "Meals" | "Office Supplies" | "Transportation" | "Training" | "Entertainment" | "Communication" | "Other";
 export type ReconcileStatus = "Unmatched" | "Matched" | "Partially Matched" | "Exception";
 export type AccountingStatus = "Pending Review" | "Exception" | "Ready for ERP" | "Interfaced";
-export type DocumentStatus = "Not Uploaded" | "Uploaded" | "Verified" | "Rejected" | "N/A";
+export type DocumentStatus = "Not Required" | "Pending Documents" | "Validated";
 export type UserRole = "Employee" | "Manager" | "Accounting" | "Admin";
 
 export interface User {
