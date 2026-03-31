@@ -28,7 +28,7 @@ export const mockClaims: ClaimHeader[] = [
     id: "c1", claimNo: "TXN20250129001", requesterId: "u1", requesterName: "Somchai Jaidee",
     company: "ABC Co., Ltd.", branch: "Bangkok", department: "9993010460 Finance and Accounting", costCenter: "CC-SALES-01",
     purpose: "Taxicabs and Limousines", merchantName: "GRAB TAXI", currency: "THB", paymentMethod: "Corporate Card",
-    totalAmount: 1500, totalVat: 0, status: "Pending Invoice", createdDate: "2026-02-28", submittedDate: null,
+    totalAmount: 1500, totalVat: 0, status: "Pending Invoice", documentStatus: "Not Uploaded", createdDate: "2026-02-28", submittedDate: null,
     lines: [], approvalHistory: [], comments: [],
   },
   {
