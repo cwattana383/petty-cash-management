@@ -12,7 +12,7 @@ import {
   AlertCircle, Send, AlertTriangle, Upload, FileText,
   Loader2, CheckCircle2, Info, CreditCard, Trash2
 } from "lucide-react";
-import { formatBEDate } from "@/lib/utils";
+import { formatBEDate, cn } from "@/lib/utils";
 import { useClaims } from "@/lib/claims-context";
 import { getLevel1Options, getLevel2Options, getExpenseConfig } from "@/lib/expense-type-config";
 import { VAT_TYPE_CONFIG, getDefaultVatType } from "@/lib/vat-type-config";
