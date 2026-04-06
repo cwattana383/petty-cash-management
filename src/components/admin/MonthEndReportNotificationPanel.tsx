@@ -155,6 +155,113 @@ export default function MonthEndReportNotificationPanel() {
                     </tr>
                   </tfoot>
                 </table>
+               </div>
+
+              {/* Salary Deduction Detail Section */}
+              <div className="border-l-4 border-red-500 rounded-md overflow-hidden bg-red-50/50">
+                <div className="px-5 py-4">
+                  <p className="text-sm font-semibold text-red-900">⚠️ Transactions Requiring Salary Deduction</p>
+                  <p className="text-xs text-red-700 mt-1">The following transactions have been rejected and require payroll deduction processing</p>
+                </div>
+
+                {/* Employee 1 */}
+                <div className="px-5 pb-4 space-y-4">
+                  <div className="bg-white rounded-md border border-red-200 overflow-hidden">
+                    <div className="px-4 py-3 border-b border-red-100 bg-red-50/30">
+                      <p className="text-sm font-bold text-foreground">Somchai Jaidee <span className="font-normal text-muted-foreground">[EMP-1042]</span></p>
+                      <p className="text-xs text-muted-foreground">IT Department</p>
+                    </div>
+                    <table className="w-full text-xs">
+                      <thead>
+                        <tr className="bg-muted/30">
+                          <th className="text-left px-3 py-2 font-semibold">Date</th>
+                          <th className="text-left px-3 py-2 font-semibold">Merchant</th>
+                          <th className="text-right px-3 py-2 font-semibold">Amount</th>
+                          <th className="text-left px-3 py-2 font-semibold">Rejection Type</th>
+                          <th className="text-left px-3 py-2 font-semibold">Reason</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        <tr className="border-t">
+                          <td className="px-3 py-2">15 Jan 2026</td>
+                          <td className="px-3 py-2">Lucky Bar & Pub</td>
+                          <td className="text-right px-3 py-2 font-mono">฿4,500</td>
+                          <td className="px-3 py-2"><span className="inline-block text-[10px] font-semibold px-2 py-0.5 rounded-full bg-red-100 text-red-700">Auto-Rejected</span></td>
+                          <td className="px-3 py-2 text-muted-foreground">Prohibited merchant category (MCC: Entertainment/Bar)</td>
+                        </tr>
+                        <tr className="border-t">
+                          <td className="px-3 py-2">22 Jan 2026</td>
+                          <td className="px-3 py-2">Siam Nightclub</td>
+                          <td className="text-right px-3 py-2 font-mono">฿8,200</td>
+                          <td className="px-3 py-2"><span className="inline-block text-[10px] font-semibold px-2 py-0.5 rounded-full bg-red-100 text-red-700">Auto-Rejected</span></td>
+                          <td className="px-3 py-2 text-muted-foreground">Prohibited merchant category (MCC: Nightclub)</td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>
+
+                  {/* Employee 2 */}
+                  <div className="bg-white rounded-md border border-red-200 overflow-hidden">
+                    <div className="px-4 py-3 border-b border-red-100 bg-red-50/30">
+                      <p className="text-sm font-bold text-foreground">Naphat Wongchai <span className="font-normal text-muted-foreground">[EMP-0871]</span></p>
+                      <p className="text-xs text-muted-foreground">Operations</p>
+                    </div>
+                    <table className="w-full text-xs">
+                      <thead>
+                        <tr className="bg-muted/30">
+                          <th className="text-left px-3 py-2 font-semibold">Date</th>
+                          <th className="text-left px-3 py-2 font-semibold">Merchant</th>
+                          <th className="text-right px-3 py-2 font-semibold">Amount</th>
+                          <th className="text-left px-3 py-2 font-semibold">Rejection Type</th>
+                          <th className="text-left px-3 py-2 font-semibold">Reason</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        <tr className="border-t">
+                          <td className="px-3 py-2">10 Jan 2026</td>
+                          <td className="px-3 py-2">Central Department Store</td>
+                          <td className="text-right px-3 py-2 font-mono">฿15,000</td>
+                          <td className="px-3 py-2"><span className="inline-block text-[10px] font-semibold px-2 py-0.5 rounded-full bg-red-900 text-white">Final Rejected</span></td>
+                          <td className="px-3 py-2 text-muted-foreground">Personal purchase — not business-related (Manager: Krit S.)</td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>
+
+                  {/* Employee 3 */}
+                  <div className="bg-white rounded-md border border-red-200 overflow-hidden">
+                    <div className="px-4 py-3 border-b border-red-100 bg-red-50/30">
+                      <p className="text-sm font-bold text-foreground">Lalita Thongdee <span className="font-normal text-muted-foreground">[EMP-1195]</span></p>
+                      <p className="text-xs text-muted-foreground">Purchasing</p>
+                    </div>
+                    <table className="w-full text-xs">
+                      <thead>
+                        <tr className="bg-muted/30">
+                          <th className="text-left px-3 py-2 font-semibold">Date</th>
+                          <th className="text-left px-3 py-2 font-semibold">Merchant</th>
+                          <th className="text-right px-3 py-2 font-semibold">Amount</th>
+                          <th className="text-left px-3 py-2 font-semibold">Rejection Type</th>
+                          <th className="text-left px-3 py-2 font-semibold">Reason</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        <tr className="border-t">
+                          <td className="px-3 py-2">28 Jan 2026</td>
+                          <td className="px-3 py-2">Lotus's Supermarket</td>
+                          <td className="text-right px-3 py-2 font-mono">฿7,800</td>
+                          <td className="px-3 py-2"><span className="inline-block text-[10px] font-semibold px-2 py-0.5 rounded-full bg-red-900 text-white">Final Rejected</span></td>
+                          <td className="px-3 py-2 text-muted-foreground">Exceeded policy limit without pre-approval (Manager: Praew N.)</td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>
+
+                  {/* Footer */}
+                  <div className="bg-red-100/80 rounded-md px-4 py-3 space-y-1">
+                    <p className="text-xs font-bold text-red-900">Total Deduction Required: 4 transactions | ฿35,500</p>
+                    <p className="text-xs text-red-800">Please coordinate with Payroll to process deductions by the 15th of this month.</p>
+                  </div>
+                </div>
               </div>
 
               <p className="text-sm text-muted-foreground">
