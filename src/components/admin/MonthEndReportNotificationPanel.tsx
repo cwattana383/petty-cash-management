@@ -143,6 +143,11 @@ export default function MonthEndReportNotificationPanel() {
                     ))}
                   </tbody>
                   <tfoot>
+                    <tr className="border-t" style={{ backgroundColor: "#FEE2E2" }}>
+                      <td className="px-4 py-2.5 font-bold" style={{ color: "#991B1B" }}>Total Requiring Salary Deduction</td>
+                      <td className="text-right px-4 py-2.5 font-mono font-bold" style={{ color: "#991B1B" }}>{rejectedCount}</td>
+                      <td className="text-right px-4 py-2.5 font-mono font-bold" style={{ color: "#991B1B" }}>฿{rejectedAmount.toLocaleString()}</td>
+                    </tr>
                     <tr className="border-t bg-muted/30 font-semibold">
                       <td className="px-4 py-2.5">Grand Total</td>
                       <td className="text-right px-4 py-2.5 font-mono">{totalCount}</td>
