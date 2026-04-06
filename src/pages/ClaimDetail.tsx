@@ -281,12 +281,15 @@ export default function ClaimDetail() {
                 {claim.claimNo} · {claim.purpose || "Taxicabs and Limousines"}
               </h1>
             </div>
-            <Badge variant="outline" className={
-              claim.status === "Request for Info"
-                ? "border-indigo-300 bg-indigo-50 text-indigo-700 shrink-0"
-                : "border-amber-300 bg-amber-50 text-amber-700 shrink-0"
-            }>
-              {claim.status === "Request for Info" ? "Request for Info" : "Pending Approval"}
+            <Badge variant="outline" className={cn(
+              "shrink-0",
+              claim.status === "Final Rejected"
+                ? "border-red-400 bg-red-100 text-red-900"
+                : claim.status === "Request for Info"
+                  ? "border-indigo-300 bg-indigo-50 text-indigo-700"
+                  : "border-amber-300 bg-amber-50 text-amber-700"
+            )}>
+              {claim.status}
             </Badge>
           </div>
         </div>
