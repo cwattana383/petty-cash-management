@@ -376,7 +376,7 @@ export default function ClaimDetail() {
           </section>
 
           {/* ══════ SECTION 4 — AUDIT TRAIL ══════ */}
-          <AuditTrail />
+          <AuditTrail events={claim.status === "Final Rejected" ? FINAL_REJECTED_TRAIL : REQUEST_INFO_TRAIL} />
         </div>
 
         {/* ══════ APPROVAL DECISION PANEL (Fixed Bottom) ══════ */}
