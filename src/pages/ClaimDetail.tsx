@@ -373,6 +373,43 @@ export default function ClaimDetail() {
               </CardContent>
             </Card>
           </section>
+
+          {/* ══════ SECTION 4 — AUDIT TRAIL ══════ */}
+          <section>
+            <div className="flex items-center gap-2 mb-3">
+              <Clock className="h-4 w-4 text-muted-foreground" />
+              <h3 className="text-sm font-semibold text-foreground">Audit Trail</h3>
+            </div>
+            <Card className="border border-border rounded-xl">
+              <CardContent className="pt-5 pb-5">
+                <div className="relative pl-6 space-y-6">
+                  {/* Timeline line */}
+                  <div className="absolute left-[7px] top-2 bottom-2 w-px bg-border" />
+
+                  {claim.status === "Request for Info" && (
+                    <div className="relative">
+                      <div className="absolute -left-6 top-1 h-3 w-3 rounded-full bg-amber-400 border-2 border-background" />
+                      <div>
+                        <p className="text-[13px] font-medium text-foreground">Manager requested more information</p>
+                        <p className="text-[13px] italic text-muted-foreground mt-1">
+                          "Please attach the original receipt and specify the names of all attendees on the trip."
+                        </p>
+                        <p className="text-xs text-muted-foreground mt-1">Somying Rakdee (Manager) · 01/03/2026 14:30</p>
+                      </div>
+                    </div>
+                  )}
+
+                  <div className="relative">
+                    <div className="absolute -left-6 top-1 h-3 w-3 rounded-full bg-emerald-500 border-2 border-background" />
+                    <div>
+                      <p className="text-[13px] font-medium text-foreground">Submitted by {claim.requesterName}</p>
+                      <p className="text-xs text-muted-foreground mt-1">01/03/2026 09:00</p>
+                    </div>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </section>
         </div>
 
         {/* ══════ APPROVAL DECISION PANEL (Fixed Bottom) ══════ */}
@@ -406,6 +443,29 @@ export default function ClaimDetail() {
               >
                 <X className="h-4 w-4 mr-1" /> Reject
               </Button>
+
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <span>
+                      <Button
+                        variant="outline"
+                        className="border-amber-400 text-amber-700 hover:bg-amber-50"
+                        disabled={claim.status === "Request for Info"}
+                        onClick={() => setRequestInfoOpen(true)}
+                      >
+                        <MessageSquare className="h-4 w-4 mr-1" /> Request Info
+                      </Button>
+                    </span>
+                  </TooltipTrigger>
+                  {claim.status === "Request for Info" && (
+                    <TooltipContent>
+                      <p>Waiting for cardholder response</p>
+                    </TooltipContent>
+                  )}
+                </Tooltip>
+              </TooltipProvider>
+
               <Button
                 className="bg-emerald-600 hover:bg-emerald-700 text-white"
                 onClick={handleApproverApprove}
@@ -415,6 +475,57 @@ export default function ClaimDetail() {
             </div>
           </div>
         </div>
+
+        {/* ══════ REQUEST INFO MODAL ══════ */}
+        <Dialog open={requestInfoOpen} onOpenChange={setRequestInfoOpen}>
+          <DialogContent className="sm:max-w-md">
+            <DialogHeader>
+              <DialogTitle>Request More Information</DialogTitle>
+              <p className="text-sm text-muted-foreground">
+                This message will be sent to {claim.requesterName} via email
+              </p>
+            </DialogHeader>
+            <div className="space-y-2">
+              <Label className="text-[13px] font-semibold">Message to Employee *</Label>
+              <Textarea
+                rows={4}
+                placeholder="e.g. Please attach the original receipt and specify the names of all attendees..."
+                value={requestInfoMessage}
+                onChange={(e) => {
+                  setRequestInfoMessage(e.target.value);
+                  setRequestInfoTouched(true);
+                }}
+                className="text-[13px]"
+              />
+              <div className="flex items-center justify-between">
+                <p className={`text-xs ${requestInfoMessage.length >= 10 ? "text-emerald-600" : "text-muted-foreground"}`}>
+                  {requestInfoMessage.length} / min 10 characters
+                </p>
+              </div>
+              {requestInfoTouched && requestInfoMessage.length > 0 && requestInfoMessage.length < 10 && (
+                <p className="text-xs text-destructive">Please enter a message (minimum 10 characters)</p>
+              )}
+            </div>
+            <DialogFooter>
+              <Button variant="ghost" onClick={() => { setRequestInfoOpen(false); setRequestInfoMessage(""); setRequestInfoTouched(false); }}>
+                Cancel
+              </Button>
+              <Button
+                className="bg-amber-500 hover:bg-amber-600 text-white"
+                disabled={requestInfoMessage.length < 10}
+                onClick={() => {
+                  updateClaim(claim.id, { status: "Request for Info" as any });
+                  toast({ title: "Request sent", description: `${claim.requesterName} will receive an email notification` });
+                  setRequestInfoOpen(false);
+                  setRequestInfoMessage("");
+                  setRequestInfoTouched(false);
+                }}
+              >
+                <Send className="h-4 w-4 mr-1" /> Send Request
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
 
         {/* Read-only OCR Verify Modal for approver */}
         <OcrVerifyModal
