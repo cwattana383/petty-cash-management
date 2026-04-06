@@ -11,9 +11,12 @@ const summaryRows = [
   { status: "Auto-Approved", count: 42, amount: 185000 },
   { status: "Manager-Approved", count: 18, amount: 94500 },
   { status: "Auto-Rejected", count: 5, amount: 23000 },
-  { status: "Manager-Rejected", count: 3, amount: 15000 },
+  { status: "Final Rejected", count: 3, amount: 15000 },
   { status: "Pending (Salary Deduction)", count: 2, amount: 8200 },
 ];
+
+const rejectedCount = summaryRows.filter(r => r.status === "Auto-Rejected" || r.status === "Final Rejected").reduce((s, r) => s + r.count, 0);
+const rejectedAmount = summaryRows.filter(r => r.status === "Auto-Rejected" || r.status === "Final Rejected").reduce((s, r) => s + r.amount, 0);
 
 const totalCount = summaryRows.reduce((s, r) => s + r.count, 0);
 const totalAmount = summaryRows.reduce((s, r) => s + r.amount, 0);
@@ -22,7 +25,7 @@ const statusColors: Record<string, string> = {
   "Auto-Approved": "#16a34a",
   "Manager-Approved": "#2563eb",
   "Auto-Rejected": "#dc2626",
-  "Manager-Rejected": "#ea580c",
+  "Final Rejected": "#7f1d1d",
   "Pending (Salary Deduction)": "#d97706",
 };
 
@@ -84,7 +87,7 @@ export default function MonthEndReportNotificationPanel() {
           <CardContent className="space-y-3">
             <Input value={subject} onChange={(e) => setSubject(e.target.value)} className="text-sm" />
             <p className="text-xs text-muted-foreground">
-              Available variables: {"{{month}}"}, {"{{year}}"}, {"{{total_count}}"}, {"{{total_amount}}"}
+              Available variables: {"{{month}}"}, {"{{year}}"}, {"{{total_count}}"}, {"{{total_amount}}"}, {"{{rejected_count}}"}, {"{{rejected_amount}}"}
             </p>
           </CardContent>
         </Card>
@@ -140,6 +143,11 @@ export default function MonthEndReportNotificationPanel() {
                     ))}
                   </tbody>
                   <tfoot>
+                    <tr className="border-t" style={{ backgroundColor: "#FEE2E2" }}>
+                      <td className="px-4 py-2.5 font-bold" style={{ color: "#991B1B" }}>Total Requiring Salary Deduction</td>
+                      <td className="text-right px-4 py-2.5 font-mono font-bold" style={{ color: "#991B1B" }}>{rejectedCount}</td>
+                      <td className="text-right px-4 py-2.5 font-mono font-bold" style={{ color: "#991B1B" }}>฿{rejectedAmount.toLocaleString()}</td>
+                    </tr>
                     <tr className="border-t bg-muted/30 font-semibold">
                       <td className="px-4 py-2.5">Grand Total</td>
                       <td className="text-right px-4 py-2.5 font-mono">{totalCount}</td>
