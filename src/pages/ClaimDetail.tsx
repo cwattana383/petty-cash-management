@@ -94,6 +94,9 @@ export default function ClaimDetail() {
   const [showRejectInput, setShowRejectInput] = useState(false);
   const [rejectReason, setRejectReason] = useState("");
   const [approverDocModal, setApproverDocModal] = useState(false);
+  const [requestInfoOpen, setRequestInfoOpen] = useState(false);
+  const [requestInfoMessage, setRequestInfoMessage] = useState("");
+  const [requestInfoTouched, setRequestInfoTouched] = useState(false);
 
   // Validation
   const [errors, setErrors] = useState<Record<string, string>>({});
