@@ -42,6 +42,7 @@ const statusVariant: Record<ClaimStatus, string> = {
   "Auto Approved": "bg-green-100 text-green-800",
   "Manager Approved": "bg-green-100 text-green-800",
   "Reimbursed": "bg-emerald-100 text-emerald-800",
+  "Request for Info": "bg-indigo-100 text-indigo-800",
 };
 
 const docStatusVariant: Record<DocumentStatus, string> = {
