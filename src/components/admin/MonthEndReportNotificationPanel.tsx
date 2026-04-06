@@ -25,7 +25,7 @@ const statusColors: Record<string, string> = {
   "Auto-Approved": "#16a34a",
   "Manager-Approved": "#2563eb",
   "Auto-Rejected": "#dc2626",
-  "Manager-Rejected": "#ea580c",
+  "Final Rejected": "#7f1d1d",
   "Pending (Salary Deduction)": "#d97706",
 };
 
