@@ -20,7 +20,7 @@ import ExpenseLineItems from "@/components/claims/ExpenseLineItems";
 import OcrVerifyModal, { type OcrExtractedData, type ValidationContext } from "@/components/claims/OcrVerifyModal";
 import { mockCompanyIdentities } from "@/components/admin/EntityTypes";
 import { useToast } from "@/hooks/use-toast";
-import AuditTrail from "@/components/claims/AuditTrail";
+import AuditTrail, { REQUEST_INFO_TRAIL, FINAL_REJECTED_TRAIL } from "@/components/claims/AuditTrail";
 import { useState, useCallback, useRef } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 
