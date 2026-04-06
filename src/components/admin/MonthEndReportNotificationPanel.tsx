@@ -11,9 +11,12 @@ const summaryRows = [
   { status: "Auto-Approved", count: 42, amount: 185000 },
   { status: "Manager-Approved", count: 18, amount: 94500 },
   { status: "Auto-Rejected", count: 5, amount: 23000 },
-  { status: "Manager-Rejected", count: 3, amount: 15000 },
+  { status: "Final Rejected", count: 3, amount: 15000 },
   { status: "Pending (Salary Deduction)", count: 2, amount: 8200 },
 ];
+
+const rejectedCount = summaryRows.filter(r => r.status === "Auto-Rejected" || r.status === "Final Rejected").reduce((s, r) => s + r.count, 0);
+const rejectedAmount = summaryRows.filter(r => r.status === "Auto-Rejected" || r.status === "Final Rejected").reduce((s, r) => s + r.amount, 0);
 
 const totalCount = summaryRows.reduce((s, r) => s + r.count, 0);
 const totalAmount = summaryRows.reduce((s, r) => s + r.amount, 0);
