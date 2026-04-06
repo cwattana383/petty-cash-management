@@ -87,7 +87,7 @@ export default function MonthEndReportNotificationPanel() {
           <CardContent className="space-y-3">
             <Input value={subject} onChange={(e) => setSubject(e.target.value)} className="text-sm" />
             <p className="text-xs text-muted-foreground">
-              Available variables: {"{{month}}"}, {"{{year}}"}, {"{{total_count}}"}, {"{{total_amount}}"}
+              Available variables: {"{{month}}"}, {"{{year}}"}, {"{{total_count}}"}, {"{{total_amount}}"}, {"{{rejected_count}}"}, {"{{rejected_amount}}"}
             </p>
           </CardContent>
         </Card>
