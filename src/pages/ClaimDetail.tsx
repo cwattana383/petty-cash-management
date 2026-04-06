@@ -382,64 +382,72 @@ export default function ClaimDetail() {
         {/* ══════ APPROVAL DECISION PANEL (Fixed Bottom) ══════ */}
         <div className="fixed bottom-0 left-0 right-0 bg-background border-t border-border px-6 py-4 z-50">
           <div className="max-w-5xl mx-auto">
-            {showRejectInput && (
-              <div className="mb-3 space-y-2">
-                <Label className="text-[13px] font-semibold text-foreground">Reason for rejection (required)</Label>
-                <Textarea
-                  placeholder="Please provide the reason for rejecting this claim..."
-                  value={rejectReason}
-                  onChange={(e) => setRejectReason(e.target.value)}
-                  className="text-[13px] min-h-[80px]"
-                />
-                <div className="flex justify-end">
+            {claim.status === "Final Rejected" ? (
+              <p className="text-center text-muted-foreground text-[13px]">
+                🔒  Permanently closed — no actions available
+              </p>
+            ) : (
+              <>
+                {showRejectInput && (
+                  <div className="mb-3 space-y-2">
+                    <Label className="text-[13px] font-semibold text-foreground">Reason for rejection (required)</Label>
+                    <Textarea
+                      placeholder="Please provide the reason for rejecting this claim..."
+                      value={rejectReason}
+                      onChange={(e) => setRejectReason(e.target.value)}
+                      className="text-[13px] min-h-[80px]"
+                    />
+                    <div className="flex justify-end">
+                      <Button
+                        variant="destructive"
+                        onClick={handleApproverReject}
+                        disabled={!rejectReason.trim()}
+                      >
+                        Confirm Reject
+                      </Button>
+                    </div>
+                  </div>
+                )}
+                <div className="flex justify-end gap-3">
                   <Button
-                    variant="destructive"
-                    onClick={handleApproverReject}
-                    disabled={!rejectReason.trim()}
+                    variant="outline"
+                    className="text-destructive border-destructive/30 hover:bg-destructive/10"
+                    onClick={() => setShowRejectInput((prev) => !prev)}
                   >
-                    Confirm Reject
+                    <X className="h-4 w-4 mr-1" /> Reject
+                  </Button>
+
+                  <TooltipProvider>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <span>
+                          <Button
+                            variant="outline"
+                            className="border-amber-400 text-amber-700 hover:bg-amber-50"
+                            disabled={claim.status === "Request for Info"}
+                            onClick={() => setRequestInfoOpen(true)}
+                          >
+                            <MessageSquare className="h-4 w-4 mr-1" /> Request Info
+                          </Button>
+                        </span>
+                      </TooltipTrigger>
+                      {claim.status === "Request for Info" && (
+                        <TooltipContent>
+                          <p>Waiting for cardholder response</p>
+                        </TooltipContent>
+                      )}
+                    </Tooltip>
+                  </TooltipProvider>
+
+                  <Button
+                    className="bg-emerald-600 hover:bg-emerald-700 text-white"
+                    onClick={handleApproverApprove}
+                  >
+                    <Check className="h-4 w-4 mr-1" /> Approve
                   </Button>
                 </div>
-              </div>
+              </>
             )}
-            <div className="flex justify-end gap-3">
-              <Button
-                variant="outline"
-                className="text-destructive border-destructive/30 hover:bg-destructive/10"
-                onClick={() => setShowRejectInput((prev) => !prev)}
-              >
-                <X className="h-4 w-4 mr-1" /> Reject
-              </Button>
-
-              <TooltipProvider>
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <span>
-                      <Button
-                        variant="outline"
-                        className="border-amber-400 text-amber-700 hover:bg-amber-50"
-                        disabled={claim.status === "Request for Info"}
-                        onClick={() => setRequestInfoOpen(true)}
-                      >
-                        <MessageSquare className="h-4 w-4 mr-1" /> Request Info
-                      </Button>
-                    </span>
-                  </TooltipTrigger>
-                  {claim.status === "Request for Info" && (
-                    <TooltipContent>
-                      <p>Waiting for cardholder response</p>
-                    </TooltipContent>
-                  )}
-                </Tooltip>
-              </TooltipProvider>
-
-              <Button
-                className="bg-emerald-600 hover:bg-emerald-700 text-white"
-                onClick={handleApproverApprove}
-              >
-                <Check className="h-4 w-4 mr-1" /> Approve
-              </Button>
-            </div>
           </div>
         </div>
 
