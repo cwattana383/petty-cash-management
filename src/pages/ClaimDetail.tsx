@@ -844,6 +844,11 @@ export default function ClaimDetail() {
             </CardContent>
           </Card>
         )}
+
+        {/* ══════ AUDIT TRAIL (visible to all roles) ══════ */}
+        <div className="mt-8">
+          <AuditTrail events={claim.status === "Final Rejected" ? FINAL_REJECTED_TRAIL : REQUEST_INFO_TRAIL} />
+        </div>
       </div>
 
       {/* ══════ STICKY FOOTER ══════ */}
