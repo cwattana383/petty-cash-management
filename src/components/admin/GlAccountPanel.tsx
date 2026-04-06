@@ -1,4 +1,5 @@
-import { useState, useMemo, useRef } from "react";
+import { useState, useRef, useMemo } from "react";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -13,240 +14,89 @@ import {
 import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from "@/components/ui/select";
+import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import {
-  Plus, Search, Pencil, Trash2, Upload, Download, ChevronLeft, ChevronRight,
+  Plus, Search, Pencil, Trash2, Upload, Download, ChevronLeft, ChevronRight, Loader2, RotateCcw, ChevronsUpDown, Check,
 } from "lucide-react";
+import { cn } from "@/lib/utils";
 import { useToast } from "@/hooks/use-toast";
-
-interface GlAccountRow {
-  id: string;
-  expenseType: string;
-  accountCode: string;
-  accountName: string;
-  active: boolean;
-  updatedAt: string;
-}
-
-const now = () => new Date().toISOString().replace("T", " ").slice(0, 19);
-
-const expenseTypeOptions = [
-  "Delivery to Customer (Last Mile)",
-  "Withholding Tax (1%) to Government",
-  "Medicine for Employees",
-  "Water Utility",
-  "Raw Water Purchase",
-  "Waste Collection",
-  "Grease Trap & Sewage Pumping",
-  "Drain Pipe Unclogging",
-  "Lawn Mowing",
-  "Landscaping, Trees, Soil for Garden",
-  "Electricity",
-  "Cleaning Service",
-  "Police Donation Box",
-  "Land & Building Tax",
-  "Radio Advertising",
-  "Signage Tax",
-  "Advertising on Shuttle Bus",
-  "Anniversary Prizes",
-  "Accommodation for Canvass Department",
-  "Sample Product Delivery for Testing",
-  "Vinyl Banner for Promotion",
-  "Food & Beverage for HoReCa Customer Visit",
-  "Prizes",
-  "Decorative Signs for Branch Promotion",
-  "Sign Delivery for Wholesale Events",
-  "Vinyl Banner for Parade Vehicle Advertising",
-  "Computer Expense/Repair — Parts & Components",
-  "Computer Consumables",
-  "Building Repair & Maintenance",
-  "Machinery Repair & Installation",
-  "Office Furniture Repair",
-  "Office Equipment Repair",
-  "Store Equipment Repair",
-  "Other Repairs",
-  "Pre-Employment Health Check",
-  "Outstanding PC Welfare",
-  "Wreath Expense",
-  "Part-Time Employee Hiring Expense",
-  "Intern Health Check",
-  "Flower Basket for Customer",
-  "Food & Beverage for Stock Count Staff",
-  "Travel Expense (Local)",
-  "Travel Expense (Overseas)",
-  "Vehicle Fuel",
-  "Vehicle Repair & Maintenance",
-  "Vehicle Tax Renewal",
-  "Toll Fees",
-  "Store Equipment Rental",
-  "Other Equipment Rental",
-  "Forklift Rental",
-  "Container Rental",
-  "Tent Rental",
-  "Other Rental",
-  "Telephone/Fax",
-  "Postal/Courier",
-  "Office Supplies & Printing",
-  "Other Office Consumables",
-  "Tax Surcharge/Penalty",
-  "Tax Paid on Behalf of Customer/Lessor",
-  "External Seminar Fee",
-  "Seminar Food & Beverage",
-  "Seminar Travel",
-  "Seminar Accommodation",
-  "Seminar Room",
-  "Bank Fee",
-  "Audit Fee",
-  "Consulting Fee",
-  "Legal Fee",
-  "License Fee",
-  "Stock Exchange Fee",
-  "Store Consumables",
-  "Store Consumables — Forklift Fuel",
-  "Cold Room Uniform Laundry",
-  "Shrine Offering Expense (Flowers, Offerings)",
-  "Accommodation for Buffer HO Staff",
-];
-
-const initialData: GlAccountRow[] = [
-  { id: "1", expenseType: "Delivery to Customer (Last Mile)", accountCode: "6190060001", accountName: "Other Income - Delivery Cost", active: true, updatedAt: "2026-03-23 10:00:00" },
-  { id: "2", expenseType: "Withholding Tax (1%) to Government", accountCode: "2135100004", accountName: "Tax Withheld - Sales", active: true, updatedAt: "2026-03-23 10:00:00" },
-  { id: "3", expenseType: "Medicine for Employees", accountCode: "6110040001", accountName: "Personnel Cost-Sick Pay & physical checkup", active: true, updatedAt: "2026-03-23 10:00:00" },
-  { id: "4", expenseType: "Water Utility", accountCode: "6115010101", accountName: "Establish.Cost-Water", active: true, updatedAt: "2026-03-23 10:00:00" },
-  { id: "5", expenseType: "Waste Collection", accountCode: "6115900001", accountName: "Establish.Cost-Sewage Charge", active: true, updatedAt: "2026-03-23 10:00:00" },
-  { id: "6", expenseType: "Lawn Mowing", accountCode: "6115900002", accountName: "Establishment Cost-Garden Service", active: true, updatedAt: "2026-03-23 10:00:00" },
-  { id: "7", expenseType: "Electricity", accountCode: "6115020201", accountName: "Establish.Cost-Electricity", active: true, updatedAt: "2026-03-23 10:00:00" },
-  { id: "8", expenseType: "Cleaning Service", accountCode: "6115030001", accountName: "Establish.Cost-Cleaning", active: true, updatedAt: "2026-03-23 10:00:00" },
-  { id: "9", expenseType: "Police Donation Box", accountCode: "6115030002", accountName: "Establish.Cost-Security", active: true, updatedAt: "2026-03-23 10:00:00" },
-  { id: "10", expenseType: "Land & Building Tax", accountCode: "6115040001", accountName: "Establishment Cost - Land and Building Tax", active: true, updatedAt: "2026-03-23 10:00:00" },
-  { id: "11", expenseType: "Newspaper Ad for AGM Invitation", accountCode: "6125020001", accountName: "Advertisement-Newspaper", active: true, updatedAt: "2026-03-23 10:00:00" },
-  { id: "12", expenseType: "Radio Advertising", accountCode: "6125020004", accountName: "Advertisement-Public Radio", active: true, updatedAt: "2026-03-23 10:00:00" },
-  { id: "13", expenseType: "Signage Tax", accountCode: "6125020006", accountName: "Advertisement-Signboard Tax", active: true, updatedAt: "2026-03-23 10:00:00" },
-  { id: "14", expenseType: "Advertising on Shuttle Bus", accountCode: "6125020090", accountName: "Advertisement-Others", active: true, updatedAt: "2026-03-23 10:00:00" },
-  { id: "15", expenseType: "Anniversary Prizes", accountCode: "6125040001", accountName: "Promotion-Grand Opening & Anniversary", active: true, updatedAt: "2026-03-23 10:00:00" },
-  { id: "16", expenseType: "Accommodation for Canvass Department", accountCode: "6125040002", accountName: "Promotion-Canvassing", active: true, updatedAt: "2026-03-23 10:00:00" },
-  { id: "17", expenseType: "Sample Product Delivery for Testing", accountCode: "6125040004", accountName: "Promotion-Fighting Pro./Sample Product", active: true, updatedAt: "2026-03-23 10:00:00" },
-  { id: "18", expenseType: "Vinyl Banner for Promotion", accountCode: "6125030090", accountName: "PR & CSR - Others", active: true, updatedAt: "2026-03-23 10:00:00" },
-  { id: "19", expenseType: "Customer Travel for HoReCa Challenge", accountCode: "6125900004", accountName: "Other Sale Promot.-HORECA/MRA Event", active: true, updatedAt: "2026-03-23 10:00:00" },
-  { id: "20", expenseType: "Food & Beverage for HoReCa Customer Visit", accountCode: "6125900006", accountName: "Other Sale Promot.-HORECA customer", active: true, updatedAt: "2026-03-23 10:00:00" },
-  { id: "21", expenseType: "Prizes", accountCode: "6125900007", accountName: "Other Sales Promotion - Customer Develop", active: true, updatedAt: "2026-03-23 10:00:00" },
-  { id: "22", expenseType: "Decorative Signs for Branch Promotion", accountCode: "6125900008", accountName: "Other Sales Promotion - Store Decoration", active: true, updatedAt: "2026-03-23 10:00:00" },
-  { id: "23", expenseType: "Sign Delivery for Wholesale Events", accountCode: "6125900009", accountName: "Other Sales Promotion - MRA", active: true, updatedAt: "2026-03-23 10:00:00" },
-  { id: "24", expenseType: "Vinyl Banner for Parade Vehicle Advertising", accountCode: "6125900090", accountName: "Other Sale Promot.-Others", active: true, updatedAt: "2026-03-23 10:00:00" },
-  { id: "25", expenseType: "Computer Expense/Repair — Parts & Components", accountCode: "6130000007", accountName: "Computer Exp. - Repair Spareparts", active: true, updatedAt: "2026-03-23 10:00:00" },
-  { id: "26", expenseType: "Computer Consumables", accountCode: "6130000008", accountName: "Computer Exp. - Supplies", active: true, updatedAt: "2026-03-23 10:00:00" },
-  { id: "27", expenseType: "Building Repair & Maintenance", accountCode: "6120010001", accountName: "Repair Building", active: true, updatedAt: "2026-03-23 10:00:00" },
-  { id: "28", expenseType: "Machinery Repair & Installation", accountCode: "6120010002", accountName: "Repair Machine & Installation", active: true, updatedAt: "2026-03-23 10:00:00" },
-  { id: "29", expenseType: "Office Furniture Repair", accountCode: "6120010003", accountName: "Repair Office Fur & Fixture", active: true, updatedAt: "2026-03-23 10:00:00" },
-  { id: "30", expenseType: "Office Equipment Repair", accountCode: "6120010004", accountName: "Repair Office Epuipment", active: true, updatedAt: "2026-03-23 10:00:00" },
-  { id: "31", expenseType: "Store Equipment Repair", accountCode: "6120010005", accountName: "Repair Plant Equipment", active: true, updatedAt: "2026-03-23 10:00:00" },
-  { id: "32", expenseType: "Other Repairs", accountCode: "6120010090", accountName: "Repair Others", active: true, updatedAt: "2026-03-23 10:00:00" },
-  { id: "33", expenseType: "Pre-Employment Health Check", accountCode: "6190010001", accountName: "Other Personnel Cost-Recruitment", active: true, updatedAt: "2026-03-23 10:00:00" },
-  { id: "34", expenseType: "Outstanding PC Welfare", accountCode: "6190010003", accountName: "Other Personnel Cost-Incentive Scheme", active: true, updatedAt: "2026-03-23 10:00:00" },
-  { id: "35", expenseType: "Wreath Expense", accountCode: "6190010090", accountName: "Other Personnel Cost-Other", active: true, updatedAt: "2026-03-23 10:00:00" },
-  { id: "36", expenseType: "Part-Time Employee Hiring Expense", accountCode: "6190010004", accountName: "Oth. Pers. Cost - Part Time", active: true, updatedAt: "2026-03-23 10:00:00" },
-  { id: "37", expenseType: "Intern Health Check", accountCode: "6190010006", accountName: "Oth. Pers. Cost - Trainee", active: true, updatedAt: "2026-03-23 10:00:00" },
-  { id: "38", expenseType: "Flower Basket for Customer", accountCode: "6190180001", accountName: "Entertainment", active: true, updatedAt: "2026-03-23 10:00:00" },
-  { id: "39", expenseType: "Food & Beverage for Stock Count Staff", accountCode: "6190180002", accountName: "Staff Meeting and Refreshment", active: true, updatedAt: "2026-03-23 10:00:00" },
-  { id: "40", expenseType: "Travel Expense (Local)", accountCode: "6190130001", accountName: "Local Travelling", active: true, updatedAt: "2026-03-23 10:00:00" },
-  { id: "41", expenseType: "Travel Expense (Overseas)", accountCode: "6190130002", accountName: "Oversea Travel", active: true, updatedAt: "2026-03-23 10:00:00" },
-  { id: "42", expenseType: "Vehicle Fuel", accountCode: "6190160001", accountName: "Vehicle Running Cost-Fuel", active: true, updatedAt: "2026-03-23 10:00:00" },
-  { id: "43", expenseType: "Vehicle Repair & Maintenance", accountCode: "6190160002", accountName: "Vehicle Running Cost-Maint", active: true, updatedAt: "2026-03-23 10:00:00" },
-  { id: "44", expenseType: "Vehicle Tax Renewal", accountCode: "6190160003", accountName: "Vehicle Running Cost-Registration Fee", active: true, updatedAt: "2026-03-23 10:00:00" },
-  { id: "45", expenseType: "Toll Fees", accountCode: "6190160090", accountName: "Vehicle Running Cost-Other", active: true, updatedAt: "2026-03-23 10:00:00" },
-  { id: "46", expenseType: "Store Equipment Rental", accountCode: "6190200001", accountName: "Hire of Plant Equipment", active: true, updatedAt: "2026-03-23 10:00:00" },
-  { id: "47", expenseType: "Other Equipment Rental", accountCode: "6190200002", accountName: "Hire of Other equipment", active: true, updatedAt: "2026-03-23 10:00:00" },
-  { id: "48", expenseType: "Forklift Rental", accountCode: "6190200005", accountName: "Hire of Forklift", active: true, updatedAt: "2026-03-23 10:00:00" },
-  { id: "49", expenseType: "Container Rental", accountCode: "6190200006", accountName: "Hire of Container", active: true, updatedAt: "2026-03-23 10:00:00" },
-  { id: "50", expenseType: "Tent Rental", accountCode: "6190200007", accountName: "Hire of Tent", active: true, updatedAt: "2026-03-23 10:00:00" },
-  { id: "51", expenseType: "Other Rental", accountCode: "6190200090", accountName: "Hire of Others", active: true, updatedAt: "2026-03-23 10:00:00" },
-  { id: "52", expenseType: "Telephone/Fax", accountCode: "6190120001", accountName: "Telephone/Telex/Fax", active: true, updatedAt: "2026-03-23 10:00:00" },
-  { id: "53", expenseType: "Postal/Courier", accountCode: "6190110001", accountName: "Postages & Stamp Duties", active: true, updatedAt: "2026-03-23 10:00:00" },
-  { id: "54", expenseType: "Office Supplies & Printing", accountCode: "6190110002", accountName: "Stationery & Printing", active: true, updatedAt: "2026-03-23 10:00:00" },
-  { id: "55", expenseType: "Other Office Consumables", accountCode: "6190110090", accountName: "All Other Office Supplies", active: true, updatedAt: "2026-03-23 10:00:00" },
-  { id: "56", expenseType: "Tax Surcharge/Penalty", accountCode: "6190170003", accountName: "Tax Penalty", active: true, updatedAt: "2026-03-23 10:00:00" },
-  { id: "57", expenseType: "Tax Paid on Behalf of Customer/Lessor", accountCode: "6190170004", accountName: "Tax Paid for Customer", active: true, updatedAt: "2026-03-23 10:00:00" },
-  { id: "58", expenseType: "Pre-Employment Health Check (Pre-Op Branch)", accountCode: "6190040001", accountName: "Pre-op Personnel Exps", active: true, updatedAt: "2026-03-23 10:00:00" },
-  { id: "59", expenseType: "Accommodation for Canvass Department (Pre-Op Branch)", accountCode: "6190040002", accountName: "Pre-op Canvassing", active: true, updatedAt: "2026-03-23 10:00:00" },
-  { id: "60", expenseType: "Accommodation (Pre-Op Branch)", accountCode: "6190040005", accountName: "Pre-op General Exps", active: true, updatedAt: "2026-03-23 10:00:00" },
-  { id: "61", expenseType: "Electricity (Pre-Op Branch)", accountCode: "6190040006", accountName: "Pre. - Op. - Establishment Cost", active: true, updatedAt: "2026-03-23 10:00:00" },
-  { id: "62", expenseType: "External Seminar Fee", accountCode: "6190100001", accountName: "Training Cost - Public", active: true, updatedAt: "2026-03-23 10:00:00" },
-  { id: "63", expenseType: "Speaker/Seminar Fee", accountCode: "6190100002", accountName: "Training Cost - Consultation", active: true, updatedAt: "2026-03-23 10:00:00" },
-  { id: "64", expenseType: "Seminar Food & Beverage", accountCode: "6190100003", accountName: "Training Cost - F&B", active: true, updatedAt: "2026-03-23 10:00:00" },
-  { id: "65", expenseType: "Seminar Travel", accountCode: "6190100004", accountName: "Training Cost - Travelling", active: true, updatedAt: "2026-03-23 10:00:00" },
-  { id: "66", expenseType: "Seminar Accommodation", accountCode: "6190100005", accountName: "Training Cost - Accommodation", active: true, updatedAt: "2026-03-23 10:00:00" },
-  { id: "67", expenseType: "Seminar Room", accountCode: "6190100006", accountName: "Training Cost - Conference Room", active: true, updatedAt: "2026-03-23 10:00:00" },
-  { id: "68", expenseType: "Other Seminar Expenses", accountCode: "6190100090", accountName: "Training Cost - Other", active: true, updatedAt: "2026-03-23 10:00:00" },
-  { id: "69", expenseType: "Newspaper/News Subscription", accountCode: "6190900002", accountName: "News/Trade Subscription", active: true, updatedAt: "2026-03-23 10:00:00" },
-  { id: "70", expenseType: "Temple Donation (with Acknowledgment Receipt)", accountCode: "6190190001", accountName: "Charitable Donation(claimed)", active: true, updatedAt: "2026-03-23 10:00:00" },
-  { id: "71", expenseType: "Charitable Donation (No Tax-Deductible Document)", accountCode: "6190190001", accountName: "Charitable Donation(Unclaimed)", active: true, updatedAt: "2026-03-23 10:00:00" },
-  { id: "72", expenseType: "Scholarship (with Thank-You Letter from School)", accountCode: "6190190002", accountName: "Charitable Donation(scholarship)", active: true, updatedAt: "2026-03-23 10:00:00" },
-  { id: "73", expenseType: "Bank Fee", accountCode: "6190070001", accountName: "Bank Charges", active: true, updatedAt: "2026-03-23 10:00:00" },
-  { id: "74", expenseType: "Service Fee (e.g. Volunteer Development Project)", accountCode: "6190900003", accountName: "Service fee", active: true, updatedAt: "2026-03-23 10:00:00" },
-  { id: "75", expenseType: "Audit Fee", accountCode: "6190030001", accountName: "Audit Fee", active: true, updatedAt: "2026-03-23 10:00:00" },
-  { id: "76", expenseType: "Consulting Fee", accountCode: "6190030002", accountName: "Consultation Fee", active: true, updatedAt: "2026-03-23 10:00:00" },
-  { id: "77", expenseType: "Emergency Expense (e.g. Sandbags, Flood Prevention Equipment)", accountCode: "6190900001", accountName: "Contingency expense", active: true, updatedAt: "2026-03-23 10:00:00" },
-  { id: "78", expenseType: "Accommodation for Staff Development Program", accountCode: "6190900004", accountName: "People Development project", active: true, updatedAt: "2026-03-23 10:00:00" },
-  { id: "79", expenseType: "Outsource Fee (e.g. Loading Service Staff)", accountCode: "6190020002", accountName: "Outsourcing Service Fee (Boss/Adecco)", active: true, updatedAt: "2026-03-23 10:00:00" },
-  { id: "80", expenseType: "Legal Fee", accountCode: "6190030003", accountName: "Legal Fee", active: true, updatedAt: "2026-03-23 10:00:00" },
-  { id: "81", expenseType: "License Fee", accountCode: "6190900005", accountName: "Permission Fee", active: true, updatedAt: "2026-03-23 10:00:00" },
-  { id: "82", expenseType: "Stock Exchange Fee", accountCode: "6190030004", accountName: "Fees for SET", active: true, updatedAt: "2026-03-23 10:00:00" },
-  { id: "83", expenseType: "Insurance Premium (Non-Life & Non-Accident)", accountCode: "6190090001", accountName: "Insurance-Non-Life", active: true, updatedAt: "2026-03-23 10:00:00" },
-  { id: "84", expenseType: "Customer Damage Compensation", accountCode: "6190900006", accountName: "Damaged Claims fm Customers", active: true, updatedAt: "2026-03-23 10:00:00" },
-  { id: "85", expenseType: "New Year Gift Basket Delivery", accountCode: "6190060002", accountName: "Delivery Charge", active: true, updatedAt: "2026-03-23 10:00:00" },
-  { id: "86", expenseType: "Transfer Goods to Other Branch", accountCode: "6190060004", accountName: "Handling Charge", active: true, updatedAt: "2026-03-23 10:00:00" },
-  { id: "87", expenseType: "Cash Shortage/Overage Difference", accountCode: "6190900007", accountName: "Cash Difference", active: true, updatedAt: "2026-03-23 10:00:00" },
-  { id: "88", expenseType: "Cash Counting Expense", accountCode: "6190900008", accountName: "Cash Counting Costs", active: true, updatedAt: "2026-03-23 10:00:00" },
-  { id: "89", expenseType: "Personal Protective Equipment", accountCode: "6190900009", accountName: "Protective Clothing", active: true, updatedAt: "2026-03-23 10:00:00" },
-  { id: "90", expenseType: "Gas for Canteen", accountCode: "6190900010", accountName: "Canteen Cost", active: true, updatedAt: "2026-03-23 10:00:00" },
-  { id: "91", expenseType: "Store Consumables", accountCode: "6190080001", accountName: "Store Supplies", active: true, updatedAt: "2026-03-23 10:00:00" },
-  { id: "92", expenseType: "Generator Fuel", accountCode: "6190080002", accountName: "Store Supplies-Fuel", active: true, updatedAt: "2026-03-23 10:00:00" },
-  { id: "93", expenseType: "Store Consumables — Forklift Fuel", accountCode: "6190080004", accountName: "Store Suppliers-Fuel Forklift", active: true, updatedAt: "2026-03-23 10:00:00" },
-  { id: "94", expenseType: "Safety Warning Signs", accountCode: "6190900013", accountName: "Other General Exp. - Safety", active: true, updatedAt: "2026-03-23 10:00:00" },
-  { id: "95", expenseType: "Cold Room Uniform Laundry", accountCode: "6190900090", accountName: "Other General Exp-Others", active: true, updatedAt: "2026-03-23 10:00:00" },
-  { id: "96", expenseType: "Shrine Offering Expense (Flowers, Offerings)", accountCode: "6190900090", accountName: "Other non-deductible expenses", active: true, updatedAt: "2026-03-23 10:00:00" },
-  { id: "97", expenseType: "Accommodation for Buffer HO Staff", accountCode: "6190050002", accountName: "Business Developmnet Operation", active: true, updatedAt: "2026-03-23 10:00:00" },
-];
-
-let nextId = 98;
+import {
+  useGlAccounts,
+  useAllGlAccounts,
+  useCreateGlAccount,
+  useUpdateGlAccount,
+  useDeleteGlAccount,
+  useImportGlAccounts,
+  type GlAccountRow,
+} from "@/hooks/use-gl-accounts";
+import { useAllExpenseTypes } from "@/hooks/use-expense-types";
+import { formatBEDateTime } from "@/lib/utils";
 
 export default function GlAccountPanel() {
   const { toast } = useToast();
-  const [data, setData] = useState<GlAccountRow[]>(initialData);
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
   const [page, setPage] = useState(1);
   const pageSize = 10;
 
+  const { data: result, isLoading } = useGlAccounts({
+    search: search || undefined,
+    active: statusFilter !== "all" ? (statusFilter === "active" ? "true" : "false") : undefined,
+    page,
+    limit: pageSize,
+  });
+
+  const items = result?.data ?? [];
+  const meta = result?.meta ?? { total: 0, page: 1, limit: pageSize, totalPages: 1 };
+
+  const { data: allGlAccounts } = useAllGlAccounts();
+  const { data: expenseTypes } = useAllExpenseTypes();
+  const activeExpenseTypes = (expenseTypes ?? []).filter((et) => et.active);
+
+  const createMutation = useCreateGlAccount();
+  const updateMutation = useUpdateGlAccount();
+  const deleteMutation = useDeleteGlAccount();
+  const importMutation = useImportGlAccounts();
+
+  // Add/Edit modal
   const [modalOpen, setModalOpen] = useState(false);
   const [editingRow, setEditingRow] = useState<GlAccountRow | null>(null);
-  const [formExpenseType, setFormExpenseType] = useState("");
+  const [formExpenseTypeId, setFormExpenseTypeId] = useState("");
+  const [formExpenseSubtypeId, setFormExpenseSubtypeId] = useState("");
+  const [etComboOpen, setEtComboOpen] = useState(false);
+  const [stComboOpen, setStComboOpen] = useState(false);
+
+  const selectedExpenseTypeLabel = useMemo(() => {
+    if (!formExpenseTypeId) return "";
+    return activeExpenseTypes.find((et) => et.id === formExpenseTypeId)?.expenseType ?? "";
+  }, [formExpenseTypeId, activeExpenseTypes]);
+
+  const activeSubtypes = useMemo(() => {
+    if (!formExpenseTypeId) return [];
+    const parent = activeExpenseTypes.find((et) => et.id === formExpenseTypeId);
+    return (parent?.subtypes ?? []).filter((s) => s.active);
+  }, [formExpenseTypeId, activeExpenseTypes]);
+
+  const selectedSubtypeLabel = useMemo(() => {
+    if (!formExpenseSubtypeId) return "";
+    return activeSubtypes.find((s) => s.id === formExpenseSubtypeId)?.subExpenseType ?? "";
+  }, [formExpenseSubtypeId, activeSubtypes]);
+
   const [formCode, setFormCode] = useState("");
   const [formName, setFormName] = useState("");
   const [formActive, setFormActive] = useState(true);
 
+  // CSV Import modal
   const [importOpen, setImportOpen] = useState(false);
-  const [csvPreview, setCsvPreview] = useState<{ expenseType: string; accountCode: string; accountName: string }[]>([]);
+  const [csvPreview, setCsvPreview] = useState<{ expenseTypeId: string; expenseSubtypeId: string; expenseTypeName: string; subtypeName: string; accountCode: string; accountName: string }[]>([]);
+  const [csvDuplicates, setCsvDuplicates] = useState<Map<number, string>>(new Map());
   const fileRef = useRef<HTMLInputElement>(null);
-
-  const filtered = useMemo(() => {
-    let list = data;
-    if (search) {
-      const q = search.toLowerCase();
-      list = list.filter(
-        (r) => r.accountCode.toLowerCase().includes(q) || r.accountName.toLowerCase().includes(q)
-      );
-    }
-    if (statusFilter === "active") list = list.filter((r) => r.active);
-    if (statusFilter === "inactive") list = list.filter((r) => !r.active);
-    return list;
-  }, [data, search, statusFilter]);
-
-  const totalPages = Math.max(1, Math.ceil(filtered.length / pageSize));
-  const pageData = filtered.slice((page - 1) * pageSize, page * pageSize);
 
   const openAdd = () => {
     setEditingRow(null);
-    setFormExpenseType("");
+    setFormExpenseTypeId("");
+    setFormExpenseSubtypeId("");
     setFormCode("");
     setFormName("");
     setFormActive(true);
@@ -255,7 +105,8 @@ export default function GlAccountPanel() {
 
   const openEdit = (row: GlAccountRow) => {
     setEditingRow(row);
-    setFormExpenseType(row.expenseType);
+    setFormExpenseTypeId(row.expenseTypeId);
+    setFormExpenseSubtypeId(row.expenseSubtypeId ?? "");
     setFormCode(row.accountCode);
     setFormName(row.accountName);
     setFormActive(row.active);
@@ -263,49 +114,70 @@ export default function GlAccountPanel() {
   };
 
   const handleSave = () => {
-    if (!formExpenseType || !formCode.trim() || !formName.trim()) {
+    if (!formExpenseTypeId || !formExpenseSubtypeId || !formCode.trim() || !formName.trim()) {
       toast({ title: "Validation Error", description: "All fields are required.", variant: "destructive" });
       return;
     }
-    const ts = now();
     if (editingRow) {
-      setData((prev) =>
-        prev.map((r) =>
-          r.id === editingRow.id
-            ? { ...r, expenseType: formExpenseType, accountCode: formCode.trim(), accountName: formName.trim(), active: formActive, updatedAt: ts }
-            : r
-        )
+      updateMutation.mutate(
+        { id: editingRow.id, data: { expenseTypeId: formExpenseTypeId, expenseSubtypeId: formExpenseSubtypeId, accountCode: formCode.trim(), accountName: formName.trim(), active: formActive } },
+        {
+          onSuccess: () => { toast({ title: "Updated", description: "GL account updated successfully." }); setModalOpen(false); },
+          onError: (err: Error) => toast({ title: "Error", description: err.message || "Failed to update GL account.", variant: "destructive" }),
+        },
       );
-      toast({ title: "Updated", description: "GL account updated successfully." });
     } else {
-      const newRow: GlAccountRow = {
-        id: String(nextId++),
-        expenseType: formExpenseType,
-        accountCode: formCode.trim(),
-        accountName: formName.trim(),
-        active: formActive,
-        updatedAt: ts,
-      };
-      setData((prev) => [...prev, newRow]);
-      toast({ title: "Created", description: "GL account added successfully." });
+      createMutation.mutate(
+        { expenseTypeId: formExpenseTypeId, expenseSubtypeId: formExpenseSubtypeId, accountCode: formCode.trim(), accountName: formName.trim(), active: formActive },
+        {
+          onSuccess: () => { toast({ title: "Created", description: "GL account added successfully." }); setModalOpen(false); },
+          onError: (err: Error) => toast({ title: "Error", description: err.message || "Failed to create GL account.", variant: "destructive" }),
+        },
+      );
     }
-    setModalOpen(false);
   };
 
   const handleDelete = (id: string) => {
-    setData((prev) => prev.filter((r) => r.id !== id));
-    toast({ title: "Deleted", description: "GL account removed." });
+    deleteMutation.mutate(id, {
+      onSuccess: () => toast({ title: "Deleted", description: "GL account removed." }),
+      onError: () => toast({ title: "Error", description: "Failed to delete GL account.", variant: "destructive" }),
+    });
   };
 
-  const handleToggle = (id: string, checked: boolean) => {
-    setData((prev) =>
-      prev.map((r) => (r.id === id ? { ...r, active: checked, updatedAt: now() } : r))
+  const handleToggle = (row: GlAccountRow, checked: boolean) => {
+    updateMutation.mutate({ id: row.id, data: { active: checked } });
+  };
+
+  // CSV helpers
+  const checkCsvDuplicates = (rows: { expenseTypeId: string; expenseSubtypeId: string; accountCode: string }[]) => {
+    const dupes = new Map<number, string>();
+    const seen = new Set<string>();
+    const existingSet = new Set(
+      (allGlAccounts ?? []).map((g) =>
+        `${g.expenseTypeId}|${g.expenseSubtypeId ?? ""}|${g.accountCode.toLowerCase()}`
+      ),
     );
+    rows.forEach((r, i) => {
+      const comboKey = `${r.expenseTypeId}|${r.expenseSubtypeId}|${r.accountCode.toLowerCase()}`;
+      if (seen.has(comboKey)) {
+        dupes.set(i, "Duplicate combo in CSV");
+      } else if (existingSet.has(comboKey)) {
+        dupes.set(i, "Combination already exists");
+      }
+      seen.add(comboKey);
+    });
+    return dupes;
+  };
+
+  const removeCsvRow = (index: number) => {
+    const updated = csvPreview.filter((_, i) => i !== index);
+    setCsvPreview(updated);
+    setCsvDuplicates(checkCsvDuplicates(updated));
   };
 
   const downloadTemplate = () => {
-    const csv = "expense_type,account_code,account_name\n";
-    const blob = new Blob([csv], { type: "text/csv" });
+    const csv = "\uFEFFexpense_type,sub_expense_type,account_code,account_name\n";
+    const blob = new Blob([csv], { type: "text/csv;charset=utf-8" });
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;
@@ -317,34 +189,92 @@ export default function GlAccountPanel() {
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
+    if (!file.name.toLowerCase().endsWith(".csv")) {
+      toast({ title: "Invalid File", description: "Only CSV files are allowed.", variant: "destructive" });
+      if (fileRef.current) fileRef.current.value = "";
+      return;
+    }
+
     const reader = new FileReader();
     reader.onload = (ev) => {
-      const text = ev.target?.result as string;
+      const buffer = ev.target?.result as ArrayBuffer;
+
+      let text = new TextDecoder("utf-8").decode(buffer);
+      if (text.includes("\uFFFD")) {
+        text = new TextDecoder("windows-874").decode(buffer);
+      }
+
+      text = text.replace(/^\uFEFF/, "");
+
       const lines = text.split("\n").filter((l) => l.trim());
+      if (lines.length === 0) {
+        toast({ title: "Invalid File", description: "CSV file is empty.", variant: "destructive" });
+        if (fileRef.current) fileRef.current.value = "";
+        return;
+      }
+      const headers = lines[0].split(",").map((h) => h.trim().replace(/^"|"$/g, "").toLowerCase());
+      if (headers.length !== 4 || headers[0] !== "expense_type" || headers[1] !== "sub_expense_type" || headers[2] !== "account_code" || headers[3] !== "account_name") {
+        toast({ title: "Invalid Headers", description: "CSV must contain exactly four columns: expense_type, sub_expense_type, account_code, account_name", variant: "destructive" });
+        if (fileRef.current) fileRef.current.value = "";
+        return;
+      }
+
+      const etLookup = new Map(
+        (expenseTypes ?? []).map((et) => [et.expenseType.toLowerCase(), et]),
+      );
+
       const rows = lines.slice(1).map((line) => {
-        const [expenseType = "", accountCode = "", accountName = ""] = line.split(",").map((s) => s.trim().replace(/^"|"$/g, ""));
-        return { expenseType, accountCode, accountName };
-      }).filter((r) => r.expenseType && r.accountCode && r.accountName);
+        const [expenseTypeName = "", subtypeName = "", accountCode = "", accountName = ""] = line.split(",").map((s) => s.trim().replace(/^"|"$/g, ""));
+        const matchedParent = etLookup.get(expenseTypeName.toLowerCase());
+        const matchedSubtype = matchedParent?.subtypes?.find((s) => s.subExpenseType.toLowerCase() === subtypeName.toLowerCase());
+        return {
+          expenseTypeId: matchedParent?.id ?? "",
+          expenseSubtypeId: matchedSubtype?.id ?? "",
+          expenseTypeName,
+          subtypeName,
+          accountCode,
+          accountName,
+        };
+      }).filter((r) => r.accountCode && r.accountName);
+
+      if (rows.length === 0) {
+        toast({ title: "No Data", description: "CSV file contains no valid data rows.", variant: "destructive" });
+        if (fileRef.current) fileRef.current.value = "";
+        return;
+      }
+
+      const dupes = checkCsvDuplicates(rows);
+      rows.forEach((r, i) => {
+        if (!r.expenseTypeId && !dupes.has(i)) {
+          dupes.set(i, "Unknown expense type");
+        } else if (!r.expenseSubtypeId && !dupes.has(i)) {
+          dupes.set(i, "Unknown sub expense type");
+        }
+      });
+
+      setCsvDuplicates(dupes);
       setCsvPreview(rows);
     };
-    reader.readAsText(file);
+    reader.readAsArrayBuffer(file);
   };
 
   const confirmImport = () => {
-    const ts = now();
-    const newRows: GlAccountRow[] = csvPreview.map((r) => ({
-      id: String(nextId++),
-      expenseType: r.expenseType,
+    const payload = csvPreview.map((r) => ({
+      expenseTypeId: r.expenseTypeId,
+      expenseSubtypeId: r.expenseSubtypeId,
       accountCode: r.accountCode,
       accountName: r.accountName,
-      active: true,
-      updatedAt: ts,
     }));
-    setData((prev) => [...prev, ...newRows]);
-    toast({ title: "Imported", description: `${newRows.length} GL accounts imported.` });
-    setCsvPreview([]);
-    setImportOpen(false);
-    if (fileRef.current) fileRef.current.value = "";
+    importMutation.mutate(payload, {
+      onSuccess: (res) => {
+        toast({ title: "Imported", description: `${(res as { imported: number }).imported} GL accounts imported.` });
+        setCsvPreview([]);
+        setCsvDuplicates(new Map());
+        setImportOpen(false);
+        if (fileRef.current) fileRef.current.value = "";
+      },
+      onError: (err: Error) => toast({ title: "Error", description: err.message || "Failed to import GL accounts.", variant: "destructive" }),
+    });
   };
 
   return (
@@ -358,7 +288,7 @@ export default function GlAccountPanel() {
           </p>
         </div>
         <div className="flex items-center gap-2">
-          <Button size="sm" variant="outline" onClick={() => { setCsvPreview([]); setImportOpen(true); }}>
+          <Button size="sm" variant="outline" onClick={() => { setCsvPreview([]); setCsvDuplicates(new Map()); setImportOpen(true); }}>
             <Upload className="h-4 w-4 mr-2" />Import CSV
           </Button>
           <Button size="sm" onClick={openAdd}>
@@ -374,7 +304,7 @@ export default function GlAccountPanel() {
           <Input
             value={search}
             onChange={(e) => { setSearch(e.target.value); setPage(1); }}
-            placeholder="Search account code or account name..."
+            placeholder="Search account code, name, expense type, or sub type..."
             className="pl-9"
           />
         </div>
@@ -386,6 +316,11 @@ export default function GlAccountPanel() {
             <SelectItem value="inactive">Inactive</SelectItem>
           </SelectContent>
         </Select>
+        {(search || statusFilter !== "all") && (
+          <Button size="sm" variant="ghost" onClick={() => { setSearch(""); setStatusFilter("all"); setPage(1); }}>
+            <RotateCcw className="mr-1 h-3.5 w-3.5" />Reset
+          </Button>
+        )}
       </div>
 
       {/* Table */}
@@ -395,6 +330,7 @@ export default function GlAccountPanel() {
             <TableHeader>
               <TableRow>
                 <TableHead>Expense Type</TableHead>
+                <TableHead>Sub Expense Type</TableHead>
                 <TableHead>Account Code</TableHead>
                 <TableHead>Account Name</TableHead>
                 <TableHead>Active</TableHead>
@@ -403,55 +339,63 @@ export default function GlAccountPanel() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {pageData.length === 0 && (
+              {isLoading ? (
                 <TableRow>
-                  <TableCell colSpan={6} className="text-center text-muted-foreground py-8">
+                  <TableCell colSpan={7} className="text-center py-8">
+                    <Loader2 className="h-5 w-5 animate-spin mx-auto text-muted-foreground" />
+                  </TableCell>
+                </TableRow>
+              ) : items.length === 0 ? (
+                <TableRow>
+                  <TableCell colSpan={7} className="text-center text-muted-foreground py-8">
                     No GL accounts found
                   </TableCell>
                 </TableRow>
+              ) : (
+                items.map((row) => (
+                  <TableRow key={row.id}>
+                    <TableCell className="font-medium">{row.expenseType?.expenseType}</TableCell>
+                    <TableCell className="text-sm">{row.expenseSubtype?.subExpenseType ?? "\u2014"}</TableCell>
+                    <TableCell><code className="text-xs bg-muted px-1.5 py-0.5 rounded">{row.accountCode}</code></TableCell>
+                    <TableCell>{row.accountName}</TableCell>
+                    <TableCell>
+                      <Switch
+                        checked={row.active}
+                        onCheckedChange={(checked) => handleToggle(row, checked)}
+                      />
+                    </TableCell>
+                    <TableCell className="text-sm text-muted-foreground">{formatBEDateTime(row.updatedAt)}</TableCell>
+                    <TableCell className="text-right">
+                      <div className="flex items-center justify-end gap-1">
+                        <Button size="icon" variant="ghost" className="h-7 w-7" onClick={() => openEdit(row)} title="Edit">
+                          <Pencil className="h-3.5 w-3.5" />
+                        </Button>
+                        <Button size="icon" variant="ghost" className="h-7 w-7 text-destructive" onClick={() => handleDelete(row.id)} title="Delete">
+                          <Trash2 className="h-3.5 w-3.5" />
+                        </Button>
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                ))
               )}
-              {pageData.map((row) => (
-                <TableRow key={row.id}>
-                  <TableCell className="font-medium">{row.expenseType}</TableCell>
-                  <TableCell><code className="text-xs bg-muted px-1.5 py-0.5 rounded">{row.accountCode}</code></TableCell>
-                  <TableCell>{row.accountName}</TableCell>
-                  <TableCell>
-                    <Switch
-                      checked={row.active}
-                      onCheckedChange={(checked) => handleToggle(row.id, checked)}
-                    />
-                  </TableCell>
-                  <TableCell className="text-sm text-muted-foreground">{row.updatedAt}</TableCell>
-                  <TableCell className="text-right">
-                    <div className="flex items-center justify-end gap-1">
-                      <Button size="icon" variant="ghost" className="h-7 w-7" onClick={() => openEdit(row)} title="Edit">
-                        <Pencil className="h-3.5 w-3.5" />
-                      </Button>
-                      <Button size="icon" variant="ghost" className="h-7 w-7 text-destructive" onClick={() => handleDelete(row.id)} title="Delete">
-                        <Trash2 className="h-3.5 w-3.5" />
-                      </Button>
-                    </div>
-                  </TableCell>
-                </TableRow>
-              ))}
             </TableBody>
           </Table>
         </CardContent>
       </Card>
 
       {/* Pagination */}
-      {totalPages > 1 && (
+      {meta.totalPages > 1 && (
         <div className="flex items-center justify-between text-sm">
           <span className="text-muted-foreground">
-            Showing {(page - 1) * pageSize + 1}–{Math.min(page * pageSize, filtered.length)} of {filtered.length}
+            Showing {(meta.page - 1) * meta.limit + 1}–{Math.min(meta.page * meta.limit, meta.total)} of {meta.total}
           </span>
-          <div className="flex items-center gap-1">
-            <Button size="icon" variant="outline" className="h-8 w-8" disabled={page === 1} onClick={() => setPage(page - 1)}>
-              <ChevronLeft className="h-4 w-4" />
+          <div className="flex items-center gap-2">
+            <Button size="sm" variant="outline" disabled={page === 1} onClick={() => setPage(page - 1)}>
+              <ChevronLeft className="h-4 w-4 mr-1" />Previous
             </Button>
-            <span className="px-2">{page} / {totalPages}</span>
-            <Button size="icon" variant="outline" className="h-8 w-8" disabled={page === totalPages} onClick={() => setPage(page + 1)}>
-              <ChevronRight className="h-4 w-4" />
+            <span className="text-muted-foreground">Page {page} of {meta.totalPages}</span>
+            <Button size="sm" variant="outline" disabled={page === meta.totalPages} onClick={() => setPage(page + 1)}>
+              Next<ChevronRight className="h-4 w-4 ml-1" />
             </Button>
           </div>
         </div>
@@ -459,7 +403,7 @@ export default function GlAccountPanel() {
 
       {/* Add/Edit Modal */}
       <Dialog open={modalOpen} onOpenChange={setModalOpen}>
-        <DialogContent className="sm:max-w-md">
+        <DialogContent className="sm:max-w-lg">
           <DialogHeader>
             <DialogTitle>{editingRow ? "Edit GL Account" : "Add GL Account"}</DialogTitle>
             <DialogDescription>
@@ -467,16 +411,76 @@ export default function GlAccountPanel() {
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-4 py-2">
+            {/* Expense Type combobox */}
             <div className="space-y-2">
               <Label>Expense Type <span className="text-destructive">*</span></Label>
-              <Select value={formExpenseType} onValueChange={setFormExpenseType}>
-                <SelectTrigger><SelectValue placeholder="Select expense type" /></SelectTrigger>
-                <SelectContent>
-                  {expenseTypeOptions.map((opt) => (
-                    <SelectItem key={opt} value={opt}>{opt}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+              <Popover open={etComboOpen} onOpenChange={setEtComboOpen}>
+                <PopoverTrigger asChild>
+                  <Button variant="outline" role="combobox" aria-expanded={etComboOpen} className="w-full justify-between font-normal">
+                    {selectedExpenseTypeLabel || "Select expense type..."}
+                    <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-[--radix-popover-trigger-width] p-0" align="start">
+                  <Command>
+                    <CommandInput placeholder="Search expense type..." />
+                    <CommandList>
+                      <CommandEmpty>No expense type found.</CommandEmpty>
+                      <CommandGroup>
+                        {activeExpenseTypes.map((et) => (
+                          <CommandItem
+                            key={et.id}
+                            value={et.expenseType}
+                            onSelect={() => {
+                              setFormExpenseTypeId(et.id);
+                              setFormExpenseSubtypeId("");
+                              setEtComboOpen(false);
+                            }}
+                          >
+                            <Check className={cn("mr-2 h-4 w-4", formExpenseTypeId === et.id ? "opacity-100" : "opacity-0")} />
+                            {et.expenseType}
+                          </CommandItem>
+                        ))}
+                      </CommandGroup>
+                    </CommandList>
+                  </Command>
+                </PopoverContent>
+              </Popover>
+            </div>
+            {/* Sub Expense Type combobox */}
+            <div className="space-y-2">
+              <Label>Sub Expense Type <span className="text-destructive">*</span></Label>
+              <Popover open={stComboOpen} onOpenChange={setStComboOpen}>
+                <PopoverTrigger asChild>
+                  <Button variant="outline" role="combobox" aria-expanded={stComboOpen} className="w-full justify-between font-normal" disabled={!formExpenseTypeId}>
+                    {selectedSubtypeLabel || (formExpenseTypeId ? "Select sub expense type..." : "Select expense type first")}
+                    <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-[--radix-popover-trigger-width] p-0" align="start">
+                  <Command>
+                    <CommandInput placeholder="Search sub expense type..." />
+                    <CommandList>
+                      <CommandEmpty>No sub expense type found.</CommandEmpty>
+                      <CommandGroup>
+                        {activeSubtypes.map((st) => (
+                          <CommandItem
+                            key={st.id}
+                            value={st.subExpenseType}
+                            onSelect={() => {
+                              setFormExpenseSubtypeId(st.id);
+                              setStComboOpen(false);
+                            }}
+                          >
+                            <Check className={cn("mr-2 h-4 w-4", formExpenseSubtypeId === st.id ? "opacity-100" : "opacity-0")} />
+                            {st.subExpenseType}
+                          </CommandItem>
+                        ))}
+                      </CommandGroup>
+                    </CommandList>
+                  </Command>
+                </PopoverContent>
+              </Popover>
             </div>
             <div className="space-y-2">
               <Label htmlFor="accountCode">Account Code <span className="text-destructive">*</span></Label>
@@ -493,17 +497,20 @@ export default function GlAccountPanel() {
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setModalOpen(false)}>Cancel</Button>
-            <Button onClick={handleSave}>Save</Button>
+            <Button onClick={handleSave} disabled={createMutation.isPending || updateMutation.isPending}>
+              {(createMutation.isPending || updateMutation.isPending) && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
+              Save
+            </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
 
       {/* CSV Import Modal */}
       <Dialog open={importOpen} onOpenChange={setImportOpen}>
-        <DialogContent className="sm:max-w-lg">
+        <DialogContent className="sm:max-w-3xl">
           <DialogHeader>
             <DialogTitle>Import GL Accounts from CSV</DialogTitle>
-            <DialogDescription>Upload a CSV file to bulk-import GL accounts.</DialogDescription>
+            <DialogDescription>Upload a CSV file to bulk-import GL accounts. The expense_type and sub_expense_type columns must match existing records.</DialogDescription>
           </DialogHeader>
           <div className="space-y-4 py-2">
             <Button variant="outline" size="sm" onClick={downloadTemplate}>
@@ -526,22 +533,43 @@ export default function GlAccountPanel() {
 
             {csvPreview.length > 0 && (
               <div className="space-y-2">
-                <p className="text-sm font-medium">{csvPreview.length} rows parsed</p>
+                <p className="text-sm font-medium">
+                  {csvPreview.length} rows parsed
+                  {csvDuplicates.size > 0 && (
+                    <span className="text-destructive ml-2">({csvDuplicates.size} issue{csvDuplicates.size > 1 ? "s" : ""} found)</span>
+                  )}
+                </p>
                 <div className="max-h-48 overflow-auto border rounded">
                   <Table>
                     <TableHeader>
                       <TableRow>
                         <TableHead>Expense Type</TableHead>
+                        <TableHead>Sub Expense Type</TableHead>
                         <TableHead>Account Code</TableHead>
                         <TableHead>Account Name</TableHead>
+                        <TableHead>Status</TableHead>
+                        <TableHead className="text-right">Action</TableHead>
                       </TableRow>
                     </TableHeader>
                     <TableBody>
                       {csvPreview.map((r, i) => (
-                        <TableRow key={i}>
-                          <TableCell className="text-sm">{r.expenseType}</TableCell>
+                        <TableRow key={i} className={csvDuplicates.has(i) ? "bg-destructive/5" : ""}>
+                          <TableCell className="text-sm">{r.expenseTypeName}</TableCell>
+                          <TableCell className="text-sm">{r.subtypeName || "\u2014"}</TableCell>
                           <TableCell className="text-sm">{r.accountCode}</TableCell>
                           <TableCell className="text-sm">{r.accountName}</TableCell>
+                          <TableCell className="text-sm">
+                            {csvDuplicates.has(i) ? (
+                              <Badge variant="destructive" className="text-xs">{csvDuplicates.get(i)}</Badge>
+                            ) : (
+                              <Badge variant="outline" className="text-xs text-green-600 border-green-600">OK</Badge>
+                            )}
+                          </TableCell>
+                          <TableCell className="text-right">
+                            <Button size="icon" variant="ghost" className="h-6 w-6 text-destructive" onClick={() => removeCsvRow(i)} title="Remove row">
+                              <Trash2 className="h-3.5 w-3.5" />
+                            </Button>
+                          </TableCell>
                         </TableRow>
                       ))}
                     </TableBody>
@@ -552,7 +580,8 @@ export default function GlAccountPanel() {
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setImportOpen(false)}>Cancel</Button>
-            <Button onClick={confirmImport} disabled={csvPreview.length === 0}>
+            <Button onClick={confirmImport} disabled={csvPreview.length === 0 || csvDuplicates.size > 0 || importMutation.isPending}>
+              {importMutation.isPending && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
               Confirm Import
             </Button>
           </DialogFooter>

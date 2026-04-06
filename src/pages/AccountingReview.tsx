@@ -35,67 +35,13 @@ interface MockItem {
   date: string;
 }
 
-const initialMockItems: MockItem[] = [
-  { id: "TXN20250129001", merchantName: "GRAB TAXI", description: "Taxicabs and Limousines", amount: "฿1,500", status: "Pending Invoice", deductionPeriod: "—", attachedFiles: [], date: "2026-02-28" },
-  { id: "TXN20250129002", merchantName: "MARRIOTT HOTEL BKK", description: "Hotels and Motels", amount: "฿3,500", status: "Pending Invoice", deductionPeriod: "—", attachedFiles: [], date: "2026-02-28" },
-  { id: "TXN20250129003", merchantName: "PTT GAS STATION", description: "Service Stations", amount: "฿850", status: "Pending Invoice", deductionPeriod: "—", attachedFiles: [], date: "2026-02-28" },
-  { id: "TXN20250129004", merchantName: "SOMTUM RESTAURANT", description: "Eating Places and Restaurants", amount: "฿1,250", status: "Pending Invoice", deductionPeriod: "—", attachedFiles: [], date: "2026-02-28" },
-  { id: "TXN20250129005", merchantName: "THAI AIRWAYS", description: "Airlines", amount: "฿15,000", status: "Pending Invoice", deductionPeriod: "—", attachedFiles: [], date: "2026-02-28" },
-  { id: "TXN20260227021", merchantName: "Siam Amazing Park", description: "Amusement Parks", amount: "฿7,900", status: "Auto Reject", deductionPeriod: "Period 3 / Mar 2026", attachedFiles: [], date: "2026-02-27" },
-  { id: "TXN20260227002", merchantName: "Tiger Kingdom", description: "Tourist Attractions", amount: "฿4,500", status: "Auto Reject", deductionPeriod: "Period 3 / Mar 2026", attachedFiles: [], date: "2026-02-27" },
-  { id: "TXN20260227053", merchantName: "The Street", description: "Dance Halls", amount: "฿2,500", status: "Auto Reject", deductionPeriod: "Period 3 / Mar 2026", attachedFiles: [], date: "2026-02-27" },
-  { id: "TXN20260227114", merchantName: "The Nine", description: "Drinking Places (Bars)", amount: "฿1,250", status: "Reject", deductionPeriod: "N/A", attachedFiles: [
-    { name: "bar_receipt.pdf", size: "1.2 MB", docType: "Receipt" },
-  ], date: "2026-02-27" },
-  { id: "TXN20260227025", merchantName: "Stone Hill Golf Club", description: "Sporting and Recreational Camps", amount: "฿55,000", status: "Final Reject", deductionPeriod: "Period 3 / Mar 2026", attachedFiles: [
-    { name: "golf_invoice.pdf", size: "2.1 MB", docType: "Tax Invoice" },
-    { name: "golf_approval.pdf", size: "340 KB", docType: "Travel Approval Form" },
-  ], date: "2026-02-27" },
-  { id: "TXN20260227071", merchantName: "Top", description: "Grocery Stores", amount: "฿799", status: "Auto Approved", deductionPeriod: "—", attachedFiles: [
-    { name: "grocery_receipt.pdf", size: "890 KB", docType: "Tax Invoice" },
-  ], date: "2026-02-27" },
-  { id: "TXN20260227078", merchantName: "KFC", description: "Fast Food Restaurants", amount: "฿279", status: "Auto Approved", deductionPeriod: "—", attachedFiles: [
-    { name: "kfc_tax_invoice.pdf", size: "1.1 MB", docType: "Tax Invoice" },
-    { name: "kfc_receipt.jpg", size: "2.3 MB", docType: "Receipt" },
-  ], date: "2026-02-27" },
-  { id: "TXN20260227013", merchantName: "Suki Teenoi", description: "Eating Places and Restaurants", amount: "฿499", status: "Auto Approved", deductionPeriod: "—", attachedFiles: [
-    { name: "suki_receipt.pdf", size: "780 KB", docType: "Tax Invoice" },
-    { name: "attendee_list.pdf", size: "120 KB", docType: "Attendee List" },
-  ], date: "2026-02-27" },
-  { id: "TXN20260227124", merchantName: "Good Car Service", description: "Car Rental Agencies", amount: "฿3,000", status: "Auto Approved", deductionPeriod: "—", attachedFiles: [
-    { name: "car_rental_invoice.pdf", size: "1.5 MB", docType: "Tax Invoice" },
-    { name: "car_rental_receipt.pdf", size: "980 KB", docType: "Receipt" },
-    { name: "trip_report.pdf", size: "2.8 MB", docType: "Travel Report" },
-  ], date: "2026-02-27" },
-  { id: "TXN20260227065", merchantName: "Rama 9 Hospital", description: "Hospitals", amount: "฿2,500", status: "Auto Approved", deductionPeriod: "—", attachedFiles: [
-    { name: "hospital_receipt.pdf", size: "1.3 MB", docType: "Tax Invoice" },
-  ], date: "2026-02-27" },
-  { id: "TXN20260227088", merchantName: "Lazada Express", description: "Courier Services", amount: "฿12,500", status: "Exception", deductionPeriod: "Period 3 / Mar 2026", attachedFiles: [
-    { name: "lazada_invoice.pdf", size: "1.8 MB", docType: "Tax Invoice" },
-    { name: "lazada_receipt.pdf", size: "650 KB", docType: "Receipt" },
-  ], date: "2026-02-27" },
-  { id: "TXN20260227091", merchantName: "JD Central", description: "Computer Software Stores", amount: "฿8,900", status: "Exception", deductionPeriod: "Period 3 / Mar 2026", attachedFiles: [
-    { name: "jd_tax_invoice.pdf", size: "2.0 MB", docType: "Tax Invoice" },
-    { name: "jd_receipt.pdf", size: "1.1 MB", docType: "Receipt" },
-    { name: "jd_other.pdf", size: "450 KB", docType: "Other Documents" },
-  ], date: "2026-02-27" },
-  { id: "TXN20260227095", merchantName: "Flash Express", description: "Courier Services", amount: "฿3,200", status: "Exception", deductionPeriod: "Period 3 / Mar 2026", attachedFiles: [
-    { name: "flash_receipt.pdf", size: "920 KB", docType: "Tax Invoice" },
-  ], date: "2026-02-27" },
-  { id: "TXN20260228001", merchantName: "GRAB TAXI", description: "Taxicabs and Limousines", amount: "฿1,200", status: "Reimbursed", deductionPeriod: "Period 2 / Feb 2026", attachedFiles: [
-    { name: "grab_receipt2.pdf", size: "1.0 MB", docType: "Tax Invoice" },
-  ], date: "2026-02-15" },
-  { id: "TXN20260228002", merchantName: "Starbucks", description: "Eating Places and Restaurants", amount: "฿350", status: "Reimbursed", deductionPeriod: "Period 2 / Feb 2026", attachedFiles: [
-    { name: "starbucks_receipt.pdf", size: "680 KB", docType: "Tax Invoice" },
-    { name: "starbucks_other.jpg", size: "3.1 MB", docType: "Other Documents" },
-  ], date: "2026-02-15" },
-];
+const initialMockItems: MockItem[] = [];
 
 const DOC_TYPE_COLORS: Record<string, string> = {
   "Tax Invoice": "bg-blue-100 text-blue-800 border-blue-300",
   "Receipt": "bg-green-100 text-green-800 border-green-300",
-  "Travel Approval Form": "bg-purple-100 text-purple-800 border-purple-300",
-  "Attendee List": "bg-yellow-100 text-yellow-800 border-yellow-300",
+  "Travel Approval": "bg-purple-100 text-purple-800 border-purple-300",
+  "Participant List": "bg-yellow-100 text-yellow-800 border-yellow-300",
   "Travel Report": "bg-cyan-100 text-cyan-800 border-cyan-300",
   "Other Documents": "bg-gray-100 text-gray-600 border-gray-300",
 };
@@ -120,6 +66,7 @@ const tabStatusMap: Record<string, string[] | null> = {
 };
 
 export default function AccountingReview() {
+  const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState("pending");
   const [drawerItemId, setDrawerItemId] = useState<string | null>(null);
   const [items, setItems] = useState<MockItem[]>(initialMockItems);
@@ -130,17 +77,12 @@ export default function AccountingReview() {
   const [exceptionReason, setExceptionReason] = useState("");
   const [exceptionNote, setExceptionNote] = useState("");
   const [activeDocIndex, setActiveDocIndex] = useState(0);
-  const navigate = useNavigate();
   const { toast } = useToast();
 
   const filtered = tabStatusMap[activeTab]
-    ? items.filter((item) => {
-        const matchesStatus = tabStatusMap[activeTab]!.includes(item.status);
-        if (activeTab === "pending") {
-          return matchesStatus && item.attachedFiles.length > 0;
-        }
-        return matchesStatus;
-      })
+    ? activeTab === "pending"
+      ? items.filter((item) => tabStatusMap[activeTab]!.includes(item.status) && item.attachedFiles.length > 0)
+      : items.filter((item) => tabStatusMap[activeTab]!.includes(item.status))
     : items;
 
   const itemsWithFiles = filtered.filter((i) => i.attachedFiles.length > 0);
@@ -152,7 +94,7 @@ export default function AccountingReview() {
     const num = parseFloat(item.amount.replace(/[฿,]/g, ""));
     return sum + num;
   }, 0);
-  const pendingCount = items.filter((i) => ["Pending Invoice", "Auto Approved"].includes(i.status) && i.attachedFiles.length > 0).length;
+  const pendingCount = items.filter((i) => ["Pending Invoice", "Auto Approved"].includes(i.status)).length;
   const readyCount = items.filter((i) => i.status === "Ready for ERP").length;
   const exceptionCount = items.filter((i) => ["Auto Reject", "Reject", "Final Reject", "Exception"].includes(i.status)).length;
 
@@ -181,7 +123,7 @@ export default function AccountingReview() {
   const handleSingleConfirm = () => {
     if (!drawerItemId) return;
     updateStatus([drawerItemId]);
-    toast({ title: "Items sent to ERP successfully", description: `${drawerItemId} — Status changed to Ready for ERP` });
+    toast({ title: "Sent to ERP successfully", description: `${drawerItemId} — Status changed to Ready for ERP` });
     setDrawerItemId(null);
     setConfirmDialogOpen(false);
   };
@@ -189,7 +131,7 @@ export default function AccountingReview() {
   const handleBulkConfirm = () => {
     const ids = Array.from(selectedIds);
     updateStatus(ids);
-    toast({ title: "Items sent to ERP successfully", description: `${ids.length} items sent to ERP` });
+    toast({ title: "Sent to ERP successfully", description: `${ids.length} items sent to ERP` });
     setSelectedIds(new Set());
     setBulkConfirmOpen(false);
   };
@@ -201,7 +143,7 @@ export default function AccountingReview() {
         item.id === drawerItemId ? { ...item, status: "Exception" } : item
       )
     );
-    toast({ title: "Items flagged as Exception — employee notified", description: `${drawerItemId} — Reason: ${exceptionReason}` });
+    toast({ title: "Item flagged as Exception — employee notified", description: `${drawerItemId} — Reason: ${exceptionReason}` });
     setDrawerItemId(null);
     setExceptionDialogOpen(false);
     setExceptionReason("");
@@ -328,11 +270,7 @@ export default function AccountingReview() {
                   </TableRow>
                 ) : (
                   filtered.map((item) => (
-                    <TableRow
-                      key={item.id}
-                      className={cn(drawerItemId === item.id && "bg-accent", "cursor-pointer hover:bg-muted/50")}
-                      onClick={() => navigate(`/accounting/${item.id}`)}
-                    >
+                    <TableRow key={item.id} className={cn("cursor-pointer hover:bg-muted/30", drawerItemId === item.id && "bg-accent")} onClick={() => navigate(`/accounting/${item.id}`)}>
                       <TableCell onClick={(e) => e.stopPropagation()}>
                         <Checkbox
                           checked={selectedIds.has(item.id)}
@@ -355,7 +293,7 @@ export default function AccountingReview() {
                         ) : item.attachedFiles.length > 0 ? (
                           <span
                             className="inline-flex items-center gap-1.5 text-primary cursor-pointer hover:underline"
-                            onClick={(e) => { e.stopPropagation(); openDrawer(item.id); }}
+                            onClick={() => openDrawer(item.id)}
                           >
                             <Paperclip className="h-3.5 w-3.5" />
                             <Badge variant="secondary" className="text-xs px-1.5 py-0">
@@ -447,7 +385,7 @@ export default function AccountingReview() {
                     <FileText className="h-12 w-12 mx-auto mb-3 opacity-30" />
                     <p className="text-sm font-medium">{activeDoc?.name}</p>
                     <p className="text-xs mt-1">{activeDoc?.size}</p>
-                    <p className="text-xs mt-1">Document will be displayed here when connected to the backend</p>
+                    <p className="text-xs mt-1">Document will be displayed here once connected to the backend</p>
                   </div>
                 </div>
               </div>
@@ -474,12 +412,12 @@ export default function AccountingReview() {
               <details className="group">
                 <summary className="flex items-center gap-2 cursor-pointer select-none py-2">
                   <ChevronDown className="h-4 w-4 text-muted-foreground transition-transform group-open:rotate-180" />
-                  <h3 className="text-sm font-semibold text-foreground">Action History (Audit Trail)</h3>
+                  <h3 className="text-sm font-semibold text-foreground">Audit Trail</h3>
                 </summary>
                 <div className="ml-2 mt-2 border-l-2 border-muted pl-4 space-y-4 pb-2">
                   {[
                     { icon: "✅", action: "Auto-approved by Policy Engine", time: "27 Feb 2026 07:15" },
-                    { icon: "📎", action: "Document uploaded by Somchai Chaidee", time: "27 Feb 2026 09:32" },
+                    { icon: "📎", action: "Document uploaded by employee", time: "27 Feb 2026 09:32" },
                     { icon: "🔍", action: "OCR validation passed", time: "27 Feb 2026 09:33" },
                     { icon: "✅", action: "Confirmed by Finance", time: "11 Mar 2026 14:00" },
                   ].map((entry, idx) => (
@@ -506,7 +444,7 @@ export default function AccountingReview() {
                   onClick={() => setConfirmDialogOpen(true)}
                 >
                   <Send className="h-4 w-4 mr-2" />
-                  Confirm & Export to ERP
+                  Confirm & Send to ERP
                 </Button>
                 <Button
                   variant="outline"
@@ -566,9 +504,9 @@ export default function AccountingReview() {
       <AlertDialog open={confirmDialogOpen} onOpenChange={setConfirmDialogOpen}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Confirm Export to ERP</AlertDialogTitle>
+            <AlertDialogTitle>Confirm ERP Submission</AlertDialogTitle>
             <AlertDialogDescription>
-              Confirm sending this item to Oracle ERP?
+              Are you sure you want to send this item to Oracle ERP?
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
@@ -582,7 +520,7 @@ export default function AccountingReview() {
       <AlertDialog open={bulkConfirmOpen} onOpenChange={setBulkConfirmOpen}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Confirm Export to ERP</AlertDialogTitle>
+            <AlertDialogTitle>Confirm ERP Submission</AlertDialogTitle>
             <AlertDialogDescription>
               Confirm sending {selectedIds.size} items to Oracle ERP?
             </AlertDialogDescription>
@@ -599,7 +537,7 @@ export default function AccountingReview() {
         <DialogContent>
           <DialogHeader>
             <DialogTitle>⚠️ Flag as Exception</DialogTitle>
-            <DialogDescription>Specify reason and message to employee</DialogDescription>
+            <DialogDescription>Specify reason and message for the employee</DialogDescription>
           </DialogHeader>
           <div className="space-y-4 py-2">
             <div className="space-y-2">
@@ -609,16 +547,16 @@ export default function AccountingReview() {
                   <SelectValue placeholder="Select reason..." />
                 </SelectTrigger>
                 <SelectContent>
-                  {["Tax ID Mismatch", "Address Mismatch", "Amount exceeds tolerance", "Unclear document", "Other"].map((r) => (
+                  {["Tax ID mismatch", "Address mismatch", "Amount exceeds tolerance", "Document unclear", "Other"].map((r) => (
                     <SelectItem key={r} value={r}>{r}</SelectItem>
                   ))}
                 </SelectContent>
               </Select>
             </div>
             <div className="space-y-2">
-              <Label>Message to Employee</Label>
+              <Label>Message to employee</Label>
               <Textarea
-                placeholder="Provide additional details..."
+                placeholder="Enter additional details..."
                 value={exceptionNote}
                 onChange={(e) => setExceptionNote(e.target.value)}
               />

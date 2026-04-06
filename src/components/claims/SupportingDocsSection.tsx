@@ -6,10 +6,10 @@ import { toast } from "@/hooks/use-toast";
 import { ACCEPTED_MIME_TYPES, MAX_FILE_SIZE_BYTES, MAX_FILE_SIZE_MB } from "@/lib/upload-types";
 
 const SUPPORT_DOC_TYPES = [
-  "Attendee List",
-  "Travel Approval Form",
-  "Travel Report",
-  "Other Documents",
+  "รายชื่อผู้เข้าร่วม",
+  "ใบอนุมัติเดินทาง",
+  "รายงานการเดินทาง",
+  "เอกสารอื่นๆ",
 ] as const;
 
 export type SupportDocType = typeof SUPPORT_DOC_TYPES[number];
@@ -32,7 +32,7 @@ export default function SupportingDocsSection({ files, onChange }: SupportingDoc
   const handleAdd = useCallback((fileList: FileList | File[]) => {
     const remaining = MAX_SUPPORT_FILES - files.length;
     if (remaining <= 0) {
-      toast({ title: "Maximum Limit", description: `Maximum supporting documents allowed: ${MAX_SUPPORT_FILES} files`, variant: "destructive" });
+      toast({ title: "จำกัดสูงสุด", description: `อัปโหลดเอกสารสนับสนุนได้สูงสุด ${MAX_SUPPORT_FILES} ไฟล์`, variant: "destructive" });
       return;
     }
     const arr = Array.from(fileList).slice(0, remaining);
@@ -40,7 +40,7 @@ export default function SupportingDocsSection({ files, onChange }: SupportingDoc
     for (const f of arr) {
       if (!ACCEPTED_MIME_TYPES.includes(f.type)) continue;
       if (f.size > MAX_FILE_SIZE_BYTES) continue;
-      valid.push({ file: f, docType: "Other Documents" });
+      valid.push({ file: f, docType: "เอกสารอื่นๆ" });
     }
     if (valid.length) onChange([...files, ...valid]);
   }, [files, onChange]);
@@ -56,8 +56,8 @@ export default function SupportingDocsSection({ files, onChange }: SupportingDoc
         onChange={(e) => { if (e.target.files) handleAdd(e.target.files); e.target.value = ""; }}
       />
       <div>
-        <h4 className="text-sm font-semibold text-foreground">Additional Supporting Documents (Optional)</h4>
-        <p className="text-xs text-muted-foreground mt-0.5">e.g. Attendee List, Travel Approval Form, Meeting Report</p>
+        <h4 className="text-sm font-semibold text-foreground">เอกสารสนับสนุนเพิ่มเติม (ไม่บังคับ)</h4>
+        <p className="text-xs text-muted-foreground mt-0.5">เช่น รายชื่อผู้เข้าร่วม, ใบอนุมัติเดินทาง, รายงานการประชุม</p>
       </div>
 
       {files.length < MAX_SUPPORT_FILES && (
@@ -68,7 +68,7 @@ export default function SupportingDocsSection({ files, onChange }: SupportingDoc
           onDrop={(e) => { e.preventDefault(); handleAdd(e.dataTransfer.files); }}
         >
           <Upload className="h-5 w-5 text-muted-foreground" />
-          <p className="text-xs text-muted-foreground">Drag & drop files here, or click to browse ({files.length}/{MAX_SUPPORT_FILES})</p>
+          <p className="text-xs text-muted-foreground">ลากไฟล์มาวาง หรือคลิกเพื่อเลือก ({files.length}/{MAX_SUPPORT_FILES})</p>
         </div>
       )}
 

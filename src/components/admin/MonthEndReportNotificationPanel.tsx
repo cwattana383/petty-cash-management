@@ -43,7 +43,7 @@ export default function MonthEndReportNotificationPanel() {
             Month End Report — HR & Finance
           </h2>
           <p className="text-sm text-muted-foreground mt-1">
-            Monthly Corporate Card transaction summary, auto-sent to HR and Finance
+            Monthly Corporate Card expense summary sent to HR and Finance automatically
           </p>
         </div>
         <div className="flex items-center gap-2">
@@ -105,7 +105,7 @@ export default function MonthEndReportNotificationPanel() {
             {/* Email header */}
             <div className="bg-muted/50 px-6 py-4 border-b">
               <p className="text-xs text-muted-foreground">To: HR Team, Finance Team</p>
-              <p className="text-sm font-medium mt-1">Corporate Card Expense Summary Report — 02/2026</p>
+              <p className="text-sm font-medium mt-1">Corporate Card Expense Summary Report — February 2026</p>
             </div>
 
             {/* Email body */}
@@ -276,7 +276,7 @@ export default function MonthEndReportNotificationPanel() {
 
               <div className="pt-4 border-t mt-4">
                 <p className="text-xs text-muted-foreground">
-                  This email is automatically sent on day {sendDay} of each month — please do not reply to this email.
+                  This email is sent automatically on day {sendDay} of each month — please do not reply to this email.
                 </p>
               </div>
             </div>

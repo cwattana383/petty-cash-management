@@ -1,18 +1,15 @@
 import {
-  LayoutDashboard,
-  Upload,
   FileText,
-  BarChart3,
-  ArrowLeftRight,
   Settings,
   CheckSquare,
   ClipboardList,
   CreditCard,
-  ShieldCheck,
 } from "lucide-react";
 import { NavLink } from "@/components/NavLink";
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
+import { useQueryClient } from "@tanstack/react-query";
 import { useRoles } from "@/lib/role-context";
+import { useAuth } from "@/lib/auth-context";
 import { cn } from "@/lib/utils";
 import {
   Sidebar,
@@ -34,39 +31,59 @@ const mainNav = [
   { title: "Admin", url: "/admin", icon: Settings },
 ];
 
+const allRoleTabs = [
+  { key: "Cardholder", label: "👤 Cardholder" },
+  { key: "Approver", label: "✅ Approver" },
+  { key: "Admin", label: "⚙️ Admin" },
+] as const;
+
+/** Return the nav items visible to a given selected role */
+function getNavForRole(selectedRole: string) {
+  switch (selectedRole) {
+    case "Admin":
+      return mainNav; // all items
+    case "Approver":
+      return mainNav.filter((i) => ["My Expense", "Approval Inbox"].includes(i.title));
+    case "Cardholder":
+    default:
+      return mainNav.filter((i) => i.title === "My Expense");
+  }
+}
+
 export function AppSidebar() {
   const location = useLocation();
-  const { roles, setRoles } = useRoles();
+  const navigate = useNavigate();
+  const queryClient = useQueryClient();
+  const { roles, allRoles, setRoles } = useRoles();
+  const { user } = useAuth();
 
-  const filteredNav = roles.length > 0
-    ? mainNav.filter((item) => {
-        // Cardholder only sees "My Expense"
-        if (roles.length === 1 && roles.includes("Cardholder") && !roles.includes("Approver") && !roles.includes("Admin")) {
-          return item.title === "My Expense";
-        }
-        // Approver sees My Expense + Approval Inbox
-        if (roles.includes("Approver") && !roles.includes("Admin")) {
-          return ["My Expense", "Approval Inbox"].includes(item.title);
-        }
-        // Admin sees all
-        if (roles.includes("Admin")) {
-          return true;
-        }
-        return item.title === "My Expense";
-      })
-    : mainNav;
+  // Only show role tabs that the logged-in user actually has
+  const userRoles = user?.roles ?? allRoles;
+  const visibleRoleTabs = allRoleTabs.filter((r) =>
+    userRoles.includes(r.key)
+  );
 
-  const demoRoles = [
-    { key: "Cardholder", label: "👤 Cardholder" },
-    { key: "Approver", label: "✅ Approver" },
-    { key: "Admin", label: "⚙️ Admin" },
-  ] as const;
-
-  const activeDemo = roles.includes("Admin")
+  // The currently active/selected role (single role)
+  const activeRole = roles.includes("Admin")
     ? "Admin"
     : roles.includes("Approver")
     ? "Approver"
     : "Cardholder";
+
+  const filteredNav = getNavForRole(activeRole);
+
+  const handleRoleSwitch = (roleKey: string) => {
+    setRoles([roleKey]);
+    queryClient.invalidateQueries({ queryKey: ["corp-card-transactions"] });
+    queryClient.invalidateQueries({ queryKey: ["corp-card-transactions-stats"] });
+    // Redirect to /claims if current page isn't accessible for the new role
+    const newNav = getNavForRole(roleKey);
+    const currentPath = location.pathname;
+    const isAccessible = newNav.some((item) => currentPath.startsWith(item.url));
+    if (!isAccessible) {
+      navigate("/claims");
+    }
+  };
 
   return (
     <Sidebar>
@@ -77,22 +94,24 @@ export function AppSidebar() {
           </div>
           <span className="font-bold text-lg text-primary">ExpenseClaim</span>
         </div>
-        <div className="flex gap-1">
-          {demoRoles.map((r) => (
-            <button
-              key={r.key}
-              onClick={() => setRoles([r.key])}
-              className={cn(
-                "flex-1 text-xs py-1.5 rounded-md font-medium transition-colors",
-                activeDemo === r.key
-                  ? "bg-primary text-primary-foreground"
-                  : "bg-muted text-muted-foreground hover:bg-accent"
-              )}
-            >
-              {r.label}
-            </button>
-          ))}
-        </div>
+        {visibleRoleTabs.length > 0 && (
+          <div className="flex gap-1">
+            {visibleRoleTabs.map((r) => (
+              <button
+                key={r.key}
+                onClick={() => handleRoleSwitch(r.key)}
+                className={cn(
+                  "flex-1 text-xs py-1.5 rounded-md font-medium transition-all duration-200",
+                  activeRole === r.key
+                    ? "bg-primary text-primary-foreground shadow-md scale-[1.02]"
+                    : "bg-muted text-muted-foreground hover:bg-accent hover:scale-105 hover:shadow-sm hover:-translate-y-0.5 active:scale-95"
+                )}
+              >
+                {r.label}
+              </button>
+            ))}
+          </div>
+        )}
       </SidebarHeader>
       <SidebarContent>
         <SidebarGroup>

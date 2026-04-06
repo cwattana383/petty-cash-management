@@ -5,7 +5,7 @@ import {
 } from "@/components/ui/dialog";
 import { AlertTriangle, CheckCircle, X } from "lucide-react";
 import { UploadedDoc, OcrField, toThaiDateDisplay } from "@/lib/upload-types";
-import { toast } from "sonner";
+import { toast } from "@/hooks/use-toast";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import ReceiptInformation, { type ReceiptData } from "./verify/ReceiptInformation";
 import AmountBreakdown, { type AmountData } from "./verify/AmountBreakdown";
@@ -54,44 +54,44 @@ export default function VerifyModal({ doc, onClose, onConfirm, onReject, onRerun
     if (!doc?.ocrData) return;
     const f = doc.ocrData;
 
-    const convertedDate = convertThaiDate(getOcrValue(f, "Date"));
+    const convertedDate = convertThaiDate(getOcrValue(f, "วันเดือนปี"));
     const displayDate = toThaiDateDisplay(convertedDate);
 
     setReceipt({
-      buyerTaxId: getOcrValue(f, "Tax ID"),
-      buyerTaxIdConf: getOcrConf(f, "Tax ID"),
-      buyerName: getOcrValue(f, "Withholding Tax Payer Name"),
-      buyerNameConf: getOcrConf(f, "Withholding Tax Payer Name"),
-      buyerAddress: getOcrValue(f, "Buyer Address"),
-      buyerAddressConf: getOcrConf(f, "Buyer Address"),
-      buyerNameAddress: getOcrValue(f, "Withholding Tax Payer Name"),
-      buyerNameAddressConf: getOcrConf(f, "Withholding Tax Payer Name"),
-      invoiceNumber: getOcrValue(f, "Invoice No."),
-      invoiceNumberConf: getOcrConf(f, "Invoice No."),
+      buyerTaxId: getOcrValue(f, "เลขประจำตัวผู้เสียภาษี"),
+      buyerTaxIdConf: getOcrConf(f, "เลขประจำตัวผู้เสียภาษี"),
+      buyerName: getOcrValue(f, "ชื่อ ผู้มีหน้าที่หักภาษี ณ ที่จ่าย"),
+      buyerNameConf: getOcrConf(f, "ชื่อ ผู้มีหน้าที่หักภาษี ณ ที่จ่าย"),
+      buyerAddress: getOcrValue(f, "ที่อยู่ผู้ซื้อ"),
+      buyerAddressConf: getOcrConf(f, "ที่อยู่ผู้ซื้อ"),
+      buyerNameAddress: getOcrValue(f, "ชื่อ ผู้มีหน้าที่หักภาษี ณ ที่จ่าย"),
+      buyerNameAddressConf: getOcrConf(f, "ชื่อ ผู้มีหน้าที่หักภาษี ณ ที่จ่าย"),
+      invoiceNumber: getOcrValue(f, "เลขที่"),
+      invoiceNumberConf: getOcrConf(f, "เลขที่"),
       invoiceDate: convertedDate,
-      invoiceDateConf: getOcrConf(f, "Date"),
+      invoiceDateConf: getOcrConf(f, "วันเดือนปี"),
       invoiceDateDisplay: displayDate,
       vatAmount: getOcrValue(f, "VAT Amount"),
       vatAmountConf: getOcrConf(f, "VAT Amount"),
-      vendorSellerInfo: getOcrValue(f, "Branch") || "Head Office",
-      vendorSellerInfoConf: getOcrConf(f, "Branch") || 80,
+      vendorSellerInfo: getOcrValue(f, "สาขา") || "Head Office",
+      vendorSellerInfoConf: getOcrConf(f, "สาขา") || 80,
       paymentMethod: "Credit Card",
       currency: "THB",
       country: "TH",
     });
 
-    const subtotal = parseNum(getOcrValue(f, "Amount"));
+    const subtotal = parseNum(getOcrValue(f, "จำนวนเงิน"));
     const vatAmt = parseNum(getOcrValue(f, "VAT Amount"));
     const whtCode = getOcrValue(f, "WHT Code");
     const whtAmt = parseNum(getOcrValue(f, "WHT Amount"));
     const calcVat = Math.round(subtotal * 0.07 * 100) / 100;
 
     setAmount({
-      description: getOcrValue(f, "Income Type") || "Expense item",
+      description: getOcrValue(f, "ประเภทรายได้") || "Expense item",
       subtotal,
-      subtotalConf: getOcrConf(f, "Amount"),
-      totalAmount: getOcrValue(f, "Amount"),
-      totalAmountConf: getOcrConf(f, "Amount"),
+      subtotalConf: getOcrConf(f, "จำนวนเงิน"),
+      totalAmount: getOcrValue(f, "จำนวนเงิน"),
+      totalAmountConf: getOcrConf(f, "จำนวนเงิน"),
       vatRate: "AVG",
       vatAmount: vatAmt || calcVat,
       vatAmountConf: getOcrConf(f, "VAT Amount"),
@@ -118,7 +118,7 @@ export default function VerifyModal({ doc, onClose, onConfirm, onReject, onRerun
       { name: "Invoice No", conf: receipt.invoiceNumberConf },
     ];
     confFields.forEach((cf) => {
-      if (cf.conf < 80) w.push(`${cf.name} has low confidence (${cf.conf}%) — Please review`);
+      if (cf.conf < 80) w.push(`${cf.name} has low confidence (${cf.conf}%) — please verify`);
     });
 
     if (doc?.ocrConfidenceScore != null && doc.ocrConfidenceScore < 80) {
@@ -138,7 +138,7 @@ export default function VerifyModal({ doc, onClose, onConfirm, onReject, onRerun
 
     setReceiptErrors(errs);
     if (Object.keys(errs).length > 0) {
-      toast.error("Please fill in all required fields");
+      toast({ title: "Error", description: "Please fill in all required fields", variant: "destructive" });
       return;
     }
 
@@ -164,20 +164,20 @@ export default function VerifyModal({ doc, onClose, onConfirm, onReject, onRerun
 
     const updatedFields: OcrField[] = [
       { label: "Tax ID", value: receipt.buyerTaxId, confidence: receipt.buyerTaxIdConf },
-      { label: "Date", value: receipt.invoiceDate, confidence: receipt.invoiceDateConf },
-      { label: "Invoice No.", value: receipt.invoiceNumber, confidence: receipt.invoiceNumberConf },
-      { label: "Withholding Tax Payer Name", value: receipt.buyerName, confidence: receipt.buyerNameConf },
+      { label: "Invoice Date", value: receipt.invoiceDate, confidence: receipt.invoiceDateConf },
+      { label: "Invoice Number", value: receipt.invoiceNumber, confidence: receipt.invoiceNumberConf },
+      { label: "Buyer Name", value: receipt.buyerName, confidence: receipt.buyerNameConf },
       { label: "Buyer Address", value: receipt.buyerAddress, confidence: receipt.buyerAddressConf },
-      { label: "Income Type", value: amount.description || "", confidence: 100 },
-      { label: "Tax Rate", value: amount.vatRate, confidence: 100 },
-      { label: "Amount", value: amount.grandTotal.toFixed(2), confidence: 100 },
+      { label: "Description", value: amount.description || "", confidence: 100 },
+      { label: "VAT Rate", value: amount.vatRate, confidence: 100 },
+      { label: "Total Amount", value: amount.grandTotal.toFixed(2), confidence: 100 },
       { label: "VAT Code", value: `V${amount.vatRate}`, confidence: 100 },
       { label: "VAT Amount", value: amount.vatAmount.toFixed(2), confidence: 100 },
       { label: "WHT Code", value: amount.whtAmount > 0 ? amount.whtCode : "", confidence: 100 },
       { label: "WHT Amount", value: amount.whtAmount.toFixed(2), confidence: 100 },
     ];
 
-    toast.success(`Transaction ${transactionId} created`);
+    toast({ title: "Success", description: `Transaction ${transactionId} created` });
     onConfirm(doc!.id, updatedFields);
   };
 

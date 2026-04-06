@@ -1,7 +1,6 @@
-import { useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Switch } from "@/components/ui/switch";
-import { Badge } from "@/components/ui/badge";
+import { Skeleton } from "@/components/ui/skeleton";
 import {
   Table,
   TableBody,
@@ -11,6 +10,12 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Bell, Info, Mail, Eye } from "lucide-react";
+import { useState } from "react";
+import { toast } from "@/hooks/use-toast";
+import {
+  useNotificationSettingByType,
+  useUpdateNotificationSetting,
+} from "@/hooks/use-email-settings";
 
 const mockPendingTransactions = [
   { transaction_id: "TXN20250129001", merchant_name: "GRAB TAXI", transaction_date: "2026-02-28", amount: "1,500", currency: "THB" },
@@ -21,9 +26,19 @@ const mockPendingTransactions = [
 ];
 
 export default function PendingInvoiceNotificationPanel() {
-  const [notificationsEnabled, setNotificationsEnabled] = useState(true);
-  const [remindersEnabled, setRemindersEnabled] = useState(true);
   const [showPreview, setShowPreview] = useState(false);
+  const { data: setting, isLoading } = useNotificationSettingByType("PENDING_DOCUMENTS");
+  const updateSetting = useUpdateNotificationSetting();
+
+  const handleToggle = (field: "notificationsEnabled" | "remindersEnabled", value: boolean) => {
+    updateSetting.mutate(
+      { type: "PENDING_DOCUMENTS", [field]: value },
+      {
+        onSuccess: () => toast({ title: "Success", description: "Setting updated" }),
+        onError: () => toast({ title: "Error", description: "Failed to update setting", variant: "destructive" }),
+      },
+    );
+  };
 
   return (
     <div className="space-y-6 max-w-4xl">
@@ -49,7 +64,15 @@ export default function PendingInvoiceNotificationPanel() {
                 </p>
               </div>
             </div>
-            <Switch checked={notificationsEnabled} onCheckedChange={setNotificationsEnabled} />
+            {isLoading ? (
+              <Skeleton className="h-5 w-10 rounded-full" />
+            ) : (
+              <Switch
+                checked={setting?.notificationsEnabled ?? false}
+                onCheckedChange={(v) => handleToggle("notificationsEnabled", v)}
+                disabled={updateSetting.isPending}
+              />
+            )}
           </div>
         </CardContent>
       </Card>
@@ -65,11 +88,19 @@ export default function PendingInvoiceNotificationPanel() {
               <div>
                 <p className="text-sm font-semibold">Enable Reminders</p>
                 <p className="text-xs text-muted-foreground">
-                  Send a periodic reminder if transactions remain in PENDING_INVOICE status
+                  Send a periodic reminder if transactions remain in PENDING_DOCUMENTS status
                 </p>
               </div>
             </div>
-            <Switch checked={remindersEnabled} onCheckedChange={setRemindersEnabled} />
+            {isLoading ? (
+              <Skeleton className="h-5 w-10 rounded-full" />
+            ) : (
+              <Switch
+                checked={setting?.remindersEnabled ?? false}
+                onCheckedChange={(v) => handleToggle("remindersEnabled", v)}
+                disabled={updateSetting.isPending}
+              />
+            )}
           </div>
         </CardContent>
       </Card>
@@ -78,7 +109,7 @@ export default function PendingInvoiceNotificationPanel() {
       <div className="flex items-start gap-2.5 rounded-lg border border-border bg-muted/50 p-4">
         <Info className="h-4 w-4 text-muted-foreground mt-0.5 shrink-0" />
         <p className="text-sm text-muted-foreground">
-          Emails are sent 10 minutes after daily import. Reminders repeat every 3 days until all invoices are uploaded.
+          Emails are sent {setting?.initialDelayMinutes ?? 10} minutes after daily import. Reminders repeat every {setting?.reminderIntervalDays ?? 3} days until all invoices are uploaded.
         </p>
       </div>
 

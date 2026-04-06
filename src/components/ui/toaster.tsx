@@ -6,9 +6,11 @@ export function Toaster() {
 
   return (
     <ToastProvider>
-      {toasts.map(function ({ id, title, description, action, ...props }) {
+      {toasts.map(function ({ id, title, description, action, variant, ...props }) {
+        // Default non-destructive toasts to green success variant
+        const resolvedVariant = variant === "destructive" ? "destructive" : "success";
         return (
-          <Toast key={id} {...props}>
+          <Toast key={id} variant={resolvedVariant} {...props}>
             <div className="grid gap-1">
               {title && <ToastTitle>{title}</ToastTitle>}
               {description && <ToastDescription>{description}</ToastDescription>}

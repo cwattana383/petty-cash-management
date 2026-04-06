@@ -122,7 +122,7 @@ export default function RequesterInformation({ data, creatorData, onChange }: Re
             <Input value={data.email} disabled />
           </div>
           <div>
-            <Label>Department</Label>
+            <Label>แผนก (Department)</Label>
             <Input value={data.department} disabled />
           </div>
           <div>
@@ -130,7 +130,7 @@ export default function RequesterInformation({ data, creatorData, onChange }: Re
             <Input value={data.division} disabled />
           </div>
           <div>
-            <Label>Branch</Label>
+            <Label>สาขา (Branch)</Label>
             <Input value={data.branch} disabled />
           </div>
         </div>

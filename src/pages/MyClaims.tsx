@@ -1,7 +1,7 @@
-import { useState, useMemo, useRef, useCallback } from "react";
+import { useState, useMemo, useRef, useCallback, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { Search, CalendarIcon, Upload, X } from "lucide-react";
-import { addMonths } from "date-fns";
+import { Search, CalendarIcon, Upload, Loader2 } from "lucide-react";
+import { format } from "date-fns";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -10,57 +10,42 @@ import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Calendar } from "@/components/ui/calendar";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
-import { mockClaims } from "@/lib/mock-data";
-import { ClaimStatus, DocumentStatus } from "@/lib/types";
+import { type ClaimHeader } from "@/lib/types";
 import { formatBEDate, cn } from "@/lib/utils";
-import { format, subDays } from "date-fns";
 import { toast } from "@/hooks/use-toast";
 import { ACCEPTED_MIME_TYPES, MAX_FILE_SIZE_BYTES, MAX_FILE_SIZE_MB } from "@/lib/upload-types";
-import { useNotifications } from "@/lib/notifications-context";
-import OcrProcessingState from "@/components/claims/OcrProcessingState";
-import OcrResultCard, { OcrResultState } from "@/components/claims/OcrResultCard";
+import OcrResultCard, { type OcrResultState } from "@/components/claims/OcrResultCard";
+import {
+  usePreviewClaimDocumentOcr,
+  previewResponseToOcrDisplayFields,
+  previewValidationToResultState,
+  type PreviewOcrResponse,
+} from "@/hooks/use-claim-documents";
 import SupportingDocsSection, { SupportingFile } from "@/components/claims/SupportingDocsSection";
-import AttachmentStatusBadge, { AttachmentOcrStatus } from "@/components/claims/AttachmentStatusBadge";
+import { AttachmentOcrStatus } from "@/components/claims/AttachmentStatusBadge";
 import NoDocumentWarningDialog from "@/components/claims/NoDocumentWarningDialog";
+import { useCorpCardTransactions, useCorpCardTransactionStats } from "@/hooks/use-corp-card-transactions";
+import { useCardholderClaimsCorpOverlay } from "@/hooks/use-cardholder-claims";
+import { useAuth } from "@/lib/auth-context";
+import { useRoles } from "@/lib/role-context";
+import { toDocumentContractStatus } from "@/lib/corp-document-status";
+import {
+  TAB_STATUS_FILTER,
+  type StatusTab,
+  getDeductionPeriod,
+  formatMyClaimsNumber,
+  formatMyClaimsCurrency,
+  rowRouteId,
+  toDisplayStatus,
+  effectiveCorpDocumentStatus,
+  toPortalApprovalStatus,
+  isPortalStatusInTab,
+  approvalStatusDisplayText,
+  approvalStatusBadgeClassForDisplay,
+  documentStatusBadgeClass,
+  documentStatusLabel,
+} from "@/lib/portal-claim-row-status";
 
-type StatusTab = "pending_documents" | "rejected" | "approved" | "all";
-
-const TAB_STATUS_MAP: Record<StatusTab, ClaimStatus[]> = {
-  pending_documents: [],
-  rejected: ["Auto Reject", "Reject", "Final Reject"],
-  approved: ["Auto Approved", "Manager Approved", "Reimbursed"],
-  all: [],
-};
-
-const statusVariant: Record<ClaimStatus, string> = {
-  "Pending Invoice": "bg-orange-100 text-orange-800",
-  "Pending Approval": "bg-yellow-100 text-yellow-800",
-  "Final Rejected": "bg-red-100 text-red-800",
-  "Auto Reject": "bg-red-100 text-red-800",
-  "Reject": "bg-red-100 text-red-800",
-  "Final Reject": "bg-red-100 text-red-800",
-  "Auto Approved": "bg-green-100 text-green-800",
-  "Manager Approved": "bg-green-100 text-green-800",
-  "Reimbursed": "bg-emerald-100 text-emerald-800",
-  "Request for Info": "bg-indigo-100 text-indigo-800",
-};
-
-const docStatusVariant: Record<DocumentStatus, string> = {
-  "Not Required": "bg-gray-100 text-gray-600",
-  "Pending Documents": "bg-orange-100 text-orange-800",
-  "Validated": "bg-green-100 text-green-800",
-};
-
-const THAI_MONTHS_SHORT = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
-
-function getDeductionPeriod(txnDate: string): string {
-  const d = addMonths(new Date(txnDate), 1);
-  const beYear = d.getFullYear() + 543;
-  const period = d.getMonth() + 1;
-  return `Period ${period} / ${THAI_MONTHS_SHORT[d.getMonth()]} ${beYear}`;
-}
-
-// Upload dialog flow states
 type UploadFlowState = "dropzone" | "processing" | "result" | "confirmed";
 
 interface ClaimAttachmentData {
@@ -71,66 +56,174 @@ interface ClaimAttachmentData {
 }
 
 export default function MyClaims() {
+  const PAGE_SIZE = 20;
   const navigate = useNavigate();
-  const { addNotification } = useNotifications();
+  const { user } = useAuth();
+  const { roles } = useRoles();
+  const isAdminView = roles.includes("Admin");
   const [search, setSearch] = useState("");
-  const [activeTab, setActiveTab] = useState<StatusTab>("pending_documents");
-  const [dateFrom, setDateFrom] = useState<Date>(subDays(new Date("2026-02-28"), 6));
-  const [dateTo, setDateTo] = useState<Date>(new Date("2026-02-28"));
+  const [activeTab, setActiveTab] = useState<StatusTab>("pending_invoice");
+  const [page, setPage] = useState(1);
+  const [dateFrom, setDateFrom] = useState<Date>(() => {
+    const saved = localStorage.getItem("claims_dateFrom");
+    if (saved) {
+      const d = new Date(saved);
+      if (!isNaN(d.getTime())) return d;
+    }
+    const y = new Date().getFullYear();
+    return new Date(y, 0, 1);
+  });
+  const [dateTo, setDateTo] = useState<Date>(() => {
+    const saved = localStorage.getItem("claims_dateTo");
+    if (saved) {
+      const d = new Date(saved);
+      if (!isNaN(d.getTime())) return d;
+    }
+    return new Date();
+  });
 
-  // Attachment data per claim
+  useEffect(() => {
+    localStorage.setItem("claims_dateFrom", dateFrom.toISOString());
+  }, [dateFrom]);
+
+  useEffect(() => {
+    localStorage.setItem("claims_dateTo", dateTo.toISOString());
+  }, [dateTo]);
+
   const [attachments, setAttachments] = useState<Record<string, ClaimAttachmentData>>({});
-  const [claimStatuses, setClaimStatuses] = useState<Record<string, ClaimStatus>>({});
 
-  // Upload dialog state
-  const [uploadDialog, setUploadDialog] = useState<{ open: boolean; claimId: string }>({ open: false, claimId: "" });
+  const [uploadDialog, setUploadDialog] = useState<{ open: boolean; claimId: string }>({
+    open: false,
+    claimId: "",
+  });
   const [flowState, setFlowState] = useState<UploadFlowState>("dropzone");
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
-  const [ocrResult, setOcrResult] = useState<OcrResultState>("partial"); // demo default
+  const [ocrResult, setOcrResult] = useState<OcrResultState>("partial");
+  const [previewData, setPreviewData] = useState<PreviewOcrResponse | null>(null);
   const [supportingFiles, setSupportingFiles] = useState<SupportingFile[]>([]);
+  const previewOcr = usePreviewClaimDocumentOcr();
   const uploadInputRef = useRef<HTMLInputElement>(null);
 
-  // No-document warning dialog
-  const [warningDialog, setWarningDialog] = useState<{ open: boolean; claimId: string }>({ open: false, claimId: "" });
+  const [warningDialog, setWarningDialog] = useState<{ open: boolean; claimId: string }>({
+    open: false,
+    claimId: "",
+  });
 
-  const getStatus = (claim: typeof mockClaims[0]): ClaimStatus => {
-    return claimStatuses[claim.id] || claim.status;
+  const dateFromStr = format(dateFrom, "yyyy-MM-dd");
+  const dateToStr = format(dateTo, "yyyy-MM-dd");
+
+  const corpQuery = useCorpCardTransactions({
+    page,
+    limit: PAGE_SIZE,
+    dateFrom: dateFromStr,
+    dateTo: dateToStr,
+    search: search || undefined,
+    status: TAB_STATUS_FILTER[activeTab].join(","),
+    employeeId: isAdminView ? undefined : user?.employeeCode,
+  });
+
+  const statsQuery = useCorpCardTransactionStats(isAdminView ? undefined : user?.employeeCode);
+
+  useEffect(() => {
+    setPage(1);
+  }, [search, activeTab, dateFrom, dateTo]);
+
+  const rawItems = useMemo(() => corpQuery.data?.data?.items ?? [], [corpQuery.data?.data?.items]);
+  const claimsOverlayQuery = useCardholderClaimsCorpOverlay({
+    dateFrom: dateFromStr,
+    dateTo: dateToStr,
+    search: search || undefined,
+  });
+  const claimByBankTxnId = useMemo(() => {
+    const m = new Map<string, ClaimHeader>();
+    for (const c of claimsOverlayQuery.data ?? []) {
+      if (c.bankTransactionId) m.set(c.bankTransactionId, c);
+    }
+    return m;
+  }, [claimsOverlayQuery.data]);
+  const filteredItems = useMemo(() => {
+    return rawItems.filter((txn) => {
+      const claim = txn.bankTransactionId ? claimByBankTxnId.get(txn.bankTransactionId) : undefined;
+      const att = attachments[rowRouteId(txn)];
+      const displayFromClaim = claim ? toDisplayStatus(claim.status, !!att, claim.statusDisplay) : null;
+      const rawDoc = effectiveCorpDocumentStatus(txn, claim);
+      const portalStatus = toPortalApprovalStatus(txn.status, rawDoc, claim, displayFromClaim);
+      if (!portalStatus) return false;
+      const docStatus = toDocumentContractStatus(rawDoc);
+      return isPortalStatusInTab(portalStatus, activeTab, docStatus, claim);
+    });
+  }, [rawItems, claimByBankTxnId, attachments, activeTab]);
+
+  const items = filteredItems;
+  const meta = corpQuery.data?.data?.meta ?? {
+    total: 0,
+    totalAmount: 0,
+    page,
+    limit: PAGE_SIZE,
+    totalPages: 1,
   };
+
+  const stats = statsQuery.data;
+  const showDeductionCol = activeTab === "rejected" || activeTab === "all";
 
   const resetDialog = () => {
     setUploadDialog({ open: false, claimId: "" });
     setFlowState("dropzone");
     setSelectedFile(null);
+    setPreviewData(null);
     setSupportingFiles([]);
   };
 
-  const handleOpenUploadDialog = (e: React.MouseEvent, claimId: string) => {
-    e.stopPropagation();
-    setFlowState("dropzone");
-    setSelectedFile(null);
-    setOcrResult("partial");
-    setSupportingFiles([]);
-    setUploadDialog({ open: true, claimId });
-  };
-
-  const handleFileSelected = useCallback((files: FileList | File[]) => {
-    const file = Array.from(files)[0];
-    if (!file) return;
-    if (!ACCEPTED_MIME_TYPES.includes(file.type)) {
-      toast({ title: "Unsupported file type", description: "Please upload PDF, JPG, or PNG", variant: "destructive" });
-      return;
-    }
-    if (file.size > MAX_FILE_SIZE_BYTES) {
-      toast({ title: "File too large", description: `File size must not exceed ${MAX_FILE_SIZE_MB}MB`, variant: "destructive" });
-      return;
-    }
-    setSelectedFile(file);
-    setFlowState("processing");
-  }, []);
-
-  const handleOcrComplete = useCallback(() => {
-    setFlowState("result");
-  }, []);
+  const handleFileSelected = useCallback(
+    (files: FileList | File[]) => {
+      const file = Array.from(files)[0];
+      if (!file) return;
+      if (!ACCEPTED_MIME_TYPES.includes(file.type)) {
+        toast({ title: "Unsupported file type", description: "Please upload PDF, JPG, or PNG", variant: "destructive" });
+        return;
+      }
+      if (file.size > MAX_FILE_SIZE_BYTES) {
+        toast({
+          title: "File too large",
+          description: `File size must not exceed ${MAX_FILE_SIZE_MB}MB`,
+          variant: "destructive",
+        });
+        return;
+      }
+      const claimId = uploadDialog.claimId?.trim();
+      if (!claimId) {
+        toast({
+          title: "ไม่พบรหัสเคลม",
+          description: "เปิดการแนบเอกสารจากรายการที่ผูกกับเคลมแล้ว หรือจากหน้ารายละเอียดเคลม เพื่อให้ระบบเรียก OCR ได้",
+          variant: "destructive",
+        });
+        return;
+      }
+      setSelectedFile(file);
+      setPreviewData(null);
+      setFlowState("processing");
+      previewOcr.mutate(
+        { claimId, file, documentTypeId: undefined },
+        {
+          onSuccess: (data) => {
+            setPreviewData(data);
+            setOcrResult(previewValidationToResultState(data.validationResults));
+            setFlowState("result");
+          },
+          onError: (err) => {
+            toast({
+              title: "อ่าน OCR ไม่สำเร็จ",
+              description: err instanceof Error ? err.message : "ลองใหม่อีกครั้ง",
+              variant: "destructive",
+            });
+            setFlowState("dropzone");
+            setSelectedFile(null);
+          },
+        }
+      );
+    },
+    [previewOcr, uploadDialog.claimId]
+  );
 
   const handleOcrConfirm = () => {
     setFlowState("confirmed");
@@ -153,47 +246,18 @@ export default function MyClaims() {
         totalFileCount: totalFiles,
       },
     }));
-    setClaimStatuses((prev) => ({ ...prev, [claimId]: "Pending Approval" }));
     resetDialog();
     toast({ title: "Submitted for approval", description: `Attached ${totalFiles} files — status changed to Pending Approval` });
   };
 
-  // Warning dialog: submit without document
-  const handleSubmitWithoutDoc = (claimId: string) => {
-    setClaimStatuses((prev) => ({ ...prev, [claimId]: "Pending Approval" }));
+  const handleSubmitWithoutDoc = (_claimId: string) => {
     setWarningDialog({ open: false, claimId: "" });
-    toast({ title: "Submitted", description: "Submitted without document — may be deducted from salary if not attached by deadline", variant: "destructive" });
-  };
-
-  const filtered = useMemo(() => {
-    return mockClaims.filter((c) => {
-      const status = getStatus(c);
-      if (activeTab === "pending_documents") {
-        const docStatus = c.documentStatus || "Pending Documents";
-        if (docStatus !== "Pending Documents") return false;
-      } else {
-        const allowedStatuses = TAB_STATUS_MAP[activeTab];
-        if (allowedStatuses.length > 0 && !allowedStatuses.includes(status)) return false;
-      }
-      const txnDate = new Date(c.createdDate);
-      const from = new Date(dateFrom);
-      from.setHours(0, 0, 0, 0);
-      const to = new Date(dateTo);
-      to.setHours(23, 59, 59, 999);
-      if (txnDate < from || txnDate > to) return false;
-      if (search) {
-        const kw = search.toLowerCase();
-        const searchable = [c.claimNo, c.purpose, c.requesterName].join(" ").toLowerCase();
-        if (!searchable.includes(kw)) return false;
-      }
-      return true;
+    toast({
+      title: "Submitted",
+      description: "Submitted without document — may be deducted from salary if not attached by deadline",
+      variant: "destructive",
     });
-  }, [search, activeTab, dateFrom, dateTo, claimStatuses]);
-
-  const rejectedItems = useMemo(() => {
-    const rejectedStatuses: ClaimStatus[] = ["Auto Reject", "Reject", "Final Reject"];
-    return mockClaims.filter((c) => rejectedStatuses.includes(getStatus(c)));
-  }, [claimStatuses]);
+  };
 
   return (
     <div className="space-y-6">
@@ -204,7 +268,6 @@ export default function MyClaims() {
         </div>
       </div>
 
-      {/* Hidden file input */}
       <input
         ref={uploadInputRef}
         type="file"
@@ -216,61 +279,103 @@ export default function MyClaims() {
         }}
       />
 
-      {/* Summary Bar */}
-      {rejectedItems.length > 0 && (
-        <div className="border rounded-lg bg-card px-5 py-3.5 flex items-center gap-6">
+      {stats && (
+        <div className="border rounded-lg bg-card px-5 py-3.5 flex flex-wrap items-center gap-6">
           <div>
             <span className="text-muted-foreground text-sm">Transactions</span>
-            <p className="font-semibold text-foreground">4 transactions</p>
+            <p className="font-semibold text-foreground">{formatMyClaimsNumber(meta.total)} transactions</p>
           </div>
           <div className="w-px h-8 bg-border" />
           <div>
             <span className="text-muted-foreground text-sm">Total</span>
-            <p className="font-semibold text-foreground text-lg">฿69,900</p>
+            <p className="font-semibold text-foreground text-lg">฿{formatMyClaimsCurrency(meta.totalAmount)}</p>
           </div>
-          <div className="w-px h-8 bg-border" />
-          <div>
-            <span className="text-muted-foreground text-sm">All rejected · Deduction period</span>
-            <p className="font-semibold text-foreground">Period 3 / Mar 2026</p>
-          </div>
+          {activeTab === "rejected" && stats.rejectedCount > 0 && (
+            <>
+              <div className="w-px h-8 bg-border" />
+              <div>
+                <span className="text-muted-foreground text-sm">All rejected : Deduction period</span>
+                <p className="font-semibold text-foreground">{getDeductionPeriod(dateToStr)}</p>
+              </div>
+            </>
+          )}
         </div>
       )}
 
-      {/* Filters */}
       <div className="flex flex-col gap-3 p-4 border rounded-lg bg-card">
         <div className="relative">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-          <Input placeholder="Search expenses..." value={search} onChange={(e) => setSearch(e.target.value)} className="pl-9" />
+          <Input
+            placeholder="Search expenses..."
+            value={search}
+            onChange={(e) => {
+              setSearch(e.target.value);
+              setPage(1);
+            }}
+            className="pl-9"
+          />
         </div>
         <div className="flex flex-wrap gap-3 items-center">
           <span className="text-sm text-muted-foreground whitespace-nowrap">Transaction Date:</span>
           <Popover>
             <PopoverTrigger asChild>
-              <Button variant="outline" className={cn("w-[160px] justify-start text-left font-normal", !dateFrom && "text-muted-foreground")}>
+              <Button
+                variant="outline"
+                className={cn("w-[160px] justify-start text-left font-normal", !dateFrom && "text-muted-foreground")}
+              >
                 <CalendarIcon className="mr-2 h-4 w-4" />
                 {formatBEDate(format(dateFrom, "yyyy-MM-dd"))}
               </Button>
             </PopoverTrigger>
             <PopoverContent className="w-auto p-0" align="start">
-              <Calendar mode="single" selected={dateFrom} onSelect={(d) => d && setDateFrom(d)} initialFocus />
+              <Calendar
+                mode="single"
+                selected={dateFrom}
+                onSelect={(d) => {
+                  if (d) {
+                    setDateFrom(d);
+                    setPage(1);
+                  }
+                }}
+                initialFocus
+              />
             </PopoverContent>
           </Popover>
           <span className="text-sm text-muted-foreground">to</span>
           <Popover>
             <PopoverTrigger asChild>
-              <Button variant="outline" className={cn("w-[160px] justify-start text-left font-normal", !dateTo && "text-muted-foreground")}>
+              <Button
+                variant="outline"
+                className={cn("w-[160px] justify-start text-left font-normal", !dateTo && "text-muted-foreground")}
+              >
                 <CalendarIcon className="mr-2 h-4 w-4" />
                 {formatBEDate(format(dateTo, "yyyy-MM-dd"))}
               </Button>
             </PopoverTrigger>
             <PopoverContent className="w-auto p-0" align="start">
-              <Calendar mode="single" selected={dateTo} onSelect={(d) => d && setDateTo(d)} initialFocus />
+              <Calendar
+                mode="single"
+                selected={dateTo}
+                onSelect={(d) => {
+                  if (d) {
+                    setDateTo(d);
+                    setPage(1);
+                  }
+                }}
+                initialFocus
+              />
             </PopoverContent>
           </Popover>
         </div>
-        <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as StatusTab)}>
+        <Tabs
+          value={activeTab}
+          onValueChange={(v) => {
+            setActiveTab(v as StatusTab);
+            setPage(1);
+          }}
+        >
           <TabsList>
-            <TabsTrigger value="pending_documents">Pending Document</TabsTrigger>
+            <TabsTrigger value="pending_invoice">Pending Document</TabsTrigger>
             <TabsTrigger value="rejected">Rejected</TabsTrigger>
             <TabsTrigger value="approved">Approved</TabsTrigger>
             <TabsTrigger value="all">All</TabsTrigger>
@@ -278,7 +383,6 @@ export default function MyClaims() {
         </Tabs>
       </div>
 
-      {/* Table */}
       <div className="border rounded-lg bg-card overflow-hidden">
         <Table>
           <TableHeader>
@@ -290,60 +394,130 @@ export default function MyClaims() {
               <TableHead className="text-right">Amount</TableHead>
               <TableHead>Approval Status</TableHead>
               <TableHead>Document Status</TableHead>
-              {(activeTab === "rejected" || activeTab === "all") && <TableHead>Deduction Period</TableHead>}
+              {showDeductionCol && <TableHead>Deduction Period</TableHead>}
             </TableRow>
           </TableHeader>
           <TableBody>
-            {filtered.length === 0 ? (
-              <TableRow><TableCell colSpan={(activeTab === "rejected" || activeTab === "all") ? 8 : 7} className="text-center text-muted-foreground py-8">No transactions found for this status.</TableCell></TableRow>
+            {items.length === 0 ? (
+              <TableRow>
+                <TableCell
+                  colSpan={showDeductionCol ? 8 : 7}
+                  className="text-center text-muted-foreground py-8"
+                >
+                  {corpQuery.isFetching ? "Loading…" : "No transactions found for this status."}
+                </TableCell>
+              </TableRow>
             ) : (
-              filtered.map((c) => {
-                const status = getStatus(c);
-                const att = attachments[c.id];
-                const docStatus: DocumentStatus = c.documentStatus || "Pending Documents";
-                return (
-                  <TableRow key={c.id} className="cursor-pointer hover:bg-muted/50" onClick={() => navigate(`/claims/${c.id}`)}>
-                    <TableCell className="font-medium">{c.claimNo}</TableCell>
-                    <TableCell>{formatBEDate(c.createdDate)}</TableCell>
-                    <TableCell>{c.merchantName || "—"}</TableCell>
-                    <TableCell>{c.purpose}</TableCell>
-                    <TableCell className="text-right">฿{c.totalAmount.toLocaleString()}</TableCell>
-                    <TableCell>
-                      <Badge variant="outline" className={statusVariant[status]}>{status}</Badge>
+              items.flatMap((txn) => {
+                const routeId = rowRouteId(txn);
+                const claim = txn.bankTransactionId ? claimByBankTxnId.get(txn.bankTransactionId) : undefined;
+                const att = attachments[routeId];
+                const displayFromClaim = claim
+                  ? toDisplayStatus(claim.status, !!att, claim.statusDisplay)
+                  : null;
+                const rawDoc = effectiveCorpDocumentStatus(txn, claim);
+                const badgeLabel = toPortalApprovalStatus(txn.status, rawDoc, claim, displayFromClaim);
+                if (!badgeLabel) return [];
+                const approvalText = approvalStatusDisplayText(
+                  badgeLabel,
+                  txn.status,
+                  claim,
+                  displayFromClaim
+                );
+                const badgeClass = approvalStatusBadgeClassForDisplay(approvalText);
+                const documentStatus = toDocumentContractStatus(rawDoc);
+                const dateStr = txn.transactionDate.slice(0, 10);
+                return [
+                  <TableRow
+                    key={txn.id}
+                    className="cursor-pointer hover:bg-muted/50"
+                    onClick={() => navigate(`/claims/${routeId}`)}
+                  >
+                    <TableCell className="font-medium">{txn.bankTransactionId ?? "—"}</TableCell>
+                    <TableCell>{formatBEDate(dateStr)}</TableCell>
+                    <TableCell>{txn.merchantName || "—"}</TableCell>
+                    <TableCell>{txn.mccDescription || "—"}</TableCell>
+                    <TableCell className="text-right">
+                      ฿{formatMyClaimsCurrency(txn.amount)}
                     </TableCell>
                     <TableCell>
-                      <Badge variant="outline" className={docStatusVariant[docStatus]}>{docStatus}</Badge>
+                      <Badge variant="outline" className={badgeClass}>
+                        {approvalText}
+                      </Badge>
                     </TableCell>
-                    {(activeTab === "rejected" || activeTab === "all") && (
+                    <TableCell>
+                      <Badge variant="outline" className={documentStatusBadgeClass(documentStatus)}>
+                        {documentStatusLabel(documentStatus)}
+                      </Badge>
+                    </TableCell>
+                    {showDeductionCol && (
                       <TableCell className="text-sm">
-                        {["Auto Reject", "Final Reject"].includes(status)
-                          ? getDeductionPeriod(c.createdDate)
-                          : status === "Reject" ? "N/A" : "—"}
+                        {txn.status === "AUTO_REJECTED"
+                          ? getDeductionPeriod(txn.transactionDate)
+                          : claim?.status === "Pending Salary Deduction"
+                            ? getDeductionPeriod(txn.transactionDate)
+                            : displayFromClaim === "AUTO_REJECTED" || displayFromClaim === "MANAGER_REJECTED"
+                              ? "N/A"
+                              : "—"}
                       </TableCell>
                     )}
-                  </TableRow>
-                );
+                  </TableRow>,
+                ];
               })
             )}
           </TableBody>
         </Table>
+
+        <div className="flex items-center justify-between px-4 py-3 border-t">
+          <span className="text-sm text-muted-foreground">
+            Showing {meta.total === 0 ? 0 : (meta.page - 1) * meta.limit + 1}–
+            {Math.min(meta.page * meta.limit, meta.total)} of {meta.total}
+          </span>
+          <div className="flex gap-1">
+            <Button
+              variant="outline"
+              size="sm"
+              disabled={page <= 1 || corpQuery.isFetching}
+              onClick={() => setPage(page - 1)}
+            >
+              Previous
+            </Button>
+            <span className="flex items-center px-3 text-sm text-muted-foreground">
+              Page {meta.page} of {meta.totalPages}
+            </span>
+            <Button
+              variant="outline"
+              size="sm"
+              disabled={page >= meta.totalPages || corpQuery.isFetching}
+              onClick={() => setPage(page + 1)}
+            >
+              Next
+            </Button>
+          </div>
+        </div>
       </div>
 
-      {/* Upload Dialog with OCR Flow */}
-      <Dialog open={uploadDialog.open} onOpenChange={(open) => { if (!open) resetDialog(); }}>
+      <Dialog
+        open={uploadDialog.open}
+        onOpenChange={(open) => {
+          if (!open) resetDialog();
+        }}
+      >
         <DialogContent className="sm:max-w-lg max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>Attach Document</DialogTitle>
             <DialogDescription>Upload Tax Invoice for automatic verification (PDF, JPG, PNG)</DialogDescription>
           </DialogHeader>
 
-          {/* STATE: Dropzone */}
           {flowState === "dropzone" && (
             <div
               className="border-2 border-dashed rounded-lg p-8 flex flex-col items-center gap-3 cursor-pointer hover:border-primary transition-colors"
               onClick={() => uploadInputRef.current?.click()}
               onDragOver={(e) => e.preventDefault()}
-              onDrop={(e) => { e.preventDefault(); handleFileSelected(e.dataTransfer.files); }}
+              onDrop={(e) => {
+                e.preventDefault();
+                handleFileSelected(e.dataTransfer.files);
+              }}
             >
               <Upload className="h-10 w-10 text-muted-foreground" />
               <p className="text-sm font-medium text-foreground">Drag & drop Tax Invoice here, or click to browse</p>
@@ -351,33 +525,32 @@ export default function MyClaims() {
             </div>
           )}
 
-          {/* STATE: Processing */}
           {flowState === "processing" && (
-            <OcrProcessingState onComplete={handleOcrComplete} />
+            <div className="flex flex-col items-center gap-4 py-10">
+              <Loader2 className="h-10 w-10 animate-spin text-primary" />
+              <div className="text-center space-y-1">
+                <p className="text-base font-semibold text-foreground">กำลังอ่านเอกสาร...</p>
+                <p className="text-sm text-muted-foreground">กำลังเรียกระบบ OCR จากเซิร์ฟเวอร์ กรุณารอสักครู่</p>
+              </div>
+            </div>
           )}
 
-          {/* STATE: Result */}
-          {flowState === "result" && selectedFile && (
+          {flowState === "result" && selectedFile && previewData && (
             <OcrResultCard
               fileName={selectedFile.name}
               resultState={ocrResult}
+              fields={previewResponseToOcrDisplayFields(previewData)}
               onConfirm={handleOcrConfirm}
               onReupload={handleOcrReupload}
             />
           )}
 
-          {/* STATE: Confirmed — show supporting docs + final submit */}
           {flowState === "confirmed" && (
             <div className="space-y-4">
               <div className="rounded-lg bg-green-50 border border-green-200 px-4 py-3 text-sm text-green-800">
                 ✅ Tax Invoice verified — {selectedFile?.name}
               </div>
-
-              <SupportingDocsSection
-                files={supportingFiles}
-                onChange={setSupportingFiles}
-              />
-
+              <SupportingDocsSection files={supportingFiles} onChange={setSupportingFiles} />
               <div className="flex justify-end pt-2">
                 <Button onClick={handleFinalSubmit}>
                   Confirm and Submit for Approval ({1 + supportingFiles.length} files)
@@ -388,7 +561,6 @@ export default function MyClaims() {
         </DialogContent>
       </Dialog>
 
-      {/* No-document warning */}
       <NoDocumentWarningDialog
         open={warningDialog.open}
         onClose={() => setWarningDialog({ open: false, claimId: "" })}

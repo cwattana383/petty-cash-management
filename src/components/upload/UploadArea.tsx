@@ -2,7 +2,7 @@ import { useState, useCallback } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Upload, FileText, X } from "lucide-react";
-import { toast } from "sonner";
+import { toast } from "@/hooks/use-toast";
 import { MAX_UPLOAD_FILES, MAX_FILE_SIZE_BYTES, MAX_FILE_SIZE_MB, ACCEPTED_MIME_TYPES } from "@/lib/upload-types";
 
 interface UploadAreaProps {
@@ -45,7 +45,7 @@ export default function UploadArea({ onFilesSelected, selectedFiles, onProcess, 
 
   const handleFiles = useCallback((files: File[]) => {
     const { valid, errors } = validateFiles(files, selectedFiles.length);
-    errors.forEach((err) => toast.error(err));
+    errors.forEach((err) => toast({ title: "Error", description: err, variant: "destructive" }));
     if (valid.length > 0) onFilesSelected(valid);
   }, [onFilesSelected, selectedFiles.length]);
 

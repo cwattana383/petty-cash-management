@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate, useParams, useSearchParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -6,50 +6,66 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
-import { ArrowLeft, Save, Plus, Trash2, FolderOpen, Layers } from "lucide-react";
-import { toast } from "sonner";
-import DocumentTypeMultiSelect from "@/components/admin/DocumentTypeMultiSelect";
+import { ArrowLeft, Save, Plus, Trash2, FolderOpen, Layers, Loader2 } from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
 import {
-  type FormSubtype,
-  mockDocumentTypes,
-  initialData,
-} from "@/components/admin/expense-type-data";
+  useExpenseType,
+  useCreateExpenseType,
+  useUpdateExpenseType,
+} from "@/hooks/use-expense-types";
+import { useAllDocumentTypes } from "@/hooks/use-document-types";
+import DocumentTypeMultiSelect from "@/components/admin/DocumentTypeMultiSelect";
 
-let localSubId = 100;
+interface FormSubtype {
+  id?: string;
+  subExpenseType: string;
+  accountNameEn: string;
+  accountCode: string;
+  active: boolean;
+  documentTypeIds: string[];
+}
 
 export default function ExpenseTypeEdit() {
   const navigate = useNavigate();
+  const { toast } = useToast();
   const { id } = useParams<{ id: string }>();
   const [searchParams] = useSearchParams();
   const isView = searchParams.get("mode") === "view";
   const isCreate = !id;
 
-  const existing = id ? initialData.find((r) => r.id === id) : null;
-  if (!isCreate && !existing) {
-    return (
-      <div className="max-w-4xl mx-auto space-y-6 py-8 text-center">
-        <p className="text-muted-foreground">Expense type not found.</p>
-        <Button variant="outline" onClick={() => navigate("/admin?tab=expense-type")}>Back to Admin</Button>
-      </div>
-    );
-  }
+  const { data: existing, isLoading } = useExpenseType(id);
+  const { data: allDocTypes } = useAllDocumentTypes();
+  const createMutation = useCreateExpenseType();
+  const updateMutation = useUpdateExpenseType();
 
-  const [formExpenseType, setFormExpenseType] = useState(existing?.expenseType ?? "");
-  const [formActive, setFormActive] = useState(existing?.active ?? true);
-  const [formSubtypes, setFormSubtypes] = useState<FormSubtype[]>(
-    existing
-      ? existing.subtypes.map((s) => ({
+  const [formExpenseType, setFormExpenseType] = useState("");
+  const [formActive, setFormActive] = useState(true);
+  const [formSubtypes, setFormSubtypes] = useState<FormSubtype[]>([]);
+  const [initialized, setInitialized] = useState(false);
+
+  useEffect(() => {
+    if (existing && !initialized) {
+      setFormExpenseType(existing.expenseType);
+      setFormActive(existing.active);
+      setFormSubtypes(
+        (existing.subtypes ?? []).map((s) => ({
           id: s.id,
           subExpenseType: s.subExpenseType,
           accountNameEn: s.accountNameEn,
           accountCode: s.accountCode,
           active: s.active,
-          documentTypeIds: s.documentTypeIds ?? [],
+          documentTypeIds: (s.documentTypes ?? []).map((dt) => dt.documentType.id),
         }))
-      : []
-  );
+      );
+      setInitialized(true);
+    }
+  }, [existing, initialized]);
 
   const disabled = isView;
+  const isSaving = createMutation.isPending || updateMutation.isPending;
+
+  const requiredDocTypes = (allDocTypes ?? []).filter((d) => !d.isSupportDocument);
+  const supportDocTypes = (allDocTypes ?? []).filter((d) => d.isSupportDocument);
 
   const addSubtypeRow = () => {
     setFormSubtypes((prev) => [
@@ -73,7 +89,7 @@ export default function ExpenseTypeEdit() {
           ? {
               ...s,
               documentTypeIds: s.documentTypeIds.includes(docId)
-                ? s.documentTypeIds.filter((id) => id !== docId)
+                ? s.documentTypeIds.filter((did) => did !== docId)
                 : [...s.documentTypeIds, docId],
             }
           : s
@@ -93,25 +109,92 @@ export default function ExpenseTypeEdit() {
 
   const handleSave = () => {
     if (!formExpenseType.trim()) {
-      toast.error("Expense Type is required.");
+      toast({ title: "Validation Error", description: "Expense Type is required.", variant: "destructive" });
       return;
     }
     for (const s of formSubtypes) {
       if (!s.subExpenseType.trim() || !s.accountNameEn.trim() || !s.accountCode.trim()) {
-        toast.error("All subtype fields are required.");
+        toast({ title: "Validation Error", description: "All subtype fields are required.", variant: "destructive" });
         return;
       }
     }
-    toast.success(isCreate ? "Expense type created successfully." : "Expense type updated successfully.");
-    navigate("/admin?tab=expense-type");
+
+    const subtypesPayload = formSubtypes.map((s) => ({
+      ...(s.id ? { id: s.id } : {}),
+      subExpenseType: s.subExpenseType.trim(),
+      accountNameEn: s.accountNameEn.trim(),
+      accountCode: s.accountCode.trim(),
+      active: s.active,
+      documentTypeIds: s.documentTypeIds,
+    }));
+
+    if (isCreate) {
+      createMutation.mutate(
+        { expenseType: formExpenseType.trim(), active: formActive, subtypes: subtypesPayload },
+        {
+          onSuccess: () => {
+            toast({ title: "Created", description: "Expense type created successfully." });
+            navigate("/admin?tab=expense-type");
+          },
+          onError: (err: unknown) => {
+            toast({
+              title: "Error",
+              description: err instanceof Error ? err.message : "Failed to create expense type.",
+              variant: "destructive",
+            });
+          },
+        }
+      );
+    } else {
+      const existingSubIds = new Set((existing?.subtypes ?? []).map((s) => s.id));
+      const currentSubIds = new Set(formSubtypes.filter((s) => s.id).map((s) => s.id!));
+      const removeSubtypeIds = [...existingSubIds].filter((sid) => !currentSubIds.has(sid));
+
+      updateMutation.mutate(
+        {
+          id: id!,
+          data: {
+            expenseType: formExpenseType.trim(),
+            active: formActive,
+            subtypes: subtypesPayload,
+            removeSubtypeIds: removeSubtypeIds.length > 0 ? removeSubtypeIds : undefined,
+          },
+        },
+        {
+          onSuccess: () => {
+            toast({ title: "Updated", description: "Expense type updated successfully." });
+            navigate("/admin?tab=expense-type");
+          },
+          onError: (err: unknown) => {
+            toast({
+              title: "Error",
+              description: err instanceof Error ? err.message : "Failed to update expense type.",
+              variant: "destructive",
+            });
+          },
+        }
+      );
+    }
   };
 
-  const title = isCreate
-    ? "Create Expense Type"
-    : isView
-    ? "View Expense Type"
-    : "Edit Expense Type";
+  if (!isCreate && isLoading) {
+    return (
+      <div className="flex items-center justify-center py-20">
+        <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+      </div>
+    );
+  }
 
+  if (!isCreate && !existing && !isLoading) {
+    return (
+      <div className="max-w-4xl mx-auto space-y-6 py-8 text-center">
+        <p className="text-muted-foreground">Expense type not found.</p>
+        <Button variant="outline" onClick={() => navigate("/admin?tab=expense-type")}>Back to Admin</Button>
+      </div>
+    );
+  }
+
+  const title = isCreate ? "Create Expense Type" : isView ? "View Expense Type" : "Edit Expense Type";
   const subtitle = isCreate
     ? "Create a new expense type with sub-types."
     : isView
@@ -231,7 +314,7 @@ export default function ExpenseTypeEdit() {
                 {/* Required Documents */}
                 <DocumentTypeMultiSelect
                   label="Required Documents"
-                  items={mockDocumentTypes.filter((d) => !d.isSupportDocument)}
+                  items={requiredDocTypes}
                   selectedIds={s.documentTypeIds}
                   onToggle={(docId) => toggleDocumentType(i, docId)}
                   onRemove={(docId) => removeDocumentType(i, docId)}
@@ -240,7 +323,7 @@ export default function ExpenseTypeEdit() {
                 {/* Supported Documents */}
                 <DocumentTypeMultiSelect
                   label="Supported Documents"
-                  items={mockDocumentTypes.filter((d) => d.isSupportDocument)}
+                  items={supportDocTypes}
                   selectedIds={s.documentTypeIds}
                   onToggle={(docId) => toggleDocumentType(i, docId)}
                   onRemove={(docId) => removeDocumentType(i, docId)}
@@ -279,7 +362,10 @@ export default function ExpenseTypeEdit() {
       {!isView && (
         <div className="flex justify-end gap-3 pt-4 border-t">
           <Button variant="outline" onClick={() => navigate("/admin?tab=expense-type")}>Cancel</Button>
-          <Button onClick={handleSave}><Save className="h-4 w-4 mr-2" />Save</Button>
+          <Button onClick={handleSave} disabled={isSaving}>
+            {isSaving && <Loader2 className="h-4 w-4 mr-1 animate-spin" />}
+            <Save className="h-4 w-4 mr-2" />Save
+          </Button>
         </div>
       )}
       {isView && (

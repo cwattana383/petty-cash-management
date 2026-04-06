@@ -3,7 +3,14 @@ import { useNavigate } from "react-router-dom";
 import { Bell, BellOff, CheckCheck } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { useNotifications, type NotificationType } from "@/lib/notifications-context";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { useNotifications, type NotificationType, type Notification } from "@/lib/notifications-context";
+import { useUnmatchedByBatch } from "@/hooks/use-notifications";
 
 const borderColorMap: Record<NotificationType, string> = {
   APPROVAL: "border-l-green-500",
@@ -11,6 +18,7 @@ const borderColorMap: Record<NotificationType, string> = {
   NEED_INFO: "border-l-yellow-500",
   SYSTEM: "border-l-gray-400",
   REMINDER: "border-l-blue-500",
+  PENDING_APPROVAL: "border-l-purple-500",
 };
 
 function relativeTime(dateStr: string): string {
@@ -26,8 +34,92 @@ function relativeTime(dateStr: string): string {
   return new Date(dateStr).toLocaleDateString();
 }
 
+const typeLabel: Record<NotificationType, string> = {
+  APPROVAL: "Approval",
+  REJECTION: "Rejection",
+  NEED_INFO: "Need Info",
+  SYSTEM: "System",
+  REMINDER: "Reminder",
+  PENDING_APPROVAL: "Pending Approval",
+};
+
+const typeBadgeColor: Record<NotificationType, string> = {
+  APPROVAL: "bg-green-100 text-green-700",
+  REJECTION: "bg-red-100 text-red-700",
+  NEED_INFO: "bg-yellow-100 text-yellow-700",
+  SYSTEM: "bg-gray-100 text-gray-600",
+  REMINDER: "bg-blue-100 text-blue-700",
+  PENDING_APPROVAL: "bg-purple-100 text-purple-700",
+};
+
+function NotificationDetailDialog({
+  notification,
+  batchId,
+  onClose,
+  onNavigate,
+}: {
+  notification: Notification | null;
+  batchId: string | null;
+  onClose: () => void;
+  onNavigate: (path: string) => void;
+}) {
+  const { data: txnIds = [], isLoading } = useUnmatchedByBatch(batchId);
+
+  return (
+    <Dialog open={!!notification} onOpenChange={(v) => { if (!v) onClose(); }}>
+      <DialogContent className="max-w-md">
+        <DialogHeader>
+          <DialogTitle className="text-base">{notification?.title}</DialogTitle>
+        </DialogHeader>
+        {notification && (
+          <div className="space-y-4">
+            <div className="flex items-center gap-2">
+              <span className={`text-xs font-medium px-2 py-0.5 rounded-full ${typeBadgeColor[notification.type]}`}>
+                {typeLabel[notification.type]}
+              </span>
+              <span className="text-xs text-muted-foreground">{relativeTime(notification.created_at)}</span>
+            </div>
+            <p className="text-sm text-foreground leading-relaxed">{notification.message}</p>
+
+            {batchId && (
+              <div>
+                <p className="text-xs font-semibold text-foreground mb-2">
+                  Unmatched Transaction IDs
+                  {!isLoading && txnIds.length > 0 && (
+                    <span className="ml-1 text-muted-foreground font-normal">({txnIds.length})</span>
+                  )}
+                </p>
+                {isLoading ? (
+                  <p className="text-xs text-muted-foreground">Loading...</p>
+                ) : txnIds.length === 0 ? (
+                  <p className="text-xs text-muted-foreground">No transactions found for this batch.</p>
+                ) : (
+                  <ScrollArea className="h-48 rounded border border-border bg-muted/30 p-2">
+                    <div className="space-y-1">
+                      {txnIds.map((id) => (
+                        <p key={id} className="text-xs font-mono text-foreground">{id}</p>
+                      ))}
+                    </div>
+                  </ScrollArea>
+                )}
+              </div>
+            )}
+
+            {notification.target_transaction_id && (
+              <Button className="w-full" onClick={() => onNavigate(`/claims/${notification.target_transaction_id}`)}>
+                View Transaction
+              </Button>
+            )}
+          </div>
+        )}
+      </DialogContent>
+    </Dialog>
+  );
+}
+
 export function NotificationCenter() {
   const [open, setOpen] = useState(false);
+  const [selected, setSelected] = useState<Notification | null>(null);
   const navigate = useNavigate();
   const { notifications, unreadCount, markAsRead, markAllAsRead } = useNotifications();
   const panelRef = useRef<HTMLDivElement>(null);
@@ -54,27 +146,37 @@ export function NotificationCenter() {
     return () => document.removeEventListener("keydown", handler);
   }, [open]);
 
-  const handleNotificationClick = (notif: (typeof notifications)[0]) => {
+  const handleNotificationClick = (notif: Notification) => {
     markAsRead(notif.id);
     setOpen(false);
-    if (notif.target_transaction_id) {
-      navigate(`/claims/${notif.target_transaction_id}`);
-    }
+    setSelected(notif);
   };
 
   const sorted = [...notifications].sort(
     (a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
-  ).slice(0, 20);
+  );
+
+  // Extract batchId from system notification messages like "N transaction(s) in batch <uuid> could not be matched..."
+  const selectedBatchId = selected?.type === "SYSTEM"
+    ? (selected.message.match(/batch\s+([0-9a-f-]{36})/i)?.[1] ?? null)
+    : null;
 
   return (
-    <div className="relative" ref={panelRef}>
-      <Button
-        variant="ghost"
-        size="icon"
-        className="relative"
-        onClick={() => setOpen((p) => !p)}
-        aria-label="Notifications"
-      >
+    <>
+      <NotificationDetailDialog
+        notification={selected}
+        batchId={selectedBatchId}
+        onClose={() => setSelected(null)}
+        onNavigate={(path) => { setSelected(null); navigate(path); }}
+      />
+      <div className="relative" ref={panelRef}>
+        <Button
+          variant="ghost"
+          size="icon"
+          className="relative"
+          onClick={() => setOpen((p) => !p)}
+          aria-label="Notifications"
+        >
         <Bell className="h-5 w-5" />
         {unreadCount > 0 && (
           <span
@@ -87,7 +189,7 @@ export function NotificationCenter() {
       </Button>
 
       {open && (
-        <div className="absolute right-0 top-full mt-2 w-[360px] max-h-[500px] bg-popover border border-border rounded-lg shadow-lg z-50 flex flex-col">
+        <div className="absolute right-0 top-full mt-2 w-[360px] bg-popover border border-border rounded-lg shadow-lg z-50 flex flex-col" style={{ maxHeight: "80vh" }}>
           {/* Header */}
           <div className="flex items-center justify-between px-4 py-3 border-b border-border shrink-0">
             <h3 className="font-semibold text-sm text-foreground">Notifications</h3>
@@ -112,7 +214,7 @@ export function NotificationCenter() {
               <p className="text-xs text-muted-foreground">No new notifications</p>
             </div>
           ) : (
-            <ScrollArea className="flex-1 overflow-auto" style={{ maxHeight: "400px" }}>
+            <ScrollArea className="flex-1 min-h-0">
               <div className="divide-y divide-border">
                 {sorted.map((notif) => (
                   <button
@@ -146,5 +248,6 @@ export function NotificationCenter() {
         </div>
       )}
     </div>
+    </>
   );
 }

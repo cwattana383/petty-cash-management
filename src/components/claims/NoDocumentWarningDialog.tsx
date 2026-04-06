@@ -16,17 +16,17 @@ export default function NoDocumentWarningDialog({ open, onClose, onGoBack, onSub
         <DialogHeader>
           <div className="flex items-center gap-2">
             <AlertTriangle className="h-5 w-5 text-amber-500" />
-            <DialogTitle>No Document Attached</DialogTitle>
+            <DialogTitle>ยังไม่ได้แนบเอกสาร</DialogTitle>
           </div>
           <DialogDescription className="pt-2 text-sm">
-            This transaction has no tax invoice attached. If documents are not attached within the deadline, the amount will be automatically deducted from your salary.
+            รายการนี้ยังไม่มีใบกำกับภาษีแนบ หากไม่แนบเอกสารภายในกำหนด รายการจะถูกหักจากเงินเดือนของคุณโดยอัตโนมัติ
           </DialogDescription>
         </DialogHeader>
         <DialogFooter className="gap-2 sm:gap-0">
           <Button variant="outline" size="sm" className="text-xs" onClick={onSubmitAnyway}>
-            Submit Without Document
+            ส่งโดยไม่มีเอกสาร
           </Button>
-          <Button onClick={onGoBack}>Go Back to Attach Document</Button>
+          <Button onClick={onGoBack}>กลับไปแนบเอกสาร</Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>

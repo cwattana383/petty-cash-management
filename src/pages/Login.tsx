@@ -1,22 +1,38 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
 import { Shield } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { useAuth } from "@/lib/auth-context";
+import { Navigate } from "react-router-dom";
+import { demoAccounts } from "@/lib/mock-data";
 
 export default function Login() {
-  const navigate = useNavigate();
-  const [loading, setLoading] = useState(false);
+  const { isAuthenticated, login } = useAuth();
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
 
-  const handleMicrosoftLogin = () => {
-    setLoading(true);
-    // Mock: simulate Azure AD redirect
-    setTimeout(() => {
-      setLoading(false);
-      localStorage.setItem("isLoggedIn", "true");
-      localStorage.setItem("userEmail", "user@makro.com");
-      localStorage.setItem("authProvider", "AZURE_AD");
-      navigate("/claims");
-    }, 800);
+  // If already authenticated, redirect to claims
+  if (isAuthenticated) {
+    return <Navigate to="/claims" replace />;
+  }
+
+  const handleLogin = (e: React.FormEvent) => {
+    e.preventDefault();
+    setError("");
+    const success = login(email.trim(), password);
+    if (!success) {
+      setError("Invalid email or password. Try one of the demo accounts below.");
+    } else {
+      window.location.href = "/claims";
+    }
+  };
+
+  const handleQuickLogin = (demoEmail: string) => {
+    const success = login(demoEmail, "demo");
+    if (success) {
+      window.location.href = "/claims";
+    }
   };
 
   return (
@@ -29,35 +45,68 @@ export default function Login() {
           <p className="text-sm text-muted-foreground">Corporate Card Expense Management</p>
         </div>
 
-        {/* Microsoft SSO */}
-        <div className="space-y-4">
+        {/* Login form */}
+        <form onSubmit={handleLogin} className="space-y-3">
+          {error && (
+            <div className="bg-destructive/10 text-destructive text-sm rounded-lg p-3 text-center">
+              {error}
+            </div>
+          )}
+          <Input
+            type="email"
+            placeholder="Email address"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            className="h-11"
+          />
+          <Input
+            type="password"
+            placeholder="Password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            className="h-11"
+          />
           <Button
-            onClick={handleMicrosoftLogin}
-            disabled={loading}
-            className="w-full h-12 text-base font-bold rounded-lg gap-3"
+            type="submit"
+            disabled={!email.trim() || !password}
+            className="w-full h-12 text-base font-bold rounded-lg"
           >
-            <svg viewBox="0 0 21 21" className="h-5 w-5 shrink-0" aria-hidden="true">
-              <rect x="1" y="1" width="9" height="9" fill="#f25022" />
-              <rect x="11" y="1" width="9" height="9" fill="#7fba00" />
-              <rect x="1" y="11" width="9" height="9" fill="#00a4ef" />
-              <rect x="11" y="11" width="9" height="9" fill="#ffb900" />
-            </svg>
-            {loading ? "Redirecting to Microsoft..." : "Sign in with Microsoft 365"}
+            Sign In
           </Button>
+        </form>
 
-          <div className="flex items-center gap-2 justify-center text-xs text-muted-foreground">
-            <Shield className="h-3.5 w-3.5" />
-            <span>Secured by Azure Active Directory</span>
-          </div>
+        <div className="flex items-center gap-2 justify-center text-xs text-muted-foreground">
+          <Shield className="h-3.5 w-3.5" />
+          <span>Demo Mode — No Azure AD Required</span>
         </div>
 
-        {/* Info */}
-        <div className="bg-muted/60 rounded-xl p-4 space-y-2 text-center">
-          <p className="text-xs text-muted-foreground">
-            Use your corporate Microsoft 365 account to sign in.
-          </p>
-          <p className="text-xs text-muted-foreground">
-            Multi-factor authentication may be required by your organization.
+        {/* Quick demo login buttons */}
+        <div className="space-y-3">
+          <div className="relative">
+            <div className="absolute inset-0 flex items-center">
+              <span className="w-full border-t" />
+            </div>
+            <div className="relative flex justify-center text-xs uppercase">
+              <span className="bg-background px-2 text-muted-foreground">Quick Login</span>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-2 gap-2">
+            {demoAccounts.map((acct) => (
+              <Button
+                key={acct.email}
+                variant="outline"
+                size="sm"
+                className="text-xs h-9"
+                onClick={() => handleQuickLogin(acct.email)}
+              >
+                {acct.label}
+              </Button>
+            ))}
+          </div>
+
+          <p className="text-[11px] text-muted-foreground text-center">
+            Password for all demo accounts: <code className="font-mono bg-muted px-1 rounded">demo</code>
           </p>
         </div>
       </div>

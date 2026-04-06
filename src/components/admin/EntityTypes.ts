@@ -1,22 +1,87 @@
+export interface TaxIdEntry {
+  id: string;
+  taxId: string;
+  branchType: "สำนักงานใหญ่" | "สาขา";
+  branchNo: string;
+  isPrimary: boolean;
+}
+
+export interface CompanyNameAliasRow {
+  id: string;
+  alias: string;
+}
+
+export interface CompanyAddressRow {
+  id: string;
+  language: "TH" | "EN";
+  addressLine1: string;
+  subdistrict: string;
+  district: string;
+  province: string;
+  postalCode: string;
+  country: string;
+}
+
+export interface CompanyAddressAliasRow {
+  id: string;
+  alias: string;
+}
+
 export interface CompanyIdentity {
   id: string;
   companyCode: string;
   legalNameTh: string;
   legalNameEn: string;
-  taxId: string;
-  address: string;
+  effectiveStartDate: string;
+  effectiveEndDate: string;
   status: "Active" | "Inactive";
+  taxIds: TaxIdEntry[];
+  nameAliases: CompanyNameAliasRow[];
+  addresses: CompanyAddressRow[];
+  addressAliases: CompanyAddressAliasRow[];
+  // Convenience getters derived from addresses
+  addressTh: {
+    addressLine1: string;
+    subdistrict: string;
+    district: string;
+    province: string;
+    postalCode: string;
+    country: string;
+  };
+  addressEn: {
+    addressLine1: string;
+    subdistrict: string;
+    district: string;
+    province: string;
+    postalCode: string;
+    country: string;
+  };
   lastUpdated: string;
 }
 
-export const createEmptyEntity = (nextCode: string): CompanyIdentity => ({
+export const emptyAddress = {
+  addressLine1: "",
+  subdistrict: "",
+  district: "",
+  province: "",
+  postalCode: "",
+  country: "Thailand",
+};
+
+export const createEmptyEntity = (): CompanyIdentity => ({
   id: crypto.randomUUID(),
-  companyCode: nextCode,
+  companyCode: "",
   legalNameTh: "",
   legalNameEn: "",
-  taxId: "",
-  address: "",
+  effectiveStartDate: "",
+  effectiveEndDate: "",
   status: "Active",
+  taxIds: [{ id: crypto.randomUUID(), taxId: "", branchType: "สำนักงานใหญ่", branchNo: "", isPrimary: true }],
+  nameAliases: [],
+  addresses: [],
+  addressAliases: [],
+  addressTh: { ...emptyAddress },
+  addressEn: { ...emptyAddress },
   lastUpdated: new Date().toISOString().split("T")[0],
 });
 
@@ -24,11 +89,78 @@ export const mockCompanyIdentities: CompanyIdentity[] = [
   {
     id: "1",
     companyCode: "CORP-01",
-    legalNameTh: "CP Axtra Public Company Limited",
-    legalNameEn: "CP Axtra Public Company Limited",
-    taxId: "0107567000414",
-    address: "123 Sukhumvit Road, Khlong Toei, Khlong Toei, Bangkok 10110",
+    legalNameTh: "บริษัท ซีพี แอ็กซ์ตร้า จำกัด (มหาชน)",
+    legalNameEn: "CPAxtra Company",
+    effectiveStartDate: "2020-01-01",
+    effectiveEndDate: "2026-02-13",
     status: "Active",
+    taxIds: [
+      { id: "t1", taxId: "0107567000414", branchType: "สำนักงานใหญ่", branchNo: "", isPrimary: true },
+      { id: "t2", taxId: "0107536000270", branchType: "สาขา", branchNo: "00001", isPrimary: false },
+    ],
+    nameAliases: [
+      { id: "na1", alias: "CPAxtra" },
+      { id: "na2", alias: "ซีพี แอ็กซ์ตร้า" },
+    ],
+    addresses: [
+      { id: "a1", language: "TH", addressLine1: "123 ถนนสุขุมวิท", subdistrict: "คลองเตย", district: "คลองเตย", province: "กรุงเทพมหานคร", postalCode: "10110", country: "Thailand" },
+      { id: "a2", language: "EN", addressLine1: "123 Sukhumvit Rd.", subdistrict: "Khlong Toei", district: "Khlong Toei", province: "Bangkok", postalCode: "10110", country: "Thailand" },
+    ],
+    addressTh: { addressLine1: "123 ถนนสุขุมวิท", subdistrict: "คลองเตย", district: "คลองเตย", province: "กรุงเทพมหานคร", postalCode: "10110", country: "Thailand" },
+    addressEn: { addressLine1: "123 Sukhumvit Rd.", subdistrict: "Khlong Toei", district: "Khlong Toei", province: "Bangkok", postalCode: "10110", country: "Thailand" },
+    addressAliases: [
+      { id: "aa1", alias: "123 สุขุมวิท คลองเตย กทม" },
+      { id: "aa2", alias: "CPAxtra สุขุมวิท" },
+    ],
     lastUpdated: "2026-02-10",
+  },
+  {
+    id: "2",
+    companyCode: "CORP-02",
+    legalNameTh: "บริษัท ABC Trading จำกัด",
+    legalNameEn: "ABC Trading Co., Ltd.",
+    effectiveStartDate: "2021-06-01",
+    effectiveEndDate: "",
+    status: "Active",
+    taxIds: [
+      { id: "t3", taxId: "0105564012345", branchType: "สำนักงานใหญ่", branchNo: "", isPrimary: true },
+    ],
+    nameAliases: [
+      { id: "na3", alias: "ABC Trading" },
+    ],
+    addresses: [
+      { id: "a3", language: "TH", addressLine1: "456 ถนนพหลโยธิน", subdistrict: "จตุจักร", district: "จตุจักร", province: "กรุงเทพมหานคร", postalCode: "10900", country: "Thailand" },
+      { id: "a4", language: "EN", addressLine1: "456 Phaholyothin Rd.", subdistrict: "Chatuchak", district: "Chatuchak", province: "Bangkok", postalCode: "10900", country: "Thailand" },
+    ],
+    addressTh: { addressLine1: "456 ถนนพหลโยธิน", subdistrict: "จตุจักร", district: "จตุจักร", province: "กรุงเทพมหานคร", postalCode: "10900", country: "Thailand" },
+    addressEn: { addressLine1: "456 Phaholyothin Rd.", subdistrict: "Chatuchak", district: "Chatuchak", province: "Bangkok", postalCode: "10900", country: "Thailand" },
+    addressAliases: [],
+    lastUpdated: "2026-01-15",
+  },
+  {
+    id: "3",
+    companyCode: "CORP-03",
+    legalNameTh: "บริษัท ABC Logistics จำกัด",
+    legalNameEn: "ABC Logistics Co., Ltd.",
+    effectiveStartDate: "2022-01-01",
+    effectiveEndDate: "",
+    status: "Active",
+    taxIds: [
+      { id: "t4", taxId: "0105565098765", branchType: "สำนักงานใหญ่", branchNo: "", isPrimary: true },
+    ],
+    nameAliases: [
+      { id: "na4", alias: "ABC Logistics" },
+      { id: "na5", alias: "เอบีซี โลจิสติกส์" },
+    ],
+    addresses: [
+      { id: "a5", language: "TH", addressLine1: "789 ถนนบางนา-ตราด", subdistrict: "บางนา", district: "บางนา", province: "กรุงเทพมหานคร", postalCode: "10260", country: "Thailand" },
+      { id: "a6", language: "EN", addressLine1: "789 Bangna-Trad Rd.", subdistrict: "Bang Na", district: "Bang Na", province: "Bangkok", postalCode: "10260", country: "Thailand" },
+    ],
+    addressTh: { addressLine1: "789 ถนนบางนา-ตราด", subdistrict: "บางนา", district: "บางนา", province: "กรุงเทพมหานคร", postalCode: "10260", country: "Thailand" },
+    addressEn: { addressLine1: "789 Bangna-Trad Rd.", subdistrict: "Bang Na", district: "Bang Na", province: "Bangkok", postalCode: "10260", country: "Thailand" },
+    addressAliases: [
+      { id: "aa3", alias: "789 บางนา-ตราด กทม" },
+    ],
+    lastUpdated: "2026-02-05",
   },
 ];

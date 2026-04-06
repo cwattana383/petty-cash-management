@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -6,7 +6,9 @@ import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
 import { useToast } from "@/hooks/use-toast";
 import { useRoles } from "@/lib/role-context";
-import { Save, ShieldCheck, Info } from "lucide-react";
+import { useOcrConfig, useUpdateOcrConfig } from "@/hooks/use-ocr-config";
+import { Save, ShieldCheck, Info, Loader2 } from "lucide-react";
+import { formatBEDateTime } from "@/lib/utils";
 
 interface OcrConfig {
   amountToleranceThb: number;
@@ -25,9 +27,20 @@ export default function OcrValidationRulesPanel() {
   const { roles } = useRoles();
   const isAdmin = roles.includes("Admin");
 
+  const { data, isLoading } = useOcrConfig();
+  const updateMutation = useUpdateOcrConfig();
+
   const [config, setConfig] = useState<OcrConfig>({ ...DEFAULTS });
-  const [lastUpdated] = useState("2026-03-18 14:32");
-  const [updatedBy] = useState("Somchai Jaidee");
+
+  useEffect(() => {
+    if (data) {
+      setConfig({
+        amountToleranceThb: Number(data.amountToleranceThb) || DEFAULTS.amountToleranceThb,
+        amountTolerancePct: Number(data.amountTolerancePct) || DEFAULTS.amountTolerancePct,
+        dateToleranceDays: Number(data.dateToleranceDays) || DEFAULTS.dateToleranceDays,
+      });
+    }
+  }, [data]);
 
   const update = (field: keyof OcrConfig, value: number) => {
     setConfig((prev) => ({ ...prev, [field]: value }));
@@ -42,13 +55,23 @@ export default function OcrValidationRulesPanel() {
       dateToleranceDays: clamp(config.dateToleranceDays, 0, 30),
     };
     setConfig(saved);
-    toast({ title: "OCR validation rules updated successfully" });
+    updateMutation.mutate(saved, {
+      onSuccess: () => {
+        toast({ title: "OCR validation rules updated successfully" });
+      },
+      onError: () => {
+        toast({ title: "Failed to save OCR validation rules", variant: "destructive" });
+      },
+    });
   };
 
-  const handleReset = () => {
-    setConfig({ ...DEFAULTS });
-    toast({ title: "Settings reset to defaults" });
-  };
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center py-12">
+        <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">
@@ -145,11 +168,14 @@ export default function OcrValidationRulesPanel() {
         </CardContent>
       </Card>
 
-
       {isAdmin && (
         <div className="flex items-center gap-3">
-          <Button onClick={handleSave}>
-            <Save className="h-4 w-4 mr-2" />
+          <Button onClick={handleSave} disabled={updateMutation.isPending}>
+            {updateMutation.isPending ? (
+              <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+            ) : (
+              <Save className="h-4 w-4 mr-2" />
+            )}
             Save Changes
           </Button>
         </div>
@@ -158,7 +184,8 @@ export default function OcrValidationRulesPanel() {
       <Separator />
 
       <p className="text-xs text-muted-foreground">
-        Last updated: {lastUpdated} by {updatedBy}
+        Last updated: {data?.updatedAt ? formatBEDateTime(data.updatedAt) : "—"}
+        {data?.updatedBy ? ` by ${data.updatedBy}` : ""}
       </p>
     </div>
   );

@@ -297,8 +297,8 @@ export default function AccountingClaimDetail() {
             buyerAddress: "CPAxtra Public Company Limited, Bangkok",
           }}
           validationContext={activeEntity ? {
-            companyTaxId: activeEntity.taxId,
-            companyAddress: activeEntity.address,
+            companyTaxId: activeEntity.taxIds?.[0]?.taxId || "",
+            companyAddress: activeEntity.addressTh?.addressLine1 || "",
             bankAmount: item.amount,
             transactionDate: item.date,
           } : undefined}

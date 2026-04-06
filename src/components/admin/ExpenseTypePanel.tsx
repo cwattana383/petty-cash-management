@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { Input } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
 import {
@@ -15,71 +16,243 @@ import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from "@/components/ui/select";
 import {
-  Plus, Search, Pencil, Eye, Trash2, Upload, Download, ChevronLeft, ChevronRight, RotateCcw,
+  Plus, Search, Eye, Pencil, Trash2, Upload, Download, ChevronLeft, ChevronRight, Loader2, RotateCcw,
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import {
+  useExpenseTypes,
+  useUpdateExpenseType,
+  useDeleteExpenseType,
+  useImportExpenseTypes,
+  useAllExpenseTypes,
   type ExpenseTypeRow,
-  type ExpenseTypeSubtype,
-  initialData,
-  now,
-  getNextId,
-  getNextSubId,
-} from "./expense-type-data";
+  useBulkExpenseTypeAction,
+} from "@/hooks/use-expense-types";
+import { useAllDocumentTypes } from "@/hooks/use-document-types";
+import { Checkbox } from "@/components/ui/checkbox";
+import { useBulkSelection } from "@/hooks/use-bulk-selection";
+import BulkActionBar from "@/components/common/BulkActionBar";
+import BulkConfirmDialog from "@/components/common/BulkConfirmDialog";
+import { formatBEDateTime } from "@/lib/utils";
 
 export default function ExpenseTypePanel() {
   const { toast } = useToast();
   const navigate = useNavigate();
-  const [data, setData] = useState<ExpenseTypeRow[]>(initialData);
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
   const [page, setPage] = useState(1);
   const pageSize = 10;
 
+  const { data: result, isLoading } = useExpenseTypes({
+    search: search || undefined,
+    active: statusFilter !== "all" ? (statusFilter === "active" ? "true" : "false") : undefined,
+    page,
+    limit: pageSize,
+  });
+
+  const items = result?.data ?? [];
+  const meta = result?.meta ?? { total: 0, page: 1, limit: pageSize, totalPages: 1 };
+
+  const updateMutation = useUpdateExpenseType();
+  const deleteMutation = useDeleteExpenseType();
+  const importMutation = useImportExpenseTypes();
+  const bulkMutation = useBulkExpenseTypeAction();
+  const bulk = useBulkSelection({ items, totalCount: meta.total });
+  const [bulkConfirmAction, setBulkConfirmAction] = useState<"delete" | "activate" | "deactivate" | null>(null);
+
+  const executeBulkAction = () => {
+    if (!bulkConfirmAction) return;
+    const payload = bulk.selectAllPages
+      ? { action: bulkConfirmAction, selectAll: true, filters: { ...(search ? { search } : {}), ...(statusFilter !== "all" ? { active: statusFilter === "active" ? "true" : "false" } : {}) } }
+      : { action: bulkConfirmAction, ids: [...bulk.selectedIds] };
+    bulkMutation.mutate(payload, {
+      onSuccess: (res: unknown) => {
+        const { affected } = res as { affected: number };
+        toast({ title: "Success", description: `${affected} expense type(s) ${bulkConfirmAction === "delete" ? "deleted" : bulkConfirmAction === "activate" ? "activated" : "deactivated"}.` });
+        bulk.clearSelection();
+        setBulkConfirmAction(null);
+      },
+      onError: (err: unknown) => {
+        toast({ title: "Error", description: err instanceof Error ? err.message : "Bulk action failed.", variant: "destructive" });
+        setBulkConfirmAction(null);
+      },
+    });
+  };
+
   // CSV Import modal
   const [importOpen, setImportOpen] = useState(false);
-  const [csvPreview, setCsvPreview] = useState<{ expenseType: string; subExpenseType: string; accountNameEn: string; accountCode: string }[]>([]);
+  const [exportRequested, setExportRequested] = useState(false);
+  const needsAllData = importOpen || exportRequested;
+  const { data: allExpenseTypes, isLoading: isLoadingAll } = useAllExpenseTypes({ enabled: needsAllData });
+  const { data: allDocumentTypes } = useAllDocumentTypes({ enabled: needsAllData });
+  const [csvPreview, setCsvPreview] = useState<{
+    expenseType: string;
+    subExpenseType: string;
+    requiredDocument: string;
+    optionalDocument: string;
+    accountNameEn: string;
+    accountCode: string;
+    requiredDocIds: string[];
+    optionalDocIds: string[];
+  }[]>([]);
   const [csvDuplicates, setCsvDuplicates] = useState<Map<number, string>>(new Map());
   const fileRef = useRef<HTMLInputElement>(null);
 
-  // Filtering
-  const filtered = (() => {
-    let list = data;
-    if (search) {
-      const q = search.toLowerCase();
-      list = list.filter(
-        (r) => r.expenseType.toLowerCase().includes(q) || r.subtypes.some((s) => s.subExpenseType.toLowerCase().includes(q))
-      );
+  // ── Export CSV ──
+
+  const escapeCsvField = (value: string) => {
+    if (value.includes(",") || value.includes('"') || value.includes("\n")) {
+      return `"${value.replace(/"/g, '""')}"`;
     }
-    if (statusFilter === "active") list = list.filter((r) => r.active);
-    if (statusFilter === "inactive") list = list.filter((r) => !r.active);
-    return list;
-  })();
-
-  const totalPages = Math.max(1, Math.ceil(filtered.length / pageSize));
-  const pageData = filtered.slice((page - 1) * pageSize, page * pageSize);
-
-  const handleDelete = (id: string) => {
-    setData((prev) => prev.filter((r) => r.id !== id));
-    toast({ title: "Deleted", description: "Expense type removed." });
+    return value;
   };
 
-  const handleToggle = (id: string, checked: boolean) => {
-    setData((prev) =>
-      prev.map((r) => (r.id === id ? { ...r, active: checked, updatedAt: now() } : r))
-    );
+  const exportCsv = () => {
+    if (!allExpenseTypes) {
+      // Trigger data loading, user clicks again once loaded
+      setExportRequested(true);
+      toast({ title: "Loading", description: "Fetching data... Please click Export CSV again." });
+      return;
+    }
+    if (allExpenseTypes.length === 0) {
+      toast({ title: "No Data", description: "No expense types available to export.", variant: "destructive" });
+      return;
+    }
+
+    // Validate all referenced document types exist in the document_types table
+    const validDocIds = new Set((allDocumentTypes ?? []).map((d) => d.id));
+    const missingDocs: string[] = [];
+    for (const et of allExpenseTypes) {
+      for (const sub of et.subtypes ?? []) {
+        for (const dt of sub.documentTypes ?? []) {
+          const docName = dt.documentType?.documentName ?? "Unknown";
+          if (!dt.documentType?.id || !validDocIds.has(dt.documentType.id)) {
+            missingDocs.push(docName);
+          }
+        }
+      }
+    }
+    if (missingDocs.length > 0) {
+      const uniqueMissing = [...new Set(missingDocs)];
+      toast({
+        title: "Document Type Error",
+        description: `The following document types are not available in the Documents table: ${uniqueMissing.join(", ")}. Please add them first and try again.`,
+        variant: "destructive",
+      });
+      return;
+    }
+
+    // Build CSV rows
+    const headers = ["Expense_Type", "Sub_Expense_Type", "Required_Document", "Optional_Document", "Account_Name", "Account_Code"];
+    const rows: string[] = [headers.join(",")];
+
+    for (const et of allExpenseTypes) {
+      for (const sub of et.subtypes ?? []) {
+        const requiredDocs = (sub.documentTypes ?? [])
+          .filter((dt) => !dt.documentType.isSupportDocument)
+          .map((dt) => dt.documentType.documentName)
+          .join(", ");
+
+        const optionalDocs = (sub.documentTypes ?? [])
+          .filter((dt) => dt.documentType.isSupportDocument)
+          .map((dt) => dt.documentType.documentName)
+          .join(", ");
+
+        rows.push([
+          escapeCsvField(et.expenseType),
+          escapeCsvField(sub.subExpenseType),
+          escapeCsvField(requiredDocs),
+          escapeCsvField(optionalDocs),
+          escapeCsvField(sub.accountNameEn),
+          escapeCsvField(sub.accountCode),
+        ].join(","));
+      }
+    }
+
+    triggerCsvDownload("\uFEFF" + rows.join("\n") + "\n", "expense_types_export.csv");
+
+    toast({ title: "Exported", description: `${rows.length - 1} rows exported to CSV.` });
+  };
+
+  const handleDelete = (id: string) => {
+    deleteMutation.mutate(id, {
+      onSuccess: () => toast({ title: "Deleted", description: "Expense type removed." }),
+      onError: () => toast({ title: "Error", description: "Failed to delete expense type.", variant: "destructive" }),
+    });
+  };
+
+  const handleToggle = (row: ExpenseTypeRow, checked: boolean) => {
+    updateMutation.mutate({ id: row.id, data: { active: checked } }, {
+      onSuccess: () => {
+        toast({ title: "Updated", description: `${row.expenseType} ${checked ? "activated" : "deactivated"}.` });
+      },
+      onError: (err: unknown) => {
+        toast({ title: "Error", description: err instanceof Error ? err.message : "Failed to toggle active status.", variant: "destructive" });
+      },
+    });
   };
 
   // CSV
-  const downloadTemplate = () => {
-    const csv = "\uFEFFexpense_type,sub_expense_type,account_name_en,account_code\n";
-    const blob = new Blob([csv], { type: "text/csv;charset=utf-8" });
+  const triggerCsvDownload = (content: string, filename: string) => {
+    const blob = new Blob([content], { type: "text/csv;charset=utf-8" });
     const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = "expense_type_template.csv";
-    a.click();
-    URL.revokeObjectURL(url);
+    try {
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = filename;
+      a.click();
+    } finally {
+      URL.revokeObjectURL(url);
+    }
+  };
+
+  const downloadTemplate = () => {
+    triggerCsvDownload(
+      "\uFEFFExpense_Type,Sub_Expense_Type,Required_Document,Optional_Document,Account_Name,Account_Code\n",
+      "expense_type_template.csv",
+    );
+  };
+
+  const downloadSample = () => {
+    triggerCsvDownload(
+      "\uFEFFExpense_Type,Sub_Expense_Type,Required_Document,Optional_Document,Account_Name,Account_Code\n" +
+      "Transportation,Taxi / Ride-Hailing \u2014 Domestic,Tax Invoice,\u0e43\u0e1a\u0e40\u0e2a\u0e23\u0e47\u0e08\u0e23\u0e31\u0e1a\u0e40\u0e07\u0e34\u0e19 (Receipt),Local Travelling,5101001\n" +
+      "Transportation,BTS / MRT / Airport Rail Link,Tax Invoice,,Local Travelling,5101001\n" +
+      "Hotel,Hotel \u2014 Domestic Single Room,Tax Invoice,\u0e43\u0e1a\u0e40\u0e2a\u0e23\u0e47\u0e08\u0e23\u0e31\u0e1a\u0e40\u0e07\u0e34\u0e19 (Receipt),Hotel Expenses,5102001\n" +
+      "Hotel,Hotel \u2014 Domestic Twin Room,\"Tax Invoice, Receipt\",\u0e43\u0e1a\u0e40\u0e2a\u0e23\u0e47\u0e08\u0e23\u0e31\u0e1a\u0e40\u0e07\u0e34\u0e19 (Receipt),Hotel Expenses,5102002\n",
+      "expense_type_sample.csv",
+    );
+  };
+
+  // Parse a CSV line respecting quoted fields (e.g. "Tax Invoice, Receipt")
+  const parseCsvLine = (line: string): string[] => {
+    const fields: string[] = [];
+    let current = "";
+    let inQuotes = false;
+    for (let i = 0; i < line.length; i++) {
+      const ch = line[i];
+      if (inQuotes) {
+        if (ch === '"' && i + 1 < line.length && line[i + 1] === '"') {
+          current += '"';
+          i++;
+        } else if (ch === '"') {
+          inQuotes = false;
+        } else {
+          current += ch;
+        }
+      } else {
+        if (ch === '"') {
+          inQuotes = true;
+        } else if (ch === ",") {
+          fields.push(current.trim());
+          current = "";
+        } else {
+          current += ch;
+        }
+      }
+    }
+    fields.push(current.trim());
+    return fields;
   };
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -104,22 +277,81 @@ export default function ExpenseTypePanel() {
 
       text = text.replace(/^\uFEFF/, "");
 
-      const lines = text.split("\n").filter((l) => l.trim());
+      const lines = text.split(/\r?\n/).filter((l) => l.trim());
       if (lines.length === 0) {
         toast({ title: "Invalid File", description: "CSV file is empty.", variant: "destructive" });
         if (fileRef.current) fileRef.current.value = "";
         return;
       }
-      const headers = lines[0].split(",").map((h) => h.trim().replace(/^"|"$/g, "").toLowerCase());
-      if (headers.length !== 4 || headers[0] !== "expense_type" || headers[1] !== "sub_expense_type" || headers[2] !== "account_name_en" || headers[3] !== "account_code") {
-        toast({ title: "Invalid Headers", description: "CSV must contain exactly four columns: expense_type, sub_expense_type, account_name_en, account_code", variant: "destructive" });
+
+      const headers = parseCsvLine(lines[0]).map((h) => h.toLowerCase().replace(/^"|"$/g, ""));
+      const required = ["expense_type", "sub_expense_type", "required_document", "optional_document", "account_name", "account_code"];
+      const missing = required.filter((r) => !headers.includes(r));
+      if (missing.length > 0) {
+        toast({
+          title: "Invalid Headers",
+          description: `Missing required columns: ${missing.join(", ")}. CSV must contain: ${required.join(", ")}`,
+          variant: "destructive",
+        });
         if (fileRef.current) fileRef.current.value = "";
         return;
       }
+
+      const etIdx = headers.indexOf("expense_type");
+      const subIdx = headers.indexOf("sub_expense_type");
+      const reqDocIdx = headers.indexOf("required_document");
+      const optDocIdx = headers.indexOf("optional_document");
+      const accNameIdx = headers.indexOf("account_name");
+      const accCodeIdx = headers.indexOf("account_code");
+
+      // Build document name → id lookup from the document_types table
+      const docNameToId = new Map<string, string>();
+      for (const dt of allDocumentTypes ?? []) {
+        docNameToId.set(dt.documentName.toLowerCase(), dt.id);
+      }
+
+      const missingDocNames: string[] = [];
+
       const rows = lines.slice(1).map((line) => {
-        const [expenseType = "", subExpenseType = "", accountNameEn = "", accountCode = ""] = line.split(",").map((s) => s.trim().replace(/^"|"$/g, ""));
-        return { expenseType, subExpenseType, accountNameEn, accountCode };
+        const cols = parseCsvLine(line);
+        const expenseType = cols[etIdx] ?? "";
+        const subExpenseType = cols[subIdx] ?? "";
+        const requiredDocument = cols[reqDocIdx] ?? "";
+        const optionalDocument = cols[optDocIdx] ?? "";
+        const accountNameEn = cols[accNameIdx] ?? "";
+        const accountCode = cols[accCodeIdx] ?? "";
+
+        // Resolve document names to IDs
+        const reqDocNames = requiredDocument ? requiredDocument.split(",").map((d) => d.trim()).filter(Boolean) : [];
+        const optDocNames = optionalDocument ? optionalDocument.split(",").map((d) => d.trim()).filter(Boolean) : [];
+
+        const requiredDocIds: string[] = [];
+        for (const name of reqDocNames) {
+          const id = docNameToId.get(name.toLowerCase());
+          if (id) requiredDocIds.push(id);
+          else missingDocNames.push(name);
+        }
+
+        const optionalDocIds: string[] = [];
+        for (const name of optDocNames) {
+          const id = docNameToId.get(name.toLowerCase());
+          if (id) optionalDocIds.push(id);
+          else missingDocNames.push(name);
+        }
+
+        return { expenseType, subExpenseType, requiredDocument, optionalDocument, accountNameEn, accountCode, requiredDocIds, optionalDocIds };
       }).filter((r) => r.expenseType && r.accountNameEn);
+
+      if (missingDocNames.length > 0) {
+        const unique = [...new Set(missingDocNames)];
+        toast({
+          title: "Document Type Error",
+          description: `The following document types are not available in the Documents table: ${unique.join(", ")}. Please add them first and try again.`,
+          variant: "destructive",
+        });
+        if (fileRef.current) fileRef.current.value = "";
+        return;
+      }
 
       if (rows.length === 0) {
         toast({ title: "No Data", description: "CSV file contains no valid data rows.", variant: "destructive" });
@@ -133,14 +365,24 @@ export default function ExpenseTypePanel() {
     reader.readAsArrayBuffer(file);
   };
 
-  const checkCsvDuplicates = (rows: { expenseType: string; subExpenseType: string; accountNameEn: string; accountCode: string }[]) => {
+  const checkCsvDuplicates = (rows: { expenseType: string; subExpenseType: string; requiredDocIds: string[]; optionalDocIds: string[] }[]) => {
     const issues = new Map<number, string>();
     const seen = new Set<string>();
+
+    // Build set of existing expense type + subtype combos from DB
+    const existingCombos = new Set<string>();
+    for (const et of allExpenseTypes ?? []) {
+      for (const sub of et.subtypes ?? []) {
+        existingCombos.add(`${et.expenseType.toLowerCase()}||${sub.subExpenseType.toLowerCase()}`);
+      }
+    }
 
     rows.forEach((r, i) => {
       const key = `${r.expenseType.toLowerCase()}||${r.subExpenseType.toLowerCase()}`;
       if (seen.has(key)) {
-        issues.set(i, "Duplicate (will be skipped)");
+        issues.set(i, "Duplicate row in CSV");
+      } else if (existingCombos.has(key)) {
+        issues.set(i, "Subtype already exists in DB");
       }
       seen.add(key);
     });
@@ -154,38 +396,49 @@ export default function ExpenseTypePanel() {
   };
 
   const confirmImport = () => {
-    const ts = now();
-    const grouped = new Map<string, { subtypes: ExpenseTypeSubtype[] }>();
+    const grouped = new Map<string, {
+      expenseType: string;
+      subtypes: { subExpenseType: string; accountNameEn: string; accountCode: string; documentTypeIds?: string[] }[];
+      seen: Set<string>;
+    }>();
     for (const row of csvPreview) {
+      const subtypeKey = row.subExpenseType.toLowerCase();
+      const allDocIds = [...row.requiredDocIds, ...row.optionalDocIds];
       const entry = grouped.get(row.expenseType);
-      const subtype: ExpenseTypeSubtype = {
-        id: getNextSubId(),
-        subExpenseType: row.subExpenseType,
-        accountNameEn: row.accountNameEn,
-        accountCode: row.accountCode,
-        active: true,
-        documentTypeIds: [],
-      };
       if (entry) {
-        entry.subtypes.push(subtype);
+        if (!entry.seen.has(subtypeKey)) {
+          entry.subtypes.push({
+            subExpenseType: row.subExpenseType,
+            accountNameEn: row.accountNameEn,
+            accountCode: row.accountCode,
+            ...(allDocIds.length > 0 && { documentTypeIds: allDocIds }),
+          });
+          entry.seen.add(subtypeKey);
+        }
       } else {
-        grouped.set(row.expenseType, { subtypes: [subtype] });
+        grouped.set(row.expenseType, {
+          expenseType: row.expenseType,
+          subtypes: [{
+            subExpenseType: row.subExpenseType,
+            accountNameEn: row.accountNameEn,
+            accountCode: row.accountCode,
+            ...(allDocIds.length > 0 && { documentTypeIds: allDocIds }),
+          }],
+          seen: new Set([subtypeKey]),
+        });
       }
     }
+    const payload = Array.from(grouped.values()).map(({ expenseType, subtypes }) => ({ expenseType, subtypes }));
 
-    const newRows: ExpenseTypeRow[] = Array.from(grouped.entries()).map(([expenseType, { subtypes }]) => ({
-      id: getNextId(),
-      expenseType,
-      active: true,
-      updatedAt: ts,
-      subtypes,
-    }));
-
-    setData((prev) => [...prev, ...newRows]);
-    toast({ title: "Imported", description: `${newRows.length} expense types imported.` });
-    setCsvPreview([]);
-    setImportOpen(false);
-    if (fileRef.current) fileRef.current.value = "";
+    importMutation.mutate(payload, {
+      onSuccess: (res) => {
+        toast({ title: "Imported", description: `${(res as { imported: number }).imported} expense types imported.` });
+        setCsvPreview([]);
+        setImportOpen(false);
+        if (fileRef.current) fileRef.current.value = "";
+      },
+      onError: (err: unknown) => toast({ title: "Error", description: err instanceof Error ? err.message : "Failed to import expense types.", variant: "destructive" }),
+    });
   };
 
   return (
@@ -199,6 +452,13 @@ export default function ExpenseTypePanel() {
           </p>
         </div>
         <div className="flex items-center gap-2">
+          <Button size="sm" variant="outline" onClick={() => { setCsvPreview([]); setCsvDuplicates(new Map()); setImportOpen(true); }}>
+            <Upload className="h-4 w-4 mr-2" />Import CSV
+          </Button>
+          <Button size="sm" variant="outline" onClick={exportCsv} disabled={isLoadingAll}>
+            {isLoadingAll ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : <Download className="h-4 w-4 mr-2" />}
+            Export CSV
+          </Button>
           <Button size="sm" onClick={() => navigate("/admin/expense-type/create")}>
             <Plus className="h-4 w-4 mr-2" />Add Expense Type
           </Button>
@@ -231,12 +491,33 @@ export default function ExpenseTypePanel() {
         )}
       </div>
 
+      {bulk.hasSelection && (
+        <BulkActionBar
+          selectedCount={bulk.selectionCount}
+          totalCount={meta.total}
+          selectAllPages={bulk.selectAllPages}
+          isAllOnPageSelected={bulk.isAllOnPageSelected}
+          onSelectAllPages={bulk.selectAllAcrossPages}
+          onDelete={() => setBulkConfirmAction("delete")}
+          onActivate={() => setBulkConfirmAction("activate")}
+          onDeactivate={() => setBulkConfirmAction("deactivate")}
+          onClear={bulk.clearSelection}
+          isProcessing={bulkMutation.isPending}
+        />
+      )}
+
       {/* Table */}
       <Card>
         <CardContent className="p-0">
           <Table>
             <TableHeader>
               <TableRow>
+                <TableHead className="w-10">
+                  <Checkbox
+                    checked={bulk.isAllOnPageSelected ? true : bulk.isIndeterminate ? "indeterminate" : false}
+                    onCheckedChange={bulk.toggleAllOnPage}
+                  />
+                </TableHead>
                 <TableHead>Expense Type</TableHead>
                 <TableHead>Subtypes</TableHead>
                 <TableHead>Active</TableHead>
@@ -245,26 +526,38 @@ export default function ExpenseTypePanel() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {pageData.length === 0 ? (
+              {isLoading ? (
                 <TableRow>
-                  <TableCell colSpan={5} className="text-center text-muted-foreground py-8">
+                  <TableCell colSpan={6} className="text-center py-8">
+                    <Loader2 className="h-5 w-5 animate-spin mx-auto text-muted-foreground" />
+                  </TableCell>
+                </TableRow>
+              ) : items.length === 0 ? (
+                <TableRow>
+                  <TableCell colSpan={6} className="text-center text-muted-foreground py-8">
                     No expense types found
                   </TableCell>
                 </TableRow>
               ) : (
-                pageData.map((row) => (
+                items.map((row) => (
                   <TableRow key={row.id}>
+                    <TableCell>
+                      <Checkbox
+                        checked={bulk.selectAllPages || bulk.selectedIds.has(row.id)}
+                        onCheckedChange={() => bulk.toggleOne(row.id)}
+                      />
+                    </TableCell>
                     <TableCell className="font-medium">{row.expenseType}</TableCell>
                     <TableCell className="text-sm text-muted-foreground">
-                      {row.subtypes.length} subtype{row.subtypes.length !== 1 ? "s" : ""}
+                      {row.subtypes?.length ?? 0} subtype{(row.subtypes?.length ?? 0) !== 1 ? "s" : ""}
                     </TableCell>
                     <TableCell>
                       <Switch
                         checked={row.active}
-                        onCheckedChange={(checked) => handleToggle(row.id, checked)}
+                        onCheckedChange={(checked) => handleToggle(row, checked)}
                       />
                     </TableCell>
-                    <TableCell className="text-sm text-muted-foreground">{row.updatedAt}</TableCell>
+                    <TableCell className="text-sm text-muted-foreground">{formatBEDateTime(row.updatedAt)}</TableCell>
                     <TableCell className="text-right">
                       <div className="flex items-center justify-end gap-1">
                         <Button size="icon" variant="ghost" className="h-7 w-7" onClick={() => navigate(`/admin/expense-type/${row.id}?mode=view`)} title="View">
@@ -287,17 +580,17 @@ export default function ExpenseTypePanel() {
       </Card>
 
       {/* Pagination */}
-      {totalPages > 1 && (
+      {meta.totalPages > 1 && (
         <div className="flex items-center justify-between text-sm">
           <span className="text-muted-foreground">
-            Showing {(page - 1) * pageSize + 1}–{Math.min(page * pageSize, filtered.length)} of {filtered.length}
+            Showing {(meta.page - 1) * meta.limit + 1}–{Math.min(meta.page * meta.limit, meta.total)} of {meta.total}
           </span>
           <div className="flex items-center gap-2">
             <Button size="sm" variant="outline" disabled={page === 1} onClick={() => setPage(page - 1)}>
               <ChevronLeft className="h-4 w-4 mr-1" />Previous
             </Button>
-            <span className="text-muted-foreground">Page {page} of {totalPages}</span>
-            <Button size="sm" variant="outline" disabled={page === totalPages} onClick={() => setPage(page + 1)}>
+            <span className="text-muted-foreground">Page {page} of {meta.totalPages}</span>
+            <Button size="sm" variant="outline" disabled={page === meta.totalPages} onClick={() => setPage(page + 1)}>
               Next<ChevronRight className="h-4 w-4 ml-1" />
             </Button>
           </div>
@@ -305,16 +598,24 @@ export default function ExpenseTypePanel() {
       )}
 
       {/* CSV Import Modal */}
-      <Dialog open={importOpen} onOpenChange={setImportOpen}>
-        <DialogContent className="sm:max-w-3xl">
+      <Dialog open={importOpen} onOpenChange={(open) => {
+        if (!open) { setCsvPreview([]); setCsvDuplicates(new Map()); if (fileRef.current) fileRef.current.value = ""; }
+        setImportOpen(open);
+      }}>
+        <DialogContent className="sm:max-w-5xl max-h-[85vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>Import Expense Types from CSV</DialogTitle>
-            <DialogDescription>Upload a CSV file to bulk-import expense types. Rows are grouped by expense_type automatically.</DialogDescription>
+            <DialogDescription>Upload a CSV file to bulk-import expense types with document type mappings. Download the sample CSV for reference.</DialogDescription>
           </DialogHeader>
           <div className="space-y-4 py-2">
-            <Button variant="outline" size="sm" onClick={downloadTemplate}>
-              <Download className="h-4 w-4 mr-2" />Download Template
-            </Button>
+            <div className="flex items-center gap-2">
+              <Button variant="outline" size="sm" onClick={downloadTemplate}>
+                <Download className="h-4 w-4 mr-2" />Download Template
+              </Button>
+              <Button variant="outline" size="sm" onClick={downloadSample}>
+                <Download className="h-4 w-4 mr-2" />Download Sample CSV
+              </Button>
+            </div>
             <div className="border-2 border-dashed rounded-lg p-6 text-center">
               <input
                 ref={fileRef}
@@ -338,13 +639,15 @@ export default function ExpenseTypePanel() {
                     <span className="text-destructive ml-2">({csvDuplicates.size} issue{csvDuplicates.size > 1 ? "s" : ""} found)</span>
                   )}
                 </p>
-                <div className="max-h-48 overflow-auto border rounded">
+                <div className="max-h-64 overflow-auto border rounded">
                   <Table>
                     <TableHeader>
                       <TableRow>
                         <TableHead>Expense Type</TableHead>
                         <TableHead>Sub Expense Type</TableHead>
-                        <TableHead>Account Name (EN)</TableHead>
+                        <TableHead>Required Document</TableHead>
+                        <TableHead>Optional Document</TableHead>
+                        <TableHead>Account Name</TableHead>
                         <TableHead>Account Code</TableHead>
                         <TableHead>Status</TableHead>
                         <TableHead className="text-right">Action</TableHead>
@@ -355,11 +658,20 @@ export default function ExpenseTypePanel() {
                         <TableRow key={i} className={csvDuplicates.has(i) ? "bg-destructive/5" : ""}>
                           <TableCell className="text-sm">{r.expenseType}</TableCell>
                           <TableCell className="text-sm">{r.subExpenseType || "\u2014"}</TableCell>
+                          <TableCell className="text-sm">{r.requiredDocument || "\u2014"}</TableCell>
+                          <TableCell className="text-sm">{r.optionalDocument || "\u2014"}</TableCell>
                           <TableCell className="text-sm">{r.accountNameEn}</TableCell>
                           <TableCell className="text-sm">{r.accountCode || "\u2014"}</TableCell>
                           <TableCell className="text-sm">
                             {csvDuplicates.has(i) ? (
-                              <Badge variant="destructive" className="text-xs">{csvDuplicates.get(i)}</Badge>
+                              <Tooltip delayDuration={0}>
+                                <TooltipTrigger>
+                                  <span><Badge variant="destructive" className="text-xs cursor-help">Error</Badge></span>
+                                </TooltipTrigger>
+                                <TooltipContent side="left" className="max-w-xs text-sm font-normal">
+                                  {csvDuplicates.get(i)}
+                                </TooltipContent>
+                              </Tooltip>
                             ) : (
                               <Badge variant="outline" className="text-xs text-green-600 border-green-600">OK</Badge>
                             )}
@@ -379,12 +691,23 @@ export default function ExpenseTypePanel() {
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setImportOpen(false)}>Cancel</Button>
-            <Button onClick={confirmImport} disabled={csvPreview.length === 0}>
+            <Button onClick={confirmImport} disabled={csvPreview.length === 0 || csvDuplicates.size > 0 || importMutation.isPending}>
+              {importMutation.isPending && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
               Confirm Import
             </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      <BulkConfirmDialog
+        open={!!bulkConfirmAction}
+        action={bulkConfirmAction}
+        count={bulk.selectionCount}
+        resourceName="expense type(s)"
+        onConfirm={executeBulkAction}
+        onCancel={() => setBulkConfirmAction(null)}
+        isProcessing={bulkMutation.isPending}
+      />
     </div>
   );
 }

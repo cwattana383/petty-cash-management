@@ -5,8 +5,18 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
 
+/** Corporate Microsoft 365 sign-in domain for employee email. */
+export const CORPORATE_EMAIL_DOMAIN = "cpaxtra.co.th";
+
+/** True if email is a non-empty local part @cpaxtra.co.th (case-insensitive). */
+export function isCorporateEmail(email: string): boolean {
+  const trimmed = email.trim();
+  if (!trimmed) return false;
+  return /^[^\s@]+@cpaxtra\.co\.th$/i.test(trimmed);
+}
+
 /**
- * Format any date to DD/MM/YYYY in Buddhist Era (BE = CE + 543).
+ * Format any date to DD/MM/YYYY in Buddhist Era (พ.ศ. = CE + 543).
  * Accepts: Date object, ISO string "YYYY-MM-DD", or "YYYY-MM-DDTHH:mm:ss".
  * Returns "" for falsy input.
  */

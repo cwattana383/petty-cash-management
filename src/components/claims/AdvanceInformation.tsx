@@ -64,9 +64,10 @@ export default function AdvanceInformation({ data, onChange, errors }: AdvanceIn
     if (paid !== data.paidAmount) {
       onChange({ ...data, paidAmount: paid });
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [data.amountIncVat, data.withholdingTax, data.fee]);
 
-  const update = (field: keyof AdvanceData, value: any) => {
+  const update = (field: keyof AdvanceData, value: AdvanceData[keyof AdvanceData]) => {
     const newData = { ...data, [field]: value };
     // Reset sub category when category changes
     if (field === "purposeCategory") {

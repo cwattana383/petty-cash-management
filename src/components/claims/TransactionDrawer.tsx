@@ -1,7 +1,7 @@
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
-import { UnifiedExpenseItem, mockCorpCardTransactions, mockReconciliations } from "@/lib/unified-expenses";
+import { UnifiedExpenseItem } from "@/lib/unified-expenses";
 import { CreditCard, Calendar, Building, Hash, DollarSign, FileCheck } from "lucide-react";
 
 interface Props {
@@ -13,8 +13,8 @@ interface Props {
 export default function TransactionDrawer({ item, open, onClose }: Props) {
   if (!item) return null;
 
-  const txn = mockCorpCardTransactions.find((t) => t.id === item.transaction_id);
-  const rec = mockReconciliations.find((r) => r.transaction_id === item.transaction_id);
+  const txn = undefined;
+  const rec = undefined;
 
   return (
     <Sheet open={open} onOpenChange={(v) => !v && onClose()}>
@@ -36,7 +36,7 @@ export default function TransactionDrawer({ item, open, onClose }: Props) {
                 <div className="font-medium">{txn.merchant_name}</div>
 
                 <div className="flex items-center gap-2"><Calendar className="h-4 w-4 text-muted-foreground" /> <span className="text-muted-foreground">Transaction Date</span></div>
-                <div className="font-medium">{txn.txn_date}</div>
+                <div className="font-medium">{txn.transaction_date}</div>
 
                 <div className="flex items-center gap-2"><Calendar className="h-4 w-4 text-muted-foreground" /> <span className="text-muted-foreground">Posting Date</span></div>
                 <div className="font-medium">{txn.posting_date}</div>

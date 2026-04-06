@@ -27,8 +27,9 @@ export default function CreateClaim() {
   const { toast } = useToast();
 
   // Receive selected documents from /upload page
-  const rawDocs: UploadedDoc[] = (location.state as any)?.selectedDocs || [];
-  const isManualExpense: boolean = (location.state as any)?.isManualExpense || false;
+  const locationState = location.state as { selectedDocs?: UploadedDoc[]; isManualExpense?: boolean } | null;
+  const rawDocs: UploadedDoc[] = locationState?.selectedDocs ?? [];
+  const isManualExpense: boolean = locationState?.isManualExpense ?? false;
 
   // Convert OCR docs into editable lines
   const [docLines, setDocLines] = useState<Array<{
@@ -58,7 +59,7 @@ export default function CreateClaim() {
       accountCode: "",
       description: doc.name,
       expenseType: "",
-      amount: parseFloat(doc.ocrData?.find((f) => f.label === "Amount")?.value?.replace(/,/g, "") || "0") || 0,
+      amount: parseFloat(doc.ocrData?.find((f) => f.label === "จำนวนเงิน")?.value?.replace(/,/g, "") || "0") || 0,
       vatCode: doc.ocrData?.find((f) => f.label === "VAT Code")?.value || "",
       vatAmount: parseFloat(doc.ocrData?.find((f) => f.label === "VAT Amount")?.value?.replace(/,/g, "") || "0") || 0,
       totalAmount: 0,
@@ -67,7 +68,7 @@ export default function CreateClaim() {
     }))
   );
 
-  const updateDocLine = (id: string, field: string, value: any) => {
+  const updateDocLine = (id: string, field: string, value: unknown) => {
     setDocLines((prev) => prev.map((l) => (l.id === id ? { ...l, [field]: value } : l)));
   };
 
@@ -104,7 +105,7 @@ export default function CreateClaim() {
     ]);
   };
 
-  const updateManualLine = (id: string, field: string, value: any) => {
+  const updateManualLine = (id: string, field: string, value: unknown) => {
     setManualLines((prev) => prev.map((l) => (l.id === id ? { ...l, [field]: value } : l)));
   };
 
@@ -124,7 +125,7 @@ export default function CreateClaim() {
   const [requester, setRequester] = useState<RequesterData>({
     requestType: "Owner",
     employeeId: "",
-    employee: "Somchai Jaidee",
+    employee: "John Doe",
     store: currentUser.branch,
     company: "CP Axtra Public Company Limited",
     telephone: "0657778899",
@@ -199,7 +200,7 @@ export default function CreateClaim() {
               {isManualExpense ? "Create Manual Expense" : "Create Expense"}
             </h1>
             <p className="text-muted-foreground text-sm">
-              {isManualExpense ? "Fill in expense item details manually (not linked to a document)" : "Fill in expense request details"}
+              {isManualExpense ? "Enter expense details manually (not linked to documents)" : "Fill in expense request details"}
             </p>
           </div>
         </div>
@@ -288,7 +289,7 @@ export default function CreateClaim() {
                       </Popover>
                     </TableCell>
                     <TableCell>
-                      <Input placeholder="Invoice No...." value={line.invoiceNumber} onChange={(e) => updateDocLine(line.id, "invoiceNumber", e.target.value)} className="h-8 text-sm w-24" />
+                      <Input placeholder="Invoice No..." value={line.invoiceNumber} onChange={(e) => updateDocLine(line.id, "invoiceNumber", e.target.value)} className="h-8 text-sm w-24" />
                     </TableCell>
                     <TableCell>
                       <div className="flex items-center gap-2">
@@ -307,11 +308,11 @@ export default function CreateClaim() {
                       </Select>
                     </TableCell>
                     <TableCell>
-                      <Input placeholder="Supplier name..." value={line.supplierName} onChange={(e) => updateDocLine(line.id, "supplierName", e.target.value)} className="h-8 text-sm w-28" />
+                      <Input placeholder="Vendor name..." value={line.supplierName} onChange={(e) => updateDocLine(line.id, "supplierName", e.target.value)} className="h-8 text-sm w-28" />
                     </TableCell>
                     <TableCell>
                       <Select value={line.accountCode} onValueChange={(v) => updateDocLine(line.id, "accountCode", v)}>
-                        <SelectTrigger className="h-8 text-sm w-44"><SelectValue placeholder="Select GL Code" /></SelectTrigger>
+                        <SelectTrigger className="h-8 text-sm w-44"><SelectValue placeholder="Select GL Account" /></SelectTrigger>
                         <SelectContent>
                           {accountCodes.map((ac) => (<SelectItem key={ac.code} value={ac.code}>{ac.code} - {ac.name}</SelectItem>))}
                         </SelectContent>
@@ -402,7 +403,7 @@ export default function CreateClaim() {
                       </Popover>
                     </TableCell>
                     <TableCell>
-                      <Input placeholder="Invoice No...." className="h-8 text-sm w-24" />
+                      <Input placeholder="Invoice No..." className="h-8 text-sm w-24" />
                     </TableCell>
                     <TableCell>
                       {line.attachedFile ? (
@@ -425,7 +426,7 @@ export default function CreateClaim() {
                             }}
                           />
                           <span className="inline-flex items-center gap-1 text-xs text-primary hover:underline">
-                            <Paperclip className="h-3.5 w-3.5" /> Attach Files
+                            <Paperclip className="h-3.5 w-3.5" /> Attach File
                           </span>
                         </label>
                       )}
@@ -443,12 +444,12 @@ export default function CreateClaim() {
                       </Select>
                     </TableCell>
                     <TableCell>
-                      <Input placeholder="Supplier name..." className="h-8 text-sm w-28" />
+                      <Input placeholder="Vendor name..." className="h-8 text-sm w-28" />
                     </TableCell>
                     <TableCell>
                       <Select onValueChange={(v) => updateManualLine(line.id, "accountCode", v)}>
                         <SelectTrigger className="h-8 text-sm w-44">
-                          <SelectValue placeholder="Select GL Code" />
+                          <SelectValue placeholder="Select GL Account" />
                         </SelectTrigger>
                         <SelectContent>
                           {accountCodes.map((ac) => (
@@ -550,7 +551,7 @@ export default function CreateClaim() {
                 {docLines.length === 0 && manualLines.length === 0 && (
                   <TableRow>
                     <TableCell colSpan={17} className="text-center text-muted-foreground py-8">
-                      No items yet — click "+ Add Item" to add items
+                      No items yet — click "+ Add Item" to add one
                     </TableCell>
                   </TableRow>
                 )}

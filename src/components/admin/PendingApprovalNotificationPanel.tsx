@@ -1,6 +1,6 @@
-import { useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Switch } from "@/components/ui/switch";
+import { Skeleton } from "@/components/ui/skeleton";
 import {
   Table,
   TableBody,
@@ -10,18 +10,29 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Bell, Info, Mail, Eye } from "lucide-react";
+import { useState } from "react";
+import { toast } from "@/hooks/use-toast";
+import {
+  useNotificationSettingByType,
+  useUpdateNotificationSetting,
+} from "@/hooks/use-email-settings";
 
-const mockPendingApprovals = [
-  { claim_id: "CLM-20260228-0012", requester_name: "Somchai Jaidee", submission_date: "2026-02-28", amount: "12,500.00", description: "Business trip to Chiang Mai" },
-  { claim_id: "CLM-20260227-0008", requester_name: "Wipa Sukjai", submission_date: "2026-02-27", amount: "3,200.00", description: "Client dinner meeting" },
-  { claim_id: "CLM-20260226-0015", requester_name: "Pim Dee", submission_date: "2026-02-26", amount: "850.00", description: "Grab rides Feb week 4" },
-  { claim_id: "CLM-20260225-0003", requester_name: "Somsak Wichan", submission_date: "2026-02-25", amount: "45,000.00", description: "Conference hotel booking" },
-];
+const mockPendingApprovals: never[] = [];
 
 export default function PendingApprovalNotificationPanel() {
-  const [notificationsEnabled, setNotificationsEnabled] = useState(true);
-  const [remindersEnabled, setRemindersEnabled] = useState(true);
   const [showPreview, setShowPreview] = useState(false);
+  const { data: setting, isLoading } = useNotificationSettingByType("PENDING_APPROVAL");
+  const updateSetting = useUpdateNotificationSetting();
+
+  const handleToggle = (field: "notificationsEnabled" | "remindersEnabled", value: boolean) => {
+    updateSetting.mutate(
+      { type: "PENDING_APPROVAL", [field]: value },
+      {
+        onSuccess: () => toast({ title: "Success", description: "Setting updated" }),
+        onError: () => toast({ title: "Error", description: "Failed to update setting", variant: "destructive" }),
+      },
+    );
+  };
 
   return (
     <div className="space-y-6 max-w-4xl">
@@ -47,7 +58,15 @@ export default function PendingApprovalNotificationPanel() {
                 </p>
               </div>
             </div>
-            <Switch checked={notificationsEnabled} onCheckedChange={setNotificationsEnabled} />
+            {isLoading ? (
+              <Skeleton className="h-5 w-10 rounded-full" />
+            ) : (
+              <Switch
+                checked={setting?.notificationsEnabled ?? false}
+                onCheckedChange={(v) => handleToggle("notificationsEnabled", v)}
+                disabled={updateSetting.isPending}
+              />
+            )}
           </div>
         </CardContent>
       </Card>
@@ -67,7 +86,15 @@ export default function PendingApprovalNotificationPanel() {
                 </p>
               </div>
             </div>
-            <Switch checked={remindersEnabled} onCheckedChange={setRemindersEnabled} />
+            {isLoading ? (
+              <Skeleton className="h-5 w-10 rounded-full" />
+            ) : (
+              <Switch
+                checked={setting?.remindersEnabled ?? false}
+                onCheckedChange={(v) => handleToggle("remindersEnabled", v)}
+                disabled={updateSetting.isPending}
+              />
+            )}
           </div>
         </CardContent>
       </Card>
@@ -76,7 +103,7 @@ export default function PendingApprovalNotificationPanel() {
       <div className="flex items-start gap-2.5 rounded-lg border border-border bg-muted/50 p-4">
         <Info className="h-4 w-4 text-muted-foreground mt-0.5 shrink-0" />
         <p className="text-sm text-muted-foreground">
-          Emails are sent 30 minutes after a claim is submitted. Reminders repeat every 2 days until all claims are actioned.
+          Emails are sent {setting?.initialDelayMinutes ?? 30} minutes after a claim is submitted. Reminders repeat every {setting?.reminderIntervalDays ?? 2} days until all claims are actioned.
         </p>
       </div>
 

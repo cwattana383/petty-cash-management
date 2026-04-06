@@ -31,7 +31,7 @@ export default function OcrExtractedDataCard({ drawerItem }: Props) {
   const initialFields: OcrField[] = [
     { field: "Tax ID", value: "0105556176009", status: "match" },
     { field: "Buyer Name", value: drawerItem.merchantName, status: "match" },
-    { field: "Buyer Address", value: "123 Sukhumvit Rd., Khlong Toei, Bangkok 10110", status: "partial" },
+    { field: "Buyer Address", value: "123 ถ.สุขุมวิท แขวงคลองเตย กรุงเทพฯ 10110", status: "partial" },
     { field: "Invoice Amount", value: drawerItem.amount, status: "match" },
     { field: "Invoice Date", value: formatBEDate(drawerItem.date), status: "match" },
     { field: "Invoice Number", value: "INV-" + drawerItem.id.slice(-6), status: "none" },
@@ -83,7 +83,7 @@ export default function OcrExtractedDataCard({ drawerItem }: Props) {
         <CardContent className="pt-4">
           <div className="flex items-center gap-2 mb-3">
             <Brain className="h-4 w-4 text-primary" />
-            <h3 className="text-sm font-semibold text-foreground">AI Extracted Data — Please Review</h3>
+            <h3 className="text-sm font-semibold text-foreground">AI Extracted Data — Please verify</h3>
           </div>
           <Table>
             <TableHeader>

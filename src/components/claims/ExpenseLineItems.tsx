@@ -177,6 +177,9 @@ export default function ExpenseLineItems({
             Enter details from the receipt — multiple items can be added.
           </p>
         </div>
+        <Button variant="outline" size="sm" className="gap-1 text-xs" onClick={addLineItem}>
+          <Plus className="h-3 w-3" /> Add Line Item
+        </Button>
       </CardHeader>
       <CardContent className="space-y-6">
         {items.map((item, idx) => {
@@ -190,6 +193,9 @@ export default function ExpenseLineItems({
               className="border border-border rounded-lg p-4 space-y-4 bg-background"
             >
               <div className="flex items-center justify-between">
+                <p className="text-[13px] font-semibold text-foreground">
+                  Line Item #{idx + 1}
+                </p>
                 {items.length > 1 && (
                   <Button
                     variant="ghost"
@@ -203,6 +209,16 @@ export default function ExpenseLineItems({
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {/* Supplier Name */}
+                <div className="space-y-1.5">
+                  <Label className="text-[13px] font-semibold text-foreground">Supplier Name</Label>
+                  <Input
+                    className="text-[13px]"
+                    placeholder="Supplier / Vendor name"
+                    value={item.supplierName}
+                    onChange={(e) => updateItem(item.id, { supplierName: e.target.value })}
+                  />
+                </div>
 
                 {/* Gross Amount */}
                 <div className="space-y-1.5">
@@ -239,6 +255,14 @@ export default function ExpenseLineItems({
                       ))}
                     </SelectContent>
                   </Select>
+                  {item.vatTypeAutoFilled && !item.vatTypeChanged && (
+                    <div className="flex items-center gap-1.5 mt-1">
+                      <Info className="h-3 w-3 text-blue-500 shrink-0" />
+                      <p className="text-[11px] text-blue-600">
+                        Auto-set to {vatConfig?.label}. Change if receipt differs.
+                      </p>
+                    </div>
+                  )}
                 </div>
 
                 {/* Net Amount */}
@@ -259,7 +283,35 @@ export default function ExpenseLineItems({
                   <Input readOnly className="bg-muted/40 text-[13px] text-right" value={fmt(item.vatAmount)} />
                 </div>
 
+                {/* Note (optional, single line) */}
+                <div className="space-y-1.5">
+                  <Label className="text-[13px] text-muted-foreground">Note (optional)</Label>
+                  <Input
+                    className="text-[13px]"
+                    placeholder="Additional note for this line"
+                    value={item.note}
+                    onChange={(e) => updateItem(item.id, { note: e.target.value })}
+                  />
+                </div>
 
+                {/* Tax Invoice Number (conditional) */}
+                {showTaxField && (
+                  <div className="space-y-1.5 md:col-span-2">
+                    <Label className="text-[13px] font-semibold text-foreground">
+                      Tax Invoice Number
+                      {requiresTaxInvoice && <span className="text-destructive"> *</span>}
+                    </Label>
+                    <Input
+                      className="text-[13px]"
+                      placeholder="e.g. INV-2025-001234"
+                      value={item.taxInvoiceNumber}
+                      onChange={(e) => updateItem(item.id, { taxInvoiceNumber: e.target.value })}
+                    />
+                    {requiresTaxInvoice && !item.taxInvoiceNumber.trim() && (
+                      <p className="text-xs text-destructive">กรุณาระบุเลขที่ใบกำกับภาษี</p>
+                    )}
+                  </div>
+                )}
               </div>
 
               {/* VAT type changed — reason */}
@@ -275,7 +327,7 @@ export default function ExpenseLineItems({
                     onChange={(e) => updateItem(item.id, { vatChangeReason: e.target.value })}
                   />
                   {!item.vatChangeReason.trim() && (
-                    <p className="text-xs text-destructive">Please specify the reason for changing VAT Type</p>
+                    <p className="text-xs text-destructive">กรุณาระบุเหตุผลที่เปลี่ยน VAT Type</p>
                   )}
                 </div>
               )}
@@ -284,13 +336,13 @@ export default function ExpenseLineItems({
               {item.vatTypeId === "no_vat" && hasTaxInvoiceDoc && (
                 <div className="rounded-lg border border-amber-300 bg-amber-50 px-4 py-3">
                   <p className="text-[13px] text-amber-800 mb-2">
-                    You attached a Tax Invoice — would you like to change VAT Type to Claim 100?
+                    คุณแนบใบกำกับภาษี — ต้องการเปลี่ยน VAT Type เป็น Claim 100 หรือไม่?
                   </p>
                   <div className="flex gap-2">
                     <Button size="sm" variant="outline" className="text-xs border-blue-300 text-blue-700 hover:bg-blue-50" onClick={() => handleSwitchToClaim100(item.id)}>
-                      Change to Claim 100
+                      เปลี่ยนเป็น Claim 100
                     </Button>
-                    <Button size="sm" variant="ghost" className="text-xs">Keep No VAT</Button>
+                    <Button size="sm" variant="ghost" className="text-xs">คงไว้ No VAT</Button>
                   </div>
                 </div>
               )}
@@ -298,7 +350,32 @@ export default function ExpenseLineItems({
           );
         })}
 
+        {/* VAT doc warning */}
+        {showVatDocWarning && (
+          <div className="rounded-lg border border-amber-300 bg-amber-50 px-4 py-3 flex items-center gap-2">
+            <AlertTriangle className="h-4 w-4 text-amber-600 shrink-0" />
+            <p className="text-[13px] text-amber-800">⚠️ VAT Type นี้ต้องแนบใบกำกับภาษี</p>
+          </div>
+        )}
 
+        {/* Summary */}
+        <div className="rounded-lg border border-border bg-muted/30 p-4">
+          <p className="text-[13px] font-semibold text-foreground mb-3">Summary</p>
+          <div className="grid grid-cols-2 gap-y-2 text-[13px]">
+            <span className="text-muted-foreground">Total Gross:</span>
+            <span className="text-right font-medium">{fmt(totalGross)} THB</span>
+            <span className="text-muted-foreground">Total Net:</span>
+            <span className="text-right font-medium">{fmt(totalNet)} THB</span>
+            <span className="text-muted-foreground">Total VAT:</span>
+            <span className="text-right font-medium">{fmt(totalVat)} THB</span>
+            {glCode && (
+              <>
+                <span className="text-muted-foreground">GL Code:</span>
+                <span className="text-right font-medium">{glCode}</span>
+              </>
+            )}
+          </div>
+        </div>
       </CardContent>
     </Card>
   );

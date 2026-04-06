@@ -2,8 +2,6 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 import { CreditCard } from "lucide-react";
-import { mockCorpCardTransactions } from "@/lib/unified-expenses";
-
 interface Props {
   open: boolean;
   onClose: () => void;
@@ -11,7 +9,7 @@ interface Props {
 }
 
 export default function SelectTransactionModal({ open, onClose, onSelect }: Props) {
-  const pending = mockCorpCardTransactions.filter((t) => t.status === "Pending Submit");
+  const pending: never[] = [];
 
   return (
     <Dialog open={open} onOpenChange={(v) => !v && onClose()}>
@@ -38,7 +36,7 @@ export default function SelectTransactionModal({ open, onClose, onSelect }: Prop
                 pending.map((t) => (
                   <TableRow key={t.id}>
                     <TableCell className="font-medium text-sm">{t.id}</TableCell>
-                    <TableCell className="text-sm">{t.txn_date}</TableCell>
+                    <TableCell className="text-sm">{t.transaction_date}</TableCell>
                     <TableCell className="text-sm">{t.merchant_name}</TableCell>
                     <TableCell className="text-sm">xxxx-{t.card_last4}</TableCell>
                     <TableCell className="text-right text-sm font-medium">฿{t.amount.toLocaleString()}</TableCell>

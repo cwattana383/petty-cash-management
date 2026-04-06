@@ -68,7 +68,7 @@ export default function DocumentPreviewPanel({ docName, totalPages = 1 }: Props)
           <FileText className="h-16 w-16 mx-auto mb-4 opacity-30" />
           <p className="text-sm font-medium">{docName}</p>
           {totalPages > 1 && <p className="text-xs mt-1">Page {currentPage} of {totalPages}</p>}
-          <p className="text-xs mt-1">Document will be displayed here when connected to the backend</p>
+          <p className="text-xs mt-1">Document will be displayed here once connected to the backend</p>
         </div>
       </div>
     </div>

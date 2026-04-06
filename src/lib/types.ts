@@ -1,25 +1,41 @@
-export type ClaimStatus = "Pending Invoice" | "Pending Approval" | "Final Rejected" | "Auto Reject" | "Reject" | "Final Reject" | "Auto Approved" | "Manager Approved" | "Reimbursed" | "Request for Info";
+export type ClaimStatus =
+  | "Pending Invoice"
+  | "Pending Documents"
+  | "Pending Approval"
+  | "Final Rejected"
+  | "Auto Reject"
+  | "Reject"
+  | "Final Reject"
+  | "Auto Approved"
+  | "Manager Approved"
+  | "Reimbursed"
+  | "Returned For Info"
+  | "Pending Salary Deduction";
+
+export type ClaimDisplayStatus =
+  | "NOT_STARTED"
+  | "AUTO_REJECTED"
+  | "AUTO_APPROVED"
+  | "PENDING_DOCUMENTS"
+  | "READY_FOR_APPROVAL"
+  | "PENDING_APPROVAL"
+  | "MANAGER_APPROVED"
+  | "MANAGER_REJECTED";
 export type PaymentMethod = "Cash" | "Corporate Card" | "Personal Card" | "Bank Transfer";
 export type ExpenseType = "Travel" | "Meals" | "Office Supplies" | "Transportation" | "Training" | "Entertainment" | "Communication" | "Other";
 export type ReconcileStatus = "Unmatched" | "Matched" | "Partially Matched" | "Exception";
 export type AccountingStatus = "Pending Review" | "Exception" | "Ready for ERP" | "Interfaced";
-export type DocumentStatus = "Not Required" | "Pending Documents" | "Validated";
-export type UserRole = "Employee" | "Manager" | "Accounting" | "Admin";
-
 export interface User {
   id: string;
   employeeCode: string;
   name: string;
   email: string;
-  role: UserRole;
+  roles: string[];
   branch: string;
   department: string;
   costCenter: string;
   position: string;
-  managerId: string | null;
-  managerName: string | null;
   telephone?: string;
-  avatar?: string;
 }
 
 export interface ClaimLine {
@@ -46,8 +62,23 @@ export interface ApprovalStep {
   actionDate: string | null;
 }
 
+/** Snapshot from `bank_transactions` when API includes `bankTransaction` on claim detail/list. */
+export interface ClaimLinkedBankTransaction {
+  transactionId: string;
+  transactionDate: string;
+  merchantName: string;
+  billingAmount: number;
+  billingCurrency: string;
+  mccDescription: string;
+}
+
 export interface ClaimHeader {
   id: string;
+  bankTransactionId?: string;
+  /** Linked bank row for read-only Card Transaction section (same source as Bank Transactions page). */
+  linkedBankTransaction?: ClaimLinkedBankTransaction;
+  corpTxnStatus?: string;
+  corpTxnDocumentStatus?: string;
   claimNo: string;
   requesterId: string;
   requesterName: string;
@@ -56,15 +87,36 @@ export interface ClaimHeader {
   department: string;
   costCenter: string;
   purpose: string;
+  /** Saved draft / business info (Section 2) -- admin master-data IDs */
+  expenseTypeId?: string;
+  subExpenseTypeId?: string;
+  vatTypeId?: string;
+  glAccountId?: string;
   merchantName?: string;
   currency: string;
   paymentMethod: PaymentMethod;
   totalAmount: number;
   totalVat: number;
   status: ClaimStatus;
+  statusCode?: string;
+  statusDisplay?: ClaimDisplayStatus;
+  statusColor?: "green" | "red" | "amber" | "grey";
+  statusMeta?: {
+    submittedBy?: string;
+    submittedDate?: string;
+    approverName?: string;
+    approvalDate?: string;
+    rejectedBy?: string;
+    rejectedReason?: string;
+    actionRequiredComment?: string;
+    autoApprovalRule?: string;
+    deductionPayPeriod?: string;
+    deductionInstallment?: number;
+    deductionFallbackMessage?: string;
+  };
+  readOnly?: boolean;
   accountingStatus?: AccountingStatus;
   accountCode?: string;
-  documentStatus?: DocumentStatus;
   createdDate: string;
   submittedDate: string | null;
   lines: ClaimLine[];

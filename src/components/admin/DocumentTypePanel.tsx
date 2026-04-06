@@ -1,195 +1,527 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { Card, CardContent } from "@/components/ui/card";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Badge } from "@/components/ui/badge";
 import {
-  Table, TableBody, TableCell, TableHead, TableHeader, TableRow,
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
 } from "@/components/ui/table";
 import {
-  Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter,
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+  DialogDescription,
 } from "@/components/ui/dialog";
 import {
-  Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
 } from "@/components/ui/select";
-import { Plus, Search, Pencil, Trash2, ChevronLeft, ChevronRight, RotateCcw } from "lucide-react";
-import { toast } from "sonner";
+import {
+  Plus,
+  Search,
+  Pencil,
+  Trash2,
+  ChevronLeft,
+  ChevronRight,
+  Loader2,
+  RotateCcw,
+  Upload,
+  Download,
+} from "lucide-react";
+import { Checkbox } from "@/components/ui/checkbox";
+import { toast } from "@/hooks/use-toast";
+import {
+  useDocumentTypes,
+  useCreateDocumentType,
+  useUpdateDocumentType,
+  useDeleteDocumentType,
+  useImportDocumentTypes,
+  useAllDocumentTypesForImport,
+  useBulkDocumentTypeAction,
+  DocumentTypeRow,
+} from "@/hooks/use-document-types";
+import { useBulkSelection } from "@/hooks/use-bulk-selection";
+import BulkActionBar from "@/components/common/BulkActionBar";
+import BulkConfirmDialog from "@/components/common/BulkConfirmDialog";
 
-interface DocumentType {
-  id: string;
-  documentName: string;
-  isSupportDocument: boolean;
-  ocrVerification: boolean;
-  active: boolean;
-}
-
-let nextId = 5;
-
-const initialData: DocumentType[] = [
-  { id: "1", documentName: "Tax Invoice", isSupportDocument: false, ocrVerification: true, active: true },
-  { id: "2", documentName: "Receipt", isSupportDocument: false, ocrVerification: true, active: true },
-  { id: "3", documentName: "Boarding Pass", isSupportDocument: true, ocrVerification: false, active: true },
-  { id: "4", documentName: "Hotel Folio", isSupportDocument: true, ocrVerification: false, active: true },
-];
+const PAGE_SIZE = 10;
 
 export default function DocumentTypePanel() {
-  const [data, setData] = useState<DocumentType[]>(initialData);
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
   const [page, setPage] = useState(1);
-  const pageSize = 10;
-
   const [modalOpen, setModalOpen] = useState(false);
-  const [editingRow, setEditingRow] = useState<DocumentType | null>(null);
+  const [editingRow, setEditingRow] = useState<DocumentTypeRow | null>(null);
+  // Form state
   const [formName, setFormName] = useState("");
-  const [formIsSupport, setFormIsSupport] = useState(false);
-  const [formOcr, setFormOcr] = useState(false);
+  const [formIsSupportDocument, setFormIsSupportDocument] = useState(false);
+  const [formOcrVerification, setFormOcrVerification] = useState(false);
   const [formActive, setFormActive] = useState(true);
 
-  const filtered = (() => {
-    let list = data;
-    if (search) {
-      const q = search.toLowerCase();
-      list = list.filter((d) => d.documentName.toLowerCase().includes(q));
-    }
-    if (statusFilter === "active") list = list.filter((d) => d.active);
-    if (statusFilter === "inactive") list = list.filter((d) => !d.active);
-    return list;
-  })();
+  // CSV Import state
+  const [importOpen, setImportOpen] = useState(false);
+  const [csvPreview, setCsvPreview] = useState<
+    { documentName: string; isSupportDocument: boolean; ocrVerification: boolean; active: boolean }[]
+  >([]);
+  const [csvDuplicates, setCsvDuplicates] = useState<Map<number, string>>(new Map());
+  const fileRef = useRef<HTMLInputElement>(null);
 
-  const totalPages = Math.max(1, Math.ceil(filtered.length / pageSize));
-  const pageData = filtered.slice((page - 1) * pageSize, page * pageSize);
+  const { data: result, isLoading } = useDocumentTypes({
+    search: search || undefined,
+    active: statusFilter !== "all" ? (statusFilter === "active" ? "true" : "false") : undefined,
+    page,
+    limit: PAGE_SIZE,
+  });
 
-  const openAdd = () => {
-    setEditingRow(null);
-    setFormName("");
-    setFormIsSupport(false);
-    setFormOcr(false);
-    setFormActive(true);
-    setModalOpen(true);
+  const items = result?.data ?? [];
+  const meta = result?.meta ?? { total: 0, page: 1, limit: PAGE_SIZE, totalPages: 1 };
+
+  const createMutation = useCreateDocumentType();
+  const updateMutation = useUpdateDocumentType();
+  const deleteMutation = useDeleteDocumentType();
+  const importMutation = useImportDocumentTypes();
+  const { data: allDocumentTypes } = useAllDocumentTypesForImport({ enabled: importOpen });
+  const bulkMutation = useBulkDocumentTypeAction();
+  const bulk = useBulkSelection({ items, totalCount: meta.total });
+  const [confirmAction, setConfirmAction] = useState<"delete" | "activate" | "deactivate" | null>(null);
+
+  const executeBulkAction = () => {
+    if (!confirmAction) return;
+    const payload = bulk.selectAllPages
+      ? { action: confirmAction, selectAll: true, filters: { ...(search ? { search } : {}), ...(statusFilter !== "all" ? { active: statusFilter === "active" ? "true" : "false" } : {}) } }
+      : { action: confirmAction, ids: [...bulk.selectedIds] };
+    bulkMutation.mutate(payload, {
+      onSuccess: (res: unknown) => {
+        const { affected } = res as { affected: number };
+        toast({ title: "Success", description: `${affected} document type(s) ${confirmAction === "delete" ? "deleted" : confirmAction === "activate" ? "activated" : "deactivated"}.` });
+        bulk.clearSelection();
+        setConfirmAction(null);
+      },
+      onError: (err: unknown) => {
+        toast({ title: "Error", description: err instanceof Error ? err.message : "Bulk action failed.", variant: "destructive" });
+        setConfirmAction(null);
+      },
+    });
   };
 
-  const openEdit = (row: DocumentType) => {
+  function openEdit(row: DocumentTypeRow) {
     setEditingRow(row);
     setFormName(row.documentName);
-    setFormIsSupport(row.isSupportDocument);
-    setFormOcr(row.ocrVerification);
+    setFormIsSupportDocument(row.isSupportDocument);
+    setFormOcrVerification(row.ocrVerification);
     setFormActive(row.active);
     setModalOpen(true);
-  };
+  }
 
-  const handleSave = () => {
+  function handleDelete(id: string) {
+    deleteMutation.mutate(id, {
+      onSuccess: () => toast({ title: "Deleted", description: "Document type removed." }),
+      onError: (err: unknown) =>
+        toast({
+          title: "Error",
+          description: err instanceof Error ? err.message : "Failed to delete document type.",
+          variant: "destructive",
+        }),
+    });
+  }
+
+  function openAdd() {
+    setEditingRow(null);
+    setFormName("");
+    setFormIsSupportDocument(false);
+    setFormOcrVerification(false);
+    setFormActive(true);
+    setModalOpen(true);
+  }
+
+  function handleSave() {
     if (!formName.trim()) {
-      toast.error("Document Name is required.");
+      toast({ title: "Validation Error", description: "Document name is required.", variant: "destructive" });
       return;
     }
+
     if (editingRow) {
-      setData((prev) =>
-        prev.map((d) =>
-          d.id === editingRow.id
-            ? { ...d, documentName: formName.trim(), isSupportDocument: formIsSupport, ocrVerification: formIsSupport ? false : formOcr, active: formActive }
-            : d
-        )
-      );
-      toast.success("Document type updated successfully.");
-    } else {
-      setData((prev) => [
-        ...prev,
+      updateMutation.mutate(
         {
-          id: String(nextId++),
+          id: editingRow.id,
+          data: {
+            documentName: formName.trim(),
+            isSupportDocument: formIsSupportDocument,
+            ocrVerification: formOcrVerification,
+            active: formActive,
+          },
+        },
+        {
+          onSuccess: () => {
+            toast({ title: "Updated", description: "Document type updated successfully." });
+            setModalOpen(false);
+          },
+          onError: (err: unknown) => {
+            const message = err instanceof Error ? err.message : "Failed to update document type.";
+            toast({
+              title: "Error",
+              description: message,
+              variant: "destructive",
+            });
+          },
+        },
+      );
+    } else {
+      createMutation.mutate(
+        {
           documentName: formName.trim(),
-          isSupportDocument: formIsSupport,
-          ocrVerification: formIsSupport ? false : formOcr,
+          isSupportDocument: formIsSupportDocument,
+          ocrVerification: formOcrVerification,
           active: formActive,
         },
-      ]);
-      toast.success("Document type added successfully.");
+        {
+          onSuccess: () => {
+            toast({ title: "Created", description: "Document type created successfully." });
+            setModalOpen(false);
+          },
+          onError: (err: unknown) => {
+            const message = err instanceof Error ? err.message : "Failed to create document type.";
+            toast({
+              title: "Error",
+              description: message,
+              variant: "destructive",
+            });
+          },
+        },
+      );
     }
-    setModalOpen(false);
+  }
+
+  function handleInlineActiveToggle(row: DocumentTypeRow) {
+    updateMutation.mutate(
+      { id: row.id, data: { active: !row.active } },
+      {
+        onSuccess: () => {
+          toast({ title: "Updated", description: `${row.documentName} ${!row.active ? "activated" : "deactivated"}.` });
+        },
+        onError: (err: unknown) => {
+          const message = err instanceof Error ? err.message : "Failed to toggle active status.";
+          toast({
+            title: "Error",
+            description: message,
+            variant: "destructive",
+          });
+        },
+      },
+    );
+  }
+
+  function handleSupportDocumentToggle(checked: boolean) {
+    setFormIsSupportDocument(checked);
+    if (checked) {
+      setFormOcrVerification(false);
+    }
+  }
+
+  // ── CSV Import helpers ──
+
+  const checkCsvDuplicates = (rows: { documentName: string }[]) => {
+    const dupes = new Map<number, string>();
+    const seen = new Set<string>();
+    const existingSet = new Set(
+      (allDocumentTypes ?? []).map((d) => d.documentName.toLowerCase()),
+    );
+    rows.forEach((r, i) => {
+      const key = r.documentName.toLowerCase();
+      if (seen.has(key)) {
+        dupes.set(i, "Duplicate name in CSV");
+      } else if (existingSet.has(key)) {
+        dupes.set(i, "Document type already exists");
+      }
+      seen.add(key);
+    });
+    return dupes;
   };
 
-  const handleDelete = (id: string) => {
-    setData((prev) => prev.filter((d) => d.id !== id));
-    toast.success("Document type removed.");
+  const removeCsvRow = (index: number) => {
+    const updated = csvPreview.filter((_, i) => i !== index);
+    setCsvPreview(updated);
+    setCsvDuplicates(checkCsvDuplicates(updated));
   };
 
-  const handleToggle = (id: string, checked: boolean) => {
-    setData((prev) => prev.map((d) => (d.id === id ? { ...d, active: checked } : d)));
+  const triggerCsvDownload = (content: string, filename: string) => {
+    const blob = new Blob([content], { type: "text/csv;charset=utf-8" });
+    const url = URL.createObjectURL(blob);
+    try {
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = filename;
+      a.click();
+    } finally {
+      URL.revokeObjectURL(url);
+    }
   };
+
+  const downloadTemplate = () => {
+    triggerCsvDownload("\uFEFFdocument_name,type,OCR_Verification,active\n", "document_type_template.csv");
+  };
+
+  const downloadSample = () => {
+    triggerCsvDownload(
+      "\uFEFFdocument_name,type,OCR_Verification,active\nTax Invoice,Primary,Enabled,Yes\n\u0e43\u0e1a\u0e40\u0e2a\u0e23\u0e47\u0e08\u0e23\u0e31\u0e1a\u0e40\u0e07\u0e34\u0e19 (Receipt),Support,Disabled,Yes\nBank Statement,Support,Disabled,Yes\n",
+      "document_type_sample.csv",
+    );
+  };
+
+  const handleCsvFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    if (!file.name.toLowerCase().endsWith(".csv")) {
+      toast({ title: "Invalid file", description: "Please select a .csv file.", variant: "destructive" });
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = (ev) => {
+      const buffer = ev.target?.result as ArrayBuffer;
+      let text = new TextDecoder("utf-8").decode(buffer);
+      if (text.includes("\uFFFD")) {
+        text = new TextDecoder("windows-874").decode(buffer);
+      }
+      text = text.replace(/^\uFEFF/, "");
+
+      const lines = text.split(/\r?\n/).filter((l) => l.trim());
+      if (lines.length < 2) {
+        toast({ title: "Empty CSV", description: "CSV file has no data rows.", variant: "destructive" });
+        return;
+      }
+
+      // Auto-detect delimiter: tab or comma
+      const delimiter = lines[0].includes("\t") ? "\t" : ",";
+
+      const headers = lines[0].split(delimiter).map((h) => h.trim().toLowerCase().replace(/^"|"$/g, ""));
+      const required = ["document_name", "type", "ocr_verification", "active"];
+      const missing = required.filter((r) => !headers.includes(r));
+      if (missing.length > 0) {
+        toast({
+          title: "Invalid CSV columns",
+          description: `Missing required columns: ${missing.join(", ")}. CSV must contain: ${required.join(", ")}`,
+          variant: "destructive",
+        });
+        return;
+      }
+
+      const nameIdx = headers.indexOf("document_name");
+      const typeIdx = headers.indexOf("type");
+      const ocrIdx = headers.indexOf("ocr_verification");
+      const activeIdx = headers.indexOf("active");
+
+      const rows = lines
+        .slice(1)
+        .map((line) => {
+          const cols = line.split(delimiter).map((s) => s.trim().replace(/^"|"$/g, ""));
+          const documentName = cols[nameIdx] ?? "";
+          const typeVal = (cols[typeIdx] ?? "").toLowerCase();
+          const ocrVal = (cols[ocrIdx] ?? "").toLowerCase();
+          const activeVal = (cols[activeIdx] ?? "").toLowerCase();
+
+          const isSupportDocument = typeVal === "support";
+          const ocrVerification = isSupportDocument ? false : ocrVal === "enabled";
+          const active = activeVal === "true" || activeVal === "yes";
+
+          return { documentName, isSupportDocument, ocrVerification, active };
+        })
+        .filter((r) => r.documentName.trim() !== "");
+
+      if (rows.length === 0) {
+        toast({ title: "No valid rows", description: "CSV has no valid data rows.", variant: "destructive" });
+        return;
+      }
+
+      setCsvPreview(rows);
+      setCsvDuplicates(checkCsvDuplicates(rows));
+    };
+    reader.readAsArrayBuffer(file);
+  };
+
+  const confirmImport = () => {
+    const payload = csvPreview.map((r) => ({
+      documentName: r.documentName,
+      isSupportDocument: r.isSupportDocument,
+      ocrVerification: r.ocrVerification,
+      active: r.active,
+    }));
+    importMutation.mutate(payload, {
+      onSuccess: (res) => {
+        toast({
+          title: "Imported",
+          description: `${(res as { imported: number }).imported} document types imported.`,
+        });
+        setCsvPreview([]);
+        setCsvDuplicates(new Map());
+        setImportOpen(false);
+        if (fileRef.current) fileRef.current.value = "";
+      },
+      onError: (err: Error) =>
+        toast({
+          title: "Error",
+          description: err.message || "Failed to import document types.",
+          variant: "destructive",
+        }),
+    });
+  };
+
+  function resetFilters() {
+    setSearch("");
+    setStatusFilter("all");
+    setPage(1);
+  }
+
+  const isSaving = createMutation.isPending || updateMutation.isPending;
 
   return (
     <div className="space-y-4">
+      {/* Header */}
       <div className="flex items-center justify-between">
         <div>
           <h2 className="text-lg font-semibold">Documents</h2>
           <p className="text-sm text-muted-foreground">Manage document types for expense claims.</p>
         </div>
-        <Button size="sm" onClick={openAdd}>
-          <Plus className="h-4 w-4 mr-2" />Add Document Type
-        </Button>
-      </div>
-
-      <div className="flex items-center gap-3">
-        <div className="relative flex-1 max-w-sm">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-          <Input
-            value={search}
-            onChange={(e) => { setSearch(e.target.value); setPage(1); }}
-            placeholder="Search document type..."
-            className="pl-9"
-          />
-        </div>
-        <Select value={statusFilter} onValueChange={(v) => { setStatusFilter(v); setPage(1); }}>
-          <SelectTrigger className="w-36"><SelectValue /></SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">All</SelectItem>
-            <SelectItem value="active">Active</SelectItem>
-            <SelectItem value="inactive">Inactive</SelectItem>
-          </SelectContent>
-        </Select>
-        {(search || statusFilter !== "all") && (
-          <Button size="sm" variant="ghost" onClick={() => { setSearch(""); setStatusFilter("all"); setPage(1); }}>
-            <RotateCcw className="mr-1 h-3.5 w-3.5" />Reset
+        <div className="flex items-center gap-2">
+          <Button size="sm" variant="outline" onClick={() => { setCsvPreview([]); setCsvDuplicates(new Map()); setImportOpen(true); }}>
+            <Upload className="h-4 w-4 mr-2" />Import CSV
           </Button>
-        )}
+          <Button size="sm" onClick={openAdd}>
+            <Plus className="h-4 w-4 mr-2" />Add Document Type
+          </Button>
+        </div>
       </div>
 
+      {/* Filters */}
+      <div className="pt-4 pb-4">
+          <div className="flex items-center gap-3">
+            <div className="relative flex-1 max-w-xs">
+              <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+              <Input
+                placeholder="Search document name..."
+                value={search}
+                onChange={(e) => { setSearch(e.target.value); setPage(1); }}
+                className="pl-9"
+              />
+            </div>
+            <Select value={statusFilter} onValueChange={(v) => { setStatusFilter(v); setPage(1); }}>
+              <SelectTrigger className="w-36">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Status</SelectItem>
+                <SelectItem value="active">Active</SelectItem>
+                <SelectItem value="inactive">Inactive</SelectItem>
+              </SelectContent>
+            </Select>
+            {(search || statusFilter !== "all") && (
+              <Button variant="ghost" size="sm" onClick={resetFilters}>
+                <RotateCcw className="h-4 w-4 mr-1" /> Reset
+              </Button>
+            )}
+          </div>
+      </div>
+
+      {/* Bulk Action Bar */}
+      {bulk.hasSelection && (
+        <BulkActionBar
+          selectedCount={bulk.selectionCount}
+          totalCount={meta.total}
+          selectAllPages={bulk.selectAllPages}
+          isAllOnPageSelected={bulk.isAllOnPageSelected}
+          onSelectAllPages={bulk.selectAllAcrossPages}
+          onDelete={() => setConfirmAction("delete")}
+          onActivate={() => setConfirmAction("activate")}
+          onDeactivate={() => setConfirmAction("deactivate")}
+          onClear={bulk.clearSelection}
+          isProcessing={bulkMutation.isPending}
+        />
+      )}
+
+      {/* Table */}
       <Card>
         <CardContent className="p-0">
           <Table>
             <TableHeader>
               <TableRow>
+                <TableHead className="w-10">
+                  <Checkbox
+                    checked={bulk.isAllOnPageSelected ? true : bulk.isIndeterminate ? "indeterminate" : false}
+                    onCheckedChange={bulk.toggleAllOnPage}
+                  />
+                </TableHead>
                 <TableHead>Document Name</TableHead>
-                <TableHead>Type</TableHead>
-                <TableHead>OCR Verification</TableHead>
-                <TableHead>Active</TableHead>
+                <TableHead className="text-center">Type</TableHead>
+                <TableHead className="text-center">OCR Verification</TableHead>
+                <TableHead className="text-center">Active</TableHead>
+                <TableHead className="text-center">Actions</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
-              {pageData.length === 0 ? (
+              {isLoading ? (
                 <TableRow>
-                  <TableCell colSpan={5} className="text-center text-muted-foreground py-8">
-                    No document types found
+                  <TableCell colSpan={7} className="text-center py-8 text-muted-foreground">
+                    <Loader2 className="h-5 w-5 animate-spin inline-block mr-2" /> Loading...
+                  </TableCell>
+                </TableRow>
+              ) : items.length === 0 ? (
+                <TableRow>
+                  <TableCell colSpan={7} className="text-center py-8 text-muted-foreground">
+                    No document types found.
                   </TableCell>
                 </TableRow>
               ) : (
-                pageData.map((row) => (
+                items.map((row) => (
                   <TableRow key={row.id}>
-                    <TableCell className="font-medium">{row.documentName}</TableCell>
                     <TableCell>
-                      <Badge variant={row.isSupportDocument ? "secondary" : "outline"}>
+                      <Checkbox
+                        checked={bulk.selectAllPages || bulk.selectedIds.has(row.id)}
+                        onCheckedChange={() => bulk.toggleOne(row.id)}
+                      />
+                    </TableCell>
+                    <TableCell className="font-medium">{row.documentName}</TableCell>
+                    <TableCell className="text-center">
+                      <Badge className={row.isSupportDocument
+                        ? "bg-green-100 text-green-700 hover:bg-green-100"
+                        : "bg-slate-100 text-slate-600 hover:bg-slate-100"}>
                         {row.isSupportDocument ? "Support" : "Primary"}
                       </Badge>
                     </TableCell>
-                    <TableCell>
-                      <Badge className={row.ocrVerification ? "bg-green-100 text-green-800" : "bg-gray-100 text-gray-600"}>
+                    <TableCell className="text-center">
+                      <Badge className={row.ocrVerification
+                        ? "bg-emerald-100 text-emerald-700 hover:bg-emerald-100"
+                        : "bg-gray-100 text-gray-500 hover:bg-gray-100"}>
                         {row.ocrVerification ? "Enabled" : "Disabled"}
                       </Badge>
                     </TableCell>
-                    <TableCell>
-                      <Switch checked={row.active} onCheckedChange={(checked) => handleToggle(row.id, checked)} />
+                    <TableCell className="text-center">
+                      <Switch
+                        checked={row.active}
+                        onCheckedChange={() => handleInlineActiveToggle(row)}
+                      />
+                    </TableCell>
+                    <TableCell className="text-center">
+                      <div className="flex items-center justify-center gap-1">
+                        <Button variant="ghost" size="sm" onClick={() => openEdit(row)}>
+                          <Pencil className="h-4 w-4 text-muted-foreground" />
+                        </Button>
+                        <Button variant="ghost" size="sm" onClick={() => handleDelete(row.id)}>
+                          <Trash2 className="h-4 w-4 text-destructive" />
+                        </Button>
+                      </div>
                     </TableCell>
                   </TableRow>
                 ))
@@ -199,61 +531,241 @@ export default function DocumentTypePanel() {
         </CardContent>
       </Card>
 
-      {totalPages > 1 && (
-        <div className="flex items-center justify-between text-sm">
-          <span className="text-muted-foreground">
-            Showing {(page - 1) * pageSize + 1}-{Math.min(page * pageSize, filtered.length)} of {filtered.length}
+      {/* Pagination */}
+      {meta.totalPages > 1 && (
+        <div className="flex items-center justify-between text-sm text-muted-foreground">
+          <span>
+            Page {meta.page} of {meta.totalPages} ({meta.total} total)
           </span>
-          <div className="flex items-center gap-2">
-            <Button size="sm" variant="outline" disabled={page === 1} onClick={() => setPage(page - 1)}>
-              <ChevronLeft className="h-4 w-4 mr-1" />Previous
+          <div className="flex gap-2">
+            <Button
+              variant="outline"
+              size="sm"
+              disabled={meta.page <= 1}
+              onClick={() => setPage((p) => p - 1)}
+            >
+              <ChevronLeft className="h-4 w-4 mr-1" /> Previous
             </Button>
-            <span className="text-muted-foreground">Page {page} of {totalPages}</span>
-            <Button size="sm" variant="outline" disabled={page === totalPages} onClick={() => setPage(page + 1)}>
-              Next<ChevronRight className="h-4 w-4 ml-1" />
+            <Button
+              variant="outline"
+              size="sm"
+              disabled={meta.page >= meta.totalPages}
+              onClick={() => setPage((p) => p + 1)}
+            >
+              Next <ChevronRight className="h-4 w-4 ml-1" />
             </Button>
           </div>
         </div>
       )}
 
+      {/* Add/Edit Dialog */}
       <Dialog open={modalOpen} onOpenChange={setModalOpen}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
             <DialogTitle>{editingRow ? "Edit Document Type" : "Add Document Type"}</DialogTitle>
+            <DialogDescription>
+              {editingRow ? "Update the document type configuration." : "Create a new document type."}
+            </DialogDescription>
           </DialogHeader>
-          <div className="space-y-4">
+
+          <div className="space-y-4 py-2">
             <div className="space-y-2">
-              <Label>Document Name <span className="text-destructive">*</span></Label>
-              <Input value={formName} onChange={(e) => setFormName(e.target.value)} placeholder="e.g. Tax Invoice" />
-            </div>
-            <div className="flex items-center justify-between">
-              <Label>Is Support Document</Label>
-              <Switch
-                checked={formIsSupport}
-                onCheckedChange={(v) => {
-                  setFormIsSupport(v);
-                  if (v) setFormOcr(false);
-                }}
+              <Label htmlFor="doc-name">Document Name *</Label>
+              <Input
+                id="doc-name"
+                value={formName}
+                onChange={(e) => setFormName(e.target.value)}
+                placeholder="e.g. Tax Invoice"
               />
             </div>
+
             <div className="flex items-center justify-between">
-              <div>
-                <Label>OCR Verification</Label>
-                {formIsSupport && <p className="text-xs text-muted-foreground">Disabled for support documents</p>}
-              </div>
-              <Switch checked={formOcr} onCheckedChange={setFormOcr} disabled={formIsSupport} />
+              <Label htmlFor="is-support-doc">Is Support Document</Label>
+              <Switch
+                id="is-support-doc"
+                checked={formIsSupportDocument}
+                onCheckedChange={handleSupportDocumentToggle}
+              />
             </div>
+
             <div className="flex items-center justify-between">
-              <Label>Active</Label>
-              <Switch checked={formActive} onCheckedChange={setFormActive} />
+              <Label htmlFor="ocr-verification" className={formIsSupportDocument ? "text-muted-foreground" : ""}>
+                OCR Verification
+              </Label>
+              <Switch
+                id="ocr-verification"
+                checked={formOcrVerification}
+                onCheckedChange={setFormOcrVerification}
+                disabled={formIsSupportDocument}
+              />
+            </div>
+
+            <div className="flex items-center justify-between">
+              <Label htmlFor="active">Active</Label>
+              <Switch
+                id="active"
+                checked={formActive}
+                onCheckedChange={setFormActive}
+              />
             </div>
           </div>
+
           <DialogFooter>
-            <Button variant="outline" onClick={() => setModalOpen(false)}>Cancel</Button>
-            <Button onClick={handleSave}>Save</Button>
+            <Button variant="outline" onClick={() => setModalOpen(false)}>
+              Cancel
+            </Button>
+            <Button onClick={handleSave} disabled={isSaving}>
+              {isSaving && <Loader2 className="h-4 w-4 mr-1 animate-spin" />}
+              {editingRow ? "Save Changes" : "Create"}
+            </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      {/* CSV Import Dialog */}
+      <Dialog open={importOpen} onOpenChange={(open) => {
+        if (!open) { setCsvPreview([]); setCsvDuplicates(new Map()); if (fileRef.current) fileRef.current.value = ""; }
+        setImportOpen(open);
+      }}>
+        <DialogContent className="sm:max-w-2xl max-h-[80vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Import Document Types from CSV</DialogTitle>
+            <DialogDescription>
+              Upload a CSV file with document types. Download the template for the correct format.
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="space-y-4 py-2">
+            <div className="flex items-center gap-2">
+              <Button variant="outline" size="sm" onClick={downloadTemplate}>
+                <Download className="h-4 w-4 mr-2" />Download Template
+              </Button>
+              <Button variant="outline" size="sm" onClick={downloadSample}>
+                <Download className="h-4 w-4 mr-2" />Download Sample CSV
+              </Button>
+            </div>
+
+            {/* Upload area */}
+            <label
+              htmlFor="doctype-csv-upload"
+              className="flex flex-col items-center justify-center border-2 border-dashed rounded-lg p-6 cursor-pointer hover:border-primary/50 transition-colors"
+            >
+              <Upload className="h-8 w-8 text-muted-foreground mb-2" />
+              <span className="text-sm text-muted-foreground">
+                Click to select or drag & drop a .csv file
+              </span>
+              <input
+                ref={fileRef}
+                id="doctype-csv-upload"
+                type="file"
+                accept=".csv"
+                className="hidden"
+                onChange={handleCsvFileChange}
+              />
+            </label>
+
+            {/* Preview table */}
+            {csvPreview.length > 0 && (
+              <div className="space-y-2">
+                <div className="flex items-center justify-between">
+                  <p className="text-sm font-medium">
+                    {csvPreview.length} row(s) parsed
+                    {csvDuplicates.size > 0 && (
+                      <span className="text-destructive ml-2">
+                        ({csvDuplicates.size} issue{csvDuplicates.size > 1 ? "s" : ""} found)
+                      </span>
+                    )}
+                  </p>
+                </div>
+                <div className="border rounded-md overflow-auto max-h-64">
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead>Document Name</TableHead>
+                        <TableHead className="text-center">Type</TableHead>
+                        <TableHead className="text-center">OCR Verification</TableHead>
+                        <TableHead className="text-center">Active</TableHead>
+                        <TableHead className="text-center">Status</TableHead>
+                        <TableHead className="text-center">Action</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {csvPreview.map((r, i) => (
+                        <TableRow key={i} className={csvDuplicates.has(i) ? "bg-destructive/5" : ""}>
+                          <TableCell className="text-sm">{r.documentName}</TableCell>
+                          <TableCell className="text-center">
+                            <Badge className={r.isSupportDocument
+                              ? "bg-green-100 text-green-700 hover:bg-green-100"
+                              : "bg-slate-100 text-slate-600 hover:bg-slate-100"}>
+                              {r.isSupportDocument ? "Support" : "Primary"}
+                            </Badge>
+                          </TableCell>
+                          <TableCell className="text-center">
+                            <Badge className={r.ocrVerification
+                              ? "bg-emerald-100 text-emerald-700 hover:bg-emerald-100"
+                              : "bg-gray-100 text-gray-500 hover:bg-gray-100"}>
+                              {r.ocrVerification ? "Enabled" : "Disabled"}
+                            </Badge>
+                          </TableCell>
+                          <TableCell className="text-center text-sm">
+                            {r.active ? "Yes" : "No"}
+                          </TableCell>
+                          <TableCell className="text-center">
+                            {csvDuplicates.has(i) ? (
+                              <Tooltip delayDuration={0}>
+                                <TooltipTrigger>
+                                  <span><Badge variant="destructive" className="text-xs cursor-help">Error</Badge></span>
+                                </TooltipTrigger>
+                                <TooltipContent side="left" className="max-w-xs text-sm font-normal">
+                                  {csvDuplicates.get(i)}
+                                </TooltipContent>
+                              </Tooltip>
+                            ) : (
+                              <Badge variant="outline" className="text-xs text-green-600 border-green-600">
+                                OK
+                              </Badge>
+                            )}
+                          </TableCell>
+                          <TableCell className="text-center">
+                            <Button variant="ghost" size="sm" onClick={() => removeCsvRow(i)}>
+                              <Trash2 className="h-4 w-4 text-destructive" />
+                            </Button>
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                </div>
+              </div>
+            )}
+          </div>
+
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setImportOpen(false)}>
+              Cancel
+            </Button>
+            <Button
+              onClick={confirmImport}
+              disabled={csvPreview.length === 0 || csvDuplicates.size > 0 || importMutation.isPending}
+            >
+              {importMutation.isPending && <Loader2 className="h-4 w-4 mr-1 animate-spin" />}
+              Confirm Import
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Bulk Confirm Dialog */}
+      <BulkConfirmDialog
+        open={!!confirmAction}
+        action={confirmAction}
+        count={bulk.selectionCount}
+        resourceName="document type(s)"
+        onConfirm={executeBulkAction}
+        onCancel={() => setConfirmAction(null)}
+        isProcessing={bulkMutation.isPending}
+      />
+
     </div>
   );
 }
