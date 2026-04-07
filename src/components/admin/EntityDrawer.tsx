@@ -112,7 +112,7 @@ export default function EntityDrawer({ open, onOpenChange, entity, mode: initial
   const addTaxId = () => {
     setForm((prev) => ({
       ...prev,
-      taxIds: [...prev.taxIds, { id: crypto.randomUUID(), taxId: "", branchType: "Head Office", branchNo: "", isPrimary: false }],
+      taxIds: [...prev.taxIds, { id: crypto.randomUUID(), taxId: "", branchType: "สำนักงานใหญ่" as const, branchNo: "", isPrimary: false }],
     }));
   };
 
