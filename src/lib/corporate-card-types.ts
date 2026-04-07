@@ -94,7 +94,7 @@ export interface MccPolicyQueryParams {
 }
 
 export interface MccPolicyMaster {
-  id?: string;
+  id: string;
   mcc_code: string | null;
   description: string;
   mcc_code_description: string | null;
