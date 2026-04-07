@@ -990,7 +990,7 @@ export const apiClient = {
     return !!localStorage.getItem('mock_auth_user_id');
   },
 
-  async get(path: string) {
+  async get(path: string): Promise<any> {
     return handleGet(path);
   },
 
