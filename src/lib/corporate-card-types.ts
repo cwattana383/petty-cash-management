@@ -94,19 +94,22 @@ export interface MccPolicyQueryParams {
 }
 
 export interface MccPolicyMaster {
-  id: string;
+  id?: string;
   mcc_code: string | null;
   description: string;
   mcc_code_description: string | null;
-  policy_category: string;
+  policy_category?: string;
+  category?: string;
+  mcc_code_ref?: string;
+  description_subtype?: string;
   policy_type: PolicyType;
   threshold_amount: number | null;
   currency: string;
   active_flag: boolean;
-  expense_type_id: string | null;
-  sub_expense_type_id: string | null;
-  expense_type_name: string | null;
-  sub_expense_type_name: string | null;
-  created_at: string;
-  updated_at: string;
+  expense_type_id?: string | null;
+  sub_expense_type_id?: string | null;
+  expense_type_name?: string | null;
+  sub_expense_type_name?: string | null;
+  created_at?: string;
+  updated_at?: string;
 }

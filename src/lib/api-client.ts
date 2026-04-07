@@ -247,7 +247,7 @@ function matchSearch<T extends Record<string, unknown>>(items: T[], search: stri
 
 // ─── Route handlers ───
 
-async function handleGet(path: string): Promise<unknown> {
+async function handleGet(path: string): Promise<any> {
   await delay();
   const base = basePath(path);
   const qs = parseQs(path);
