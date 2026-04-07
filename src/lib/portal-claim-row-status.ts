@@ -253,7 +253,7 @@ export function approvalStatusDisplayText(
     txnStatus === "ERP_FAILED" ||
     (claim?.status === "Auto Approved" &&
       (claim?.accountingStatus === "Ready for ERP" || claim?.accountingStatus === "Interfaced")) ||
-    (claim?.accountingStatus === "Interfaced" && claim?.status !== "Manager Approved")
+    (claim?.accountingStatus === "Interfaced" && (claim?.status as string) !== "Manager Approved")
   ) {
     return "Accounting Review";
   }

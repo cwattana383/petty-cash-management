@@ -112,7 +112,7 @@ export default function EntityDrawer({ open, onOpenChange, entity, mode: initial
   const addTaxId = () => {
     setForm((prev) => ({
       ...prev,
-      taxIds: [...prev.taxIds, { id: crypto.randomUUID(), taxId: "", branchType: "Head Office", branchNo: "", isPrimary: false }],
+      taxIds: [...prev.taxIds, { id: crypto.randomUUID(), taxId: "", branchType: "สำนักงานใหญ่" as const, branchNo: "", isPrimary: false }],
     }));
   };
 
@@ -334,7 +334,7 @@ export default function EntityDrawer({ open, onOpenChange, entity, mode: initial
                         <Input
                           value={t.branchNo}
                           onChange={(e) => updateTaxId(t.id, "branchNo", e.target.value.replace(/\D/g, ""))}
-                          disabled={isReadOnly || t.branchType === "Head Office"}
+                          disabled={isReadOnly || t.branchType === "สำนักงานใหญ่"}
                           placeholder={t.branchType === "สาขา" ? "e.g. 00001" : "-"}
                         />
                       </div>

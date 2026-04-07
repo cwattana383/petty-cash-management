@@ -239,15 +239,15 @@ function basePath(path: string): string {
   return path.split('?')[0];
 }
 
-function matchSearch<T extends Record<string, unknown>>(items: T[], search: string | undefined, fields: string[]): T[] {
+function matchSearch<T>(items: T[], search: string | undefined, fields: string[]): T[] {
   if (!search) return items;
   const lower = search.toLowerCase();
-  return items.filter(item => fields.some(f => String(item[f] ?? '').toLowerCase().includes(lower)));
+  return items.filter(item => fields.some(f => String((item as any)[f] ?? '').toLowerCase().includes(lower)));
 }
 
 // ─── Route handlers ───
 
-async function handleGet(path: string): Promise<unknown> {
+async function handleGet(path: string): Promise<any> {
   await delay();
   const base = basePath(path);
   const qs = parseQs(path);
@@ -990,11 +990,11 @@ export const apiClient = {
     return !!localStorage.getItem('mock_auth_user_id');
   },
 
-  async get(path: string) {
+  async get(path: string): Promise<any> {
     return handleGet(path);
   },
 
-  async getRaw(path: string) {
+  async getRaw(path: string): Promise<any> {
     return handleGetRaw(path);
   },
 

@@ -13,7 +13,7 @@ export const CLAIM_DISPLAY_STATUS_BADGE_CLASS: Record<ClaimDisplayStatus, string
 };
 
 export function getClaimDisplayStatusBadgeClass(label: string): string {
-  if (Object.hasOwn(CLAIM_DISPLAY_STATUS_BADGE_CLASS, label)) {
+  if (label in CLAIM_DISPLAY_STATUS_BADGE_CLASS) {
     return CLAIM_DISPLAY_STATUS_BADGE_CLASS[label as ClaimDisplayStatus];
   }
   if (label === "Pending Approval") {
