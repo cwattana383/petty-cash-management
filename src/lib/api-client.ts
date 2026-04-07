@@ -239,7 +239,7 @@ function basePath(path: string): string {
   return path.split('?')[0];
 }
 
-function matchSearch<T extends Record<string, unknown>>(items: T[], search: string | undefined, fields: string[]): T[] {
+function matchSearch<T>(items: T[], search: string | undefined, fields: string[]): T[] {
   if (!search) return items;
   const lower = search.toLowerCase();
   return items.filter(item => fields.some(f => String(item[f] ?? '').toLowerCase().includes(lower)));
