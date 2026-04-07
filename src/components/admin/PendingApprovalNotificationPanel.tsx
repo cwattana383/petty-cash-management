@@ -17,7 +17,7 @@ import {
   useUpdateNotificationSetting,
 } from "@/hooks/use-email-settings";
 
-const mockPendingApprovals: never[] = [];
+const mockPendingApprovals: Array<{ claim_id: string; requester_name: string; submission_date: string; amount: string; description: string }> = [];
 
 export default function PendingApprovalNotificationPanel() {
   const [showPreview, setShowPreview] = useState(false);

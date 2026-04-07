@@ -994,7 +994,7 @@ export const apiClient = {
     return handleGet(path);
   },
 
-  async getRaw(path: string) {
+  async getRaw(path: string): Promise<any> {
     return handleGetRaw(path);
   },
 

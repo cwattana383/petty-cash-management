@@ -9,7 +9,7 @@ interface Props {
 }
 
 export default function SelectTransactionModal({ open, onClose, onSelect }: Props) {
-  const pending: never[] = [];
+  const pending: Array<{ id: string; transaction_date: string; merchant_name: string; card_last4: string; amount: number }> = [];
 
   return (
     <Dialog open={open} onOpenChange={(v) => !v && onClose()}>

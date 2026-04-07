@@ -334,7 +334,7 @@ export default function EntityDrawer({ open, onOpenChange, entity, mode: initial
                         <Input
                           value={t.branchNo}
                           onChange={(e) => updateTaxId(t.id, "branchNo", e.target.value.replace(/\D/g, ""))}
-                          disabled={isReadOnly || t.branchType === "Head Office"}
+                          disabled={isReadOnly || t.branchType === "สำนักงานใหญ่"}
                           placeholder={t.branchType === "สาขา" ? "e.g. 00001" : "-"}
                         />
                       </div>
