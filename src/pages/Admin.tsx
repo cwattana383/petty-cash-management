@@ -113,6 +113,7 @@ const adminMenu = [
       { key: "monthly-cardholder-summary", label: "Monthly Cardholder Summary", icon: Mail },
       { key: "monthly-approver-summary", label: "Monthly Approver Summary", icon: MailPlus },
       { key: "pending-approval-email", label: "Pending Approval Email", icon: UserCheck },
+      { key: "request-for-info-email", label: "Request for Info Email", icon: AlertCircle },
       { key: "month-end-report-email", label: "Month End Report — HR & Finance", icon: CalendarClock },
     ],
   },
