@@ -1,6 +1,6 @@
 import { BankTransaction, MccPolicyMaster } from "./corporate-card-types";
 
-export const mockMccPolicies: MccPolicyMaster[] = [
+export const mockMccPolicies = [
   { mcc_code: "P001", description: "Holiday Inn", category: "Entertainment", mcc_code_ref: "5812", mcc_code_description: "Eating Places/Restaurants", description_subtype: "Client Meal — HoReCa / Business Visit", policy_type: "AUTO_APPROVE", threshold_amount: 3000, currency: "THB", active_flag: true, updated_at: "2026-02-20T10:00:00Z" },
   { mcc_code: "P002", description: "Trainer/Guest Entertainment", category: "Entertainment", mcc_code_ref: "5812", mcc_code_description: "Eating Places/Restaurants", description_subtype: "Trainer / Guest Entertainment (Trainer/Guest Meals)", policy_type: "AUTO_APPROVE", threshold_amount: 2000, currency: "THB", active_flag: true, updated_at: "2026-02-18T08:30:00Z" },
   { mcc_code: "P003", description: "Entertainment >3000", category: "Entertainment", mcc_code_ref: "5812", mcc_code_description: "Eating Places/Restaurants", description_subtype: "Entertainment >3,000 THB (Requires Approval)", policy_type: "REQUIRES_APPROVAL", threshold_amount: null, currency: "THB", active_flag: true, updated_at: "2026-02-15T14:00:00Z" },
