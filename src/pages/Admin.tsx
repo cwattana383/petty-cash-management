@@ -1490,6 +1490,7 @@ const panelMap: Record<string, () => JSX.Element> = {
   "expense-delegates": ExpenseDelegatesPanel,
   "email-notifications": EmailNotificationsPanel,
   "pending-invoice-email": PendingInvoiceNotificationPanel,
+  "monthly-cardholder-summary": MonthlyCardholderSummaryPanel,
   "pending-approval-email": PendingApprovalNotificationPanel,
   "month-end-report-email": MonthEndReportNotificationPanel,
   "system-alerts": SystemAlertsPanel,
