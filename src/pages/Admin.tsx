@@ -5,6 +5,7 @@ import PolicyManagement from "./PolicyManagement";
 import PendingInvoiceNotificationPanel from "@/components/admin/PendingInvoiceNotificationPanel";
 import PendingApprovalNotificationPanel from "@/components/admin/PendingApprovalNotificationPanel";
 import MonthEndReportNotificationPanel from "@/components/admin/MonthEndReportNotificationPanel";
+import MonthlyCardholderSummaryPanel from "@/components/admin/MonthlyCardholderSummaryPanel";
 import ExpenseTypePanelImported from "@/components/admin/ExpenseTypePanel";
 import OcrValidationRulesPanel from "@/components/admin/OcrValidationRulesPanel";
 import DocumentTypePanel from "@/components/admin/DocumentTypePanel";
