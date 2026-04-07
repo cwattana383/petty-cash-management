@@ -17,7 +17,7 @@ export interface BankTransaction {
   merchant_country: string;
   mcc_code: string;
   mcc_description: string;
-  category: string;
+  category?: string;
   import_status?: string | null;
   transaction_type: string;
   authorization_code: string;
