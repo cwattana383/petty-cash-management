@@ -1,4 +1,4 @@
-import { BankTransaction, MccPolicyMaster } from "./corporate-card-types";
+// Mock data for corporate card module — types inferred
 
 export const mockMccPolicies = [
   { mcc_code: "P001", description: "Holiday Inn", category: "Entertainment", mcc_code_ref: "5812", mcc_code_description: "Eating Places/Restaurants", description_subtype: "Client Meal — HoReCa / Business Visit", policy_type: "AUTO_APPROVE", threshold_amount: 3000, currency: "THB", active_flag: true, updated_at: "2026-02-20T10:00:00Z" },
