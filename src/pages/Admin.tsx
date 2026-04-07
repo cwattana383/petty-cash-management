@@ -4,6 +4,7 @@ import { useNavigate, useSearchParams } from "react-router-dom";
 import PolicyManagement from "./PolicyManagement";
 import PendingInvoiceNotificationPanel from "@/components/admin/PendingInvoiceNotificationPanel";
 import PendingApprovalNotificationPanel from "@/components/admin/PendingApprovalNotificationPanel";
+import RequestForInfoNotificationPanel from "@/components/admin/RequestForInfoNotificationPanel";
 import MonthEndReportNotificationPanel from "@/components/admin/MonthEndReportNotificationPanel";
 import MonthlyCardholderSummaryPanel from "@/components/admin/MonthlyCardholderSummaryPanel";
 import MonthlyApproverSummaryPanel from "@/components/admin/MonthlyApproverSummaryPanel";
@@ -112,6 +113,7 @@ const adminMenu = [
       { key: "monthly-cardholder-summary", label: "Monthly Cardholder Summary", icon: Mail },
       { key: "monthly-approver-summary", label: "Monthly Approver Summary", icon: MailPlus },
       { key: "pending-approval-email", label: "Pending Approval Email", icon: UserCheck },
+      { key: "request-for-info-email", label: "Request for Info Email", icon: AlertCircle },
       { key: "month-end-report-email", label: "Month End Report — HR & Finance", icon: CalendarClock },
     ],
   },
@@ -1495,6 +1497,7 @@ const panelMap: Record<string, () => JSX.Element> = {
   "monthly-cardholder-summary": MonthlyCardholderSummaryPanel,
   "monthly-approver-summary": MonthlyApproverSummaryPanel,
   "pending-approval-email": PendingApprovalNotificationPanel,
+  "request-for-info-email": RequestForInfoNotificationPanel,
   "month-end-report-email": MonthEndReportNotificationPanel,
   "system-alerts": SystemAlertsPanel,
   "erp-sync": ErpSyncPanel,
