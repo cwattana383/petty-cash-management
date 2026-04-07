@@ -242,7 +242,7 @@ function basePath(path: string): string {
 function matchSearch<T>(items: T[], search: string | undefined, fields: string[]): T[] {
   if (!search) return items;
   const lower = search.toLowerCase();
-  return items.filter(item => fields.some(f => String(item[f] ?? '').toLowerCase().includes(lower)));
+  return items.filter(item => fields.some(f => String((item as any)[f] ?? '').toLowerCase().includes(lower)));
 }
 
 // ─── Route handlers ───
