@@ -6,6 +6,7 @@ import PendingInvoiceNotificationPanel from "@/components/admin/PendingInvoiceNo
 import PendingApprovalNotificationPanel from "@/components/admin/PendingApprovalNotificationPanel";
 import MonthEndReportNotificationPanel from "@/components/admin/MonthEndReportNotificationPanel";
 import MonthlyCardholderSummaryPanel from "@/components/admin/MonthlyCardholderSummaryPanel";
+import MonthlyApproverSummaryPanel from "@/components/admin/MonthlyApproverSummaryPanel";
 import ExpenseTypePanelImported from "@/components/admin/ExpenseTypePanel";
 import OcrValidationRulesPanel from "@/components/admin/OcrValidationRulesPanel";
 import DocumentTypePanel from "@/components/admin/DocumentTypePanel";
@@ -109,6 +110,7 @@ const adminMenu = [
     items: [
       { key: "pending-invoice-email", label: "Pending Invoice Email", icon: Receipt },
       { key: "monthly-cardholder-summary", label: "Monthly Cardholder Summary", icon: Mail },
+      { key: "monthly-approver-summary", label: "Monthly Approver Summary", icon: MailPlus },
       { key: "pending-approval-email", label: "Pending Approval Email", icon: UserCheck },
       { key: "month-end-report-email", label: "Month End Report — HR & Finance", icon: CalendarClock },
     ],
@@ -1491,6 +1493,7 @@ const panelMap: Record<string, () => JSX.Element> = {
   "email-notifications": EmailNotificationsPanel,
   "pending-invoice-email": PendingInvoiceNotificationPanel,
   "monthly-cardholder-summary": MonthlyCardholderSummaryPanel,
+  "monthly-approver-summary": MonthlyApproverSummaryPanel,
   "pending-approval-email": PendingApprovalNotificationPanel,
   "month-end-report-email": MonthEndReportNotificationPanel,
   "system-alerts": SystemAlertsPanel,
