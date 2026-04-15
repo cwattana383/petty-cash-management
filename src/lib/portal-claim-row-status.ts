@@ -304,5 +304,6 @@ export function approvalStatusBadgeClassForDisplay(text: ApprovalStatusUiText): 
 export function documentStatusLabel(status: PortalDocumentStatus): string {
   if (status === "NOT_REQUIRED") return "Not Required";
   if (status === "VALIDATED") return "Validated";
+  if (status === "SUBMITTED") return "Submitted";
   return "Pending Documents";
 }
