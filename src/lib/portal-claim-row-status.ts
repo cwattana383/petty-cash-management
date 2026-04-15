@@ -242,6 +242,7 @@ export function approvalStatusDisplayText(
     return "Manager Rejected";
   }
   if (claim?.status === "Reject") return "Manager Rejected";
+  if (claim?.status === "Returned For Info" || portalStatus === "RETURNED_FOR_INFO") return "Returned for Info";
   /** Manager path also sets accounting READY_FOR_ERP — show manager outcome first. */
   if (
     claim?.status === "Manager Approved" ||
