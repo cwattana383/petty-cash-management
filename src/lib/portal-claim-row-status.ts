@@ -94,9 +94,10 @@ export function toDisplayStatus(
   // `ClaimStatus` from API (`ClaimHeader.status`), not the My Claims "Approval Status" badge copy.
   if (claimStatus === "Pending Invoice") return hasAttachment ? "PENDING_DOCUMENTS" : "NOT_STARTED";
   if (claimStatus === "Pending Documents") return "PENDING_DOCUMENTS";
-  if (claimStatus === "Pending Approval" || claimStatus === "Returned For Info" || claimStatus === "Pending Salary Deduction") {
+  if (claimStatus === "Pending Approval" || claimStatus === "Pending Salary Deduction") {
     return "PENDING_APPROVAL";
   }
+  if (claimStatus === "Returned For Info") return "PENDING_APPROVAL";
   if (claimStatus === "Auto Approved") return "AUTO_APPROVED";
   if (claimStatus === "Manager Approved" || claimStatus === "Reimbursed") return "MANAGER_APPROVED";
   if (claimStatus === "Auto Reject") return "AUTO_REJECTED";
