@@ -14,7 +14,8 @@ export type PortalApprovalStatus =
   | "AUTO_REJECTED"
   | "MANAGER_REJECTED"
   | "MANAGER_APPROVED"
-  | "ACCOUNTING_REVIEW";
+  | "ACCOUNTING_REVIEW"
+  | "RETURNED_FOR_INFO";
 
 /** Labels shown in Approval Status column (portal screenshots). */
 export type ApprovalStatusUiText =
