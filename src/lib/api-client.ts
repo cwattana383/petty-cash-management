@@ -553,7 +553,8 @@ async function handleGet(path: string): Promise<any> {
     const claimRows = corpCardTransactionsStore.map(txn => ({
       bankTransactionId: txn.bankTransactionId,
       claimNo: `CLM-${txn.bankTransactionId}`,
-      claimStatus: txn.status === 'AUTO_APPROVED' ? 'AUTO_APPROVED' :
+      claimStatus: (txn as any)._claimStatus ? (txn as any)._claimStatus :
+                   txn.status === 'AUTO_APPROVED' ? 'AUTO_APPROVED' :
                    txn.status === 'AUTO_REJECTED' ? 'AUTO_REJECTED' :
                    txn.status === 'REQUIRES_APPROVAL' ? 'PENDING_DOCUMENTS' :
                    txn.status === 'PENDING_DOCUMENTS' ? 'PENDING_DOCUMENTS' :
