@@ -124,6 +124,7 @@ export function documentStatusBadgeClass(status: string): string {
   if (status === "VALIDATED") return "bg-emerald-100 text-emerald-800";
   if (status === "NOT_REQUIRED") return "bg-slate-100 text-slate-700";
   if (status === "PENDING_DOCUMENTS") return "bg-amber-100 text-amber-800";
+  if (status === "SUBMITTED") return "bg-blue-100 text-blue-800";
   return "bg-slate-100 text-slate-700";
 }
 
