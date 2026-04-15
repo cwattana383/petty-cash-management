@@ -293,6 +293,7 @@ export function approvalStatusBadgeClassForDisplay(text: ApprovalStatusUiText): 
   if (text === "Auto Reject" || text === "Reject" || text === "Final Reject" || text === "Manager Rejected") {
     return "bg-red-100 text-red-800";
   }
+  if (text === "Returned for Info") return "bg-indigo-100 text-indigo-800";
   if (text === "Required Approval" || text === "Pending Approval" || text === "Ready For Approval") {
     return "bg-amber-100 text-amber-900";
   }
