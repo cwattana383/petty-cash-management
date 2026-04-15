@@ -198,6 +198,7 @@ export function isPortalStatusInTab(
   claim?: ClaimHeader
 ): boolean {
   if (tab === "pending_invoice") {
+    if (status === "RETURNED_FOR_INFO") return true;
     if (documentStatus === "PENDING_DOCUMENTS") return true;
     if (status === "ACCOUNTING_REVIEW") return true;
     if (
