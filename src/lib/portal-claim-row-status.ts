@@ -14,7 +14,8 @@ export type PortalApprovalStatus =
   | "AUTO_REJECTED"
   | "MANAGER_REJECTED"
   | "MANAGER_APPROVED"
-  | "ACCOUNTING_REVIEW";
+  | "ACCOUNTING_REVIEW"
+  | "RETURNED_FOR_INFO";
 
 /** Labels shown in Approval Status column (portal screenshots). */
 export type ApprovalStatusUiText =
@@ -27,7 +28,8 @@ export type ApprovalStatusUiText =
   | "Auto Reject"
   | "Final Reject"
   | "Auto Approved"
-  | "Manager Approved";
+  | "Manager Approved"
+  | "Returned for Info";
 
 export const TAB_STATUS_FILTER: Record<StatusTab, string[]> = {
   pending_invoice: [
@@ -92,9 +94,10 @@ export function toDisplayStatus(
   // `ClaimStatus` from API (`ClaimHeader.status`), not the My Claims "Approval Status" badge copy.
   if (claimStatus === "Pending Invoice") return hasAttachment ? "PENDING_DOCUMENTS" : "NOT_STARTED";
   if (claimStatus === "Pending Documents") return "PENDING_DOCUMENTS";
-  if (claimStatus === "Pending Approval" || claimStatus === "Returned For Info" || claimStatus === "Pending Salary Deduction") {
+  if (claimStatus === "Pending Approval" || claimStatus === "Pending Salary Deduction") {
     return "PENDING_APPROVAL";
   }
+  if (claimStatus === "Returned For Info") return "PENDING_APPROVAL";
   if (claimStatus === "Auto Approved") return "AUTO_APPROVED";
   if (claimStatus === "Manager Approved" || claimStatus === "Reimbursed") return "MANAGER_APPROVED";
   if (claimStatus === "Auto Reject") return "AUTO_REJECTED";
@@ -121,6 +124,7 @@ export function documentStatusBadgeClass(status: string): string {
   if (status === "VALIDATED") return "bg-emerald-100 text-emerald-800";
   if (status === "NOT_REQUIRED") return "bg-slate-100 text-slate-700";
   if (status === "PENDING_DOCUMENTS") return "bg-amber-100 text-amber-800";
+  if (status === "SUBMITTED") return "bg-blue-100 text-blue-800";
   return "bg-slate-100 text-slate-700";
 }
 
@@ -172,6 +176,7 @@ export function toPortalApprovalStatus(
   if (displayFromClaim === "MANAGER_REJECTED") return "MANAGER_REJECTED";
   if (claim?.status === "Final Reject" || claim?.status === "Final Rejected") return "MANAGER_REJECTED";
   if (claim?.status === "Reject") return "MANAGER_REJECTED";
+  if (claim?.status === "Returned For Info") return "RETURNED_FOR_INFO";
   if (displayFromClaim === "PENDING_APPROVAL" || claim?.status === "Pending Approval") return "PENDING_APPROVAL";
   if (displayFromClaim === "AUTO_APPROVED") return "AUTO_APPROVED";
 
@@ -194,6 +199,7 @@ export function isPortalStatusInTab(
   claim?: ClaimHeader
 ): boolean {
   if (tab === "pending_invoice") {
+    if (status === "RETURNED_FOR_INFO") return true;
     if (documentStatus === "PENDING_DOCUMENTS") return true;
     if (status === "ACCOUNTING_REVIEW") return true;
     if (
@@ -237,6 +243,7 @@ export function approvalStatusDisplayText(
     return "Manager Rejected";
   }
   if (claim?.status === "Reject") return "Manager Rejected";
+  if (claim?.status === "Returned For Info" || portalStatus === "RETURNED_FOR_INFO") return "Returned for Info";
   /** Manager path also sets accounting READY_FOR_ERP — show manager outcome first. */
   if (
     claim?.status === "Manager Approved" ||
@@ -287,6 +294,7 @@ export function approvalStatusBadgeClassForDisplay(text: ApprovalStatusUiText): 
   if (text === "Auto Reject" || text === "Reject" || text === "Final Reject" || text === "Manager Rejected") {
     return "bg-red-100 text-red-800";
   }
+  if (text === "Returned for Info") return "bg-indigo-100 text-indigo-800";
   if (text === "Required Approval" || text === "Pending Approval" || text === "Ready For Approval") {
     return "bg-amber-100 text-amber-900";
   }
@@ -296,5 +304,6 @@ export function approvalStatusBadgeClassForDisplay(text: ApprovalStatusUiText): 
 export function documentStatusLabel(status: PortalDocumentStatus): string {
   if (status === "NOT_REQUIRED") return "Not Required";
   if (status === "VALIDATED") return "Validated";
+  if (status === "SUBMITTED") return "Submitted";
   return "Pending Documents";
 }
