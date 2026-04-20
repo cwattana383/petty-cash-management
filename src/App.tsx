@@ -26,6 +26,7 @@ import ExpenseTypeEdit from "./pages/ExpenseTypeEdit";
 import Profile from "./pages/Profile";
 import BankTransactions from "./pages/BankTransactions";
 import PolicyManagement from "./pages/PolicyManagement";
+import Notifications from "./pages/Notifications";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -66,6 +67,7 @@ const App = () => (
                           <Route path="/admin/expense-type/create" element={<RoleGuard allowedRoles={["Admin"]}><ExpenseTypeEdit /></RoleGuard>} />
                           <Route path="/admin/expense-type/:id/edit" element={<RoleGuard allowedRoles={["Admin"]}><ExpenseTypeEdit /></RoleGuard>} />
                           <Route path="/admin/expense-type/:id" element={<RoleGuard allowedRoles={["Admin"]}><ExpenseTypeEdit /></RoleGuard>} />
+                          <Route path="/notifications" element={<Notifications />} />
                           <Route path="/profile" element={<Profile />} />
                           <Route path="*" element={<NotFound />} />
                         </Routes>

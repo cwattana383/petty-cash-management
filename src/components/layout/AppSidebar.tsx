@@ -4,12 +4,14 @@ import {
   CheckSquare,
   ClipboardList,
   CreditCard,
+  Bell,
 } from "lucide-react";
 import { NavLink } from "@/components/NavLink";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useQueryClient } from "@tanstack/react-query";
 import { useRoles } from "@/lib/role-context";
 import { useAuth } from "@/lib/auth-context";
+import { useNotifications } from "@/lib/notifications-context";
 import { cn } from "@/lib/utils";
 import {
   Sidebar,
@@ -25,6 +27,7 @@ import {
 
 const mainNav = [
   { title: "My Expense", url: "/claims", icon: FileText },
+  { title: "Notifications", url: "/notifications", icon: Bell, cardholderOnly: true },
   { title: "Approval Inbox", url: "/approvals", icon: CheckSquare },
   { title: "Accounting Review", url: "/accounting", icon: ClipboardList },
   { title: "Bank Transactions", url: "/bank-transactions", icon: CreditCard },
@@ -41,12 +44,12 @@ const allRoleTabs = [
 function getNavForRole(selectedRole: string) {
   switch (selectedRole) {
     case "Admin":
-      return mainNav; // all items
+      return mainNav.filter((i) => !i.cardholderOnly);
     case "Approver":
       return mainNav.filter((i) => ["My Expense", "Approval Inbox"].includes(i.title));
     case "Cardholder":
     default:
-      return mainNav.filter((i) => i.title === "My Expense");
+      return mainNav.filter((i) => i.title === "My Expense" || i.title === "Notifications");
   }
 }
 
@@ -56,6 +59,7 @@ export function AppSidebar() {
   const queryClient = useQueryClient();
   const { roles, allRoles, setRoles } = useRoles();
   const { user } = useAuth();
+  const { unreadCount } = useNotifications();
 
   // Only show role tabs that the logged-in user actually has
   const userRoles = user?.roles ?? allRoles;
@@ -130,7 +134,12 @@ export function AppSidebar() {
                       activeClassName="bg-sidebar-accent text-sidebar-accent-foreground font-medium"
                     >
                       <item.icon className="h-4 w-4" />
-                      <span>{item.title}</span>
+                      <span className="flex-1">{item.title}</span>
+                      {item.title === "Notifications" && unreadCount > 0 && (
+                        <span className="ml-auto inline-flex items-center justify-center min-w-[18px] h-[18px] rounded-full bg-red-500 text-white text-[10px] font-bold px-1">
+                          {unreadCount > 99 ? "99+" : unreadCount}
+                        </span>
+                      )}
                     </NavLink>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
