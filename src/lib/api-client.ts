@@ -436,13 +436,15 @@ async function handleGet(path: string): Promise<any> {
   // Notifications — hook expects flat array from get(), with camelCase fields
   if (base === '/notifications') {
     const userId = qs.userId;
-    const items = userId ? notificationsStore.filter(n => n.userId === userId) : [...notificationsStore];
+    const role = qs.role;
+    let items = userId ? notificationsStore.filter(n => n.userId === userId) : [...notificationsStore];
+    if (role && role !== 'Cardholder') items = [];
     return items.map(n => ({
       id: n.id,
       title: n.title,
       message: n.message,
       type: n.type,
-      targetTransactionId: "",
+      targetTransactionId: n.targetTransactionId ?? "",
       readFlag: n.read,
       createdAt: n.createdAt,
       userId: n.userId,
@@ -451,6 +453,8 @@ async function handleGet(path: string): Promise<any> {
 
   if (base === '/notifications/unread-count') {
     const userId = qs.userId;
+    const role = qs.role;
+    if (role && role !== 'Cardholder') return { count: 0 };
     const count = notificationsStore.filter(n => (!userId || n.userId === userId) && !n.read).length;
     return { count };
   }
