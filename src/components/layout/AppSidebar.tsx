@@ -5,6 +5,7 @@ import {
   ClipboardList,
   CreditCard,
   Bell,
+  BarChart3,
 } from "lucide-react";
 import { NavLink } from "@/components/NavLink";
 import { useLocation, useNavigate } from "react-router-dom";
@@ -31,6 +32,7 @@ const mainNav = [
   { title: "Approval Inbox", url: "/approvals", icon: CheckSquare },
   { title: "Accounting Review", url: "/accounting", icon: ClipboardList },
   { title: "Bank Transactions", url: "/bank-transactions", icon: CreditCard },
+  { title: "Report", url: "/reports", icon: BarChart3 },
   { title: "Admin", url: "/admin", icon: Settings },
 ];
 
@@ -46,7 +48,7 @@ function getNavForRole(selectedRole: string) {
     case "Admin":
       return mainNav.filter((i) => !i.cardholderOnly);
     case "Approver":
-      return mainNav.filter((i) => ["My Expense", "Approval Inbox"].includes(i.title));
+      return mainNav.filter((i) => ["My Expense", "Approval Inbox", "Report"].includes(i.title));
     case "Cardholder":
     default:
       return mainNav.filter((i) => i.title === "My Expense" || i.title === "Notifications");
