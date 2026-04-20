@@ -134,7 +134,12 @@ export function AppSidebar() {
                       activeClassName="bg-sidebar-accent text-sidebar-accent-foreground font-medium"
                     >
                       <item.icon className="h-4 w-4" />
-                      <span>{item.title}</span>
+                      <span className="flex-1">{item.title}</span>
+                      {item.title === "Notifications" && unreadCount > 0 && (
+                        <span className="ml-auto inline-flex items-center justify-center min-w-[18px] h-[18px] rounded-full bg-red-500 text-white text-[10px] font-bold px-1">
+                          {unreadCount > 99 ? "99+" : unreadCount}
+                        </span>
+                      )}
                     </NavLink>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
