@@ -59,6 +59,7 @@ export function AppSidebar() {
   const queryClient = useQueryClient();
   const { roles, allRoles, setRoles } = useRoles();
   const { user } = useAuth();
+  const { unreadCount } = useNotifications();
 
   // Only show role tabs that the logged-in user actually has
   const userRoles = user?.roles ?? allRoles;

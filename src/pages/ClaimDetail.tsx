@@ -1846,6 +1846,45 @@ export default function ClaimDetail() {
 
       <p className="text-[13px] text-muted-foreground mt-4 mb-2">{statusMeta}</p>
 
+      {(() => {
+        const cct = (claim as unknown as { corpCardTransaction?: Record<string, unknown> })?.corpCardTransaction;
+        const reason = (cct?.policyReason as string) || (claim as unknown as { policyReason?: string })?.policyReason;
+        const isAging = reason === "AGING_TIMEOUT" || (claim?.status === "Auto Reject" && cardTransactionNo && (cardTransactionNo === "TXN20260420001" || cardTransactionNo === "TXN20260418002"));
+        if (!isAging) return null;
+        const isCase2 = cardTransactionNo === "TXN20260418002";
+        const created = isCase2 ? "18 Apr 2026" : "20 Apr 2026";
+        const rejected = isCase2 ? "21 Apr 2026" : "23 Apr 2026";
+        return (
+          <div className="rounded-lg border-2 border-red-300 bg-red-50 p-5 mt-2 mb-4">
+            <div className="flex items-start gap-3">
+              <AlertCircle className="h-6 w-6 text-red-600 shrink-0 mt-0.5" />
+              <div className="flex-1 space-y-3">
+                <div>
+                  <h3 className="text-base font-bold text-red-900">This transaction was auto-rejected</h3>
+                  <p className="text-sm text-red-800 mt-1">
+                    Documents were not attached within 3 calendar days from the creation date (weekends and public holidays included). This rejection was made automatically by the system on {rejected} at 23:30.
+                  </p>
+                </div>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-1.5 text-xs bg-white/60 rounded-md p-3 border border-red-200">
+                  <div className="flex justify-between"><span className="text-red-900/70">Created on</span><span className="font-mono text-red-900">{created}</span></div>
+                  <div className="flex justify-between"><span className="text-red-900/70">Auto-rejected on</span><span className="font-mono text-red-900">{rejected} at 23:30</span></div>
+                  <div className="flex justify-between"><span className="text-red-900/70">Calendar days elapsed</span><span className="font-mono text-red-900">3</span></div>
+                  <div className="flex justify-between"><span className="text-red-900/70">Threshold</span><span className="font-mono text-red-900">3 calendar days</span></div>
+                  <div className="flex justify-between"><span className="text-red-900/70">Document status</span><span className="font-mono text-red-900">PENDING_DOCUMENTS</span></div>
+                  <div className="flex justify-between"><span className="text-red-900/70">Rejection reason code</span><span className="font-mono text-red-900">AGING_TIMEOUT</span></div>
+                </div>
+                <div className="flex items-center gap-3 pt-1">
+                  <Button variant="outline" size="sm" className="border-red-400 text-red-700 hover:bg-red-100">
+                    Contact Finance to Re-open
+                  </Button>
+                  <a href="#" className="text-xs text-red-700 underline-offset-4 hover:underline">Learn about the 3-day policy</a>
+                </div>
+              </div>
+            </div>
+          </div>
+        );
+      })()}
+
       <div className="space-y-8 mt-6">
         {/* ══════ STEP 1 — CARD TRANSACTION (Read-Only) ══════ */}
         <section>
