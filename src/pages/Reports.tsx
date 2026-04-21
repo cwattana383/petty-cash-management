@@ -21,6 +21,7 @@ import {
   Receipt,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import MonthEndReportNotificationPanel from "@/components/admin/MonthEndReportNotificationPanel";
 
 // --- Sidebar menu definition ---
 const reportsMenu = [
@@ -130,7 +131,7 @@ function PlaceholderPanel({ title }: { title: string }) {
 
 const panelMap: Record<string, () => JSX.Element> = {
   "month-end-summary": MonthEndSummaryPanel,
-  "hr-finance-report": () => <PlaceholderPanel title="HR & Finance Report" />,
+  "hr-finance-report": MonthEndReportNotificationPanel,
   "auto-approved": () => <PlaceholderPanel title="Auto-Approved Transactions" />,
   "manager-approved": () => <PlaceholderPanel title="Manager-Approved Transactions" />,
   "rejected": () => <PlaceholderPanel title="Rejected Transactions" />,

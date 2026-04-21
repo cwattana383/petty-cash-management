@@ -6,7 +6,7 @@ import PendingInvoiceNotificationPanel from "@/components/admin/PendingInvoiceNo
 import PendingApprovalNotificationPanel from "@/components/admin/PendingApprovalNotificationPanel";
 import RequestForInfoNotificationPanel from "@/components/admin/RequestForInfoNotificationPanel";
 import DocumentAgingNotificationPanel from "@/components/admin/DocumentAgingNotificationPanel";
-import MonthEndReportNotificationPanel from "@/components/admin/MonthEndReportNotificationPanel";
+
 import MonthlyCardholderSummaryPanel from "@/components/admin/MonthlyCardholderSummaryPanel";
 import MonthlyApproverSummaryPanel from "@/components/admin/MonthlyApproverSummaryPanel";
 import ExpenseTypePanelImported from "@/components/admin/ExpenseTypePanel";
@@ -117,7 +117,6 @@ const adminMenu = [
       { key: "pending-approval-email", label: "Pending Approval Email", icon: UserCheck },
       { key: "request-for-info-email", label: "Request for Info Email", icon: AlertCircle },
       { key: "document-aging-email", label: "Document Aging — Auto Reject", icon: AlertTriangle },
-      { key: "month-end-report-email", label: "Month End Report — HR & Finance", icon: CalendarClock },
     ],
   },
 ];
@@ -1502,7 +1501,6 @@ const panelMap: Record<string, () => JSX.Element> = {
   "pending-approval-email": PendingApprovalNotificationPanel,
   "request-for-info-email": RequestForInfoNotificationPanel,
   "document-aging-email": DocumentAgingNotificationPanel,
-  "month-end-report-email": MonthEndReportNotificationPanel,
   "system-alerts": SystemAlertsPanel,
   "erp-sync": ErpSyncPanel,
   "sync-logs": SyncLogsPanel,
