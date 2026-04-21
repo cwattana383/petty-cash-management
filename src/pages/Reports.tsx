@@ -137,6 +137,8 @@ function PlaceholderPanel({ title }: { title: string }) {
 const panelMap: Record<string, () => JSX.Element> = {
   "month-end-summary": MonthEndSummaryPanel,
   "hr-finance-report": MonthEndReportNotificationPanel,
+  "monthly-cardholder-summary": MonthlyCardholderSummaryPanel,
+  "monthly-approver-summary": MonthlyApproverSummaryPanel,
   "auto-approved": () => <PlaceholderPanel title="Auto-Approved Transactions" />,
   "manager-approved": () => <PlaceholderPanel title="Manager-Approved Transactions" />,
   "rejected": () => <PlaceholderPanel title="Rejected Transactions" />,
