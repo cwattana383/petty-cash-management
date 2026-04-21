@@ -110,8 +110,6 @@ const adminMenu = [
     icon: Bell,
     items: [
       { key: "pending-invoice-email", label: "Pending Invoice Email", icon: Receipt },
-      { key: "monthly-cardholder-summary", label: "Monthly Cardholder Summary", icon: Mail },
-      { key: "monthly-approver-summary", label: "Monthly Approver Summary", icon: MailPlus },
       { key: "pending-approval-email", label: "Pending Approval Email", icon: UserCheck },
       { key: "request-for-info-email", label: "Request for Info Email", icon: AlertCircle },
       { key: "document-aging-email", label: "Document Aging — Auto Reject", icon: AlertTriangle },
