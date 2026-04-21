@@ -51,7 +51,7 @@ function getNavForRole(selectedRole: string) {
       return mainNav.filter((i) => ["My Expense", "Approval Inbox", "Report"].includes(i.title));
     case "Cardholder":
     default:
-      return mainNav.filter((i) => i.title === "My Expense" || i.title === "Notifications");
+      return mainNav.filter((i) => ["My Expense", "Notifications", "Report"].includes(i.title));
   }
 }
 
