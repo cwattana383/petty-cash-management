@@ -22,6 +22,9 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import MonthEndReportNotificationPanel from "@/components/admin/MonthEndReportNotificationPanel";
+import MonthlyCardholderSummaryPanel from "@/components/admin/MonthlyCardholderSummaryPanel";
+import MonthlyApproverSummaryPanel from "@/components/admin/MonthlyApproverSummaryPanel";
+import { Mail, MailPlus } from "lucide-react";
 
 // --- Sidebar menu definition ---
 const reportsMenu = [
@@ -31,6 +34,8 @@ const reportsMenu = [
     items: [
       { key: "month-end-summary", label: "Month-End Summary", icon: FileSpreadsheet },
       { key: "hr-finance-report", label: "HR & Finance Report", icon: Receipt },
+      { key: "monthly-cardholder-summary", label: "Monthly Cardholder Summary", icon: Mail },
+      { key: "monthly-approver-summary", label: "Monthly Approver Summary", icon: MailPlus },
     ],
   },
 ];
@@ -132,6 +137,8 @@ function PlaceholderPanel({ title }: { title: string }) {
 const panelMap: Record<string, () => JSX.Element> = {
   "month-end-summary": MonthEndSummaryPanel,
   "hr-finance-report": MonthEndReportNotificationPanel,
+  "monthly-cardholder-summary": MonthlyCardholderSummaryPanel,
+  "monthly-approver-summary": MonthlyApproverSummaryPanel,
   "auto-approved": () => <PlaceholderPanel title="Auto-Approved Transactions" />,
   "manager-approved": () => <PlaceholderPanel title="Manager-Approved Transactions" />,
   "rejected": () => <PlaceholderPanel title="Rejected Transactions" />,

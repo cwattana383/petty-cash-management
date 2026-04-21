@@ -7,8 +7,6 @@ import PendingApprovalNotificationPanel from "@/components/admin/PendingApproval
 import RequestForInfoNotificationPanel from "@/components/admin/RequestForInfoNotificationPanel";
 import DocumentAgingNotificationPanel from "@/components/admin/DocumentAgingNotificationPanel";
 
-import MonthlyCardholderSummaryPanel from "@/components/admin/MonthlyCardholderSummaryPanel";
-import MonthlyApproverSummaryPanel from "@/components/admin/MonthlyApproverSummaryPanel";
 import ExpenseTypePanelImported from "@/components/admin/ExpenseTypePanel";
 import OcrValidationRulesPanel from "@/components/admin/OcrValidationRulesPanel";
 import DocumentTypePanel from "@/components/admin/DocumentTypePanel";
@@ -112,8 +110,6 @@ const adminMenu = [
     icon: Bell,
     items: [
       { key: "pending-invoice-email", label: "Pending Invoice Email", icon: Receipt },
-      { key: "monthly-cardholder-summary", label: "Monthly Cardholder Summary", icon: Mail },
-      { key: "monthly-approver-summary", label: "Monthly Approver Summary", icon: MailPlus },
       { key: "pending-approval-email", label: "Pending Approval Email", icon: UserCheck },
       { key: "request-for-info-email", label: "Request for Info Email", icon: AlertCircle },
       { key: "document-aging-email", label: "Document Aging — Auto Reject", icon: AlertTriangle },
@@ -1496,8 +1492,6 @@ const panelMap: Record<string, () => JSX.Element> = {
   "expense-delegates": ExpenseDelegatesPanel,
   "email-notifications": EmailNotificationsPanel,
   "pending-invoice-email": PendingInvoiceNotificationPanel,
-  "monthly-cardholder-summary": MonthlyCardholderSummaryPanel,
-  "monthly-approver-summary": MonthlyApproverSummaryPanel,
   "pending-approval-email": PendingApprovalNotificationPanel,
   "request-for-info-email": RequestForInfoNotificationPanel,
   "document-aging-email": DocumentAgingNotificationPanel,
