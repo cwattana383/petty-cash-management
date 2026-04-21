@@ -2,12 +2,12 @@ import { useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Switch } from "@/components/ui/switch";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import {
   Bell,
   Clock,
   Info,
   Eye,
-  AlertOctagon,
   RotateCcw,
 } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
@@ -19,7 +19,28 @@ const TIMING_ROWS: Array<{ label: string; value: string }> = [
   { label: "Public holidays", value: "Counted (not excluded in MVP)" },
   { label: "Template key", value: "TXN_AGING_AUTO_REJECTED_PENDING_DOCS" },
   { label: "Rejection reason", value: "AGING_TIMEOUT" },
-  { label: "Dedup key", value: "(cardholder_id, txn_id, template_key)" },
+  { label: "Dedup key", value: "(cardholder_id, sweeper_batch_id, template_key)" },
+  { label: "Delivery", value: "One consolidated email per cardholder per sweeper run (batched)" },
+  { label: "Grouping", value: "transactions grouped by cardholder_id within sweeper_batch_id" },
+];
+
+const SAMPLE_TRANSACTIONS = [
+  { txn_date: "15 Apr 2026", merchant: "GRAB TAXI", amount: 450.0, currency: "THB", link: "/claims/abc-123" },
+  { txn_date: "16 Apr 2026", merchant: "STARBUCKS ASOKE", amount: 185.0, currency: "THB", link: "/claims/abc-124" },
+  { txn_date: "17 Apr 2026", merchant: "7-ELEVEN SUKHUMVIT", amount: 92.5, currency: "THB", link: "/claims/abc-125" },
+];
+
+const SAMPLE_TOTAL = SAMPLE_TRANSACTIONS.reduce((sum, t) => sum + t.amount, 0);
+
+const VARIABLE_CHIPS: Array<{ name: string; caption?: string }> = [
+  { name: "{cardholder_name}" },
+  { name: "{run_date}" },
+  { name: "{threshold_days}" },
+  {
+    name: "{transactions}",
+    caption: "List of {txn_date, merchant, amount, currency, link} — rendered as a table in the email.",
+  },
+  { name: "{link}", caption: "Per-row inside the table." },
 ];
 
 export default function DocumentAgingNotificationPanel() {
@@ -27,9 +48,12 @@ export default function DocumentAgingNotificationPanel() {
   const [showPreview, setShowPreview] = useState(false);
 
   const handleSimulate = () => {
+    // Mock: 5 transactions across 2 cardholders
+    const txnCount = 5;
+    const cardholderCount = 2;
     toast({
       title: "Sweeper simulated",
-      description: "0 new notifications (deduplicated).",
+      description: `Simulated ${txnCount} transactions auto-rejected across ${cardholderCount} cardholders → ${cardholderCount} digest emails queued.`,
     });
   };
 
@@ -81,7 +105,7 @@ export default function DocumentAgingNotificationPanel() {
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-2">
                 {TIMING_ROWS.map((row) => (
                   <div key={row.label} className="flex justify-between gap-3 text-xs border-b border-border/60 py-1.5">
-                    <span className="text-muted-foreground">{row.label}</span>
+                    <span className="text-muted-foreground shrink-0">{row.label}</span>
                     <span className="font-mono text-foreground text-right">{row.value}</span>
                   </div>
                 ))}
@@ -95,7 +119,7 @@ export default function DocumentAgingNotificationPanel() {
       <div className="flex items-start gap-2.5 rounded-lg border border-blue-200 bg-blue-50 p-4">
         <Info className="h-4 w-4 text-blue-600 mt-0.5 shrink-0" />
         <p className="text-sm text-blue-900">
-          Notifications are best-effort. If the notification service is unavailable, the auto-reject status change still commits and a retry is queued. A cardholder with no registered email still receives the in-app notification.
+          Notifications are best-effort. If the notification service is unavailable, the auto-reject status change still commits and a retry is queued. A cardholder with no registered email still receives the in-app notification. If a cardholder has multiple aged transactions in the same run, they receive a single digest email listing all of them — not one email per transaction.
         </p>
       </div>
 
@@ -115,33 +139,53 @@ export default function DocumentAgingNotificationPanel() {
               <div className="bg-muted/50 px-6 py-4 border-b">
                 <p className="text-xs text-muted-foreground">To: Somchai Jaidee &lt;somchai@company.com&gt;</p>
                 <p className="text-sm font-medium mt-1">
-                  [Action Required] Bank transaction auto-rejected — documents not attached within 3 days
+                  [Action Required] Corporate card transactions auto-rejected — 21 Apr 2026
                 </p>
               </div>
 
               <div className="px-6 py-5 space-y-4 text-sm">
-                <p>Dear Somchai Jaidee,</p>
+                <p>Hi Somchai Jaidee,</p>
                 <p className="text-muted-foreground leading-relaxed">
-                  Your transaction at <strong>GRAB TAXI</strong> for <strong>฿450.00 THB</strong> on <strong>20/04/2026</strong> was created on <strong>20/04/2026</strong> and required supporting documents.
-                </p>
-                <p className="text-muted-foreground leading-relaxed">
-                  No documents were attached within 3 calendar days (including weekends and public holidays), so the system has automatically rejected the transaction.
+                  The following corporate card transactions were auto-rejected tonight because supporting documents were not uploaded within <strong>3</strong> calendar days. Per company policy, these amounts will be deducted from your next payroll.
                 </p>
 
-                <div className="flex items-center gap-2 rounded-md border border-red-200 bg-red-50 px-3 py-2">
-                  <AlertOctagon className="h-4 w-4 text-red-600" />
-                  <span className="text-xs text-red-900 font-mono">Reason: AGING_TIMEOUT</span>
+                <div className="border rounded-md overflow-hidden">
+                  <table className="w-full text-xs">
+                    <thead className="bg-muted/40">
+                      <tr>
+                        <th className="text-left px-3 py-2 font-medium text-muted-foreground">Date</th>
+                        <th className="text-left px-3 py-2 font-medium text-muted-foreground">Merchant</th>
+                        <th className="text-right px-3 py-2 font-medium text-muted-foreground">Amount</th>
+                        <th className="text-right px-3 py-2 font-medium text-muted-foreground">Claim</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {SAMPLE_TRANSACTIONS.map((t, i) => (
+                        <tr key={i} className="border-t">
+                          <td className="px-3 py-2 font-mono">{t.txn_date}</td>
+                          <td className="px-3 py-2">{t.merchant}</td>
+                          <td className="px-3 py-2 text-right font-mono">
+                            {t.currency} {t.amount.toFixed(2)}
+                          </td>
+                          <td className="px-3 py-2 text-right">
+                            <span className="text-primary underline">View</span>
+                          </td>
+                        </tr>
+                      ))}
+                      <tr className="border-t bg-muted/30">
+                        <td colSpan={2} className="px-3 py-2 font-semibold text-right">Total:</td>
+                        <td className="px-3 py-2 text-right font-mono font-semibold">
+                          THB {SAMPLE_TOTAL.toFixed(2)}
+                        </td>
+                        <td />
+                      </tr>
+                    </tbody>
+                  </table>
                 </div>
 
                 <p className="text-muted-foreground leading-relaxed">
-                  If this was an error, please contact Finance to request re-opening, or re-submit the transaction with the required documents.
+                  These transactions cannot be reopened. If you believe this is an error, contact Finance within 5 business days.
                 </p>
-
-                <div className="pt-2">
-                  <span className="inline-block bg-primary text-primary-foreground text-sm font-medium px-5 py-2.5 rounded-md">
-                    View Transaction
-                  </span>
-                </div>
 
                 <div className="pt-4 border-t mt-4">
                   <p className="text-xs text-muted-foreground">
@@ -152,9 +196,21 @@ export default function DocumentAgingNotificationPanel() {
             </div>
           )}
 
-          <p className="text-[11px] text-muted-foreground pt-2 border-t mt-3">
-            Variables: <span className="font-mono">{"{cardholder_name}"} {"{merchant}"} {"{amount}"} {"{currency}"} {"{txn_date}"} {"{creation_date}"} {"{threshold=3}"} {"{link}"}</span>
-          </p>
+          <div className="pt-3 border-t mt-3 space-y-2">
+            <p className="text-[11px] font-medium text-muted-foreground">Variables:</p>
+            <div className="flex flex-wrap gap-1.5">
+              {VARIABLE_CHIPS.map((v) => (
+                <Badge key={v.name} variant="outline" className="font-mono text-[10px]">
+                  {v.name}
+                </Badge>
+              ))}
+            </div>
+            {VARIABLE_CHIPS.filter((v) => v.caption).map((v) => (
+              <p key={v.name} className="text-[10px] text-muted-foreground">
+                <span className="font-mono">{v.name}</span> — {v.caption}
+              </p>
+            ))}
+          </div>
         </CardContent>
       </Card>
 
