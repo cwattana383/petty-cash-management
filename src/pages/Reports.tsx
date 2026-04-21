@@ -22,6 +22,9 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import MonthEndReportNotificationPanel from "@/components/admin/MonthEndReportNotificationPanel";
+import MonthlyCardholderSummaryPanel from "@/components/admin/MonthlyCardholderSummaryPanel";
+import MonthlyApproverSummaryPanel from "@/components/admin/MonthlyApproverSummaryPanel";
+import { Mail, MailPlus } from "lucide-react";
 
 // --- Sidebar menu definition ---
 const reportsMenu = [
@@ -31,6 +34,8 @@ const reportsMenu = [
     items: [
       { key: "month-end-summary", label: "Month-End Summary", icon: FileSpreadsheet },
       { key: "hr-finance-report", label: "HR & Finance Report", icon: Receipt },
+      { key: "monthly-cardholder-summary", label: "Monthly Cardholder Summary", icon: Mail },
+      { key: "monthly-approver-summary", label: "Monthly Approver Summary", icon: MailPlus },
     ],
   },
 ];
