@@ -7,8 +7,6 @@ import PendingApprovalNotificationPanel from "@/components/admin/PendingApproval
 import RequestForInfoNotificationPanel from "@/components/admin/RequestForInfoNotificationPanel";
 import DocumentAgingNotificationPanel from "@/components/admin/DocumentAgingNotificationPanel";
 
-import MonthlyCardholderSummaryPanel from "@/components/admin/MonthlyCardholderSummaryPanel";
-import MonthlyApproverSummaryPanel from "@/components/admin/MonthlyApproverSummaryPanel";
 import ExpenseTypePanelImported from "@/components/admin/ExpenseTypePanel";
 import OcrValidationRulesPanel from "@/components/admin/OcrValidationRulesPanel";
 import DocumentTypePanel from "@/components/admin/DocumentTypePanel";
