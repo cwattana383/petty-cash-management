@@ -117,7 +117,6 @@ const adminMenu = [
       { key: "pending-approval-email", label: "Pending Approval Email", icon: UserCheck },
       { key: "request-for-info-email", label: "Request for Info Email", icon: AlertCircle },
       { key: "document-aging-email", label: "Document Aging — Auto Reject", icon: AlertTriangle },
-      { key: "month-end-report-email", label: "Month End Report — HR & Finance", icon: CalendarClock },
     ],
   },
 ];
