@@ -115,14 +115,6 @@ export default function DocumentAgingNotificationPanel() {
         </CardContent>
       </Card>
 
-      {/* Info banner */}
-      <div className="flex items-start gap-2.5 rounded-lg border border-blue-200 bg-blue-50 p-4">
-        <Info className="h-4 w-4 text-blue-600 mt-0.5 shrink-0" />
-        <p className="text-sm text-blue-900">
-          Notifications are best-effort. If the notification service is unavailable, the auto-reject status change still commits and a retry is queued. A cardholder with no registered email still receives the in-app notification. If a cardholder has multiple aged transactions in the same run, they receive a single digest email listing all of them — not one email per transaction.
-        </p>
-      </div>
-
       {/* Email preview */}
       <Card>
         <CardContent className="p-5 space-y-3">
