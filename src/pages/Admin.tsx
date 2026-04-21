@@ -1501,7 +1501,6 @@ const panelMap: Record<string, () => JSX.Element> = {
   "pending-approval-email": PendingApprovalNotificationPanel,
   "request-for-info-email": RequestForInfoNotificationPanel,
   "document-aging-email": DocumentAgingNotificationPanel,
-  "month-end-report-email": MonthEndReportNotificationPanel,
   "system-alerts": SystemAlertsPanel,
   "erp-sync": ErpSyncPanel,
   "sync-logs": SyncLogsPanel,
