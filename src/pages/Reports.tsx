@@ -21,6 +21,7 @@ import {
   Receipt,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import MonthEndReportNotificationPanel from "@/components/admin/MonthEndReportNotificationPanel";
 
 // --- Sidebar menu definition ---
 const reportsMenu = [
