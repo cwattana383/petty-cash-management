@@ -32,33 +32,6 @@ const reportsMenu = [
       { key: "hr-finance-report", label: "HR & Finance Report", icon: Receipt },
     ],
   },
-  {
-    group: "Transaction Reports",
-    icon: CreditCard,
-    items: [
-      { key: "auto-approved", label: "Auto-Approved Transactions", icon: CheckCircle2 },
-      { key: "manager-approved", label: "Manager-Approved Transactions", icon: UserCheck },
-      { key: "rejected", label: "Rejected Transactions", icon: XCircle },
-      { key: "pending-deduction", label: "Pending (Salary Deduction)", icon: Clock },
-    ],
-  },
-  {
-    group: "Analytics",
-    icon: BarChart3,
-    items: [
-      { key: "spending-by-department", label: "Spending by Department", icon: Building2 },
-      { key: "spending-by-expense-type", label: "Spending by Expense Type", icon: Layers },
-      { key: "cardholder-activity", label: "Cardholder Activity", icon: TrendingUp },
-    ],
-  },
-  {
-    group: "Audit & Compliance",
-    icon: ShieldAlert,
-    items: [
-      { key: "policy-violations", label: "Policy Violations", icon: ShieldAlert },
-      { key: "ocr-validation-log", label: "OCR Validation Log", icon: ScanLine },
-    ],
-  },
 ];
 
 const monthEndRows = [
