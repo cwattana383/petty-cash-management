@@ -672,7 +672,6 @@ export default function DocumentTypePanel() {
                     <TableHeader>
                       <TableRow>
                         <TableHead>Document Name</TableHead>
-                        <TableHead className="text-center">Type</TableHead>
                         <TableHead className="text-center">OCR Verification</TableHead>
                         <TableHead className="text-center">Active</TableHead>
                         <TableHead className="text-center">Status</TableHead>
@@ -683,13 +682,6 @@ export default function DocumentTypePanel() {
                       {csvPreview.map((r, i) => (
                         <TableRow key={i} className={csvDuplicates.has(i) ? "bg-destructive/5" : ""}>
                           <TableCell className="text-sm">{r.documentName}</TableCell>
-                          <TableCell className="text-center">
-                            <Badge className={r.isSupportDocument
-                              ? "bg-green-100 text-green-700 hover:bg-green-100"
-                              : "bg-slate-100 text-slate-600 hover:bg-slate-100"}>
-                              {r.isSupportDocument ? "Support" : "Primary"}
-                            </Badge>
-                          </TableCell>
                           <TableCell className="text-center">
                             <Badge className={r.ocrVerification
                               ? "bg-emerald-100 text-emerald-700 hover:bg-emerald-100"
