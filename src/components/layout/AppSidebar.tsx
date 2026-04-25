@@ -94,12 +94,6 @@ export function AppSidebar() {
   return (
     <Sidebar>
       <SidebarHeader className="px-4 py-5 border-b border-sidebar-border space-y-3">
-        <div className="flex items-center gap-2">
-          <div className="w-8 h-8 rounded bg-primary flex items-center justify-center">
-            <span className="text-primary-foreground font-bold text-sm">E</span>
-          </div>
-          <span className="font-bold text-lg text-primary">ExpenseClaim</span>
-        </div>
         {visibleRoleTabs.length > 0 && (
           <div className="flex gap-1">
             {visibleRoleTabs.map((r) => (
