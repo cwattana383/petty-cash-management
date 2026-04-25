@@ -8,7 +8,6 @@ import { AuthGuard } from "@/components/layout/AuthGuard";
 import { RoleGuard } from "@/components/layout/RoleGuard";
 import { ClaimsProvider } from "@/lib/claims-context";
 import { RoleProvider } from "@/lib/role-context";
-import { NotificationsProvider } from "@/lib/notifications-context";
 import Login from "./pages/Login";
 
 import MyClaims from "./pages/MyClaims";
@@ -37,7 +36,6 @@ const App = () => (
       <AuthProvider>
         <ClaimsProvider>
           <RoleProvider>
-          <NotificationsProvider>
             <Toaster />
             <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
               <Routes>
@@ -77,7 +75,6 @@ const App = () => (
                 />
               </Routes>
             </BrowserRouter>
-          </NotificationsProvider>
           </RoleProvider>
         </ClaimsProvider>
       </AuthProvider>
