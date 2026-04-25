@@ -271,12 +271,12 @@ export default function DocumentTypePanel() {
   };
 
   const downloadTemplate = () => {
-    triggerCsvDownload("\uFEFFdocument_name,type,OCR_Verification,active\n", "document_type_template.csv");
+    triggerCsvDownload("\uFEFFdocument_name,OCR_Verification,active\n", "document_type_template.csv");
   };
 
   const downloadSample = () => {
     triggerCsvDownload(
-      "\uFEFFdocument_name,type,OCR_Verification,active\nTax Invoice,Primary,Enabled,Yes\n\u0e43\u0e1a\u0e40\u0e2a\u0e23\u0e47\u0e08\u0e23\u0e31\u0e1a\u0e40\u0e07\u0e34\u0e19 (Receipt),Support,Disabled,Yes\nBank Statement,Support,Disabled,Yes\n",
+      "\uFEFFdocument_name,OCR_Verification,active\nApproval Letter (General),Disabled,Yes\nReceipt / Tax Invoice,Enabled,Yes\nBoarding Pass,Disabled,Yes\n",
       "document_type_sample.csv",
     );
   };
@@ -308,7 +308,7 @@ export default function DocumentTypePanel() {
       const delimiter = lines[0].includes("\t") ? "\t" : ",";
 
       const headers = lines[0].split(delimiter).map((h) => h.trim().toLowerCase().replace(/^"|"$/g, ""));
-      const required = ["document_name", "type", "ocr_verification", "active"];
+      const required = ["document_name", "ocr_verification", "active"];
       const missing = required.filter((r) => !headers.includes(r));
       if (missing.length > 0) {
         toast({
@@ -320,7 +320,6 @@ export default function DocumentTypePanel() {
       }
 
       const nameIdx = headers.indexOf("document_name");
-      const typeIdx = headers.indexOf("type");
       const ocrIdx = headers.indexOf("ocr_verification");
       const activeIdx = headers.indexOf("active");
 
@@ -329,12 +328,11 @@ export default function DocumentTypePanel() {
         .map((line) => {
           const cols = line.split(delimiter).map((s) => s.trim().replace(/^"|"$/g, ""));
           const documentName = cols[nameIdx] ?? "";
-          const typeVal = (cols[typeIdx] ?? "").toLowerCase();
           const ocrVal = (cols[ocrIdx] ?? "").toLowerCase();
           const activeVal = (cols[activeIdx] ?? "").toLowerCase();
 
-          const isSupportDocument = typeVal === "support";
-          const ocrVerification = isSupportDocument ? false : ocrVal === "enabled";
+          const isSupportDocument = false;
+          const ocrVerification = ocrVal === "enabled";
           const active = activeVal === "true" || activeVal === "yes";
 
           return { documentName, isSupportDocument, ocrVerification, active };
@@ -464,7 +462,6 @@ export default function DocumentTypePanel() {
                   />
                 </TableHead>
                 <TableHead>Document Name</TableHead>
-                <TableHead className="text-center">Type</TableHead>
                 <TableHead className="text-center">OCR Verification</TableHead>
                 <TableHead className="text-center">Active</TableHead>
                 <TableHead className="text-center">Actions</TableHead>
@@ -473,13 +470,13 @@ export default function DocumentTypePanel() {
             <TableBody>
               {isLoading ? (
                 <TableRow>
-                  <TableCell colSpan={7} className="text-center py-8 text-muted-foreground">
+                  <TableCell colSpan={5} className="text-center py-8 text-muted-foreground">
                     <Loader2 className="h-5 w-5 animate-spin inline-block mr-2" /> Loading...
                   </TableCell>
                 </TableRow>
               ) : items.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={7} className="text-center py-8 text-muted-foreground">
+                  <TableCell colSpan={5} className="text-center py-8 text-muted-foreground">
                     No document types found.
                   </TableCell>
                 </TableRow>
@@ -493,13 +490,6 @@ export default function DocumentTypePanel() {
                       />
                     </TableCell>
                     <TableCell className="font-medium">{row.documentName}</TableCell>
-                    <TableCell className="text-center">
-                      <Badge className={row.isSupportDocument
-                        ? "bg-green-100 text-green-700 hover:bg-green-100"
-                        : "bg-slate-100 text-slate-600 hover:bg-slate-100"}>
-                        {row.isSupportDocument ? "Support" : "Primary"}
-                      </Badge>
-                    </TableCell>
                     <TableCell className="text-center">
                       <Badge className={row.ocrVerification
                         ? "bg-emerald-100 text-emerald-700 hover:bg-emerald-100"
@@ -682,7 +672,6 @@ export default function DocumentTypePanel() {
                     <TableHeader>
                       <TableRow>
                         <TableHead>Document Name</TableHead>
-                        <TableHead className="text-center">Type</TableHead>
                         <TableHead className="text-center">OCR Verification</TableHead>
                         <TableHead className="text-center">Active</TableHead>
                         <TableHead className="text-center">Status</TableHead>
@@ -693,13 +682,6 @@ export default function DocumentTypePanel() {
                       {csvPreview.map((r, i) => (
                         <TableRow key={i} className={csvDuplicates.has(i) ? "bg-destructive/5" : ""}>
                           <TableCell className="text-sm">{r.documentName}</TableCell>
-                          <TableCell className="text-center">
-                            <Badge className={r.isSupportDocument
-                              ? "bg-green-100 text-green-700 hover:bg-green-100"
-                              : "bg-slate-100 text-slate-600 hover:bg-slate-100"}>
-                              {r.isSupportDocument ? "Support" : "Primary"}
-                            </Badge>
-                          </TableCell>
                           <TableCell className="text-center">
                             <Badge className={r.ocrVerification
                               ? "bg-emerald-100 text-emerald-700 hover:bg-emerald-100"
