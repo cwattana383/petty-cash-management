@@ -66,12 +66,22 @@ const mccPoliciesStore: MccPolicyMaster[] = [
 
 // Document Types
 const documentTypesStore: Record<string, unknown>[] = [
-  { id: "dt-1", documentName: "Tax Invoice", isSupportDocument: false, ocrVerification: true, active: true, createdAt: "2026-01-01", updatedAt: "2026-01-01" },
-  { id: "dt-2", documentName: "Receipt", isSupportDocument: false, ocrVerification: true, active: true, createdAt: "2026-01-01", updatedAt: "2026-01-01" },
-  { id: "dt-3", documentName: "Boarding Pass", isSupportDocument: true, ocrVerification: false, active: true, createdAt: "2026-01-01", updatedAt: "2026-01-01" },
-  { id: "dt-4", documentName: "Hotel Folio", isSupportDocument: false, ocrVerification: true, active: true, createdAt: "2026-01-01", updatedAt: "2026-01-01" },
-  { id: "dt-5", documentName: "Quotation", isSupportDocument: true, ocrVerification: false, active: true, createdAt: "2026-01-01", updatedAt: "2026-01-01" },
-  { id: "dt-6", documentName: "Approval Form", isSupportDocument: true, ocrVerification: false, active: false, createdAt: "2026-01-01", updatedAt: "2026-01-01" },
+  { id: "dt-1", documentName: "Approval Letter (General)", isSupportDocument: false, ocrVerification: false, active: true, createdAt: "2026-04-22", updatedAt: "2026-04-22" },
+  { id: "dt-2", documentName: "Boarding Pass", isSupportDocument: false, ocrVerification: false, active: true, createdAt: "2026-04-22", updatedAt: "2026-04-22" },
+  { id: "dt-3", documentName: "Booking Confirmation", isSupportDocument: false, ocrVerification: false, active: true, createdAt: "2026-04-22", updatedAt: "2026-04-22" },
+  { id: "dt-4", documentName: "Flight Ticket (E-Ticket)", isSupportDocument: false, ocrVerification: false, active: true, createdAt: "2026-04-22", updatedAt: "2026-04-22" },
+  { id: "dt-5", documentName: "Fuel Receipt (with vehicle license plate)", isSupportDocument: false, ocrVerification: false, active: true, createdAt: "2026-04-22", updatedAt: "2026-04-22" },
+  { id: "dt-6", documentName: "Hotel Folio", isSupportDocument: false, ocrVerification: false, active: true, createdAt: "2026-04-22", updatedAt: "2026-04-22" },
+  { id: "dt-7", documentName: "Memo – Business Class Seat Justification", isSupportDocument: false, ocrVerification: false, active: true, createdAt: "2026-04-22", updatedAt: "2026-04-22" },
+  { id: "dt-8", documentName: "Memo – Single Room Accommodation Justification", isSupportDocument: false, ocrVerification: false, active: true, createdAt: "2026-04-22", updatedAt: "2026-04-22" },
+  { id: "dt-9", documentName: "Oversea Travelling Request Form", isSupportDocument: false, ocrVerification: false, active: true, createdAt: "2026-04-22", updatedAt: "2026-04-22" },
+  { id: "dt-10", documentName: "Passport Copy", isSupportDocument: false, ocrVerification: false, active: true, createdAt: "2026-04-22", updatedAt: "2026-04-22" },
+  { id: "dt-11", documentName: "Purchase Requisition", isSupportDocument: false, ocrVerification: false, active: true, createdAt: "2026-04-22", updatedAt: "2026-04-22" },
+  { id: "dt-12", documentName: "Receipt / Tax Invoice", isSupportDocument: false, ocrVerification: true, active: true, createdAt: "2026-04-22", updatedAt: "2026-04-22" },
+  { id: "dt-13", documentName: "Toll Fee Receipt", isSupportDocument: false, ocrVerification: false, active: true, createdAt: "2026-04-22", updatedAt: "2026-04-22" },
+  { id: "dt-14", documentName: "Train Ticket / Bus Ticket", isSupportDocument: false, ocrVerification: false, active: true, createdAt: "2026-04-22", updatedAt: "2026-04-22" },
+  { id: "dt-15", documentName: "Travel Insurance Certificate", isSupportDocument: false, ocrVerification: false, active: true, createdAt: "2026-04-22", updatedAt: "2026-04-22" },
+  { id: "dt-16", documentName: "Travelling Expenses Claim Details", isSupportDocument: false, ocrVerification: false, active: true, createdAt: "2026-04-22", updatedAt: "2026-04-22" },
 ];
 
 // Expense Types
