@@ -462,7 +462,6 @@ export default function DocumentTypePanel() {
                   />
                 </TableHead>
                 <TableHead>Document Name</TableHead>
-                <TableHead className="text-center">Type</TableHead>
                 <TableHead className="text-center">OCR Verification</TableHead>
                 <TableHead className="text-center">Active</TableHead>
                 <TableHead className="text-center">Actions</TableHead>
@@ -471,13 +470,13 @@ export default function DocumentTypePanel() {
             <TableBody>
               {isLoading ? (
                 <TableRow>
-                  <TableCell colSpan={7} className="text-center py-8 text-muted-foreground">
+                  <TableCell colSpan={5} className="text-center py-8 text-muted-foreground">
                     <Loader2 className="h-5 w-5 animate-spin inline-block mr-2" /> Loading...
                   </TableCell>
                 </TableRow>
               ) : items.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={7} className="text-center py-8 text-muted-foreground">
+                  <TableCell colSpan={5} className="text-center py-8 text-muted-foreground">
                     No document types found.
                   </TableCell>
                 </TableRow>
@@ -491,13 +490,6 @@ export default function DocumentTypePanel() {
                       />
                     </TableCell>
                     <TableCell className="font-medium">{row.documentName}</TableCell>
-                    <TableCell className="text-center">
-                      <Badge className={row.isSupportDocument
-                        ? "bg-green-100 text-green-700 hover:bg-green-100"
-                        : "bg-slate-100 text-slate-600 hover:bg-slate-100"}>
-                        {row.isSupportDocument ? "Support" : "Primary"}
-                      </Badge>
-                    </TableCell>
                     <TableCell className="text-center">
                       <Badge className={row.ocrVerification
                         ? "bg-emerald-100 text-emerald-700 hover:bg-emerald-100"
