@@ -30,12 +30,21 @@ interface MockItem {
   description: string;
   amount: string;
   status: string;
+  documentStatus: string;
   deductionPeriod: string;
   attachedFiles: AttachedDoc[];
   date: string;
 }
 
-const initialMockItems: MockItem[] = [];
+const initialMockItems: MockItem[] = [
+  { id: "TXN2026042700003", date: "2026-04-28", merchantName: "EASY PASS TOPUP", description: "Tolls and Bridge Fees", amount: "฿500.00", status: "Auto Approved", documentStatus: "Pending Documents", deductionPeriod: "—", attachedFiles: [] },
+  { id: "TXN2026042700001", date: "2026-04-28", merchantName: "STATE RAILWAY OF THAILAND", description: "Passenger Railways", amount: "฿680.00", status: "Auto Approved", documentStatus: "Pending Documents", deductionPeriod: "—", attachedFiles: [] },
+  { id: "TXN2026042800008", date: "2026-04-28", merchantName: "STARBUCKS THAILAND", description: "Fast Food Restaurants", amount: "฿285.00", status: "Auto Approved", documentStatus: "Pending Documents", deductionPeriod: "—", attachedFiles: [] },
+  { id: "TXN2026042700011", date: "2026-04-28", merchantName: "THB", description: "3577", amount: "฿19.00", status: "Required Approval", documentStatus: "Pending Documents", deductionPeriod: "—", attachedFiles: [] },
+  { id: "TXN2026042700009", date: "2026-04-28", merchantName: "THB", description: "3075", amount: "฿18.00", status: "Required Approval", documentStatus: "Pending Documents", deductionPeriod: "—", attachedFiles: [] },
+  { id: "TXN2026042800013", date: "2026-04-28", merchantName: "THB", description: "5812", amount: "฿2.00", status: "Required Approval", documentStatus: "Pending Documents", deductionPeriod: "—", attachedFiles: [] },
+  { id: "TXN2026042800014", date: "2026-04-28", merchantName: "7-ELEVEN SINGAPORE", description: "Grocery Stores and Supermarkets", amount: "฿495.80", status: "Required Approval", documentStatus: "Pending Documents", deductionPeriod: "—", attachedFiles: [] },
+];
 
 const DOC_TYPE_COLORS: Record<string, string> = {
   "Tax Invoice": "bg-blue-100 text-blue-800 border-blue-300",
@@ -53,13 +62,18 @@ const statusColors: Record<string, string> = {
   "Final Reject": "bg-red-100 text-red-800 border-red-300",
   "Exception": "bg-red-100 text-red-800 border-red-300",
   "Auto Approved": "bg-green-100 text-green-800 border-green-300",
+  "Required Approval": "bg-yellow-100 text-yellow-800 border-yellow-300",
   "Ready for ERP": "bg-blue-100 text-blue-800 border-blue-300",
   "Reimbursed": "bg-purple-100 text-purple-800 border-purple-300",
 };
 
+const documentStatusColors: Record<string, string> = {
+  "Pending Documents": "bg-yellow-100 text-yellow-800 border-yellow-300",
+};
+
 const tabStatusMap: Record<string, string[] | null> = {
   all: null,
-  pending: ["Pending Invoice", "Auto Approved"],
+  pending: ["Pending Invoice", "Auto Approved", "Required Approval"],
   exception: ["Auto Reject", "Reject", "Final Reject", "Exception"],
   ready: ["Ready for ERP"],
   reimbursed: ["Reimbursed"],
@@ -80,9 +94,7 @@ export default function AccountingReview() {
   const { toast } = useToast();
 
   const filtered = tabStatusMap[activeTab]
-    ? activeTab === "pending"
-      ? items.filter((item) => tabStatusMap[activeTab]!.includes(item.status) && item.attachedFiles.length > 0)
-      : items.filter((item) => tabStatusMap[activeTab]!.includes(item.status))
+    ? items.filter((item) => tabStatusMap[activeTab]!.includes(item.status))
     : items;
 
   const itemsWithFiles = filtered.filter((i) => i.attachedFiles.length > 0);
@@ -94,7 +106,7 @@ export default function AccountingReview() {
     const num = parseFloat(item.amount.replace(/[฿,]/g, ""));
     return sum + num;
   }, 0);
-  const pendingCount = items.filter((i) => ["Pending Invoice", "Auto Approved"].includes(i.status)).length;
+  const pendingCount = items.filter((i) => ["Pending Invoice", "Auto Approved", "Required Approval"].includes(i.status)).length;
   const readyCount = items.filter((i) => i.status === "Ready for ERP").length;
   const exceptionCount = items.filter((i) => ["Auto Reject", "Reject", "Final Reject", "Exception"].includes(i.status)).length;
 
@@ -258,15 +270,14 @@ export default function AccountingReview() {
                   <TableHead>Merchant Name</TableHead>
                   <TableHead>Description</TableHead>
                   <TableHead className="text-right">Amount</TableHead>
-                  <TableHead>Status</TableHead>
-                  <TableHead>Deduction Period</TableHead>
-                  <TableHead>Attached File</TableHead>
+                  <TableHead>Approval Status</TableHead>
+                  <TableHead>Document Status</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {filtered.length === 0 ? (
                   <TableRow>
-                    <TableCell colSpan={9} className="text-center text-muted-foreground py-8">No items found</TableCell>
+                    <TableCell colSpan={8} className="text-center text-muted-foreground py-8">No items found</TableCell>
                   </TableRow>
                 ) : (
                   filtered.map((item) => (
@@ -284,26 +295,7 @@ export default function AccountingReview() {
                       <TableCell>{item.description}</TableCell>
                       <TableCell className="text-right font-medium">{item.amount}</TableCell>
                       <TableCell><Badge className={statusColors[item.status] || ""} variant="outline">{item.status}</Badge></TableCell>
-                      <TableCell>{item.deductionPeriod}</TableCell>
-                      <TableCell>
-                        {item.status === "Pending Invoice" ? (
-                          <span className="text-muted-foreground">Pending</span>
-                        ) : item.status === "Auto Reject" ? (
-                          <span className="text-muted-foreground">None</span>
-                        ) : item.attachedFiles.length > 0 ? (
-                          <span
-                            className="inline-flex items-center gap-1.5 text-primary cursor-pointer hover:underline"
-                            onClick={() => openDrawer(item.id)}
-                          >
-                            <Paperclip className="h-3.5 w-3.5" />
-                            <Badge variant="secondary" className="text-xs px-1.5 py-0">
-                              📎 {item.attachedFiles.length} {item.attachedFiles.length === 1 ? "file" : "files"}
-                            </Badge>
-                          </span>
-                        ) : (
-                          <span className="text-muted-foreground">—</span>
-                        )}
-                      </TableCell>
+                      <TableCell><Badge className={documentStatusColors[item.documentStatus] || ""} variant="outline">{item.documentStatus}</Badge></TableCell>
                     </TableRow>
                   ))
                 )}
