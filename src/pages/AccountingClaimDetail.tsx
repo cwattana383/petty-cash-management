@@ -28,6 +28,13 @@ interface AccountingItem {
 }
 
 const ACCOUNTING_ITEMS: AccountingItem[] = [
+  { id: "TXN2026042700003", merchantName: "EASY PASS TOPUP", description: "Tolls and Bridge Fees", amount: 500, status: "Auto Approved", date: "2026-04-28", fileName: "", docType: "" },
+  { id: "TXN2026042700001", merchantName: "STATE RAILWAY OF THAILAND", description: "Passenger Railways", amount: 680, status: "Auto Approved", date: "2026-04-28", fileName: "", docType: "" },
+  { id: "TXN2026042800008", merchantName: "STARBUCKS THAILAND", description: "Fast Food Restaurants", amount: 285, status: "Auto Approved", date: "2026-04-28", fileName: "", docType: "" },
+  { id: "TXN2026042700011", merchantName: "THB", description: "3577", amount: 19, status: "Required Approval", date: "2026-04-28", fileName: "", docType: "" },
+  { id: "TXN2026042700009", merchantName: "THB", description: "3075", amount: 18, status: "Required Approval", date: "2026-04-28", fileName: "", docType: "" },
+  { id: "TXN2026042800013", merchantName: "THB", description: "5812", amount: 2, status: "Required Approval", date: "2026-04-28", fileName: "", docType: "" },
+  { id: "TXN2026042800014", merchantName: "7-ELEVEN SINGAPORE", description: "Grocery Stores and Supermarkets", amount: 495.8, status: "Required Approval", date: "2026-04-28", fileName: "", docType: "" },
   { id: "TXN20260227071", merchantName: "Top", description: "Grocery Stores", amount: 799, status: "Auto Approved", date: "2026-02-27", fileName: "grocery_receipt.pdf", docType: "Tax Invoice" },
   { id: "TXN20260227078", merchantName: "KFC", description: "Fast Food Restaurants", amount: 279, status: "Auto Approved", date: "2026-02-27", fileName: "kfc_tax_invoice.pdf", docType: "Tax Invoice" },
   { id: "TXN20260227013", merchantName: "Suki Teenoi", description: "Eating Places and Restaurants", amount: 499, status: "Auto Approved", date: "2026-02-27", fileName: "suki_receipt.pdf", docType: "Tax Invoice" },
