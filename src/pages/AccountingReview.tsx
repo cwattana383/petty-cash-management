@@ -63,12 +63,14 @@ const statusColors: Record<string, string> = {
   "Exception": "bg-red-100 text-red-800 border-red-300",
   "Auto Approved": "bg-green-100 text-green-800 border-green-300",
   "Required Approval": "bg-yellow-100 text-yellow-800 border-yellow-300",
+  "Acounting_Review": "bg-green-100 text-green-800 border-green-300",
   "Ready for ERP": "bg-blue-100 text-blue-800 border-blue-300",
   "Reimbursed": "bg-purple-100 text-purple-800 border-purple-300",
 };
 
 const documentStatusColors: Record<string, string> = {
   "Pending Documents": "bg-yellow-100 text-yellow-800 border-yellow-300",
+  "Validated": "bg-green-100 text-green-800 border-green-300",
 };
 
 const tabStatusMap: Record<string, string[] | null> = {
@@ -270,8 +272,8 @@ export default function AccountingReview() {
                   <TableHead>Merchant Name</TableHead>
                   <TableHead>Description</TableHead>
                   <TableHead className="text-right">Amount</TableHead>
-                  <TableHead>Approval Status</TableHead>
-                  <TableHead>Document Status</TableHead>
+                  <TableHead>Acounting_Review</TableHead>
+                  <TableHead>Validated</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -294,8 +296,8 @@ export default function AccountingReview() {
                       <TableCell>{item.merchantName}</TableCell>
                       <TableCell>{item.description}</TableCell>
                       <TableCell className="text-right font-medium">{item.amount}</TableCell>
-                      <TableCell><Badge className={statusColors[item.status] || ""} variant="outline">{item.status}</Badge></TableCell>
-                      <TableCell><Badge className={documentStatusColors[item.documentStatus] || ""} variant="outline">{item.documentStatus}</Badge></TableCell>
+                      <TableCell><Badge className={statusColors["Acounting_Review"]} variant="outline">Acounting_Review</Badge></TableCell>
+                      <TableCell><Badge className={documentStatusColors["Validated"]} variant="outline">Validated</Badge></TableCell>
                     </TableRow>
                   ))
                 )}
