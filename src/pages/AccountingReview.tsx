@@ -272,15 +272,14 @@ export default function AccountingReview() {
                   <TableHead>Merchant Name</TableHead>
                   <TableHead>Description</TableHead>
                   <TableHead className="text-right">Amount</TableHead>
-                  <TableHead>Status</TableHead>
-                  <TableHead>Deduction Period</TableHead>
-                  <TableHead>Attached File</TableHead>
+                  <TableHead>Approval Status</TableHead>
+                  <TableHead>Document Status</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {filtered.length === 0 ? (
                   <TableRow>
-                    <TableCell colSpan={9} className="text-center text-muted-foreground py-8">No items found</TableCell>
+                    <TableCell colSpan={8} className="text-center text-muted-foreground py-8">No items found</TableCell>
                   </TableRow>
                 ) : (
                   filtered.map((item) => (
@@ -299,25 +298,7 @@ export default function AccountingReview() {
                       <TableCell className="text-right font-medium">{item.amount}</TableCell>
                       <TableCell><Badge className={statusColors[item.status] || ""} variant="outline">{item.status}</Badge></TableCell>
                       <TableCell>{item.deductionPeriod}</TableCell>
-                      <TableCell>
-                        {item.status === "Pending Invoice" ? (
-                          <span className="text-muted-foreground">Pending</span>
-                        ) : item.status === "Auto Reject" ? (
-                          <span className="text-muted-foreground">None</span>
-                        ) : item.attachedFiles.length > 0 ? (
-                          <span
-                            className="inline-flex items-center gap-1.5 text-primary cursor-pointer hover:underline"
-                            onClick={() => openDrawer(item.id)}
-                          >
-                            <Paperclip className="h-3.5 w-3.5" />
-                            <Badge variant="secondary" className="text-xs px-1.5 py-0">
-                              📎 {item.attachedFiles.length} {item.attachedFiles.length === 1 ? "file" : "files"}
-                            </Badge>
-                          </span>
-                        ) : (
-                          <span className="text-muted-foreground">—</span>
-                        )}
-                      </TableCell>
+                      <TableCell><Badge className={documentStatusColors[item.documentStatus] || ""} variant="outline">{item.documentStatus}</Badge></TableCell>
                     </TableRow>
                   ))
                 )}
