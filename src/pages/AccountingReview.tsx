@@ -94,9 +94,7 @@ export default function AccountingReview() {
   const { toast } = useToast();
 
   const filtered = tabStatusMap[activeTab]
-    ? activeTab === "pending"
-      ? items.filter((item) => tabStatusMap[activeTab]!.includes(item.status) && item.attachedFiles.length > 0)
-      : items.filter((item) => tabStatusMap[activeTab]!.includes(item.status))
+    ? items.filter((item) => tabStatusMap[activeTab]!.includes(item.status))
     : items;
 
   const itemsWithFiles = filtered.filter((i) => i.attachedFiles.length > 0);
@@ -108,7 +106,7 @@ export default function AccountingReview() {
     const num = parseFloat(item.amount.replace(/[฿,]/g, ""));
     return sum + num;
   }, 0);
-  const pendingCount = items.filter((i) => ["Pending Invoice", "Auto Approved"].includes(i.status)).length;
+  const pendingCount = items.filter((i) => ["Pending Invoice", "Auto Approved", "Required Approval"].includes(i.status)).length;
   const readyCount = items.filter((i) => i.status === "Ready for ERP").length;
   const exceptionCount = items.filter((i) => ["Auto Reject", "Reject", "Final Reject", "Exception"].includes(i.status)).length;
 
@@ -297,7 +295,6 @@ export default function AccountingReview() {
                       <TableCell>{item.description}</TableCell>
                       <TableCell className="text-right font-medium">{item.amount}</TableCell>
                       <TableCell><Badge className={statusColors[item.status] || ""} variant="outline">{item.status}</Badge></TableCell>
-                      <TableCell>{item.deductionPeriod}</TableCell>
                       <TableCell><Badge className={documentStatusColors[item.documentStatus] || ""} variant="outline">{item.documentStatus}</Badge></TableCell>
                     </TableRow>
                   ))
