@@ -30,12 +30,21 @@ interface MockItem {
   description: string;
   amount: string;
   status: string;
+  documentStatus: string;
   deductionPeriod: string;
   attachedFiles: AttachedDoc[];
   date: string;
 }
 
-const initialMockItems: MockItem[] = [];
+const initialMockItems: MockItem[] = [
+  { id: "TXN2026042700003", date: "2026-04-28", merchantName: "EASY PASS TOPUP", description: "Tolls and Bridge Fees", amount: "฿500.00", status: "Auto Approved", documentStatus: "Pending Documents", deductionPeriod: "—", attachedFiles: [] },
+  { id: "TXN2026042700001", date: "2026-04-28", merchantName: "STATE RAILWAY OF THAILAND", description: "Passenger Railways", amount: "฿680.00", status: "Auto Approved", documentStatus: "Pending Documents", deductionPeriod: "—", attachedFiles: [] },
+  { id: "TXN2026042800008", date: "2026-04-28", merchantName: "STARBUCKS THAILAND", description: "Fast Food Restaurants", amount: "฿285.00", status: "Auto Approved", documentStatus: "Pending Documents", deductionPeriod: "—", attachedFiles: [] },
+  { id: "TXN2026042700011", date: "2026-04-28", merchantName: "THB", description: "3577", amount: "฿19.00", status: "Required Approval", documentStatus: "Pending Documents", deductionPeriod: "—", attachedFiles: [] },
+  { id: "TXN2026042700009", date: "2026-04-28", merchantName: "THB", description: "3075", amount: "฿18.00", status: "Required Approval", documentStatus: "Pending Documents", deductionPeriod: "—", attachedFiles: [] },
+  { id: "TXN2026042800013", date: "2026-04-28", merchantName: "THB", description: "5812", amount: "฿2.00", status: "Required Approval", documentStatus: "Pending Documents", deductionPeriod: "—", attachedFiles: [] },
+  { id: "TXN2026042800014", date: "2026-04-28", merchantName: "7-ELEVEN SINGAPORE", description: "Grocery Stores and Supermarkets", amount: "฿495.80", status: "Required Approval", documentStatus: "Pending Documents", deductionPeriod: "—", attachedFiles: [] },
+];
 
 const DOC_TYPE_COLORS: Record<string, string> = {
   "Tax Invoice": "bg-blue-100 text-blue-800 border-blue-300",
@@ -53,13 +62,18 @@ const statusColors: Record<string, string> = {
   "Final Reject": "bg-red-100 text-red-800 border-red-300",
   "Exception": "bg-red-100 text-red-800 border-red-300",
   "Auto Approved": "bg-green-100 text-green-800 border-green-300",
+  "Required Approval": "bg-yellow-100 text-yellow-800 border-yellow-300",
   "Ready for ERP": "bg-blue-100 text-blue-800 border-blue-300",
   "Reimbursed": "bg-purple-100 text-purple-800 border-purple-300",
 };
 
+const documentStatusColors: Record<string, string> = {
+  "Pending Documents": "bg-yellow-100 text-yellow-800 border-yellow-300",
+};
+
 const tabStatusMap: Record<string, string[] | null> = {
   all: null,
-  pending: ["Pending Invoice", "Auto Approved"],
+  pending: ["Pending Invoice", "Auto Approved", "Required Approval"],
   exception: ["Auto Reject", "Reject", "Final Reject", "Exception"],
   ready: ["Ready for ERP"],
   reimbursed: ["Reimbursed"],
