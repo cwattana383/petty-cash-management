@@ -1889,6 +1889,8 @@ export default function ClaimDetail() {
         );
       })()}
 
+      <ResponsePanel claim={claim} />
+
       <div className="space-y-8 mt-6">
         {/* ══════ STEP 1 — CARD TRANSACTION (Read-Only) ══════ */}
         <section>
