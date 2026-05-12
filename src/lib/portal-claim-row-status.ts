@@ -101,7 +101,7 @@ export function toDisplayStatus(
   if (claimStatus === "Auto Approved") return "AUTO_APPROVED";
   if (claimStatus === "Manager Approved" || claimStatus === "Reimbursed") return "MANAGER_APPROVED";
   if (claimStatus === "Auto Reject") return "AUTO_REJECTED";
-  if (claimStatus === "Reject" || claimStatus === "Final Reject" || claimStatus === "Final Rejected") return "MANAGER_REJECTED";
+  if (claimStatus === "Reject" || claimStatus === "Final Rejected") return "MANAGER_REJECTED";
   return "PENDING_DOCUMENTS";
 }
 
