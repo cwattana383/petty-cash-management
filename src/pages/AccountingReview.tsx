@@ -272,7 +272,7 @@ export default function AccountingReview() {
                   <TableHead>Merchant Name</TableHead>
                   <TableHead>Description</TableHead>
                   <TableHead className="text-right">Amount</TableHead>
-                  <TableHead>Acounting_Review</TableHead>
+                  <TableHead>Accounting Review</TableHead>
                   <TableHead>Validated</TableHead>
                 </TableRow>
               </TableHeader>
