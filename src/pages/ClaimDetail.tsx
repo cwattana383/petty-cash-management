@@ -1486,6 +1486,11 @@ export default function ClaimDetail() {
 
         <p className="text-[13px] text-muted-foreground mt-4 mb-6">{statusMeta}</p>
 
+        {errorBanner && (
+          <div className="bg-red-50 border-l-4 border-red-500 text-red-700 p-3 rounded-md mb-3 text-sm">
+            {errorBanner}
+          </div>
+        )}
         <ResponsePanel claim={claim} />
 
         <div className="space-y-8">
@@ -1705,6 +1710,11 @@ export default function ClaimDetail() {
         {/* Submitted-by header */}
         <p className="text-[13px] text-muted-foreground mt-4 mb-6">{statusMeta}</p>
 
+        {errorBanner && (
+          <div className="bg-red-50 border-l-4 border-red-500 text-red-700 p-3 rounded-md mb-3 text-sm">
+            {errorBanner}
+          </div>
+        )}
         <ResponsePanel claim={claim} />
 
         <div className="space-y-8">
@@ -1996,6 +2006,11 @@ export default function ClaimDetail() {
         );
       })()}
 
+      {errorBanner && (
+        <div className="bg-red-50 border-l-4 border-red-500 text-red-700 p-3 rounded-md mb-3 text-sm">
+          {errorBanner}
+        </div>
+      )}
       <ResponsePanel claim={claim} />
 
       <div className="space-y-8 mt-6">
