@@ -20,6 +20,7 @@ export const users: User[] = [
   { id: "u4", employeeCode: "ACC001", name: "Pim Dee", email: "pim@company.com", roles: ["Cardholder"], branch: "Bangkok", department: "Finance", costCenter: "CC-FIN-01", position: "Senior Accountant" },
   { id: "u5", employeeCode: "MGR001", name: "Thana Pitak", email: "thana@company.com", roles: ["Admin"], branch: "Bangkok", department: "Management", costCenter: "CC-MGT-01", position: "Director" },
   { id: "u6", employeeCode: "SUP001", name: "Nattapong Srisuk", email: "nattapong@company.com", roles: ["Admin", "Approver", "Cardholder"], branch: "Bangkok", department: "Management", costCenter: "CC-MGT-01", position: "VP Operations" },
+  { id: "u7", employeeCode: "FIN001", name: "Aor (Finance Team)", email: "aor@company.com", roles: ["Cardholder"], branch: "Bangkok", department: "Finance", costCenter: "CC-FIN-01", position: "Finance Officer" },
 ];
 
 /** Demo login accounts with their passwords */
