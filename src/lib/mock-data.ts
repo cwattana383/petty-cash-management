@@ -20,6 +20,7 @@ export const users: User[] = [
   { id: "u4", employeeCode: "ACC001", name: "Pim Dee", email: "pim@company.com", roles: ["Cardholder"], branch: "Bangkok", department: "Finance", costCenter: "CC-FIN-01", position: "Senior Accountant" },
   { id: "u5", employeeCode: "MGR001", name: "Thana Pitak", email: "thana@company.com", roles: ["Admin"], branch: "Bangkok", department: "Management", costCenter: "CC-MGT-01", position: "Director" },
   { id: "u6", employeeCode: "SUP001", name: "Nattapong Srisuk", email: "nattapong@company.com", roles: ["Admin", "Approver", "Cardholder"], branch: "Bangkok", department: "Management", costCenter: "CC-MGT-01", position: "VP Operations" },
+  { id: "u7", employeeCode: "FIN001", name: "Aor (Finance Team)", email: "aor@company.com", roles: ["Cardholder"], branch: "Bangkok", department: "Finance", costCenter: "CC-FIN-01", position: "Finance Officer" },
 ];
 
 /** Demo login accounts with their passwords */
@@ -257,6 +258,45 @@ export const mockClaims: ClaimHeader[] = [
     purpose: "Car Rental (2 days, customer event Pattaya)", merchantName: "AVIS RENT A CAR", currency: "THB", paymentMethod: "Corporate Card",
     totalAmount: 9200, totalVat: 0, status: "Pending Approval", createdDate: "2026-03-10", submittedDate: "2026-03-10",
     lines: [], approvalHistory: [{ stepNo: 1, approverId: "u1", approverName: "Somchai Jaidee", action: "Pending", comment: "", actionDate: null }], comments: [],
+  },
+  {
+    id: "CLM-TEST-REJECT-001", claimNo: "CLM-2026-TEST-001", requesterId: "u1", requesterName: "Somchai Jaidee",
+    company: "ABC Co., Ltd.", branch: "Bangkok", department: "9993010460 Finance and Accounting", costCenter: "CC-SALES-01",
+    purpose: "Airlines", merchantName: "SINGAPORE AIRLINES", currency: "THB", paymentMethod: "Corporate Card",
+    totalAmount: 18224.00, totalVat: 0, status: "Reject", createdDate: "2026-05-10", submittedDate: "2026-05-10",
+    lines: [], approvalHistory: [], comments: [],
+    returnSource: "MANAGER_REJECT", returnedByUserId: "u2", returnedAt: "2026-05-11T16:22:00Z",
+    returnMessage: "Travel approval letter doesn't match the trip dates on the booking. Please attach the corrected approval and resubmit.",
+    resubmitCountMgr: 0,
+  },
+  {
+    id: "CLM-TEST-RFI-001", claimNo: "CLM-2026-TEST-002", requesterId: "u1", requesterName: "Somchai Jaidee",
+    company: "ABC Co., Ltd.", branch: "Bangkok", department: "9993010460 Finance and Accounting", costCenter: "CC-SALES-01",
+    purpose: "Cloud Services", merchantName: "AMAZON WEB SERVICES", currency: "THB", paymentMethod: "Corporate Card",
+    totalAmount: 5420.50, totalVat: 0, status: "Returned For Info", createdDate: "2026-05-10", submittedDate: "2026-05-10",
+    lines: [], approvalHistory: [], comments: [],
+    returnSource: "MANAGER_RFI", returnedByUserId: "u2", returnedAt: "2026-05-11T17:45:00Z",
+    returnMessage: "Can you justify this as a business expense and attach pre-approval from Director Y? What project does this AWS bill cover?",
+  },
+  {
+    id: "CLM-TEST-FIN-001", claimNo: "CLM-2026-TEST-003", requesterId: "u1", requesterName: "Somchai Jaidee",
+    company: "ABC Co., Ltd.", branch: "Bangkok", department: "9993010460 Finance and Accounting", costCenter: "CC-SALES-01",
+    purpose: "Drinking Places (Bars)", merchantName: "IRON FAIRIES", currency: "THB", paymentMethod: "Corporate Card",
+    totalAmount: 3200.00, totalVat: 0, status: "Returned By Finance", createdDate: "2026-05-11", submittedDate: "2026-05-11",
+    lines: [], approvalHistory: [], comments: [],
+    returnSource: "FINANCE_RETURN", returnedByUserId: "u7", returnedAt: "2026-05-12T09:10:00Z",
+    returnMessage: "Buyer Tax ID on the Full Tax Invoice is incorrect for CPAxtra — it shows '01095...' but our entity is '01075...'. Please request a corrected invoice from the vendor.",
+  },
+  {
+    id: "CLM-TEST-FINAL-001", claimNo: "CLM-2026-TEST-004", requesterId: "u1", requesterName: "Somchai Jaidee",
+    company: "ABC Co., Ltd.", branch: "Bangkok", department: "9993010460 Finance and Accounting", costCenter: "CC-SALES-01",
+    purpose: "Office Supplies", merchantName: "B2S", currency: "THB", paymentMethod: "Corporate Card",
+    totalAmount: 890.00, totalVat: 0, status: "Final Rejected", createdDate: "2026-05-09", submittedDate: "2026-05-09",
+    lines: [], approvalHistory: [], comments: [],
+    returnSource: "MANAGER_REJECT", returnedByUserId: "u2", returnedAt: "2026-05-12T11:00:00Z",
+    returnMessage: "The resubmitted invoice still does not match the card transaction amount. This expense cannot be approved.",
+    resubmitCountMgr: 1,
+    cardholderNote: "Bought a notebook for client meeting prep. Vendor refused to issue a corrected invoice.",
   },
 ];
 export const mockBankTransactions: BankTransaction[] = [
