@@ -466,6 +466,7 @@ export type SaveClaimDraftPayload = {
   subExpenseTypeId?: string;
   vatTypeId?: string;
   glAccountId?: string;
+  cardholderNote?: string;
 };
 
 export function useSaveClaimDraft() {

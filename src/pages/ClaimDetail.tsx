@@ -361,6 +361,94 @@ const actionConfig: Record<string, { color: string; icon: React.ElementType }> =
   Delegated: { color: "border-purple-400 bg-purple-50", icon: Send },
 };
 
+const CARDHOLDER_NOTE_EDITABLE_STATUSES: ReadonlyArray<ClaimHeader["status"]> = [
+  "Pending Documents",
+  "Reject",
+  "Returned For Info",
+  "Returned By Finance",
+];
+
+function CardholderNoteField({
+  claim,
+  onSave,
+}: {
+  claim: ClaimHeader;
+  onSave: (value: string) => void;
+}) {
+  const isEditable = CARDHOLDER_NOTE_EDITABLE_STATUSES.includes(claim.status);
+  const [value, setValue] = useState(claim.cardholderNote ?? "");
+  const lastSavedRef = useRef(claim.cardholderNote ?? "");
+  const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  useEffect(() => {
+    setValue(claim.cardholderNote ?? "");
+    lastSavedRef.current = claim.cardholderNote ?? "";
+  }, [claim.id, claim.cardholderNote]);
+
+  const flushSave = useCallback(() => {
+    if (value === lastSavedRef.current) return;
+    lastSavedRef.current = value;
+    onSave(value);
+  }, [value, onSave]);
+
+  const handleBlur = () => {
+    if (debounceRef.current) clearTimeout(debounceRef.current);
+    debounceRef.current = setTimeout(flushSave, 800);
+  };
+
+  useEffect(() => {
+    return () => {
+      if (debounceRef.current) clearTimeout(debounceRef.current);
+    };
+  }, []);
+
+  if (isEditable) {
+    return (
+      <div className="border-t border-dashed border-gray-200 mt-4 pt-4">
+        <div>
+          <Label className="text-[13px] font-semibold text-foreground">
+            Cardholder's Note
+            <span className="text-xs text-gray-400 font-normal ml-1">
+              (optional · max 500 characters)
+            </span>
+          </Label>
+        </div>
+        <Textarea
+          value={value}
+          onChange={(e) => setValue(e.target.value.slice(0, 500))}
+          onBlur={handleBlur}
+          maxLength={500}
+          className="min-h-[72px] mt-2 text-[13px]"
+          placeholder="Add context for your manager or Finance — e.g. trip purpose, attendees, or why a correction was needed."
+        />
+        <p className="text-xs text-gray-400 text-right mt-1">{value.length} / 500</p>
+      </div>
+    );
+  }
+
+  const saved = (claim.cardholderNote ?? "").trim();
+  if (!saved) return null;
+
+  return (
+    <div className="border-t border-dashed border-gray-200 mt-4 pt-4">
+      <div>
+        <Label className="text-[13px] font-semibold text-foreground">
+          Cardholder's Note
+          <span className="text-xs text-gray-400 font-normal ml-1">
+            (optional · max 500 characters)
+          </span>
+        </Label>
+      </div>
+      <div className="bg-[#F0F9FF] border-l-[3px] border-l-[#0EA5E9] rounded-md p-3 mt-2">
+        <div className="text-xs text-[#0369A1] font-semibold uppercase tracking-wide mb-1">
+          Note
+        </div>
+        <p className="text-sm text-gray-700 italic whitespace-pre-wrap">{saved}</p>
+      </div>
+    </div>
+  );
+}
+
 export default function ClaimDetail() {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -1427,6 +1515,14 @@ export default function ClaimDetail() {
                   <ReadOnlyField label="VAT Type" value={roBiz.vatType} />
                   <ReadOnlyField label="GL Account" value={roBiz.glAccount} />
                 </div>
+                <CardholderNoteField
+                  claim={claim}
+                  onSave={(v) =>
+                    saveDraftMutation
+                      .mutateAsync({ claimId: claim.id, body: { cardholderNote: v } })
+                      .then(() => toast({ title: "Note saved", duration: 1500 }))
+                  }
+                />
               </CardContent>
             </Card>
           </section>
@@ -1644,6 +1740,14 @@ export default function ClaimDetail() {
                   <ReadOnlyField label="VAT Type" value={approverBiz.vatType} />
                   <ReadOnlyField label="GL Account" value={approverBiz.glAccount} />
                 </div>
+                <CardholderNoteField
+                  claim={claim}
+                  onSave={(v) =>
+                    saveDraftMutation
+                      .mutateAsync({ claimId: claim.id, body: { cardholderNote: v } })
+                      .then(() => toast({ title: "Note saved", duration: 1500 }))
+                  }
+                />
               </CardContent>
             </Card>
           </section>
@@ -2030,6 +2134,14 @@ export default function ClaimDetail() {
                   {errors.glAccount && <p className="text-xs text-destructive">{errors.glAccount}</p>}
                 </div>
               </div>
+              <CardholderNoteField
+                claim={claim}
+                onSave={(v) =>
+                  saveDraftMutation
+                    .mutateAsync({ claimId: claim.id, body: { cardholderNote: v } })
+                    .then(() => toast({ title: "Note saved", duration: 1500 }))
+                }
+              />
 
               {/* Auto Reject banner (hidden when corp card already policy auto-reject + no doc — user may still submit to record) */}
               {isAutoReject && selectedConfig?.notes && !corpPolicyAutoRejectNoDoc && (
