@@ -296,7 +296,7 @@ export default function AccountingReview() {
                       <TableCell>{item.merchantName}</TableCell>
                       <TableCell>{item.description}</TableCell>
                       <TableCell className="text-right font-medium">{item.amount}</TableCell>
-                      <TableCell><Badge className={statusColors["Acounting_Review"]} variant="outline">Acounting_Review</Badge></TableCell>
+                      <TableCell><Badge className={statusColors["Accounting Review"]} variant="outline">Accounting Review</Badge></TableCell>
                       <TableCell><Badge className={documentStatusColors["Validated"]} variant="outline">Validated</Badge></TableCell>
                     </TableRow>
                   ))
