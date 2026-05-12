@@ -29,7 +29,8 @@ export type ApprovalStatusUiText =
   | "Final Reject"
   | "Auto Approved"
   | "Manager Approved"
-  | "Returned for Info";
+  | "Returned for Info"
+  | "Returned by Finance";
 
 export const TAB_STATUS_FILTER: Record<StatusTab, string[]> = {
   pending_invoice: [
