@@ -234,6 +234,8 @@ export function approvalStatusDisplayText(
   if (txnStatus === "AUTO_REJECTED" || displayFromClaim === "AUTO_REJECTED" || claim?.status === "Auto Reject") {
     return "Auto Reject";
   }
+  if (claim?.status === "Returned By Finance") return "Returned by Finance";
+  if (claim?.status === "Accounting Review") return "Accounting Review";
   if (claim?.status === "Final Rejected") return "Final Reject";
   if (txnStatus === "FINAL_REJECTED") return "Final Reject";
   if (
