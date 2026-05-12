@@ -1515,6 +1515,14 @@ export default function ClaimDetail() {
                   <ReadOnlyField label="VAT Type" value={roBiz.vatType} />
                   <ReadOnlyField label="GL Account" value={roBiz.glAccount} />
                 </div>
+                <CardholderNoteField
+                  claim={claim}
+                  onSave={(v) =>
+                    saveDraftMutation
+                      .mutateAsync({ claimId: claim.id, body: { cardholderNote: v } })
+                      .then(() => toast({ title: "Note saved", duration: 1500 }))
+                  }
+                />
               </CardContent>
             </Card>
           </section>
@@ -1732,6 +1740,14 @@ export default function ClaimDetail() {
                   <ReadOnlyField label="VAT Type" value={approverBiz.vatType} />
                   <ReadOnlyField label="GL Account" value={approverBiz.glAccount} />
                 </div>
+                <CardholderNoteField
+                  claim={claim}
+                  onSave={(v) =>
+                    saveDraftMutation
+                      .mutateAsync({ claimId: claim.id, body: { cardholderNote: v } })
+                      .then(() => toast({ title: "Note saved", duration: 1500 }))
+                  }
+                />
               </CardContent>
             </Card>
           </section>
@@ -2118,6 +2134,14 @@ export default function ClaimDetail() {
                   {errors.glAccount && <p className="text-xs text-destructive">{errors.glAccount}</p>}
                 </div>
               </div>
+              <CardholderNoteField
+                claim={claim}
+                onSave={(v) =>
+                  saveDraftMutation
+                    .mutateAsync({ claimId: claim.id, body: { cardholderNote: v } })
+                    .then(() => toast({ title: "Note saved", duration: 1500 }))
+                }
+              />
 
               {/* Auto Reject banner (hidden when corp card already policy auto-reject + no doc — user may still submit to record) */}
               {isAutoReject && selectedConfig?.notes && !corpPolicyAutoRejectNoDoc && (
