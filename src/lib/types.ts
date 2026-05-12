@@ -5,11 +5,12 @@ export type ClaimStatus =
   | "Final Rejected"
   | "Auto Reject"
   | "Reject"
-  | "Final Reject"
   | "Auto Approved"
   | "Manager Approved"
   | "Reimbursed"
   | "Returned For Info"
+  | "Returned By Finance"
+  | "Accounting Review"
   | "Pending Salary Deduction";
 
 export type ClaimDisplayStatus =
