@@ -2348,47 +2348,74 @@ export default function ClaimDetail() {
       </div>
 
       {/* ══════ STICKY FOOTER ══════ */}
-      <div className="fixed bottom-0 left-0 right-0 bg-background border-t border-border px-6 py-3 flex justify-end gap-3 z-50">
-        <Button
-          variant="outline"
-          onClick={() => void handleSaveDraft()}
-          disabled={draftSaving || saveDraftMutation.isPending || !claim?.id}
-        >
-          Save Draft
-        </Button>
-        <TooltipProvider>
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <span>
-                <Button
-                  onClick={() => void handleSubmit()}
-                  disabled={
-                    !canSubmit || submitClaimMutation.isPending || draftSaving || saveDraftMutation.isPending
-                  }
-                  className="bg-blue-600 hover:bg-blue-700 text-white disabled:opacity-50"
-                >
-                  {submitClaimMutation.isPending
-                    ? "Submitting..."
-                    : corpPolicyAutoRejectNoDoc
-                      ? "Submit"
-                      : "Submit for Approval"}
-                </Button>
-              </span>
-            </TooltipTrigger>
-                {!canSubmit && (
-              <TooltipContent side="top" className="max-w-xs text-xs">
-                {!step2Complete
-                  ? "Complete Business Info: purpose, expense type, sub type, VAT type, and GL account (each must match the current lists)."
-                  : isAutoReject && !corpPolicyAutoRejectNoDoc
-                    ? "This expense type cannot be submitted (auto-reject policy)."
-                    : requiredDocumentType && (!docRequirementMet || docBlocksSubmit)
-                      ? "Please upload and verify the required document, or confirm you have no document to attach."
-                      : "Please complete all required fields in each step."}
-              </TooltipContent>
-            )}
-          </Tooltip>
-        </TooltipProvider>
-      </div>
+      {(() => {
+        const status = claim.status;
+        const HIDE_STATUSES: ReadonlyArray<typeof status> = [
+          "Auto Approved",
+          "Manager Approved",
+          "Reimbursed",
+          "Auto Reject",
+          "Pending Approval",
+          "Accounting Review",
+          "Pending Salary Deduction",
+          "Pending Invoice",
+        ];
+        if (HIDE_STATUSES.includes(status)) return null;
+
+        if (status === "Final Rejected") {
+          return (
+            <div className="fixed bottom-0 left-0 right-0 bg-background border-t border-border px-6 py-3 flex justify-end gap-3 z-50">
+              <Button
+                disabled
+                className="bg-gray-100 text-gray-400 cursor-not-allowed hover:bg-gray-100"
+              >
+                🔒 No action available
+              </Button>
+            </div>
+          );
+        }
+
+        const primaryConfig: { label: string; className: string } =
+          status === "Returned By Finance"
+            ? {
+                label: "Resubmit to Finance",
+                className: "bg-[#7C3AED] hover:bg-[#6D28D9] text-white disabled:opacity-50",
+              }
+            : status === "Reject" || status === "Returned For Info"
+              ? {
+                  label: "Resubmit to Manager",
+                  className: "bg-[#E11D2C] hover:bg-[#B91C2C] text-white disabled:opacity-50",
+                }
+              : {
+                  label: "Submit for Approval",
+                  className: "bg-[#E11D2C] hover:bg-[#B91C2C] text-white disabled:opacity-50",
+                };
+
+        const handlePrimaryClick = () => {
+          // eslint-disable-next-line no-console
+          console.log({
+            claimId: claim.id,
+            cardholderNote: claim.cardholderNote ?? "",
+            newFileIds: [] as string[],
+            responseMessage: "",
+          });
+        };
+
+        return (
+          <div className="fixed bottom-0 left-0 right-0 bg-background border-t border-border px-6 py-3 flex justify-end gap-3 z-50">
+            <Button
+              variant="outline"
+              onClick={() => void handleSaveDraft()}
+              disabled={draftSaving || saveDraftMutation.isPending || !claim?.id}
+            >
+              Save Draft
+            </Button>
+            <Button onClick={handlePrimaryClick} className={primaryConfig.className}>
+              {primaryConfig.label}
+            </Button>
+          </div>
+        );
+      })()}
 
       {/* Action Dialog */}
       <Dialog open={actionDialog.open} onOpenChange={(open) => setActionDialog((prev) => ({ ...prev, open }))}>
