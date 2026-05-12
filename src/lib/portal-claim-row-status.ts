@@ -174,7 +174,7 @@ export function toPortalApprovalStatus(
   if (txnStatus === "AUTO_APPROVED") return "AUTO_APPROVED";
   if (displayFromClaim === "AUTO_REJECTED") return "AUTO_REJECTED";
   if (displayFromClaim === "MANAGER_REJECTED") return "MANAGER_REJECTED";
-  if (claim?.status === "Final Reject" || claim?.status === "Final Rejected") return "MANAGER_REJECTED";
+  if (claim?.status === "Final Rejected") return "MANAGER_REJECTED";
   if (claim?.status === "Reject") return "MANAGER_REJECTED";
   if (claim?.status === "Returned For Info") return "RETURNED_FOR_INFO";
   if (displayFromClaim === "PENDING_APPROVAL" || claim?.status === "Pending Approval") return "PENDING_APPROVAL";
