@@ -1395,6 +1395,8 @@ export default function ClaimDetail() {
 
         <p className="text-[13px] text-muted-foreground mt-4 mb-6">{statusMeta}</p>
 
+        <ResponsePanel claim={claim} />
+
         <div className="space-y-8">
           <section>
             <SectionDivider num={1} label="Card Transaction" />
