@@ -50,6 +50,8 @@ const STATUS_BADGE_OVERRIDES: Record<string, string> = {
   MANAGER_REJECTED: "bg-red-50 text-red-700 border-red-200",
   FINAL_REJECTED: "bg-red-100 text-red-900 border-red-300",
   PENDING_DOCUMENTS: "bg-orange-50 text-orange-700 border-orange-200",
+  ACCOUNTING_REVIEW: "bg-purple-50 text-purple-700 border border-purple-200",
+  RETURNED_BY_FINANCE: "bg-purple-50 text-purple-700 border border-purple-200",
 };
 
 export const REQUEST_INFO_TRAIL: AuditEvent[] = [
