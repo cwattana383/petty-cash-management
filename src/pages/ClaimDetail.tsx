@@ -18,7 +18,7 @@ import { VAT_TYPE_CONFIG } from "@/lib/vat-type-config";
 import OcrVerifyModal, { type OcrExtractedData, type OcrVerifyConfirmMeta } from "@/components/claims/OcrVerifyModal";
 import { mockCompanyIdentities } from "@/components/admin/EntityTypes";
 import { useToast } from "@/hooks/use-toast";
-import AuditTrail, { REQUEST_INFO_TRAIL, FINAL_REJECTED_TRAIL } from "@/components/claims/AuditTrail";
+import AuditTrail, { resolveTrailForClaim } from "@/components/claims/AuditTrail";
 import { ResponsePanel } from "@/components/claims/ResponsePanel";
 import { useState, useCallback, useRef, useMemo, useEffect } from "react";
 import { useQueryClient } from "@tanstack/react-query";
@@ -1787,7 +1787,7 @@ export default function ClaimDetail() {
           </section>
 
           {/* ══════ SECTION 4 — AUDIT TRAIL ══════ */}
-          <AuditTrail events={claim.status === "Final Rejected" ? FINAL_REJECTED_TRAIL : REQUEST_INFO_TRAIL} />
+          <AuditTrail events={resolveTrailForClaim(claim)} />
         </div>
 
 
@@ -2361,7 +2361,7 @@ export default function ClaimDetail() {
 
         {/* ══════ AUDIT TRAIL (visible to all roles) ══════ */}
         <div className="mt-8">
-          <AuditTrail events={claim.status === "Final Rejected" ? FINAL_REJECTED_TRAIL : REQUEST_INFO_TRAIL} />
+          <AuditTrail events={resolveTrailForClaim(claim)} />
         </div>
       </div>
 
