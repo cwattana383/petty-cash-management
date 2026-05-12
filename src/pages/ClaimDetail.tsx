@@ -25,6 +25,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { useCardholderClaimDetail, useClaimDetailForApprover, useSaveClaimDraft } from "@/hooks/use-cardholder-claims";
 import { useApproveClaimInbox, useRejectClaimInbox } from "@/hooks/use-approval-inbox";
+import { useResubmitClaim } from "@/hooks/use-resubmit-claim";
 import { useExpenseTypes, type ExpenseTypeRow } from "@/hooks/use-expense-types";
 import type { ClaimHeader } from "@/lib/types";
 import { useGlAccounts } from "@/hooks/use-gl-accounts";
