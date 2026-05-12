@@ -19,6 +19,7 @@ import OcrVerifyModal, { type OcrExtractedData, type OcrVerifyConfirmMeta } from
 import { mockCompanyIdentities } from "@/components/admin/EntityTypes";
 import { useToast } from "@/hooks/use-toast";
 import AuditTrail, { REQUEST_INFO_TRAIL, FINAL_REJECTED_TRAIL } from "@/components/claims/AuditTrail";
+import { ResponsePanel } from "@/components/claims/ResponsePanel";
 import { useState, useCallback, useRef, useMemo, useEffect } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
