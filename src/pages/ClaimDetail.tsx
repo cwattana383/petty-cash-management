@@ -25,6 +25,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { useCardholderClaimDetail, useClaimDetailForApprover, useSaveClaimDraft } from "@/hooks/use-cardholder-claims";
 import { useApproveClaimInbox, useRejectClaimInbox } from "@/hooks/use-approval-inbox";
+import { useResubmitClaim } from "@/hooks/use-resubmit-claim";
 import { useExpenseTypes, type ExpenseTypeRow } from "@/hooks/use-expense-types";
 import type { ClaimHeader } from "@/lib/types";
 import { useGlAccounts } from "@/hooks/use-gl-accounts";
@@ -470,6 +471,8 @@ export default function ClaimDetail() {
   const approveClaimMutation = useApproveClaimInbox();
   const rejectClaimMutation = useRejectClaimInbox();
   const deleteDocumentMutation = useDeleteClaimDocument();
+  const resubmitClaimMutation = useResubmitClaim();
+  const [errorBanner, setErrorBanner] = useState<string | null>(null);
   const expenseTypesQuery = useExpenseTypes({ active: "true", page: 1, limit: 100 });
   const glAccountsQuery = useGlAccounts({ active: "true", page: 1, limit: 1000 });
   const claim = claimDetailQuery.data ?? getClaimById(id || "");
@@ -1483,6 +1486,11 @@ export default function ClaimDetail() {
 
         <p className="text-[13px] text-muted-foreground mt-4 mb-6">{statusMeta}</p>
 
+        {errorBanner && (
+          <div className="bg-red-50 border-l-4 border-red-500 text-red-700 p-3 rounded-md mb-3 text-sm">
+            {errorBanner}
+          </div>
+        )}
         <ResponsePanel claim={claim} />
 
         <div className="space-y-8">
@@ -1702,6 +1710,11 @@ export default function ClaimDetail() {
         {/* Submitted-by header */}
         <p className="text-[13px] text-muted-foreground mt-4 mb-6">{statusMeta}</p>
 
+        {errorBanner && (
+          <div className="bg-red-50 border-l-4 border-red-500 text-red-700 p-3 rounded-md mb-3 text-sm">
+            {errorBanner}
+          </div>
+        )}
         <ResponsePanel claim={claim} />
 
         <div className="space-y-8">
@@ -1993,6 +2006,11 @@ export default function ClaimDetail() {
         );
       })()}
 
+      {errorBanner && (
+        <div className="bg-red-50 border-l-4 border-red-500 text-red-700 p-3 rounded-md mb-3 text-sm">
+          {errorBanner}
+        </div>
+      )}
       <ResponsePanel claim={claim} />
 
       <div className="space-y-8 mt-6">
@@ -2391,15 +2409,24 @@ export default function ClaimDetail() {
                   className: "bg-[#E11D2C] hover:bg-[#B91C2C] text-white disabled:opacity-50",
                 };
 
-        const handlePrimaryClick = () => {
-          // eslint-disable-next-line no-console
-          console.log({
-            claimId: claim.id,
-            cardholderNote: claim.cardholderNote ?? "",
-            newFileIds: [] as string[],
-            responseMessage: "",
-          });
+        const handlePrimaryClick = async () => {
+          setErrorBanner(null);
+          try {
+            await resubmitClaimMutation.mutateAsync({
+              claimId: claim.id,
+              cardholderNote: claim.cardholderNote ?? "",
+              newFileIds: [],
+              responseMessage: "",
+            });
+            toast({ title: "Resubmitted successfully" });
+            navigate("/claims");
+          } catch (err) {
+            const message = err instanceof Error ? err.message : "Resubmission failed";
+            setErrorBanner(message);
+          }
         };
+
+        const isResubmitting = resubmitClaimMutation.isPending;
 
         return (
           <div className="fixed bottom-0 left-0 right-0 bg-background border-t border-border px-6 py-3 flex justify-end gap-3 z-50">
@@ -2410,7 +2437,12 @@ export default function ClaimDetail() {
             >
               Save Draft
             </Button>
-            <Button onClick={handlePrimaryClick} className={primaryConfig.className}>
+            <Button
+              onClick={() => void handlePrimaryClick()}
+              disabled={isResubmitting}
+              className={primaryConfig.className}
+            >
+              {isResubmitting && <Loader2 className="h-4 w-4 mr-1.5 animate-spin" />}
               {primaryConfig.label}
             </Button>
           </div>

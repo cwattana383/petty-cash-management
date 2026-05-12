@@ -135,6 +135,8 @@ export interface ClaimHeader {
   returnedAt?: string;
   /** Free-text message from the manager or finance officer accompanying the return. */
   returnMessage?: string;
+  /** Cardholder-facing audit trail events (mock-state). */
+  auditEvents?: import("@/components/claims/AuditTrail").AuditEvent[];
 }
 
 export interface Comment {
