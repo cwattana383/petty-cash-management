@@ -292,7 +292,7 @@ export function approvalStatusDisplayText(
 }
 
 export function approvalStatusBadgeClassForDisplay(text: ApprovalStatusUiText): string {
-  if (text === "Accounting Review") return "bg-sky-100 text-sky-900";
+  if (text === "Accounting Review") return "bg-purple-50 text-purple-700";
   if (text === "Returned by Finance") return "bg-purple-50 text-purple-700";
   if (text === "Auto Approved" || text === "Manager Approved") return "bg-emerald-100 text-emerald-800";
   if (text === "Auto Reject" || text === "Reject" || text === "Final Reject" || text === "Manager Rejected") {
