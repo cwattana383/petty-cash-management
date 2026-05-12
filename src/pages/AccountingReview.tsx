@@ -63,7 +63,7 @@ const statusColors: Record<string, string> = {
   "Exception": "bg-red-100 text-red-800 border-red-300",
   "Auto Approved": "bg-green-100 text-green-800 border-green-300",
   "Required Approval": "bg-yellow-100 text-yellow-800 border-yellow-300",
-  "Acounting_Review": "bg-green-100 text-green-800 border-green-300",
+  "Accounting Review": "bg-purple-50 text-purple-700 border border-purple-200",
   "Ready for ERP": "bg-blue-100 text-blue-800 border-blue-300",
   "Reimbursed": "bg-purple-100 text-purple-800 border-purple-300",
 };
