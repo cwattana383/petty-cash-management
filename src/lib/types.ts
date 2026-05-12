@@ -123,6 +123,18 @@ export interface ClaimHeader {
   lines: ClaimLine[];
   approvalHistory: ApprovalStep[];
   comments: Comment[];
+  /** Cardholder-supplied note (max 500 chars enforced at form layer). */
+  cardholderNote?: string;
+  /** Number of times the cardholder has resubmitted after a manager reject (only used when status === 'Reject'). */
+  resubmitCountMgr?: number;
+  /** Source of the most recent return-to-cardholder action. */
+  returnSource?: "MANAGER_REJECT" | "MANAGER_RFI" | "FINANCE_RETURN";
+  /** User id of the actor (manager or finance) who returned the claim. */
+  returnedByUserId?: string;
+  /** ISO 8601 timestamp of the return action. */
+  returnedAt?: string;
+  /** Free-text message from the manager or finance officer accompanying the return. */
+  returnMessage?: string;
 }
 
 export interface Comment {
