@@ -19,6 +19,7 @@ import OcrVerifyModal, { type OcrExtractedData, type OcrVerifyConfirmMeta } from
 import { mockCompanyIdentities } from "@/components/admin/EntityTypes";
 import { useToast } from "@/hooks/use-toast";
 import AuditTrail, { REQUEST_INFO_TRAIL, FINAL_REJECTED_TRAIL } from "@/components/claims/AuditTrail";
+import { ResponsePanel } from "@/components/claims/ResponsePanel";
 import { useState, useCallback, useRef, useMemo, useEffect } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
@@ -1394,6 +1395,8 @@ export default function ClaimDetail() {
 
         <p className="text-[13px] text-muted-foreground mt-4 mb-6">{statusMeta}</p>
 
+        <ResponsePanel claim={claim} />
+
         <div className="space-y-8">
           <section>
             <SectionDivider num={1} label="Card Transaction" />
@@ -1602,6 +1605,8 @@ export default function ClaimDetail() {
 
         {/* Submitted-by header */}
         <p className="text-[13px] text-muted-foreground mt-4 mb-6">{statusMeta}</p>
+
+        <ResponsePanel claim={claim} />
 
         <div className="space-y-8">
           {/* ══════ SECTION 1 — CARD TRANSACTION (Read-Only) ══════ */}
@@ -1883,6 +1888,8 @@ export default function ClaimDetail() {
           </div>
         );
       })()}
+
+      <ResponsePanel claim={claim} />
 
       <div className="space-y-8 mt-6">
         {/* ══════ STEP 1 — CARD TRANSACTION (Read-Only) ══════ */}
