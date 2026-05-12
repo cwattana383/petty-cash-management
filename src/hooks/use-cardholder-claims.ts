@@ -52,7 +52,7 @@ function toClaimStatusFromBackendStatusCode(v: unknown): ClaimStatus {
     FINAL_REJECTED: "Final Rejected",
     AUTO_REJECT: "Auto Reject",
     REJECT: "Reject",
-    FINAL_REJECT: "Final Reject",
+    FINAL_REJECT: "Final Rejected",
     AUTO_APPROVED: "Auto Approved",
     MANAGER_APPROVED: "Manager Approved",
     REIMBURSED: "Reimbursed",

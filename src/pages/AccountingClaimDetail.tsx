@@ -44,7 +44,7 @@ const ACCOUNTING_ITEMS: AccountingItem[] = [
   { id: "TXN20260227091", merchantName: "JD Central", description: "Computer Software Stores", amount: 8900, status: "Exception", date: "2026-02-27", fileName: "jd_tax_invoice.pdf", docType: "Tax Invoice" },
   { id: "TXN20260227095", merchantName: "Flash Express", description: "Courier Services", amount: 3200, status: "Exception", date: "2026-02-27", fileName: "flash_receipt.pdf", docType: "Tax Invoice" },
   { id: "TXN20260227114", merchantName: "The Nine", description: "Drinking Places (Bars)", amount: 1250, status: "Reject", date: "2026-02-27", fileName: "bar_receipt.pdf", docType: "Receipt" },
-  { id: "TXN20260227025", merchantName: "Stone Hill Golf Club", description: "Sporting and Recreational Camps", amount: 55000, status: "Final Reject", date: "2026-02-27", fileName: "golf_invoice.pdf", docType: "Tax Invoice" },
+  { id: "TXN20260227025", merchantName: "Stone Hill Golf Club", description: "Sporting and Recreational Camps", amount: 55000, status: "Final Rejected", date: "2026-02-27", fileName: "golf_invoice.pdf", docType: "Tax Invoice" },
   { id: "TXN20250129001", merchantName: "GRAB TAXI", description: "Taxicabs and Limousines", amount: 1500, status: "Pending Invoice", date: "2026-02-28", fileName: "", docType: "" },
   { id: "TXN20250129002", merchantName: "MARRIOTT HOTEL BKK", description: "Hotels and Motels", amount: 3500, status: "Pending Invoice", date: "2026-02-28", fileName: "", docType: "" },
   { id: "TXN20250129003", merchantName: "PTT GAS STATION", description: "Service Stations", amount: 850, status: "Pending Invoice", date: "2026-02-28", fileName: "", docType: "" },

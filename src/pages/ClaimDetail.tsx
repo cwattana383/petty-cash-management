@@ -1077,7 +1077,6 @@ export default function ClaimDetail() {
         : claim.status === "Auto Reject"
           ? "AUTO_REJECTED"
           : claim.status === "Reject" ||
-              claim.status === "Final Reject" ||
               claim.status === "Final Rejected"
             ? "MANAGER_REJECTED"
             : latestRequestInfoStep

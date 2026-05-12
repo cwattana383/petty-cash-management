@@ -59,7 +59,7 @@ const statusColors: Record<string, string> = {
   "Pending Invoice": "bg-orange-100 text-orange-800 border-orange-300",
   "Auto Reject": "bg-red-100 text-red-800 border-red-300",
   "Reject": "bg-red-100 text-red-800 border-red-300",
-  "Final Reject": "bg-red-100 text-red-800 border-red-300",
+  "Final Rejected": "bg-red-100 text-red-800 border-red-300",
   "Exception": "bg-red-100 text-red-800 border-red-300",
   "Auto Approved": "bg-green-100 text-green-800 border-green-300",
   "Required Approval": "bg-yellow-100 text-yellow-800 border-yellow-300",
@@ -76,7 +76,7 @@ const documentStatusColors: Record<string, string> = {
 const tabStatusMap: Record<string, string[] | null> = {
   all: null,
   pending: ["Pending Invoice", "Auto Approved", "Required Approval"],
-  exception: ["Auto Reject", "Reject", "Final Reject", "Exception"],
+  exception: ["Auto Reject", "Reject", "Final Rejected", "Exception"],
   ready: ["Ready for ERP"],
   reimbursed: ["Reimbursed"],
 };
@@ -110,7 +110,7 @@ export default function AccountingReview() {
   }, 0);
   const pendingCount = items.filter((i) => ["Pending Invoice", "Auto Approved", "Required Approval"].includes(i.status)).length;
   const readyCount = items.filter((i) => i.status === "Ready for ERP").length;
-  const exceptionCount = items.filter((i) => ["Auto Reject", "Reject", "Final Reject", "Exception"].includes(i.status)).length;
+  const exceptionCount = items.filter((i) => ["Auto Reject", "Reject", "Final Rejected", "Exception"].includes(i.status)).length;
 
   const metrics = [
     { label: "Total Transactions", value: totalTransactions.toString(), icon: FileText, tab: "all" },

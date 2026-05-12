@@ -29,7 +29,8 @@ export type ApprovalStatusUiText =
   | "Final Reject"
   | "Auto Approved"
   | "Manager Approved"
-  | "Returned for Info";
+  | "Returned for Info"
+  | "Returned by Finance";
 
 export const TAB_STATUS_FILTER: Record<StatusTab, string[]> = {
   pending_invoice: [
@@ -101,7 +102,7 @@ export function toDisplayStatus(
   if (claimStatus === "Auto Approved") return "AUTO_APPROVED";
   if (claimStatus === "Manager Approved" || claimStatus === "Reimbursed") return "MANAGER_APPROVED";
   if (claimStatus === "Auto Reject") return "AUTO_REJECTED";
-  if (claimStatus === "Reject" || claimStatus === "Final Reject" || claimStatus === "Final Rejected") return "MANAGER_REJECTED";
+  if (claimStatus === "Reject" || claimStatus === "Final Rejected") return "MANAGER_REJECTED";
   return "PENDING_DOCUMENTS";
 }
 
@@ -174,7 +175,7 @@ export function toPortalApprovalStatus(
   if (txnStatus === "AUTO_APPROVED") return "AUTO_APPROVED";
   if (displayFromClaim === "AUTO_REJECTED") return "AUTO_REJECTED";
   if (displayFromClaim === "MANAGER_REJECTED") return "MANAGER_REJECTED";
-  if (claim?.status === "Final Reject" || claim?.status === "Final Rejected") return "MANAGER_REJECTED";
+  if (claim?.status === "Final Rejected") return "MANAGER_REJECTED";
   if (claim?.status === "Reject") return "MANAGER_REJECTED";
   if (claim?.status === "Returned For Info") return "RETURNED_FOR_INFO";
   if (displayFromClaim === "PENDING_APPROVAL" || claim?.status === "Pending Approval") return "PENDING_APPROVAL";
@@ -233,7 +234,9 @@ export function approvalStatusDisplayText(
   if (txnStatus === "AUTO_REJECTED" || displayFromClaim === "AUTO_REJECTED" || claim?.status === "Auto Reject") {
     return "Auto Reject";
   }
-  if (claim?.status === "Final Rejected" || claim?.status === "Final Reject") return "Final Reject";
+  if (claim?.status === "Returned By Finance") return "Returned by Finance";
+  if (claim?.status === "Accounting Review") return "Accounting Review";
+  if (claim?.status === "Final Rejected") return "Final Reject";
   if (txnStatus === "FINAL_REJECTED") return "Final Reject";
   if (
     txnStatus === "MANAGER_REJECTED" ||
@@ -290,6 +293,7 @@ export function approvalStatusDisplayText(
 
 export function approvalStatusBadgeClassForDisplay(text: ApprovalStatusUiText): string {
   if (text === "Accounting Review") return "bg-sky-100 text-sky-900";
+  if (text === "Returned by Finance") return "bg-purple-50 text-purple-700";
   if (text === "Auto Approved" || text === "Manager Approved") return "bg-emerald-100 text-emerald-800";
   if (text === "Auto Reject" || text === "Reject" || text === "Final Reject" || text === "Manager Rejected") {
     return "bg-red-100 text-red-800";
