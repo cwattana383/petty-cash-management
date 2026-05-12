@@ -2394,15 +2394,24 @@ export default function ClaimDetail() {
                   className: "bg-[#E11D2C] hover:bg-[#B91C2C] text-white disabled:opacity-50",
                 };
 
-        const handlePrimaryClick = () => {
-          // eslint-disable-next-line no-console
-          console.log({
-            claimId: claim.id,
-            cardholderNote: claim.cardholderNote ?? "",
-            newFileIds: [] as string[],
-            responseMessage: "",
-          });
+        const handlePrimaryClick = async () => {
+          setErrorBanner(null);
+          try {
+            await resubmitClaimMutation.mutateAsync({
+              claimId: claim.id,
+              cardholderNote: claim.cardholderNote ?? "",
+              newFileIds: [],
+              responseMessage: "",
+            });
+            toast({ title: "Resubmitted successfully" });
+            navigate("/claims");
+          } catch (err) {
+            const message = err instanceof Error ? err.message : "Resubmission failed";
+            setErrorBanner(message);
+          }
         };
+
+        const isResubmitting = resubmitClaimMutation.isPending;
 
         return (
           <div className="fixed bottom-0 left-0 right-0 bg-background border-t border-border px-6 py-3 flex justify-end gap-3 z-50">
@@ -2413,7 +2422,12 @@ export default function ClaimDetail() {
             >
               Save Draft
             </Button>
-            <Button onClick={handlePrimaryClick} className={primaryConfig.className}>
+            <Button
+              onClick={() => void handlePrimaryClick()}
+              disabled={isResubmitting}
+              className={primaryConfig.className}
+            >
+              {isResubmitting && <Loader2 className="h-4 w-4 mr-1.5 animate-spin" />}
               {primaryConfig.label}
             </Button>
           </div>
