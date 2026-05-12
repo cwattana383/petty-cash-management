@@ -2,6 +2,7 @@ import { useState, useRef, useEffect } from "react";
 import { Lock, ChevronDown, ChevronUp } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
+import type { ClaimHeader } from "@/lib/types";
 
 type ActorType = "system" | "cardholder" | "manager" | "finance";
 
@@ -172,6 +173,133 @@ export const FINAL_REJECTED_TRAIL: AuditEvent[] = [
     timestamp: "05/03/2026 00:15",
   },
 ];
+
+export const CARDHOLDER_RESUBMIT_TRAIL: AuditEvent[] = [
+  {
+    id: "cr-5",
+    actor: "cardholder",
+    actorName: "Somying Prasertsuk",
+    title: "Resubmitted for manager approval",
+    statusBadge: "PENDING_APPROVAL",
+    timestamp: "06/03/2026 09:30",
+    message: "Attached the corrected receipt with the matching amount. Please review again.",
+    isCurrent: true,
+  },
+  {
+    id: "cr-4",
+    actor: "manager",
+    actorName: "Somying Rakdee (Manager)",
+    title: "Expense rejected",
+    statusBadge: "MANAGER_REJECTED",
+    timestamp: "05/03/2026 15:00",
+    message: "Receipt amount does not match the card transaction amount. Please check and resubmit.",
+  },
+  {
+    id: "cr-3",
+    actor: "cardholder",
+    actorName: "Somying Prasertsuk",
+    title: "Submitted for manager approval",
+    statusBadge: "PENDING_APPROVAL",
+    timestamp: "05/03/2026 10:14",
+  },
+  {
+    id: "cr-2",
+    actor: "cardholder",
+    actorName: "Somying Prasertsuk",
+    title: "Documents uploaded",
+    statusBadge: "VALIDATED",
+    timestamp: "05/03/2026 10:10",
+  },
+  {
+    id: "cr-1",
+    actor: "system",
+    title: "Transaction imported from bank file",
+    statusBadge: "NOT_STARTED",
+    timestamp: "05/03/2026 00:15",
+  },
+];
+
+export const FINANCE_RETURN_TRAIL: AuditEvent[] = [
+  {
+    id: "fr2-7",
+    actor: "cardholder",
+    actorName: "Somying Prasertsuk",
+    title: "Resubmitted to Finance",
+    statusBadge: "ACCOUNTING_REVIEW",
+    timestamp: "08/03/2026 11:20",
+    message: "Updated GL account and re-uploaded the corrected tax invoice as requested.",
+    isCurrent: true,
+  },
+  {
+    id: "fr2-6",
+    actor: "finance",
+    actorName: "Aor (Finance Team)",
+    title: "Returned by Finance for correction",
+    statusBadge: "RETURNED_BY_FINANCE",
+    timestamp: "07/03/2026 16:10",
+    message: "Tax invoice header is missing the company tax ID. Please attach a corrected invoice.",
+  },
+  {
+    id: "fr2-5",
+    actor: "finance",
+    actorName: "Aor (Finance Team)",
+    title: "Picked up for accounting review",
+    statusBadge: "ACCOUNTING_REVIEW",
+    timestamp: "07/03/2026 09:00",
+  },
+  {
+    id: "fr2-4",
+    actor: "manager",
+    actorName: "Somying Rakdee (Manager)",
+    title: "Expense approved",
+    statusBadge: "PENDING_APPROVAL",
+    timestamp: "06/03/2026 14:00",
+  },
+  {
+    id: "fr2-3",
+    actor: "cardholder",
+    actorName: "Somying Prasertsuk",
+    title: "Submitted for manager approval",
+    statusBadge: "PENDING_APPROVAL",
+    timestamp: "05/03/2026 10:14",
+  },
+  {
+    id: "fr2-2",
+    actor: "cardholder",
+    actorName: "Somying Prasertsuk",
+    title: "Documents uploaded",
+    statusBadge: "VALIDATED",
+    timestamp: "05/03/2026 10:10",
+  },
+  {
+    id: "fr2-1",
+    actor: "system",
+    title: "Transaction imported from bank file",
+    statusBadge: "NOT_STARTED",
+    timestamp: "05/03/2026 00:15",
+  },
+];
+
+export function resolveTrailForClaim(claim: ClaimHeader): AuditEvent[] {
+  switch (claim.status) {
+    case "Reject":
+      // Partial: up to manager-rejected with isCurrent: true.
+      return CARDHOLDER_RESUBMIT_TRAIL.slice(1).map((e, i) =>
+        i === 0 ? { ...e, isCurrent: true } : { ...e, isCurrent: false }
+      );
+    case "Returned For Info":
+      return REQUEST_INFO_TRAIL;
+    case "Returned By Finance":
+      // Partial: up to finance-returned with isCurrent: true.
+      return FINANCE_RETURN_TRAIL.slice(1).map((e, i) =>
+        i === 0 ? { ...e, isCurrent: true } : { ...e, isCurrent: false }
+      );
+    case "Final Rejected":
+      return FINAL_REJECTED_TRAIL;
+    default:
+      return REQUEST_INFO_TRAIL;
+  }
+}
 
 const VISIBLE_COUNT = 5;
 
