@@ -428,7 +428,6 @@ function CardholderNoteField({
   }
 
   const saved = (claim.cardholderNote ?? "").trim();
-  if (!saved) return null;
 
   return (
     <div className="border-t border-dashed border-gray-200 mt-4 pt-4">
@@ -440,12 +439,18 @@ function CardholderNoteField({
           </span>
         </Label>
       </div>
-      <div className="bg-[#F0F9FF] border-l-[3px] border-l-[#0EA5E9] rounded-md p-3 mt-2">
-        <div className="text-xs text-[#0369A1] font-semibold uppercase tracking-wide mb-1">
-          Note
+      {saved ? (
+        <div className="bg-[#F0F9FF] border-l-[3px] border-l-[#0EA5E9] rounded-md p-3 mt-2">
+          <div className="text-xs text-[#0369A1] font-semibold uppercase tracking-wide mb-1">
+            Note
+          </div>
+          <p className="text-sm text-gray-700 italic whitespace-pre-wrap">{saved}</p>
         </div>
-        <p className="text-sm text-gray-700 italic whitespace-pre-wrap">{saved}</p>
-      </div>
+      ) : (
+        <div className="bg-gray-50 border border-dashed border-gray-300 rounded-md p-3 mt-2">
+          <p className="text-sm text-gray-400 italic">No note added by the cardholder.</p>
+        </div>
+      )}
     </div>
   );
 }
