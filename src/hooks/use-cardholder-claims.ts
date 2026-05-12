@@ -79,7 +79,6 @@ function toClaimDisplayStatusFromBackendStatusDisplay(v: unknown): ClaimDisplayS
     "Manager Approved": "MANAGER_APPROVED",
     "Auto Reject": "AUTO_REJECTED",
     "Reject": "MANAGER_REJECTED",
-    "Final Reject": "MANAGER_REJECTED",
     "Final Rejected": "MANAGER_REJECTED",
     "Action Required": "PENDING_APPROVAL",
     "Pending Salary Deduction": "PENDING_APPROVAL",

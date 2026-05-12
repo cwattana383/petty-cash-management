@@ -26,7 +26,7 @@ export type ApprovalStatusUiText =
   | "Reject"
   | "Manager Rejected"
   | "Auto Reject"
-  | "Final Reject"
+  | "Final Rejected"
   | "Auto Approved"
   | "Manager Approved"
   | "Returned for Info"
@@ -236,8 +236,8 @@ export function approvalStatusDisplayText(
   }
   if (claim?.status === "Returned By Finance") return "Returned by Finance";
   if (claim?.status === "Accounting Review") return "Accounting Review";
-  if (claim?.status === "Final Rejected") return "Final Reject";
-  if (txnStatus === "FINAL_REJECTED") return "Final Reject";
+  if (claim?.status === "Final Rejected") return "Final Rejected";
+  if (txnStatus === "FINAL_REJECTED") return "Final Rejected";
   if (
     txnStatus === "MANAGER_REJECTED" ||
     portalStatus === "MANAGER_REJECTED" ||
@@ -292,10 +292,10 @@ export function approvalStatusDisplayText(
 }
 
 export function approvalStatusBadgeClassForDisplay(text: ApprovalStatusUiText): string {
-  if (text === "Accounting Review") return "bg-purple-50 text-purple-700";
-  if (text === "Returned by Finance") return "bg-purple-50 text-purple-700";
+  if (text === "Accounting Review") return "bg-purple-50 text-purple-700 border border-purple-200";
+  if (text === "Returned by Finance") return "bg-purple-50 text-purple-700 border border-purple-200";
   if (text === "Auto Approved" || text === "Manager Approved") return "bg-emerald-100 text-emerald-800";
-  if (text === "Auto Reject" || text === "Reject" || text === "Final Reject" || text === "Manager Rejected") {
+  if (text === "Auto Reject" || text === "Reject" || text === "Final Rejected" || text === "Manager Rejected") {
     return "bg-red-100 text-red-800";
   }
   if (text === "Returned for Info") return "bg-indigo-100 text-indigo-800";
