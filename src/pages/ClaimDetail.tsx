@@ -478,6 +478,9 @@ export default function ClaimDetail() {
   const deleteDocumentMutation = useDeleteClaimDocument();
   const resubmitClaimMutation = useResubmitClaim();
   const [errorBanner, setErrorBanner] = useState<string | null>(null);
+  const [noChangesDialogOpen, setNoChangesDialogOpen] = useState(false);
+  const originalRejectNoteRef = useRef<string | null>(null);
+  const originalRejectDocIdsRef = useRef<Set<string> | null>(null);
   const expenseTypesQuery = useExpenseTypes({ active: "true", page: 1, limit: 100 });
   const glAccountsQuery = useGlAccounts({ active: "true", page: 1, limit: 1000 });
   const claim = claimDetailQuery.data ?? getClaimById(id || "");
