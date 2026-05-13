@@ -130,6 +130,7 @@ const glAccountsStore: Record<string, unknown>[] = [
   { id: "gl-6", accountCode: "6302", accountName: "Meals - Fast Food", expenseTypeId: "et-3", expenseSubtypeId: "set-4", active: true, updatedAt: "2026-01-01", expenseType: { id: "et-3", expenseType: "Meals", subtypes: [{ id: "set-3", subExpenseType: "Business Meals" }, { id: "set-4", subExpenseType: "Fast Food" }] }, expenseSubtype: { id: "set-4", subExpenseType: "Fast Food" } },
   { id: "gl-7", accountCode: "6501", accountName: "Office - Stationery", expenseTypeId: "et-6", expenseSubtypeId: "set-7", active: true, updatedAt: "2026-01-01", expenseType: { id: "et-6", expenseType: "Office Supplies", subtypes: [{ id: "set-7", subExpenseType: "Stationery" }] }, expenseSubtype: { id: "set-7", subExpenseType: "Stationery" } },
   { id: "gl-8", accountCode: "9999", accountName: "Miscellaneous", expenseTypeId: null, expenseSubtypeId: null, active: true, updatedAt: "2026-01-01", expenseType: null, expenseSubtype: null },
+  { id: "gl-9", accountCode: "6190130002", accountName: "Oversea travel", expenseTypeId: "et-2", expenseSubtypeId: "set-8", active: true, updatedAt: "2026-04-22", expenseType: { id: "et-2", expenseType: "Oversea Travelling", subtypes: [{ id: "set-8", subExpenseType: "Airline — Overseas" }, { id: "set-9", subExpenseType: "Hotel — Overseas" }, { id: "set-10", subExpenseType: "Meal Restaurant — Business Meal" }, { id: "set-11", subExpenseType: "Per Diem — Overseas" }] }, expenseSubtype: { id: "set-8", subExpenseType: "Airline — Overseas" } },
 ];
 
 // Entities
