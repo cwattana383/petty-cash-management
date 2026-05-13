@@ -10,6 +10,17 @@ export interface ResubmitClaimInput {
   responseMessage?: string;
   newFileIds?: string[];
   cardholderNote?: string;
+  /** Original cardholder note value at the time of rejection (for change detection on Reject resubmits). */
+  originalCardholderNoteAtRejection?: string;
+  /** Set true to bypass the no-changes confirmation gate (BR4). */
+  acknowledgeNoChanges?: boolean;
+}
+
+export class NoChangesError extends Error {
+  constructor() {
+    super("no-changes-detected");
+    this.name = "NoChangesError";
+  }
 }
 
 function genId(): string {
