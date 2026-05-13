@@ -2499,6 +2499,63 @@ export default function ClaimDetail() {
         );
       })()}
 
+      {/* No-changes confirmation dialog (BR4) */}
+      <Dialog open={noChangesDialogOpen} onOpenChange={setNoChangesDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Resubmit without changes?</DialogTitle>
+          </DialogHeader>
+          <p className="text-sm text-muted-foreground">
+            You haven't changed any documents or your note since the manager rejected this claim.
+            Resubmitting the same content will likely be rejected again and use up your final attempt.
+            Are you sure you want to continue?
+          </p>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setNoChangesDialogOpen(false)} disabled={resubmitClaimMutation.isPending}>
+              Cancel
+            </Button>
+            <Button
+              className="bg-[#E11D2C] hover:bg-[#B91C2C] text-white"
+              onClick={() => {
+                setNoChangesDialogOpen(false);
+                // Re-trigger primary click with acknowledge flag — needs latest closure; dispatch via event-style call.
+                void (async () => {
+                  setErrorBanner(null);
+                  try {
+                    const claimNow = claim;
+                    if (!claimNow) return;
+                    const currentDocs = documentsQuery.data ?? [];
+                    const baselineIds = originalRejectDocIdsRef.current;
+                    const newFileIds =
+                      claimNow.status === "Reject" && baselineIds
+                        ? currentDocs.map((d) => d.id).filter((id) => !baselineIds.has(id))
+                        : [];
+                    await resubmitClaimMutation.mutateAsync({
+                      claimId: claimNow.id,
+                      cardholderNote: claimNow.cardholderNote ?? "",
+                      newFileIds,
+                      responseMessage: "",
+                      originalCardholderNoteAtRejection:
+                        claimNow.status === "Reject" ? originalRejectNoteRef.current ?? "" : undefined,
+                      acknowledgeNoChanges: true,
+                    });
+                    toast({ title: "Resubmitted successfully" });
+                    navigate("/claims");
+                  } catch (err) {
+                    const message = err instanceof Error ? err.message : "Resubmission failed";
+                    setErrorBanner(message);
+                  }
+                })();
+              }}
+              disabled={resubmitClaimMutation.isPending}
+            >
+              {resubmitClaimMutation.isPending && <Loader2 className="h-4 w-4 mr-1.5 animate-spin" />}
+              Resubmit Anyway
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
       {/* Action Dialog */}
       <Dialog open={actionDialog.open} onOpenChange={(open) => setActionDialog((prev) => ({ ...prev, open }))}>
         <DialogContent>
