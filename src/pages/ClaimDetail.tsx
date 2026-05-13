@@ -1168,8 +1168,8 @@ export default function ClaimDetail() {
   const latestApprovedStep = [...claim.approvalHistory].reverse().find((s) => s.action === "Approved");
   const latestRejectedStep = [...claim.approvalHistory].reverse().find((s) => s.action === "Rejected");
   const latestRequestInfoStep = [...claim.approvalHistory].reverse().find((s) => s.action === "Request Info");
-  const isReadOnlyAfterSubmit =
-    claim.readOnly ?? (claim.status !== "Pending Invoice" && claim.status !== "Returned For Info");
+  const editableStatuses = new Set(["Pending Invoice", "Returned For Info", "Reject", "Returned By Finance"]);
+  const isReadOnlyAfterSubmit = editableStatuses.has(claim.status) ? false : (claim.readOnly ?? true);
 
   const fallbackStatusLabel =
     claim.status === "Auto Approved"
