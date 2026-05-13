@@ -25,7 +25,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { useCardholderClaimDetail, useClaimDetailForApprover, useSaveClaimDraft } from "@/hooks/use-cardholder-claims";
 import { useApproveClaimInbox, useRejectClaimInbox } from "@/hooks/use-approval-inbox";
-import { useResubmitClaim } from "@/hooks/use-resubmit-claim";
+import { useResubmitClaim, NoChangesError } from "@/hooks/use-resubmit-claim";
 import { useExpenseTypes, type ExpenseTypeRow } from "@/hooks/use-expense-types";
 import type { ClaimHeader } from "@/lib/types";
 import { useGlAccounts } from "@/hooks/use-gl-accounts";
@@ -478,6 +478,9 @@ export default function ClaimDetail() {
   const deleteDocumentMutation = useDeleteClaimDocument();
   const resubmitClaimMutation = useResubmitClaim();
   const [errorBanner, setErrorBanner] = useState<string | null>(null);
+  const [noChangesDialogOpen, setNoChangesDialogOpen] = useState(false);
+  const originalRejectNoteRef = useRef<string | null>(null);
+  const originalRejectDocIdsRef = useRef<Set<string> | null>(null);
   const expenseTypesQuery = useExpenseTypes({ active: "true", page: 1, limit: 100 });
   const glAccountsQuery = useGlAccounts({ active: "true", page: 1, limit: 1000 });
   const claim = claimDetailQuery.data ?? getClaimById(id || "");
@@ -535,6 +538,26 @@ export default function ClaimDetail() {
   /** Primary required slot comes only from expense-type master — no hardcoded fallback. */
   const requiredDocId = requiredDocumentType?.id;
   const documentsQuery = useClaimDocuments(claim?.id);
+
+  // Capture baseline note + doc-ids on first load when claim is in 'Reject' state, for BR4 change-detection.
+  useEffect(() => {
+    if (claim?.status === "Reject" && originalRejectNoteRef.current === null) {
+      originalRejectNoteRef.current = claim.cardholderNote ?? "";
+    }
+    if (claim?.status !== "Reject") {
+      originalRejectNoteRef.current = null;
+      originalRejectDocIdsRef.current = null;
+    }
+  }, [claim?.id, claim?.status, claim?.cardholderNote]);
+  useEffect(() => {
+    if (
+      claim?.status === "Reject" &&
+      originalRejectDocIdsRef.current === null &&
+      documentsQuery.data
+    ) {
+      originalRejectDocIdsRef.current = new Set(documentsQuery.data.map((d) => d.id));
+    }
+  }, [claim?.status, documentsQuery.data]);
 
   /** Corp card policy auto-reject with no document requirement — skip document step and allow submit to AUTO_REJECT. */
   const corpPolicyAutoRejectNoDoc = useMemo(() => {
@@ -2419,18 +2442,35 @@ export default function ClaimDetail() {
                   className: "bg-[#E11D2C] hover:bg-[#B91C2C] text-white disabled:opacity-50",
                 };
 
-        const handlePrimaryClick = async () => {
+        const buildResubmitInput = (acknowledgeNoChanges: boolean) => {
+          const currentDocs = documentsQuery.data ?? [];
+          const baselineIds = originalRejectDocIdsRef.current;
+          const newFileIds =
+            claim.status === "Reject" && baselineIds
+              ? currentDocs.map((d) => d.id).filter((id) => !baselineIds.has(id))
+              : [];
+          return {
+            claimId: claim.id,
+            cardholderNote: claim.cardholderNote ?? "",
+            newFileIds,
+            responseMessage: "",
+            originalCardholderNoteAtRejection:
+              claim.status === "Reject" ? originalRejectNoteRef.current ?? "" : undefined,
+            acknowledgeNoChanges,
+          };
+        };
+        const handlePrimaryClick = async (acknowledgeNoChanges = false) => {
           setErrorBanner(null);
           try {
-            await resubmitClaimMutation.mutateAsync({
-              claimId: claim.id,
-              cardholderNote: claim.cardholderNote ?? "",
-              newFileIds: [],
-              responseMessage: "",
-            });
+            await resubmitClaimMutation.mutateAsync(buildResubmitInput(acknowledgeNoChanges));
+            setNoChangesDialogOpen(false);
             toast({ title: "Resubmitted successfully" });
             navigate("/claims");
           } catch (err) {
+            if (err instanceof Error && err.name === "NoChangesError") {
+              setNoChangesDialogOpen(true);
+              return;
+            }
             const message = err instanceof Error ? err.message : "Resubmission failed";
             setErrorBanner(message);
           }
@@ -2458,6 +2498,63 @@ export default function ClaimDetail() {
           </div>
         );
       })()}
+
+      {/* No-changes confirmation dialog (BR4) */}
+      <Dialog open={noChangesDialogOpen} onOpenChange={setNoChangesDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Resubmit without changes?</DialogTitle>
+          </DialogHeader>
+          <p className="text-sm text-muted-foreground">
+            You haven't changed any documents or your note since the manager rejected this claim.
+            Resubmitting the same content will likely be rejected again and use up your final attempt.
+            Are you sure you want to continue?
+          </p>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setNoChangesDialogOpen(false)} disabled={resubmitClaimMutation.isPending}>
+              Cancel
+            </Button>
+            <Button
+              className="bg-[#E11D2C] hover:bg-[#B91C2C] text-white"
+              onClick={() => {
+                setNoChangesDialogOpen(false);
+                // Re-trigger primary click with acknowledge flag — needs latest closure; dispatch via event-style call.
+                void (async () => {
+                  setErrorBanner(null);
+                  try {
+                    const claimNow = claim;
+                    if (!claimNow) return;
+                    const currentDocs = documentsQuery.data ?? [];
+                    const baselineIds = originalRejectDocIdsRef.current;
+                    const newFileIds =
+                      claimNow.status === "Reject" && baselineIds
+                        ? currentDocs.map((d) => d.id).filter((id) => !baselineIds.has(id))
+                        : [];
+                    await resubmitClaimMutation.mutateAsync({
+                      claimId: claimNow.id,
+                      cardholderNote: claimNow.cardholderNote ?? "",
+                      newFileIds,
+                      responseMessage: "",
+                      originalCardholderNoteAtRejection:
+                        claimNow.status === "Reject" ? originalRejectNoteRef.current ?? "" : undefined,
+                      acknowledgeNoChanges: true,
+                    });
+                    toast({ title: "Resubmitted successfully" });
+                    navigate("/claims");
+                  } catch (err) {
+                    const message = err instanceof Error ? err.message : "Resubmission failed";
+                    setErrorBanner(message);
+                  }
+                })();
+              }}
+              disabled={resubmitClaimMutation.isPending}
+            >
+              {resubmitClaimMutation.isPending && <Loader2 className="h-4 w-4 mr-1.5 animate-spin" />}
+              Resubmit Anyway
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
 
       {/* Action Dialog */}
       <Dialog open={actionDialog.open} onOpenChange={(open) => setActionDialog((prev) => ({ ...prev, open }))}>
