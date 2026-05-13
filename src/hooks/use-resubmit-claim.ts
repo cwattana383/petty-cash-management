@@ -37,7 +37,7 @@ export function useResubmitClaim() {
 
   return useMutation({
     mutationFn: async (input: ResubmitClaimInput): Promise<ClaimStatus> => {
-      const { claimId, responseMessage, newFileIds, cardholderNote } = input;
+      const { claimId, responseMessage, newFileIds, cardholderNote, originalCardholderNoteAtRejection, acknowledgeNoChanges } = input;
 
       const claim = claims.find((c) => c.id === claimId);
       if (!claim) {
@@ -54,11 +54,16 @@ export function useResubmitClaim() {
       let newStatusBadge: string;
 
       if (claim.status === "Reject") {
-        if (!newFileIds || newFileIds.length === 0) {
-          throw new Error("A new document is required for resubmission of rejected claims");
-        }
         if ((claim.resubmitCountMgr ?? 0) >= 1) {
           throw new Error("Maximum resubmission attempts reached — claim is locked");
+        }
+        const hasNewFiles = !!(newFileIds && newFileIds.length > 0);
+        const hasNoteChange =
+          cardholderNote !== undefined &&
+          (cardholderNote ?? "") !== (originalCardholderNoteAtRejection ?? "");
+        const hasChanges = hasNewFiles || hasNoteChange;
+        if (!hasChanges && !acknowledgeNoChanges) {
+          throw new NoChangesError();
         }
         newStatus = "Pending Approval";
         newResubmitCount = (claim.resubmitCountMgr ?? 0) + 1;
