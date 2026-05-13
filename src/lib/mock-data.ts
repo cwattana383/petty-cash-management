@@ -262,7 +262,8 @@ export const mockClaims: ClaimHeader[] = [
   {
     id: "CLM-TEST-REJECT-001", claimNo: "CLM-2026-TEST-001", requesterId: "u1", requesterName: "Somchai Jaidee",
     company: "ABC Co., Ltd.", branch: "Bangkok", department: "9993010460 Finance and Accounting", costCenter: "CC-SALES-01",
-    purpose: "Airlines", merchantName: "SINGAPORE AIRLINES", currency: "THB", paymentMethod: "Corporate Card",
+    purpose: "SINGAPORE AIRLINES", merchantName: "SINGAPORE AIRLINES", currency: "THB", paymentMethod: "Corporate Card",
+    expenseTypeId: "et-2", subExpenseTypeId: "set-8", vatTypeId: "claim_100", glAccountId: "gl-9",
     totalAmount: 18224.00, totalVat: 0, status: "Reject", createdDate: "2026-05-10", submittedDate: "2026-05-10",
     lines: [], approvalHistory: [], comments: [],
     returnSource: "MANAGER_REJECT", returnedByUserId: "u2", returnedAt: "2026-05-11T16:22:00Z",
