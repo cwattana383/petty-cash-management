@@ -539,6 +539,26 @@ export default function ClaimDetail() {
   const requiredDocId = requiredDocumentType?.id;
   const documentsQuery = useClaimDocuments(claim?.id);
 
+  // Capture baseline note + doc-ids on first load when claim is in 'Reject' state, for BR4 change-detection.
+  useEffect(() => {
+    if (claim?.status === "Reject" && originalRejectNoteRef.current === null) {
+      originalRejectNoteRef.current = claim.cardholderNote ?? "";
+    }
+    if (claim?.status !== "Reject") {
+      originalRejectNoteRef.current = null;
+      originalRejectDocIdsRef.current = null;
+    }
+  }, [claim?.id, claim?.status, claim?.cardholderNote]);
+  useEffect(() => {
+    if (
+      claim?.status === "Reject" &&
+      originalRejectDocIdsRef.current === null &&
+      documentsQuery.data
+    ) {
+      originalRejectDocIdsRef.current = new Set(documentsQuery.data.map((d) => d.id));
+    }
+  }, [claim?.status, documentsQuery.data]);
+
   /** Corp card policy auto-reject with no document requirement — skip document step and allow submit to AUTO_REJECT. */
   const corpPolicyAutoRejectNoDoc = useMemo(() => {
     const st = (claim?.corpTxnStatus ?? "").toString().toUpperCase().replace(/\s+/g, "_");
