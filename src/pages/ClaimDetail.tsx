@@ -2442,18 +2442,35 @@ export default function ClaimDetail() {
                   className: "bg-[#E11D2C] hover:bg-[#B91C2C] text-white disabled:opacity-50",
                 };
 
-        const handlePrimaryClick = async () => {
+        const buildResubmitInput = (acknowledgeNoChanges: boolean) => {
+          const currentDocs = documentsQuery.data ?? [];
+          const baselineIds = originalRejectDocIdsRef.current;
+          const newFileIds =
+            claim.status === "Reject" && baselineIds
+              ? currentDocs.map((d) => d.id).filter((id) => !baselineIds.has(id))
+              : [];
+          return {
+            claimId: claim.id,
+            cardholderNote: claim.cardholderNote ?? "",
+            newFileIds,
+            responseMessage: "",
+            originalCardholderNoteAtRejection:
+              claim.status === "Reject" ? originalRejectNoteRef.current ?? "" : undefined,
+            acknowledgeNoChanges,
+          };
+        };
+        const handlePrimaryClick = async (acknowledgeNoChanges = false) => {
           setErrorBanner(null);
           try {
-            await resubmitClaimMutation.mutateAsync({
-              claimId: claim.id,
-              cardholderNote: claim.cardholderNote ?? "",
-              newFileIds: [],
-              responseMessage: "",
-            });
+            await resubmitClaimMutation.mutateAsync(buildResubmitInput(acknowledgeNoChanges));
+            setNoChangesDialogOpen(false);
             toast({ title: "Resubmitted successfully" });
             navigate("/claims");
           } catch (err) {
+            if (err instanceof Error && err.name === "NoChangesError") {
+              setNoChangesDialogOpen(true);
+              return;
+            }
             const message = err instanceof Error ? err.message : "Resubmission failed";
             setErrorBanner(message);
           }
