@@ -523,10 +523,15 @@ export default function ClaimDetail() {
     !expenseType || gl.expenseTypeId === expenseType
   );
   const subtypeDocumentTypes = selectedSubExpenseTypeRow?.documentTypes ?? [];
-  const requiredDocumentType = subtypeDocumentTypes.find((d) => !d.documentType.isSupportDocument)?.documentType;
-  const optionalDocumentTypes = subtypeDocumentTypes
-    .filter((d) => d.documentType.isSupportDocument)
-    .map((d) => d.documentType);
+  const checklistOverride = claim?.documentChecklistOverride;
+  const requiredDocumentType = checklistOverride
+    ? checklistOverride.required[0]
+    : subtypeDocumentTypes.find((d) => !d.documentType.isSupportDocument)?.documentType;
+  const optionalDocumentTypes = checklistOverride
+    ? checklistOverride.optional
+    : subtypeDocumentTypes
+        .filter((d) => d.documentType.isSupportDocument)
+        .map((d) => d.documentType);
   /** Primary required slot comes only from expense-type master — no hardcoded fallback. */
   const requiredDocId = requiredDocumentType?.id;
   const documentsQuery = useClaimDocuments(claim?.id);

@@ -137,6 +137,11 @@ export interface ClaimHeader {
   returnMessage?: string;
   /** Cardholder-facing audit trail events (mock-state). */
   auditEvents?: import("@/components/claims/AuditTrail").AuditEvent[];
+  /** Per-claim override for Section 3 document checklist. Shape matches inner documentType objects from expense-type subtypes. */
+  documentChecklistOverride?: {
+    required: { id: string; documentName: string; isSupportDocument: boolean }[];
+    optional: { id: string; documentName: string; isSupportDocument: boolean }[];
+  };
 }
 
 export interface Comment {

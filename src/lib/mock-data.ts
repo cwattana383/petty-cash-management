@@ -269,6 +269,10 @@ export const mockClaims: ClaimHeader[] = [
     returnSource: "MANAGER_REJECT", returnedByUserId: "u2", returnedAt: "2026-05-11T16:22:00Z",
     returnMessage: "Travel approval letter doesn't match the trip dates on the booking. Please attach the corrected approval and resubmit.",
     resubmitCountMgr: 0,
+    documentChecklistOverride: {
+      required: [{ id: "dt-eticket-test", documentName: "E-Ticket / Flight ticket", isSupportDocument: false }],
+      optional: [{ id: "dt-travel-insurance-test", documentName: "Travel Insurance Certificate", isSupportDocument: true }],
+    },
   },
   {
     id: "CLM-TEST-RFI-001", claimNo: "CLM-2026-TEST-002", requesterId: "u1", requesterName: "Somchai Jaidee",
