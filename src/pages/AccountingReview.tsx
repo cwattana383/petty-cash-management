@@ -13,6 +13,8 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 import { useToast } from "@/hooks/use-toast";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Input } from "@/components/ui/input";
+import { Search } from "lucide-react";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
@@ -84,6 +86,9 @@ const tabStatusMap: Record<string, string[] | null> = {
 export default function AccountingReview() {
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState("pending");
+  const [searchQuery, setSearchQuery] = useState("");
+  const [dateFrom, setDateFrom] = useState("");
+  const [dateTo, setDateTo] = useState("");
   const [drawerItemId, setDrawerItemId] = useState<string | null>(null);
   const [items, setItems] = useState<MockItem[]>(initialMockItems);
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
@@ -199,6 +204,34 @@ export default function AccountingReview() {
           <p className="text-muted-foreground">Review and adjust expense claims for ERP</p>
         </div>
 
+
+        <div className="rounded-lg border border-border bg-background p-4 space-y-3">
+          <div className="relative">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+            <Input
+              placeholder="Search expenses..."
+              className="pl-9"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+            />
+          </div>
+          <div className="flex items-center gap-3">
+            <Label className="text-sm text-foreground shrink-0">Transaction Date:</Label>
+            <Input
+              type="date"
+              value={dateFrom}
+              onChange={(e) => setDateFrom(e.target.value)}
+              className="w-auto"
+            />
+            <span className="text-sm text-muted-foreground">to</span>
+            <Input
+              type="date"
+              value={dateTo}
+              onChange={(e) => setDateTo(e.target.value)}
+              className="w-auto"
+            />
+          </div>
+        </div>
 
         <div className="flex items-center justify-between">
           <Tabs value={activeTab} onValueChange={setActiveTab}>
