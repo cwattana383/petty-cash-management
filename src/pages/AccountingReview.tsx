@@ -243,9 +243,9 @@ export default function AccountingReview() {
           <Tabs value={activeTab} onValueChange={setActiveTab}>
             <TabsList>
               <TabsTrigger value="pending">Pending Review</TabsTrigger>
-              <TabsTrigger value="exception">Exception</TabsTrigger>
-              <TabsTrigger value="ready">Ready for ERP</TabsTrigger>
-              <TabsTrigger value="reimbursed">Sent to ERP</TabsTrigger>
+              <TabsTrigger value="request_info">Request For More Info</TabsTrigger>
+              <TabsTrigger value="reject">Reject</TabsTrigger>
+              <TabsTrigger value="approved">Approved</TabsTrigger>
               <TabsTrigger value="all">All</TabsTrigger>
             </TabsList>
           </Tabs>
