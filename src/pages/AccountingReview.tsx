@@ -244,16 +244,6 @@ export default function AccountingReview() {
               <TabsTrigger value="all">All</TabsTrigger>
             </TabsList>
           </Tabs>
-          {selectedIds.size > 0 && (
-            <Button
-              size="sm"
-              className="bg-green-600 hover:bg-green-700 text-white"
-              onClick={() => setBulkConfirmOpen(true)}
-            >
-              <Send className="h-4 w-4 mr-1" />
-              Confirm Selected ({selectedIds.size})
-            </Button>
-          )}
         </div>
 
         <Card>
@@ -261,12 +251,6 @@ export default function AccountingReview() {
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead className="w-[40px]">
-                    <Checkbox
-                      checked={allSelected}
-                      onCheckedChange={toggleSelectAll}
-                    />
-                  </TableHead>
                   <TableHead>Transaction No.</TableHead>
                   <TableHead>Transaction Date</TableHead>
                   <TableHead>Merchant Name</TableHead>
@@ -279,18 +263,11 @@ export default function AccountingReview() {
               <TableBody>
                 {filtered.length === 0 ? (
                   <TableRow>
-                    <TableCell colSpan={8} className="text-center text-muted-foreground py-8">No items found</TableCell>
+                    <TableCell colSpan={7} className="text-center text-muted-foreground py-8">No items found</TableCell>
                   </TableRow>
                 ) : (
                   filtered.map((item) => (
                     <TableRow key={item.id} className={cn("cursor-pointer hover:bg-muted/30", drawerItemId === item.id && "bg-accent")} onClick={() => navigate(`/accounting/${item.id}`)}>
-                      <TableCell onClick={(e) => e.stopPropagation()}>
-                        <Checkbox
-                          checked={selectedIds.has(item.id)}
-                          onCheckedChange={() => toggleSelect(item.id)}
-                          disabled={item.status === "Ready for ERP"}
-                        />
-                      </TableCell>
                       <TableCell className="font-medium">{item.id}</TableCell>
                       <TableCell>{formatBEDate(item.date)}</TableCell>
                       <TableCell>{item.merchantName}</TableCell>
