@@ -199,40 +199,6 @@ export default function AccountingReview() {
           <p className="text-muted-foreground">Review and adjust expense claims for ERP</p>
         </div>
 
-        <Card className="border-blue-200 bg-blue-50/50">
-          <CardContent className="pt-6">
-            <p className="text-sm text-blue-700 mb-4 font-medium">
-              Monthly Report — sent to HR and Finance on the 9th of each month
-            </p>
-            <div className="grid grid-cols-5 gap-4">
-              {metrics.map((m) => (
-                <div
-                  key={m.label}
-                  onClick={() => setActiveTab(m.tab)}
-                  className={cn(
-                    "flex items-center gap-3 rounded-lg border p-4 cursor-pointer transition-colors",
-                    m.isException
-                      ? "bg-red-50/80 border-red-200 hover:bg-red-100/80"
-                      : "bg-white/80 border-blue-100 hover:bg-blue-50",
-                    activeTab === m.tab && !m.isException && "ring-2 ring-blue-400",
-                    activeTab === m.tab && m.isException && "ring-2 ring-red-400"
-                  )}
-                >
-                  <div className={cn("rounded-full p-2", m.isException ? "bg-red-100" : "bg-blue-100")}>
-                    <m.icon className={cn("h-5 w-5", m.isException ? "text-red-600" : "text-blue-600")} />
-                  </div>
-                  <div>
-                    <p className="text-xs text-muted-foreground">{m.label}</p>
-                    <p className={cn("text-xl font-bold", m.isException ? "text-red-700" : "text-foreground")}>{m.value}</p>
-                  </div>
-                </div>
-              ))}
-            </div>
-            <p className="text-xs text-muted-foreground mt-3">
-              Last updated: 11 Mar 2026 07:00 — Last ERP export: 9 Mar 2026 09:15
-            </p>
-          </CardContent>
-        </Card>
 
         <div className="flex items-center justify-between">
           <Tabs value={activeTab} onValueChange={setActiveTab}>
