@@ -205,6 +205,34 @@ export default function AccountingReview() {
         </div>
 
 
+        <div className="rounded-lg border border-border bg-background p-4 space-y-3">
+          <div className="relative">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+            <Input
+              placeholder="Search expenses..."
+              className="pl-9"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+            />
+          </div>
+          <div className="flex items-center gap-3">
+            <Label className="text-sm text-foreground shrink-0">Transaction Date:</Label>
+            <Input
+              type="date"
+              value={dateFrom}
+              onChange={(e) => setDateFrom(e.target.value)}
+              className="w-auto"
+            />
+            <span className="text-sm text-muted-foreground">to</span>
+            <Input
+              type="date"
+              value={dateTo}
+              onChange={(e) => setDateTo(e.target.value)}
+              className="w-auto"
+            />
+          </div>
+        </div>
+
         <div className="flex items-center justify-between">
           <Tabs value={activeTab} onValueChange={setActiveTab}>
             <TabsList>
