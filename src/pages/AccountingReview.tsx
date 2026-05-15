@@ -258,11 +258,11 @@ export default function AccountingReview() {
                 <TableRow>
                   <TableHead>Transaction No.</TableHead>
                   <TableHead>Transaction Date</TableHead>
-                  <TableHead>Merchant Name</TableHead>
-                  <TableHead>Description</TableHead>
+                  <TableHead>Cardholder Name</TableHead>
+                  <TableHead>Purpose</TableHead>
                   <TableHead className="text-right">Amount</TableHead>
-                  <TableHead>Accounting Review</TableHead>
-                  <TableHead>Validated</TableHead>
+                  <TableHead>Approval Status</TableHead>
+                  <TableHead>Document Status</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
