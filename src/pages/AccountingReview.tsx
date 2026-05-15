@@ -87,8 +87,14 @@ export default function AccountingReview() {
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState("pending");
   const [searchQuery, setSearchQuery] = useState("");
-  const [dateFrom, setDateFrom] = useState("");
-  const [dateTo, setDateTo] = useState("");
+  const [dateFrom, setDateFrom] = useState(() => {
+    const now = new Date();
+    return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}-01`;
+  });
+  const [dateTo, setDateTo] = useState(() => {
+    const now = new Date();
+    return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}-${String(now.getDate()).padStart(2, "0")}`;
+  });
   const [drawerItemId, setDrawerItemId] = useState<string | null>(null);
   const [items, setItems] = useState<MockItem[]>(initialMockItems);
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
