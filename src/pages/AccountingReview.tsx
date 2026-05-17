@@ -310,26 +310,52 @@ export default function AccountingReview() {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {filtered.length === 0 ? (
+                {paged.length === 0 ? (
                   <TableRow>
-                    <TableCell colSpan={7} className="text-center text-muted-foreground py-8">No items found</TableCell>
+                    <TableCell colSpan={7} className="text-center text-muted-foreground py-8">
+                      No transactions found for the selected filters.
+                    </TableCell>
                   </TableRow>
                 ) : (
-                  filtered.map((item) => (
+                  paged.map((item) => (
                     <TableRow key={item.id} className={cn("cursor-pointer hover:bg-muted/30", drawerItemId === item.id && "bg-accent")} onClick={() => navigate(`/accounting/${item.id}`)}>
                       <TableCell className="font-medium">{item.id}</TableCell>
                       <TableCell>{formatBEDate(item.date)}</TableCell>
                       <TableCell>{item.merchantName}</TableCell>
                       <TableCell>{item.description}</TableCell>
                       <TableCell className="text-right font-medium">{item.amount}</TableCell>
-                      <TableCell><Badge className={statusColors["Accounting Review"]} variant="outline">Accounting Review</Badge></TableCell>
-                      <TableCell><Badge className={documentStatusColors["Validated"]} variant="outline">Validated</Badge></TableCell>
+                      <TableCell>
+                        <Badge className={STATUS_COLORS[item.status]} variant="outline">
+                          {STATUS_LABELS[item.status]}
+                        </Badge>
+                      </TableCell>
+                      <TableCell>
+                        <Badge className={documentStatusColors[item.documentStatus] || ""} variant="outline">
+                          {item.documentStatus}
+                        </Badge>
+                      </TableCell>
                     </TableRow>
                   ))
                 )}
               </TableBody>
             </Table>
           </CardContent>
+          {filtered.length > 0 && (
+            <div className="flex items-center justify-between px-4 py-3 border-t border-border text-sm">
+              <span className="text-muted-foreground">
+                Showing {(currentPage - 1) * PAGE_SIZE + 1}–{Math.min(currentPage * PAGE_SIZE, filtered.length)} of {filtered.length}
+              </span>
+              <div className="flex items-center gap-2">
+                <Button variant="outline" size="sm" disabled={currentPage <= 1} onClick={() => setPage(currentPage - 1)}>
+                  <ChevronLeft className="h-4 w-4 mr-1" /> Previous
+                </Button>
+                <span className="text-muted-foreground">Page {currentPage} of {totalPages}</span>
+                <Button variant="outline" size="sm" disabled={currentPage >= totalPages} onClick={() => setPage(currentPage + 1)}>
+                  Next <ChevronRight className="h-4 w-4 ml-1" />
+                </Button>
+              </div>
+            </div>
+          )}
         </Card>
       </div>
 
