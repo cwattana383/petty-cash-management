@@ -38,14 +38,89 @@ interface MockItem {
   date: string;
 }
 
+type ApprovalStatusCode =
+  | "ACCOUNTING_REVIEW"
+  | "RETURNED_FOR_INFO"
+  | "AUTO_APPROVED"
+  | "MANAGER_APPROVED"
+  | "AUTO_REJECTED"
+  | "MANAGER_REJECTED"
+  | "FINAL_REJECTED"
+  | "VERIFIED"
+  | "SENT_TO_ERP";
+
+const STATUS_LABELS: Record<ApprovalStatusCode, string> = {
+  ACCOUNTING_REVIEW: "Accounting Review",
+  RETURNED_FOR_INFO: "Returned for Info",
+  AUTO_APPROVED: "Auto Approved",
+  MANAGER_APPROVED: "Manager Approved",
+  AUTO_REJECTED: "Auto Rejected",
+  MANAGER_REJECTED: "Manager Rejected",
+  FINAL_REJECTED: "Final Rejected",
+  VERIFIED: "Verified",
+  SENT_TO_ERP: "Sent to ERP",
+};
+
+const STATUS_COLORS: Record<ApprovalStatusCode, string> = {
+  ACCOUNTING_REVIEW: "bg-purple-50 text-purple-700 border-purple-200",
+  RETURNED_FOR_INFO: "bg-orange-100 text-orange-800 border-orange-300",
+  AUTO_APPROVED: "bg-green-100 text-green-800 border-green-300",
+  MANAGER_APPROVED: "bg-green-100 text-green-800 border-green-300",
+  AUTO_REJECTED: "bg-red-100 text-red-800 border-red-300",
+  MANAGER_REJECTED: "bg-red-100 text-red-800 border-red-300",
+  FINAL_REJECTED: "bg-red-100 text-red-800 border-red-300",
+  VERIFIED: "bg-teal-100 text-teal-800 border-teal-300",
+  SENT_TO_ERP: "bg-blue-100 text-blue-800 border-blue-300",
+};
+
+const TAB_STATUS_MAP: Record<string, ApprovalStatusCode[] | null> = {
+  pending: ["ACCOUNTING_REVIEW"],
+  request_info: ["RETURNED_FOR_INFO"],
+  reject: ["AUTO_REJECTED", "MANAGER_REJECTED", "FINAL_REJECTED"],
+  approved: ["AUTO_APPROVED", "MANAGER_APPROVED"],
+  verified: ["VERIFIED"],
+  sent_erp: ["SENT_TO_ERP"],
+  all: null,
+};
+
+interface MockItem {
+  id: string;
+  merchantName: string;
+  description: string;
+  amount: string;
+  status: ApprovalStatusCode;
+  documentStatus: string;
+  deductionPeriod: string;
+  attachedFiles: AttachedDoc[];
+  date: string;
+}
+
 const initialMockItems: MockItem[] = [
-  { id: "TXN2026042700003", date: "2026-04-28", merchantName: "EASY PASS TOPUP", description: "Tolls and Bridge Fees", amount: "฿500.00", status: "Auto Approved", documentStatus: "Pending Documents", deductionPeriod: "—", attachedFiles: [] },
-  { id: "TXN2026042700001", date: "2026-04-28", merchantName: "STATE RAILWAY OF THAILAND", description: "Passenger Railways", amount: "฿680.00", status: "Auto Approved", documentStatus: "Pending Documents", deductionPeriod: "—", attachedFiles: [] },
-  { id: "TXN2026042800008", date: "2026-04-28", merchantName: "STARBUCKS THAILAND", description: "Fast Food Restaurants", amount: "฿285.00", status: "Auto Approved", documentStatus: "Pending Documents", deductionPeriod: "—", attachedFiles: [] },
-  { id: "TXN2026042700011", date: "2026-04-28", merchantName: "THB", description: "3577", amount: "฿19.00", status: "Required Approval", documentStatus: "Pending Documents", deductionPeriod: "—", attachedFiles: [] },
-  { id: "TXN2026042700009", date: "2026-04-28", merchantName: "THB", description: "3075", amount: "฿18.00", status: "Required Approval", documentStatus: "Pending Documents", deductionPeriod: "—", attachedFiles: [] },
-  { id: "TXN2026042800013", date: "2026-04-28", merchantName: "THB", description: "5812", amount: "฿2.00", status: "Required Approval", documentStatus: "Pending Documents", deductionPeriod: "—", attachedFiles: [] },
-  { id: "TXN2026042800014", date: "2026-04-28", merchantName: "7-ELEVEN SINGAPORE", description: "Grocery Stores and Supermarkets", amount: "฿495.80", status: "Required Approval", documentStatus: "Pending Documents", deductionPeriod: "—", attachedFiles: [] },
+  { id: "TXN2026050100001", date: "2026-05-01", merchantName: "Somchai Jaidee", description: "Client meeting transport", amount: "฿500.00", status: "ACCOUNTING_REVIEW", documentStatus: "Validated", deductionPeriod: "—", attachedFiles: [] },
+  { id: "TXN2026050200002", date: "2026-05-02", merchantName: "Anong Srisuk", description: "Team lunch", amount: "฿1,250.00", status: "ACCOUNTING_REVIEW", documentStatus: "Validated", deductionPeriod: "—", attachedFiles: [] },
+  { id: "TXN2026050300003", date: "2026-05-03", merchantName: "Wirat Phongsri", description: "Office supplies", amount: "฿680.00", status: "ACCOUNTING_REVIEW", documentStatus: "Validated", deductionPeriod: "—", attachedFiles: [] },
+  { id: "TXN2026050400004", date: "2026-05-04", merchantName: "Kanya Watcharee", description: "Airport taxi", amount: "฿420.00", status: "RETURNED_FOR_INFO", documentStatus: "Pending Documents", deductionPeriod: "—", attachedFiles: [] },
+  { id: "TXN2026050500005", date: "2026-05-05", merchantName: "Pichai Thongdee", description: "Conference fee", amount: "฿5,000.00", status: "RETURNED_FOR_INFO", documentStatus: "Pending Documents", deductionPeriod: "—", attachedFiles: [] },
+  { id: "TXN2026050600006", date: "2026-05-06", merchantName: "Suda Manee", description: "Coffee with client", amount: "฿285.00", status: "AUTO_APPROVED", documentStatus: "Validated", deductionPeriod: "—", attachedFiles: [] },
+  { id: "TXN2026050700007", date: "2026-05-07", merchantName: "Anucha Rakdee", description: "Train ticket BKK-CNX", amount: "฿1,500.00", status: "AUTO_APPROVED", documentStatus: "Validated", deductionPeriod: "—", attachedFiles: [] },
+  { id: "TXN2026050800008", date: "2026-05-08", merchantName: "Malee Chaiyo", description: "Hotel one night", amount: "฿2,800.00", status: "MANAGER_APPROVED", documentStatus: "Validated", deductionPeriod: "—", attachedFiles: [] },
+  { id: "TXN2026050800009", date: "2026-05-08", merchantName: "Thanit Boonmee", description: "Team building dinner", amount: "฿4,200.00", status: "MANAGER_APPROVED", documentStatus: "Validated", deductionPeriod: "—", attachedFiles: [] },
+  { id: "TXN2026050900010", date: "2026-05-09", merchantName: "Niran Suwan", description: "Personal item — disallowed", amount: "฿1,100.00", status: "AUTO_REJECTED", documentStatus: "Pending Documents", deductionPeriod: "—", attachedFiles: [] },
+  { id: "TXN2026050900011", date: "2026-05-09", merchantName: "Ratchanee Pim", description: "No receipt provided", amount: "฿320.00", status: "MANAGER_REJECTED", documentStatus: "Pending Documents", deductionPeriod: "—", attachedFiles: [] },
+  { id: "TXN2026051000012", date: "2026-05-10", merchantName: "Phakorn Suk", description: "Out of policy spend", amount: "฿8,500.00", status: "FINAL_REJECTED", documentStatus: "Pending Documents", deductionPeriod: "—", attachedFiles: [] },
+  { id: "TXN2026051000013", date: "2026-05-10", merchantName: "Wanchai Tonggam", description: "Vendor lunch", amount: "฿1,850.00", status: "VERIFIED", documentStatus: "Validated", deductionPeriod: "—", attachedFiles: [] },
+  { id: "TXN2026051100014", date: "2026-05-11", merchantName: "Siriporn Klaa", description: "Mobile top-up", amount: "฿300.00", status: "VERIFIED", documentStatus: "Validated", deductionPeriod: "—", attachedFiles: [] },
+  { id: "TXN2026051100015", date: "2026-05-11", merchantName: "Decha Inthanon", description: "Cab to client site", amount: "฿175.00", status: "VERIFIED", documentStatus: "Validated", deductionPeriod: "—", attachedFiles: [] },
+  { id: "TXN2026051200016", date: "2026-05-12", merchantName: "Apinya Sukjai", description: "Marketing event", amount: "฿12,000.00", status: "SENT_TO_ERP", documentStatus: "Validated", deductionPeriod: "—", attachedFiles: [] },
+  { id: "TXN2026051200017", date: "2026-05-12", merchantName: "Boonsong Lerd", description: "Office snacks", amount: "฿650.00", status: "SENT_TO_ERP", documentStatus: "Validated", deductionPeriod: "—", attachedFiles: [] },
+  { id: "TXN2026051300018", date: "2026-05-13", merchantName: "Chalita Mongkol", description: "Stationery", amount: "฿420.00", status: "SENT_TO_ERP", documentStatus: "Validated", deductionPeriod: "—", attachedFiles: [] },
+  { id: "TXN2026051300019", date: "2026-05-13", merchantName: "Krit Phusawat", description: "Training course", amount: "฿7,800.00", status: "ACCOUNTING_REVIEW", documentStatus: "Validated", deductionPeriod: "—", attachedFiles: [] },
+  { id: "TXN2026051400020", date: "2026-05-14", merchantName: "Lalita Boonchu", description: "Software subscription", amount: "฿1,990.00", status: "ACCOUNTING_REVIEW", documentStatus: "Validated", deductionPeriod: "—", attachedFiles: [] },
+  { id: "TXN2026051400021", date: "2026-05-14", merchantName: "Manop Saksri", description: "Parking fee", amount: "฿120.00", status: "ACCOUNTING_REVIEW", documentStatus: "Validated", deductionPeriod: "—", attachedFiles: [] },
+  { id: "TXN2026051500022", date: "2026-05-15", merchantName: "Narongsak Yim", description: "Client gift", amount: "฿2,500.00", status: "ACCOUNTING_REVIEW", documentStatus: "Validated", deductionPeriod: "—", attachedFiles: [] },
+  { id: "TXN2026051500023", date: "2026-05-15", merchantName: "Orawan Pansri", description: "Toll fee", amount: "฿80.00", status: "AUTO_APPROVED", documentStatus: "Validated", deductionPeriod: "—", attachedFiles: [] },
+  { id: "TXN2026051500024", date: "2026-05-15", merchantName: "Prasert Khunsri", description: "Workshop materials", amount: "฿3,400.00", status: "MANAGER_APPROVED", documentStatus: "Validated", deductionPeriod: "—", attachedFiles: [] },
+  { id: "TXN2026051500025", date: "2026-05-15", merchantName: "Rungnapa Sripong", description: "Internal lunch meeting", amount: "฿890.00", status: "ACCOUNTING_REVIEW", documentStatus: "Validated", deductionPeriod: "—", attachedFiles: [] },
 ];
 
 const DOC_TYPE_COLORS: Record<string, string> = {
@@ -57,31 +132,12 @@ const DOC_TYPE_COLORS: Record<string, string> = {
   "Other Documents": "bg-gray-100 text-gray-600 border-gray-300",
 };
 
-const statusColors: Record<string, string> = {
-  "Pending Invoice": "bg-orange-100 text-orange-800 border-orange-300",
-  "Auto Reject": "bg-red-100 text-red-800 border-red-300",
-  "Reject": "bg-red-100 text-red-800 border-red-300",
-  "Final Rejected": "bg-red-100 text-red-800 border-red-300",
-  "Exception": "bg-red-100 text-red-800 border-red-300",
-  "Auto Approved": "bg-green-100 text-green-800 border-green-300",
-  "Required Approval": "bg-yellow-100 text-yellow-800 border-yellow-300",
-  "Accounting Review": "bg-purple-50 text-purple-700 border border-purple-200",
-  "Ready for ERP": "bg-blue-100 text-blue-800 border-blue-300",
-  "Reimbursed": "bg-purple-100 text-purple-800 border-purple-300",
-};
-
 const documentStatusColors: Record<string, string> = {
   "Pending Documents": "bg-yellow-100 text-yellow-800 border-yellow-300",
   "Validated": "bg-green-100 text-green-800 border-green-300",
 };
 
-const tabStatusMap: Record<string, string[] | null> = {
-  all: null,
-  pending: ["Pending Invoice", "Auto Approved", "Required Approval"],
-  exception: ["Auto Reject", "Reject", "Final Rejected", "Exception"],
-  ready: ["Ready for ERP"],
-  reimbursed: ["Reimbursed"],
-};
+const PAGE_SIZE = 20;
 
 export default function AccountingReview() {
   const navigate = useNavigate();
