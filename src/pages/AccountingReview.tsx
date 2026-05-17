@@ -246,6 +246,8 @@ export default function AccountingReview() {
               <TabsTrigger value="request_info">Request For More Info</TabsTrigger>
               <TabsTrigger value="reject">Rejected</TabsTrigger>
               <TabsTrigger value="approved">Approved</TabsTrigger>
+              <TabsTrigger value="verified">Verified</TabsTrigger>
+              <TabsTrigger value="sent_erp">Sent to ERP</TabsTrigger>
               <TabsTrigger value="all">All</TabsTrigger>
             </TabsList>
           </Tabs>
