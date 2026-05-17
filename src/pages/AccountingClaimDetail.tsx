@@ -55,6 +55,14 @@ const ACCOUNTING_ITEMS: AccountingItem[] = [
   { id: "TXN20260227021", merchantName: "Siam Amazing Park", description: "Amusement Parks", amount: 7900, status: "Auto Reject", date: "2026-02-27", fileName: "", docType: "" },
   { id: "TXN20260227002", merchantName: "Tiger Kingdom", description: "Tourist Attractions", amount: 4500, status: "Auto Reject", date: "2026-02-27", fileName: "", docType: "" },
   { id: "TXN20260227053", merchantName: "The Street", description: "Dance Halls", amount: 2500, status: "Auto Reject", date: "2026-02-27", fileName: "", docType: "" },
+  { id: "TXN2026050100001", merchantName: "Grab Taxi", description: "Client meeting transport", amount: 500.00, status: "Accounting Review", date: "2026-05-01", fileName: "GrabTaxi_Receipt_20260501.pdf", docType: "Receipt" },
+  { id: "TXN2026050200002", merchantName: "Sizzler", description: "Team lunch", amount: 1250.00, status: "Accounting Review", date: "2026-05-02", fileName: "Sizzler_TaxInvoice_20260502.pdf", docType: "Tax Invoice" },
+  { id: "TXN2026050300003", merchantName: "B2S", description: "Office supplies", amount: 680.00, status: "Accounting Review", date: "2026-05-03", fileName: "B2S_TaxInvoice_20260503.pdf", docType: "Tax Invoice" },
+  { id: "TXN2026051300019", merchantName: "Udemy", description: "Training course", amount: 7800.00, status: "Accounting Review", date: "2026-05-13", fileName: "Udemy_Invoice_20260513.pdf", docType: "Tax Invoice" },
+  { id: "TXN2026051400020", merchantName: "Adobe", description: "Software subscription", amount: 1990.00, status: "Accounting Review", date: "2026-05-14", fileName: "Adobe_TaxInvoice_20260514.pdf", docType: "Tax Invoice" },
+  { id: "TXN2026051400021", merchantName: "EasyPass", description: "Parking fee", amount: 120.00, status: "Accounting Review", date: "2026-05-14", fileName: "EasyPass_Receipt_20260514.pdf", docType: "Receipt" },
+  { id: "TXN2026051500022", merchantName: "Central Department Store", description: "Client gift", amount: 2500.00, status: "Accounting Review", date: "2026-05-15", fileName: "Central_TaxInvoice_20260515.pdf", docType: "Tax Invoice" },
+  { id: "TXN2026051500025", merchantName: "MK Restaurants", description: "Internal lunch meeting", amount: 890.00, status: "Accounting Review", date: "2026-05-15", fileName: "MK_TaxInvoice_20260515.pdf", docType: "Tax Invoice" },
 ];
 
 const GL_ACCOUNT_OPTIONS = [
