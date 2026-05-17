@@ -26,17 +26,6 @@ interface AttachedDoc {
   docType: string;
 }
 
-interface MockItem {
-  id: string;
-  merchantName: string;
-  description: string;
-  amount: string;
-  status: string;
-  documentStatus: string;
-  deductionPeriod: string;
-  attachedFiles: AttachedDoc[];
-  date: string;
-}
 
 type ApprovalStatusCode =
   | "ACCOUNTING_REVIEW"
