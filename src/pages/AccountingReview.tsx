@@ -151,30 +151,49 @@ export default function AccountingReview() {
   const [activeDocIndex, setActiveDocIndex] = useState(0);
   const { toast } = useToast();
 
-  const filtered = tabStatusMap[activeTab]
-    ? items.filter((item) => tabStatusMap[activeTab]!.includes(item.status))
-    : items;
+  const [page, setPage] = useState(1);
+
+  const filtered = useMemo(() => {
+    const allowed = TAB_STATUS_MAP[activeTab];
+    const q = searchQuery.trim().toLowerCase();
+    const from = dateFrom ? new Date(dateFrom + "T00:00:00") : null;
+    const to = dateTo ? new Date(dateTo + "T23:59:59") : null;
+
+    return items.filter((item) => {
+      if (allowed && !allowed.includes(item.status)) return false;
+
+      const d = new Date(item.date + "T12:00:00");
+      if (from && d < from) return false;
+      if (to && d > to) return false;
+
+      if (q) {
+        const haystack = [
+          item.id,
+          item.merchantName,
+          item.description,
+          item.merchantName,
+          STATUS_LABELS[item.status],
+          item.documentStatus,
+        ]
+          .join(" ")
+          .toLowerCase();
+        if (!haystack.includes(q)) return false;
+      }
+      return true;
+    });
+  }, [items, activeTab, searchQuery, dateFrom, dateTo]);
+
+  useEffect(() => {
+    setPage(1);
+  }, [activeTab, searchQuery, dateFrom, dateTo]);
+
+  const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
+  const currentPage = Math.min(page, totalPages);
+  const paged = filtered.slice((currentPage - 1) * PAGE_SIZE, currentPage * PAGE_SIZE);
 
   const itemsWithFiles = filtered.filter((i) => i.attachedFiles.length > 0);
   const currentFileIndex = itemsWithFiles.findIndex((i) => i.id === drawerItemId);
   const drawerItem = items.find((i) => i.id === drawerItemId);
-
-  const totalTransactions = items.length;
-  const totalAmount = items.reduce((sum, item) => {
-    const num = parseFloat(item.amount.replace(/[฿,]/g, ""));
-    return sum + num;
-  }, 0);
-  const pendingCount = items.filter((i) => ["Pending Invoice", "Auto Approved", "Required Approval"].includes(i.status)).length;
-  const readyCount = items.filter((i) => i.status === "Ready for ERP").length;
-  const exceptionCount = items.filter((i) => ["Auto Reject", "Reject", "Final Rejected", "Exception"].includes(i.status)).length;
-
-  const metrics = [
-    { label: "Total Transactions", value: totalTransactions.toString(), icon: FileText, tab: "all" },
-    { label: "Total Amount (฿)", value: `฿${totalAmount.toLocaleString()}`, icon: BarChart3, tab: "all" },
-    { label: "Pending Review", value: pendingCount.toString(), icon: Clock, tab: "pending" },
-    { label: "Exception", value: exceptionCount.toString(), icon: AlertTriangle, tab: "exception", isException: true },
-    { label: "Ready for ERP", value: readyCount.toString(), icon: CheckCircle, tab: "ready" },
-  ];
 
   const isDrawerOpen = !!drawerItem;
 
@@ -185,7 +204,7 @@ export default function AccountingReview() {
   const updateStatus = (ids: string[]) => {
     setItems((prev) =>
       prev.map((item) =>
-        ids.includes(item.id) ? { ...item, status: "Ready for ERP" } : item
+        ids.includes(item.id) ? { ...item, status: "SENT_TO_ERP" as ApprovalStatusCode } : item
       )
     );
   };
@@ -193,7 +212,7 @@ export default function AccountingReview() {
   const handleSingleConfirm = () => {
     if (!drawerItemId) return;
     updateStatus([drawerItemId]);
-    toast({ title: "Sent to ERP successfully", description: `${drawerItemId} — Status changed to Ready for ERP` });
+    toast({ title: "Sent to ERP successfully", description: `${drawerItemId} — Status changed to Sent to ERP` });
     setDrawerItemId(null);
     setConfirmDialogOpen(false);
   };
@@ -210,7 +229,7 @@ export default function AccountingReview() {
     if (!drawerItemId || !exceptionReason) return;
     setItems((prev) =>
       prev.map((item) =>
-        item.id === drawerItemId ? { ...item, status: "Exception" } : item
+        item.id === drawerItemId ? { ...item, status: "FINAL_REJECTED" as ApprovalStatusCode } : item
       )
     );
     toast({ title: "Item flagged as Exception — employee notified", description: `${drawerItemId} — Reason: ${exceptionReason}` });
@@ -220,32 +239,10 @@ export default function AccountingReview() {
     setExceptionNote("");
   };
 
-  const toggleSelect = (id: string) => {
-    setSelectedIds((prev) => {
-      const next = new Set(prev);
-      if (next.has(id)) next.delete(id);
-      else next.add(id);
-      return next;
-    });
-  };
-
-  const toggleSelectAll = () => {
-    const eligibleIds = filtered.filter((i) => i.status !== "Ready for ERP").map((i) => i.id);
-    const allSelected = eligibleIds.every((id) => selectedIds.has(id));
-    if (allSelected) {
-      setSelectedIds(new Set());
-    } else {
-      setSelectedIds(new Set(eligibleIds));
-    }
-  };
-
   const openDrawer = (id: string) => {
     setDrawerItemId(id);
     setActiveDocIndex(0);
   };
-
-  const eligibleFiltered = filtered.filter((i) => i.status !== "Ready for ERP");
-  const allSelected = eligibleFiltered.length > 0 && eligibleFiltered.every((i) => selectedIds.has(i.id));
 
   return (
     <div className="flex h-full">
