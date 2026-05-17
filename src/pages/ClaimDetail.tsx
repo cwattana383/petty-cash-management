@@ -1529,15 +1529,17 @@ export default function ClaimDetail() {
 
         <div className="space-y-8">
           <section>
-            <SectionDivider num={1} label="Card Transaction" />
+            <SectionDivider num={1} label="Transaction Info" />
             <Card className="bg-muted/40 border border-border rounded-xl">
               <CardContent className="pt-5 pb-5">
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-3 text-[13px]">
-                  <Row label="Transaction No." value={cardTransactionNo} />
-                  <Row label="Date" value={formatBEDate(cardTxnDateStr)} />
-                  <Row label="Merchant" value={cardMerchant} />
-                  <Row label="Amount" value={`${fmt(cardBillingAmount)} ${cardCurrency}`} />
-                  <Row label="MCC Description" value={cardMccDescription} className="sm:col-span-2" />
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-x-8 gap-y-3 text-[13px]">
+                  <Row label="Transaction No." value={cardTransactionNo} className="md:col-start-1 md:row-start-1" />
+                  <Row label="Date" value={formatBEDate(cardTxnDateStr)} className="md:col-start-2 md:row-start-1" />
+                  <Row label="Merchant" value={cardMerchant} className="md:col-start-1 md:row-start-2" />
+                  <Row label="Amount" value={`${fmt(cardBillingAmount)} ${cardCurrency}`} className="md:col-start-2 md:row-start-2" />
+                  <Row label="MCC Description" value={cardMccDescription} className="sm:col-span-2 md:col-start-1 md:col-end-3 md:row-start-3" />
+                  <StatusBadgeField label="Approval Status" value="Pending Approval" tone="warning" className="md:col-start-3 md:row-start-1" />
+                  <StatusBadgeField label="Document Status" value="Incomplete" tone="warning" className="md:col-start-3 md:row-start-2" />
                 </div>
               </CardContent>
             </Card>
