@@ -483,7 +483,7 @@ export default function AccountingReview() {
 
           {/* Footer with ERP button + Navigation */}
           <div className="border-t border-border p-4 space-y-3">
-            {!["Ready for ERP", "Reimbursed", "Exception"].includes(drawerItem.status) && (
+            {!(["SENT_TO_ERP", "FINAL_REJECTED"] as ApprovalStatusCode[]).includes(drawerItem.status) && (
               <div className="flex gap-2">
                 <Button
                   className="flex-1 bg-green-600 hover:bg-green-700 text-white"
@@ -502,19 +502,14 @@ export default function AccountingReview() {
                 </Button>
               </div>
             )}
-            {drawerItem.status === "Ready for ERP" && (
+            {drawerItem.status === "SENT_TO_ERP" && (
               <div className="text-center">
                 <Badge className="bg-blue-100 text-blue-800 border-blue-300" variant="outline">✅ Sent to ERP</Badge>
               </div>
             )}
-            {drawerItem.status === "Exception" && (
+            {drawerItem.status === "FINAL_REJECTED" && (
               <div className="text-center">
-                <Badge className="bg-red-100 text-red-800 border-red-300" variant="outline">⚠️ Exception</Badge>
-              </div>
-            )}
-            {drawerItem.status === "Reimbursed" && (
-              <div className="text-center">
-                <Badge className="bg-purple-100 text-purple-800 border-purple-300" variant="outline">✅ Reimbursed</Badge>
+                <Badge className="bg-red-100 text-red-800 border-red-300" variant="outline">⚠️ Final Rejected</Badge>
               </div>
             )}
             <div className="flex items-center justify-between">
