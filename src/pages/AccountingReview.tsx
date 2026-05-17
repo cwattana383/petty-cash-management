@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -26,12 +26,58 @@ interface AttachedDoc {
   docType: string;
 }
 
+
+type ApprovalStatusCode =
+  | "ACCOUNTING_REVIEW"
+  | "RETURNED_FOR_INFO"
+  | "AUTO_APPROVED"
+  | "MANAGER_APPROVED"
+  | "AUTO_REJECTED"
+  | "MANAGER_REJECTED"
+  | "FINAL_REJECTED"
+  | "VERIFIED"
+  | "SENT_TO_ERP";
+
+const STATUS_LABELS: Record<ApprovalStatusCode, string> = {
+  ACCOUNTING_REVIEW: "Accounting Review",
+  RETURNED_FOR_INFO: "Returned for Info",
+  AUTO_APPROVED: "Auto Approved",
+  MANAGER_APPROVED: "Manager Approved",
+  AUTO_REJECTED: "Auto Rejected",
+  MANAGER_REJECTED: "Manager Rejected",
+  FINAL_REJECTED: "Final Rejected",
+  VERIFIED: "Verified",
+  SENT_TO_ERP: "Sent to ERP",
+};
+
+const STATUS_COLORS: Record<ApprovalStatusCode, string> = {
+  ACCOUNTING_REVIEW: "bg-purple-50 text-purple-700 border-purple-200",
+  RETURNED_FOR_INFO: "bg-orange-100 text-orange-800 border-orange-300",
+  AUTO_APPROVED: "bg-green-100 text-green-800 border-green-300",
+  MANAGER_APPROVED: "bg-green-100 text-green-800 border-green-300",
+  AUTO_REJECTED: "bg-red-100 text-red-800 border-red-300",
+  MANAGER_REJECTED: "bg-red-100 text-red-800 border-red-300",
+  FINAL_REJECTED: "bg-red-100 text-red-800 border-red-300",
+  VERIFIED: "bg-teal-100 text-teal-800 border-teal-300",
+  SENT_TO_ERP: "bg-blue-100 text-blue-800 border-blue-300",
+};
+
+const TAB_STATUS_MAP: Record<string, ApprovalStatusCode[] | null> = {
+  pending: ["ACCOUNTING_REVIEW"],
+  request_info: ["RETURNED_FOR_INFO"],
+  reject: ["AUTO_REJECTED", "MANAGER_REJECTED", "FINAL_REJECTED"],
+  approved: ["AUTO_APPROVED", "MANAGER_APPROVED"],
+  verified: ["VERIFIED"],
+  sent_erp: ["SENT_TO_ERP"],
+  all: null,
+};
+
 interface MockItem {
   id: string;
   merchantName: string;
   description: string;
   amount: string;
-  status: string;
+  status: ApprovalStatusCode;
   documentStatus: string;
   deductionPeriod: string;
   attachedFiles: AttachedDoc[];
@@ -39,13 +85,31 @@ interface MockItem {
 }
 
 const initialMockItems: MockItem[] = [
-  { id: "TXN2026042700003", date: "2026-04-28", merchantName: "EASY PASS TOPUP", description: "Tolls and Bridge Fees", amount: "฿500.00", status: "Auto Approved", documentStatus: "Pending Documents", deductionPeriod: "—", attachedFiles: [] },
-  { id: "TXN2026042700001", date: "2026-04-28", merchantName: "STATE RAILWAY OF THAILAND", description: "Passenger Railways", amount: "฿680.00", status: "Auto Approved", documentStatus: "Pending Documents", deductionPeriod: "—", attachedFiles: [] },
-  { id: "TXN2026042800008", date: "2026-04-28", merchantName: "STARBUCKS THAILAND", description: "Fast Food Restaurants", amount: "฿285.00", status: "Auto Approved", documentStatus: "Pending Documents", deductionPeriod: "—", attachedFiles: [] },
-  { id: "TXN2026042700011", date: "2026-04-28", merchantName: "THB", description: "3577", amount: "฿19.00", status: "Required Approval", documentStatus: "Pending Documents", deductionPeriod: "—", attachedFiles: [] },
-  { id: "TXN2026042700009", date: "2026-04-28", merchantName: "THB", description: "3075", amount: "฿18.00", status: "Required Approval", documentStatus: "Pending Documents", deductionPeriod: "—", attachedFiles: [] },
-  { id: "TXN2026042800013", date: "2026-04-28", merchantName: "THB", description: "5812", amount: "฿2.00", status: "Required Approval", documentStatus: "Pending Documents", deductionPeriod: "—", attachedFiles: [] },
-  { id: "TXN2026042800014", date: "2026-04-28", merchantName: "7-ELEVEN SINGAPORE", description: "Grocery Stores and Supermarkets", amount: "฿495.80", status: "Required Approval", documentStatus: "Pending Documents", deductionPeriod: "—", attachedFiles: [] },
+  { id: "TXN2026050100001", date: "2026-05-01", merchantName: "Somchai Jaidee", description: "Client meeting transport", amount: "฿500.00", status: "ACCOUNTING_REVIEW", documentStatus: "Validated", deductionPeriod: "—", attachedFiles: [] },
+  { id: "TXN2026050200002", date: "2026-05-02", merchantName: "Anong Srisuk", description: "Team lunch", amount: "฿1,250.00", status: "ACCOUNTING_REVIEW", documentStatus: "Validated", deductionPeriod: "—", attachedFiles: [] },
+  { id: "TXN2026050300003", date: "2026-05-03", merchantName: "Wirat Phongsri", description: "Office supplies", amount: "฿680.00", status: "ACCOUNTING_REVIEW", documentStatus: "Validated", deductionPeriod: "—", attachedFiles: [] },
+  { id: "TXN2026050400004", date: "2026-05-04", merchantName: "Kanya Watcharee", description: "Airport taxi", amount: "฿420.00", status: "RETURNED_FOR_INFO", documentStatus: "Pending Documents", deductionPeriod: "—", attachedFiles: [] },
+  { id: "TXN2026050500005", date: "2026-05-05", merchantName: "Pichai Thongdee", description: "Conference fee", amount: "฿5,000.00", status: "RETURNED_FOR_INFO", documentStatus: "Pending Documents", deductionPeriod: "—", attachedFiles: [] },
+  { id: "TXN2026050600006", date: "2026-05-06", merchantName: "Suda Manee", description: "Coffee with client", amount: "฿285.00", status: "AUTO_APPROVED", documentStatus: "Validated", deductionPeriod: "—", attachedFiles: [] },
+  { id: "TXN2026050700007", date: "2026-05-07", merchantName: "Anucha Rakdee", description: "Train ticket BKK-CNX", amount: "฿1,500.00", status: "AUTO_APPROVED", documentStatus: "Validated", deductionPeriod: "—", attachedFiles: [] },
+  { id: "TXN2026050800008", date: "2026-05-08", merchantName: "Malee Chaiyo", description: "Hotel one night", amount: "฿2,800.00", status: "MANAGER_APPROVED", documentStatus: "Validated", deductionPeriod: "—", attachedFiles: [] },
+  { id: "TXN2026050800009", date: "2026-05-08", merchantName: "Thanit Boonmee", description: "Team building dinner", amount: "฿4,200.00", status: "MANAGER_APPROVED", documentStatus: "Validated", deductionPeriod: "—", attachedFiles: [] },
+  { id: "TXN2026050900010", date: "2026-05-09", merchantName: "Niran Suwan", description: "Personal item — disallowed", amount: "฿1,100.00", status: "AUTO_REJECTED", documentStatus: "Pending Documents", deductionPeriod: "—", attachedFiles: [] },
+  { id: "TXN2026050900011", date: "2026-05-09", merchantName: "Ratchanee Pim", description: "No receipt provided", amount: "฿320.00", status: "MANAGER_REJECTED", documentStatus: "Pending Documents", deductionPeriod: "—", attachedFiles: [] },
+  { id: "TXN2026051000012", date: "2026-05-10", merchantName: "Phakorn Suk", description: "Out of policy spend", amount: "฿8,500.00", status: "FINAL_REJECTED", documentStatus: "Pending Documents", deductionPeriod: "—", attachedFiles: [] },
+  { id: "TXN2026051000013", date: "2026-05-10", merchantName: "Wanchai Tonggam", description: "Vendor lunch", amount: "฿1,850.00", status: "VERIFIED", documentStatus: "Validated", deductionPeriod: "—", attachedFiles: [] },
+  { id: "TXN2026051100014", date: "2026-05-11", merchantName: "Siriporn Klaa", description: "Mobile top-up", amount: "฿300.00", status: "VERIFIED", documentStatus: "Validated", deductionPeriod: "—", attachedFiles: [] },
+  { id: "TXN2026051100015", date: "2026-05-11", merchantName: "Decha Inthanon", description: "Cab to client site", amount: "฿175.00", status: "VERIFIED", documentStatus: "Validated", deductionPeriod: "—", attachedFiles: [] },
+  { id: "TXN2026051200016", date: "2026-05-12", merchantName: "Apinya Sukjai", description: "Marketing event", amount: "฿12,000.00", status: "SENT_TO_ERP", documentStatus: "Validated", deductionPeriod: "—", attachedFiles: [] },
+  { id: "TXN2026051200017", date: "2026-05-12", merchantName: "Boonsong Lerd", description: "Office snacks", amount: "฿650.00", status: "SENT_TO_ERP", documentStatus: "Validated", deductionPeriod: "—", attachedFiles: [] },
+  { id: "TXN2026051300018", date: "2026-05-13", merchantName: "Chalita Mongkol", description: "Stationery", amount: "฿420.00", status: "SENT_TO_ERP", documentStatus: "Validated", deductionPeriod: "—", attachedFiles: [] },
+  { id: "TXN2026051300019", date: "2026-05-13", merchantName: "Krit Phusawat", description: "Training course", amount: "฿7,800.00", status: "ACCOUNTING_REVIEW", documentStatus: "Validated", deductionPeriod: "—", attachedFiles: [] },
+  { id: "TXN2026051400020", date: "2026-05-14", merchantName: "Lalita Boonchu", description: "Software subscription", amount: "฿1,990.00", status: "ACCOUNTING_REVIEW", documentStatus: "Validated", deductionPeriod: "—", attachedFiles: [] },
+  { id: "TXN2026051400021", date: "2026-05-14", merchantName: "Manop Saksri", description: "Parking fee", amount: "฿120.00", status: "ACCOUNTING_REVIEW", documentStatus: "Validated", deductionPeriod: "—", attachedFiles: [] },
+  { id: "TXN2026051500022", date: "2026-05-15", merchantName: "Narongsak Yim", description: "Client gift", amount: "฿2,500.00", status: "ACCOUNTING_REVIEW", documentStatus: "Validated", deductionPeriod: "—", attachedFiles: [] },
+  { id: "TXN2026051500023", date: "2026-05-15", merchantName: "Orawan Pansri", description: "Toll fee", amount: "฿80.00", status: "AUTO_APPROVED", documentStatus: "Validated", deductionPeriod: "—", attachedFiles: [] },
+  { id: "TXN2026051500024", date: "2026-05-15", merchantName: "Prasert Khunsri", description: "Workshop materials", amount: "฿3,400.00", status: "MANAGER_APPROVED", documentStatus: "Validated", deductionPeriod: "—", attachedFiles: [] },
+  { id: "TXN2026051500025", date: "2026-05-15", merchantName: "Rungnapa Sripong", description: "Internal lunch meeting", amount: "฿890.00", status: "ACCOUNTING_REVIEW", documentStatus: "Validated", deductionPeriod: "—", attachedFiles: [] },
 ];
 
 const DOC_TYPE_COLORS: Record<string, string> = {
@@ -57,31 +121,12 @@ const DOC_TYPE_COLORS: Record<string, string> = {
   "Other Documents": "bg-gray-100 text-gray-600 border-gray-300",
 };
 
-const statusColors: Record<string, string> = {
-  "Pending Invoice": "bg-orange-100 text-orange-800 border-orange-300",
-  "Auto Reject": "bg-red-100 text-red-800 border-red-300",
-  "Reject": "bg-red-100 text-red-800 border-red-300",
-  "Final Rejected": "bg-red-100 text-red-800 border-red-300",
-  "Exception": "bg-red-100 text-red-800 border-red-300",
-  "Auto Approved": "bg-green-100 text-green-800 border-green-300",
-  "Required Approval": "bg-yellow-100 text-yellow-800 border-yellow-300",
-  "Accounting Review": "bg-purple-50 text-purple-700 border border-purple-200",
-  "Ready for ERP": "bg-blue-100 text-blue-800 border-blue-300",
-  "Reimbursed": "bg-purple-100 text-purple-800 border-purple-300",
-};
-
 const documentStatusColors: Record<string, string> = {
   "Pending Documents": "bg-yellow-100 text-yellow-800 border-yellow-300",
   "Validated": "bg-green-100 text-green-800 border-green-300",
 };
 
-const tabStatusMap: Record<string, string[] | null> = {
-  all: null,
-  pending: ["Pending Invoice", "Auto Approved", "Required Approval"],
-  exception: ["Auto Reject", "Reject", "Final Rejected", "Exception"],
-  ready: ["Ready for ERP"],
-  reimbursed: ["Reimbursed"],
-};
+const PAGE_SIZE = 20;
 
 export default function AccountingReview() {
   const navigate = useNavigate();
@@ -106,30 +151,49 @@ export default function AccountingReview() {
   const [activeDocIndex, setActiveDocIndex] = useState(0);
   const { toast } = useToast();
 
-  const filtered = tabStatusMap[activeTab]
-    ? items.filter((item) => tabStatusMap[activeTab]!.includes(item.status))
-    : items;
+  const [page, setPage] = useState(1);
+
+  const filtered = useMemo(() => {
+    const allowed = TAB_STATUS_MAP[activeTab];
+    const q = searchQuery.trim().toLowerCase();
+    const from = dateFrom ? new Date(dateFrom + "T00:00:00") : null;
+    const to = dateTo ? new Date(dateTo + "T23:59:59") : null;
+
+    return items.filter((item) => {
+      if (allowed && !allowed.includes(item.status)) return false;
+
+      const d = new Date(item.date + "T12:00:00");
+      if (from && d < from) return false;
+      if (to && d > to) return false;
+
+      if (q) {
+        const haystack = [
+          item.id,
+          item.merchantName,
+          item.description,
+          item.merchantName,
+          STATUS_LABELS[item.status],
+          item.documentStatus,
+        ]
+          .join(" ")
+          .toLowerCase();
+        if (!haystack.includes(q)) return false;
+      }
+      return true;
+    });
+  }, [items, activeTab, searchQuery, dateFrom, dateTo]);
+
+  useEffect(() => {
+    setPage(1);
+  }, [activeTab, searchQuery, dateFrom, dateTo]);
+
+  const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
+  const currentPage = Math.min(page, totalPages);
+  const paged = filtered.slice((currentPage - 1) * PAGE_SIZE, currentPage * PAGE_SIZE);
 
   const itemsWithFiles = filtered.filter((i) => i.attachedFiles.length > 0);
   const currentFileIndex = itemsWithFiles.findIndex((i) => i.id === drawerItemId);
   const drawerItem = items.find((i) => i.id === drawerItemId);
-
-  const totalTransactions = items.length;
-  const totalAmount = items.reduce((sum, item) => {
-    const num = parseFloat(item.amount.replace(/[฿,]/g, ""));
-    return sum + num;
-  }, 0);
-  const pendingCount = items.filter((i) => ["Pending Invoice", "Auto Approved", "Required Approval"].includes(i.status)).length;
-  const readyCount = items.filter((i) => i.status === "Ready for ERP").length;
-  const exceptionCount = items.filter((i) => ["Auto Reject", "Reject", "Final Rejected", "Exception"].includes(i.status)).length;
-
-  const metrics = [
-    { label: "Total Transactions", value: totalTransactions.toString(), icon: FileText, tab: "all" },
-    { label: "Total Amount (฿)", value: `฿${totalAmount.toLocaleString()}`, icon: BarChart3, tab: "all" },
-    { label: "Pending Review", value: pendingCount.toString(), icon: Clock, tab: "pending" },
-    { label: "Exception", value: exceptionCount.toString(), icon: AlertTriangle, tab: "exception", isException: true },
-    { label: "Ready for ERP", value: readyCount.toString(), icon: CheckCircle, tab: "ready" },
-  ];
 
   const isDrawerOpen = !!drawerItem;
 
@@ -140,7 +204,7 @@ export default function AccountingReview() {
   const updateStatus = (ids: string[]) => {
     setItems((prev) =>
       prev.map((item) =>
-        ids.includes(item.id) ? { ...item, status: "Ready for ERP" } : item
+        ids.includes(item.id) ? { ...item, status: "SENT_TO_ERP" as ApprovalStatusCode } : item
       )
     );
   };
@@ -148,7 +212,7 @@ export default function AccountingReview() {
   const handleSingleConfirm = () => {
     if (!drawerItemId) return;
     updateStatus([drawerItemId]);
-    toast({ title: "Sent to ERP successfully", description: `${drawerItemId} — Status changed to Ready for ERP` });
+    toast({ title: "Sent to ERP successfully", description: `${drawerItemId} — Status changed to Sent to ERP` });
     setDrawerItemId(null);
     setConfirmDialogOpen(false);
   };
@@ -165,7 +229,7 @@ export default function AccountingReview() {
     if (!drawerItemId || !exceptionReason) return;
     setItems((prev) =>
       prev.map((item) =>
-        item.id === drawerItemId ? { ...item, status: "Exception" } : item
+        item.id === drawerItemId ? { ...item, status: "FINAL_REJECTED" as ApprovalStatusCode } : item
       )
     );
     toast({ title: "Item flagged as Exception — employee notified", description: `${drawerItemId} — Reason: ${exceptionReason}` });
@@ -175,32 +239,10 @@ export default function AccountingReview() {
     setExceptionNote("");
   };
 
-  const toggleSelect = (id: string) => {
-    setSelectedIds((prev) => {
-      const next = new Set(prev);
-      if (next.has(id)) next.delete(id);
-      else next.add(id);
-      return next;
-    });
-  };
-
-  const toggleSelectAll = () => {
-    const eligibleIds = filtered.filter((i) => i.status !== "Ready for ERP").map((i) => i.id);
-    const allSelected = eligibleIds.every((id) => selectedIds.has(id));
-    if (allSelected) {
-      setSelectedIds(new Set());
-    } else {
-      setSelectedIds(new Set(eligibleIds));
-    }
-  };
-
   const openDrawer = (id: string) => {
     setDrawerItemId(id);
     setActiveDocIndex(0);
   };
-
-  const eligibleFiltered = filtered.filter((i) => i.status !== "Ready for ERP");
-  const allSelected = eligibleFiltered.length > 0 && eligibleFiltered.every((i) => selectedIds.has(i.id));
 
   return (
     <div className="flex h-full">
@@ -268,26 +310,52 @@ export default function AccountingReview() {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {filtered.length === 0 ? (
+                {paged.length === 0 ? (
                   <TableRow>
-                    <TableCell colSpan={7} className="text-center text-muted-foreground py-8">No items found</TableCell>
+                    <TableCell colSpan={7} className="text-center text-muted-foreground py-8">
+                      No transactions found for the selected filters.
+                    </TableCell>
                   </TableRow>
                 ) : (
-                  filtered.map((item) => (
+                  paged.map((item) => (
                     <TableRow key={item.id} className={cn("cursor-pointer hover:bg-muted/30", drawerItemId === item.id && "bg-accent")} onClick={() => navigate(`/accounting/${item.id}`)}>
                       <TableCell className="font-medium">{item.id}</TableCell>
                       <TableCell>{formatBEDate(item.date)}</TableCell>
                       <TableCell>{item.merchantName}</TableCell>
                       <TableCell>{item.description}</TableCell>
                       <TableCell className="text-right font-medium">{item.amount}</TableCell>
-                      <TableCell><Badge className={statusColors["Accounting Review"]} variant="outline">Accounting Review</Badge></TableCell>
-                      <TableCell><Badge className={documentStatusColors["Validated"]} variant="outline">Validated</Badge></TableCell>
+                      <TableCell>
+                        <Badge className={STATUS_COLORS[item.status]} variant="outline">
+                          {STATUS_LABELS[item.status]}
+                        </Badge>
+                      </TableCell>
+                      <TableCell>
+                        <Badge className={documentStatusColors[item.documentStatus] || ""} variant="outline">
+                          {item.documentStatus}
+                        </Badge>
+                      </TableCell>
                     </TableRow>
                   ))
                 )}
               </TableBody>
             </Table>
           </CardContent>
+          {filtered.length > 0 && (
+            <div className="flex items-center justify-between px-4 py-3 border-t border-border text-sm">
+              <span className="text-muted-foreground">
+                Showing {(currentPage - 1) * PAGE_SIZE + 1}–{Math.min(currentPage * PAGE_SIZE, filtered.length)} of {filtered.length}
+              </span>
+              <div className="flex items-center gap-2">
+                <Button variant="outline" size="sm" disabled={currentPage <= 1} onClick={() => setPage(currentPage - 1)}>
+                  <ChevronLeft className="h-4 w-4 mr-1" /> Previous
+                </Button>
+                <span className="text-muted-foreground">Page {currentPage} of {totalPages}</span>
+                <Button variant="outline" size="sm" disabled={currentPage >= totalPages} onClick={() => setPage(currentPage + 1)}>
+                  Next <ChevronRight className="h-4 w-4 ml-1" />
+                </Button>
+              </div>
+            </div>
+          )}
         </Card>
       </div>
 
@@ -415,7 +483,7 @@ export default function AccountingReview() {
 
           {/* Footer with ERP button + Navigation */}
           <div className="border-t border-border p-4 space-y-3">
-            {!["Ready for ERP", "Reimbursed", "Exception"].includes(drawerItem.status) && (
+            {!(["SENT_TO_ERP", "FINAL_REJECTED"] as ApprovalStatusCode[]).includes(drawerItem.status) && (
               <div className="flex gap-2">
                 <Button
                   className="flex-1 bg-green-600 hover:bg-green-700 text-white"
@@ -434,19 +502,14 @@ export default function AccountingReview() {
                 </Button>
               </div>
             )}
-            {drawerItem.status === "Ready for ERP" && (
+            {drawerItem.status === "SENT_TO_ERP" && (
               <div className="text-center">
                 <Badge className="bg-blue-100 text-blue-800 border-blue-300" variant="outline">✅ Sent to ERP</Badge>
               </div>
             )}
-            {drawerItem.status === "Exception" && (
+            {drawerItem.status === "FINAL_REJECTED" && (
               <div className="text-center">
-                <Badge className="bg-red-100 text-red-800 border-red-300" variant="outline">⚠️ Exception</Badge>
-              </div>
-            )}
-            {drawerItem.status === "Reimbursed" && (
-              <div className="text-center">
-                <Badge className="bg-purple-100 text-purple-800 border-purple-300" variant="outline">✅ Reimbursed</Badge>
+                <Badge className="bg-red-100 text-red-800 border-red-300" variant="outline">⚠️ Final Rejected</Badge>
               </div>
             )}
             <div className="flex items-center justify-between">
