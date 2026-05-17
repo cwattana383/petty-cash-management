@@ -81,6 +81,7 @@ export default function AccountingClaimDetail() {
 
   const [vatType, setVatType] = useState("claim_100");
   const [glAccount, setGlAccount] = useState("5300-002");
+  const [project, setProject] = useState("");
   const [showExceptionInput, setShowExceptionInput] = useState(false);
   const [exceptionReason, setExceptionReason] = useState("");
   const [docModal, setDocModal] = useState(false);
@@ -195,6 +196,17 @@ export default function AccountingClaimDetail() {
                     </SelectContent>
                   </Select>
                 </div>
+              </div>
+              <div className="space-y-1.5">
+                <Label className="text-[13px] font-semibold text-foreground">Project <span className="text-destructive">*</span></Label>
+                <Select value={project} onValueChange={setProject}>
+                  <SelectTrigger className="text-[13px]"><SelectValue placeholder="Select project" /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="HoReCa" className="text-[13px]">HoReCa</SelectItem>
+                    <SelectItem value="Shohuay" className="text-[13px]">Shohuay</SelectItem>
+                    <SelectItem value="Top300" className="text-[13px]">Top300</SelectItem>
+                  </SelectContent>
+                </Select>
               </div>
             </CardContent>
           </Card>
