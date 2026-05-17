@@ -367,3 +367,23 @@ function ReadOnlyField({ label, value }: { label: string; value: string }) {
     </div>
   );
 }
+
+function StatusBadgeField({ label, value, tone, className }: {
+  label: string;
+  value: string;
+  tone: "neutral" | "warning" | "success" | "destructive";
+  className?: string;
+}) {
+  const toneClass = {
+    neutral: "bg-slate-100 text-slate-700",
+    warning: "bg-amber-100 text-amber-800",
+    success: "bg-emerald-100 text-emerald-800",
+    destructive: "bg-red-100 text-red-800",
+  }[tone];
+  return (
+    <div className={className}>
+      <p className="text-muted-foreground text-[12px]">{label}</p>
+      <Badge variant="outline" className={`${toneClass} border-transparent font-medium mt-0.5`}>{value}</Badge>
+    </div>
+  );
+}
