@@ -495,6 +495,7 @@ export default function ClaimDetail() {
   const [subExpenseType, setSubExpenseType] = useState("");
   const [glAccount, setGlAccount] = useState("");
   const [vatType, setVatType] = useState("");
+  const [project, setProject] = useState("");
 
   // Step 3
   const [lineItemsValid, setLineItemsValid] = useState(true);
@@ -1556,6 +1557,17 @@ export default function ClaimDetail() {
                   <ReadOnlyField label="VAT Type" value={roBiz.vatType} />
                   <ReadOnlyField label="GL Account" value={roBiz.glAccount} />
                 </div>
+                <div className="space-y-1.5">
+                  <Label className="text-[13px] font-semibold text-foreground">Project <span className="text-destructive">*</span></Label>
+                  <Select value={project} onValueChange={setProject}>
+                    <SelectTrigger className="text-[13px]"><SelectValue placeholder="Select project" /></SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="HoReCa" className="text-[13px]">HoReCa</SelectItem>
+                      <SelectItem value="Shohuay" className="text-[13px]">Shohuay</SelectItem>
+                      <SelectItem value="Top300" className="text-[13px]">Top300</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
                 <CardholderNoteField
                   claim={claim}
                   onSave={(v) =>
@@ -1785,6 +1797,17 @@ export default function ClaimDetail() {
                   <ReadOnlyField label="Sub Expense Type" value={approverBiz.subExpenseType} />
                   <ReadOnlyField label="VAT Type" value={approverBiz.vatType} />
                   <ReadOnlyField label="GL Account" value={approverBiz.glAccount} />
+                </div>
+                <div className="space-y-1.5">
+                  <Label className="text-[13px] font-semibold text-foreground">Project <span className="text-destructive">*</span></Label>
+                  <Select value={project} onValueChange={setProject}>
+                    <SelectTrigger className="text-[13px]"><SelectValue placeholder="Select project" /></SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="HoReCa" className="text-[13px]">HoReCa</SelectItem>
+                      <SelectItem value="Shohuay" className="text-[13px]">Shohuay</SelectItem>
+                      <SelectItem value="Top300" className="text-[13px]">Top300</SelectItem>
+                    </SelectContent>
+                  </Select>
                 </div>
                 <CardholderNoteField
                   claim={claim}
@@ -2184,6 +2207,17 @@ export default function ClaimDetail() {
                   </Select>
                   {errors.glAccount && <p className="text-xs text-destructive">{errors.glAccount}</p>}
                 </div>
+              </div>
+              <div className="space-y-1.5">
+                <Label className="text-[13px] font-semibold text-foreground">Project <span className="text-destructive">*</span></Label>
+                <Select value={project} onValueChange={setProject}>
+                  <SelectTrigger className="text-[13px]"><SelectValue placeholder="Select project" /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="HoReCa" className="text-[13px]">HoReCa</SelectItem>
+                    <SelectItem value="Shohuay" className="text-[13px]">Shohuay</SelectItem>
+                    <SelectItem value="Top300" className="text-[13px]">Top300</SelectItem>
+                  </SelectContent>
+                </Select>
               </div>
               <CardholderNoteField
                 claim={claim}
