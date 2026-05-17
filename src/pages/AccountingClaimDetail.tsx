@@ -140,19 +140,21 @@ export default function AccountingClaimDetail() {
       <div className="space-y-8 mt-6">
         {/* ══════ SECTION 1 — CARD TRANSACTION (Read-Only) ══════ */}
         <section>
-          <SectionDivider num={1} label="Card Transaction" />
+          <SectionDivider num={1} label="Transaction Info" />
           <Card className="bg-muted/40 border border-border rounded-xl">
             <CardContent className="pt-5 pb-5">
               <div className="flex items-center gap-2 mb-4">
                 <CreditCard className="h-4 w-4 text-muted-foreground" />
-                <p className="text-[13px] font-semibold text-foreground">Card Transaction (auto-filled)</p>
+                <p className="text-[13px] font-semibold text-foreground">Transaction Info (auto-filled)</p>
               </div>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-3 text-[13px]">
-                <Row label="Transaction No." value={item.id} />
-                <Row label="Date" value={formatBEDate(item.date)} />
-                <Row label="Merchant" value={item.merchantName} />
-                <Row label="Amount" value={`${fmt(item.amount)} THB`} />
-                <Row label="MCC Description" value={item.description} className="sm:col-span-2" />
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-x-8 gap-y-3 text-[13px]">
+                <Row label="Transaction No." value={item.id} className="md:col-start-1 md:row-start-1" />
+                <Row label="Date" value={formatBEDate(item.date)} className="md:col-start-2 md:row-start-1" />
+                <Row label="Merchant" value={item.merchantName} className="md:col-start-1 md:row-start-2" />
+                <Row label="Amount" value={`${fmt(item.amount)} THB`} className="md:col-start-2 md:row-start-2" />
+                <Row label="MCC Description" value={item.description} className="sm:col-span-2 md:col-start-1 md:col-end-3 md:row-start-3" />
+                <StatusBadgeField label="Approval Status" value="Pending Approval" tone="warning" className="md:col-start-3 md:row-start-1" />
+                <StatusBadgeField label="Document Status" value="Incomplete" tone="warning" className="md:col-start-3 md:row-start-2" />
               </div>
             </CardContent>
           </Card>
