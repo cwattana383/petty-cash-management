@@ -232,10 +232,12 @@ export default function AccountingClaimDetail() {
     navigate("/accounting");
   };
 
-  const handleException = () => {
-    if (!exceptionReason.trim()) return;
-    toast({ title: "Flagged as Exception", description: `${item.id} has been flagged as exception.` });
-    navigate("/accounting");
+  const handleRequestInfo = () => {
+    if (requestInfoMessage.trim().length < 10) return;
+    const name = item?.cardholderName ?? "the cardholder";
+    toast({ title: "Request sent", description: `Your request for more information has been sent to ${name}.` });
+    setRequestInfoOpen(false);
+    setRequestInfoMessage("");
   };
 
   return (
