@@ -88,26 +88,20 @@ export default function ProjectPanel() {
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>Project Code</TableHead>
                 <TableHead>Project Name</TableHead>
                 <TableHead>Owner</TableHead>
-                <TableHead>Active</TableHead>
                 <TableHead>Updated At</TableHead>
                 <TableHead className="text-right">Actions</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {filtered.length === 0 && (
-                <TableRow><TableCell colSpan={6} className="text-center text-muted-foreground py-8">No projects found</TableCell></TableRow>
+                <TableRow><TableCell colSpan={4} className="text-center text-muted-foreground py-8">No projects found</TableCell></TableRow>
               )}
               {filtered.map((p) => (
                 <TableRow key={p.id} className="hover:bg-muted/50">
-                  <TableCell className="font-medium">{p.code}</TableCell>
-                  <TableCell>{p.name}</TableCell>
+                  <TableCell className="font-medium">{p.name}</TableCell>
                   <TableCell>{p.owner}</TableCell>
-                  <TableCell>
-                    <Switch checked={p.active} />
-                  </TableCell>
                   <TableCell className="text-sm">{p.updatedAt}</TableCell>
                   <TableCell className="text-right">
                     <div className="flex items-center justify-end gap-1">
@@ -116,9 +110,6 @@ export default function ProjectPanel() {
                       </Button>
                       <Button size="icon" variant="ghost" className="h-7 w-7" title="Edit">
                         <Pencil className="h-3.5 w-3.5" />
-                      </Button>
-                      <Button size="icon" variant="ghost" className="h-7 w-7 text-destructive" title="Delete">
-                        <Trash2 className="h-3.5 w-3.5" />
                       </Button>
                     </div>
                   </TableCell>
