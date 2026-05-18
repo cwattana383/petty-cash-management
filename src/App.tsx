@@ -22,6 +22,8 @@ import Reports from "./pages/Reports";
 import Admin from "./pages/Admin";
 import EmployeeProfileCreate from "./pages/EmployeeProfileCreate";
 import ProjectCreate from "./pages/ProjectCreate";
+import ProjectView from "./pages/ProjectView";
+import ProjectEdit from "./pages/ProjectEdit";
 import EmployeeProfileEdit from "./pages/EmployeeProfileEdit";
 import ExpenseTypeEdit from "./pages/ExpenseTypeEdit";
 import Profile from "./pages/Profile";
@@ -69,6 +71,8 @@ const App = () => (
                             <Route path="/admin/expense-type/:id/edit" element={<RoleGuard allowedRoles={["Admin"]}><ExpenseTypeEdit /></RoleGuard>} />
                             <Route path="/admin/expense-type/:id" element={<RoleGuard allowedRoles={["Admin"]}><ExpenseTypeEdit /></RoleGuard>} />
                             <Route path="/admin/project/new" element={<RoleGuard allowedRoles={["Admin"]}><ProjectCreate /></RoleGuard>} />
+                            <Route path="/admin/project/:id/view" element={<RoleGuard allowedRoles={["Admin"]}><ProjectView /></RoleGuard>} />
+                            <Route path="/admin/project/:id/edit" element={<RoleGuard allowedRoles={["Admin"]}><ProjectEdit /></RoleGuard>} />
                             <Route path="/notifications" element={<Notifications />} />
                             <Route path="/profile" element={<Profile />} />
                             <Route path="*" element={<NotFound />} />
