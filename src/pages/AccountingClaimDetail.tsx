@@ -370,20 +370,42 @@ export default function AccountingClaimDetail() {
                     </Badge>
                   </div>
 
-                  <div className="space-y-1.5">
-                    <p className="text-[13px] font-semibold text-foreground">Validation Results</p>
-                    <div className="space-y-1">
-                      <p className="text-[13px] text-foreground">✅ Tax ID matched — CPAxtra confirmed</p>
-                      <p className="text-[13px] text-foreground">✅ CPAxtra address found in document</p>
-                      <p className="text-[13px] text-foreground">✅ Amount matched — within 5% tolerance (Bank: ฿{fmt(item.amount)} / Document: ฿{fmt(item.amount)})</p>
-                      <p className="text-[13px] text-foreground">✅ Invoice date within acceptable range</p>
-                    </div>
-                  </div>
+                  {item.verificationResults ? (
+                    <>
+                      <div className="space-y-1.5">
+                        <p className="text-[13px] font-semibold text-foreground">Validation Results</p>
+                        <div className="space-y-1">
+                          <p className="text-[13px] text-foreground">{item.verificationResults.taxIdMatched ? "✅" : "❌"} Tax ID {item.verificationResults.taxIdMatched ? "matched" : "mismatch"} — {activeEntity?.companyNameEn ?? "Company"} confirmed</p>
+                          <p className="text-[13px] text-foreground">{item.verificationResults.addressMatched ? "✅" : "❌"} {item.verificationResults.addressMatched ? "Address found in document" : "Address not found in document"}</p>
+                          <p className="text-[13px] text-foreground">{item.verificationResults.amountMatched ? "✅" : "❌"} Amount {item.verificationResults.amountMatched ? "matched" : "mismatch"} — within {item.verificationResults.amountToleranceUsed} tolerance (Bank: ฿{fmt(item.verificationResults.bankAmount)} / Document: ฿{fmt(item.verificationResults.documentAmount)})</p>
+                          <p className="text-[13px] text-foreground">{item.verificationResults.invoiceDateInRange ? "✅" : "❌"} Invoice date {item.verificationResults.invoiceDateInRange ? "within acceptable range" : "out of acceptable range"}</p>
+                        </div>
+                      </div>
+                      {item.verificationResults.overallStatus === "Verified" && (
+                        <p className="text-[13px] text-emerald-600 flex items-center gap-1.5">
+                          <CheckCircle2 className="h-3.5 w-3.5 shrink-0" />
+                          Document verified.
+                        </p>
+                      )}
+                    </>
+                  ) : (
+                    <>
+                      <div className="space-y-1.5">
+                        <p className="text-[13px] font-semibold text-foreground">Validation Results</p>
+                        <div className="space-y-1">
+                          <p className="text-[13px] text-foreground">✅ Tax ID matched — CPAxtra confirmed</p>
+                          <p className="text-[13px] text-foreground">✅ CPAxtra address found in document</p>
+                          <p className="text-[13px] text-foreground">✅ Amount matched — within 5% tolerance (Bank: ฿{fmt(item.amount)} / Document: ฿{fmt(item.amount)})</p>
+                          <p className="text-[13px] text-foreground">✅ Invoice date within acceptable range</p>
+                        </div>
+                      </div>
 
-                  <p className="text-[13px] text-emerald-600 flex items-center gap-1.5">
-                    <CheckCircle2 className="h-3.5 w-3.5 shrink-0" />
-                    Document verified.
-                  </p>
+                      <p className="text-[13px] text-emerald-600 flex items-center gap-1.5">
+                        <CheckCircle2 className="h-3.5 w-3.5 shrink-0" />
+                        Document verified.
+                      </p>
+                    </>
+                  )}
                 </>
               ) : (
                 <p className="text-[13px] text-muted-foreground">No documents attached.</p>
