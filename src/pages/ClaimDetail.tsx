@@ -1744,6 +1744,8 @@ export default function ClaimDetail() {
               </CardContent>
             </Card>
           </section>
+
+          <AuditTrail events={resolveTrailForClaim(claim)} />
         </div>
 
         {readOnlyPreviewDoc && (
