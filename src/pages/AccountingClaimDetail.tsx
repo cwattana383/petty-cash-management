@@ -208,8 +208,8 @@ export default function AccountingClaimDetail() {
   const [vatType, setVatType] = useState("claim_100");
   const [glAccount, setGlAccount] = useState("5300-002");
   const [project, setProject] = useState("");
-  const [showExceptionInput, setShowExceptionInput] = useState(false);
-  const [exceptionReason, setExceptionReason] = useState("");
+  const [requestInfoOpen, setRequestInfoOpen] = useState(false);
+  const [requestInfoMessage, setRequestInfoMessage] = useState("");
   const [docModal, setDocModal] = useState(false);
 
   const activeEntity = mockCompanyIdentities.find((e) => e.status === "Active");
