@@ -506,7 +506,7 @@ export default function AccountingClaimDetail() {
             <DialogTitle>Request More Information</DialogTitle>
           </DialogHeader>
           <div className="space-y-2">
-            <Label className="text-[13px] font-semibold">Message to Employee <span className="text-destructive">*</span></Label>
+            <Label className="text-[13px] font-semibold">Message to Cardholder <span className="text-destructive">*</span></Label>
             <Textarea
               autoFocus
               placeholder="e.g. Please attach the original receipt and specify the names of all attendees..."
