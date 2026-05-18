@@ -30,6 +30,7 @@ const mockProjects: ProjectRow[] = [
 ];
 
 export default function ProjectPanel() {
+  const navigate = useNavigate();
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
 
