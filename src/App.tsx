@@ -68,6 +68,7 @@ const App = () => (
                             <Route path="/admin/expense-type/create" element={<RoleGuard allowedRoles={["Admin"]}><ExpenseTypeEdit /></RoleGuard>} />
                             <Route path="/admin/expense-type/:id/edit" element={<RoleGuard allowedRoles={["Admin"]}><ExpenseTypeEdit /></RoleGuard>} />
                             <Route path="/admin/expense-type/:id" element={<RoleGuard allowedRoles={["Admin"]}><ExpenseTypeEdit /></RoleGuard>} />
+                            <Route path="/admin/project/new" element={<RoleGuard allowedRoles={["Admin"]}><ProjectCreate /></RoleGuard>} />
                             <Route path="/notifications" element={<Notifications />} />
                             <Route path="/profile" element={<Profile />} />
                             <Route path="*" element={<NotFound />} />
