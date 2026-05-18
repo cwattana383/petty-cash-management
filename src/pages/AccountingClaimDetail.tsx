@@ -498,13 +498,13 @@ export default function AccountingClaimDetail() {
               className="text-destructive border-destructive/30 hover:bg-destructive/10"
               onClick={() => setShowExceptionInput((prev) => !prev)}
             >
-              <AlertTriangle className="h-4 w-4 mr-1" /> Flag as Exception
+              <AlertTriangle className="h-4 w-4 mr-1" /> Request for More Info
             </Button>
             <Button
               className="bg-emerald-600 hover:bg-emerald-700 text-white"
               onClick={handleApproveERP}
             >
-              <Check className="h-4 w-4 mr-1" /> Approve & Send to ERP
+              <Check className="h-4 w-4 mr-1" /> Verified
             </Button>
           </div>
         </div>
