@@ -8,7 +8,7 @@ import { AuthGuard } from "@/components/layout/AuthGuard";
 import { RoleGuard } from "@/components/layout/RoleGuard";
 import { ClaimsProvider } from "@/lib/claims-context";
 import { RoleProvider } from "@/lib/role-context";
-import { NotificationsProvider } from "@/lib/notifications-context";
+import { NotificationsProvider } from "@/lib/notifications-provider";
 import Login from "./pages/Login";
 
 import MyClaims from "./pages/MyClaims";
