@@ -300,7 +300,7 @@ export const mockClaims: ClaimHeader[] = [
     totalAmount: 39590, totalVat: 0, status: "Final Rejected", createdDate: "2026-05-09", submittedDate: "2026-05-09",
     lines: [], approvalHistory: [], comments: [],
     returnSource: "MANAGER_REJECT", returnedByUserId: "u2", returnedAt: "2026-05-12T11:00:00Z",
-    returnMessage: "The resubmitted invoice still does not match the card transaction amount. This expense cannot be approved.",
+    returnMessage: "This claim cannot be reimbursed as it does not meet the conditions of the corporate credit card usage policy.",
     resubmitCountMgr: 1,
     cardholderNote: "Bought a notebook for client meeting prep. Vendor refused to issue a corrected invoice.",
   },
