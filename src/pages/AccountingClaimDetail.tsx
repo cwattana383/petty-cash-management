@@ -504,9 +504,6 @@ export default function AccountingClaimDetail() {
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
             <DialogTitle>Request More Information</DialogTitle>
-            <p className="text-sm text-muted-foreground">
-              This message will be sent to {item.cardholderName ?? "the cardholder"} via email
-            </p>
           </DialogHeader>
           <div className="space-y-2">
             <Label className="text-[13px] font-semibold">Message to Employee <span className="text-destructive">*</span></Label>
