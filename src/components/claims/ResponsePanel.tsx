@@ -118,7 +118,7 @@ export function ResponsePanel({ claim }: ResponsePanelProps) {
 
           {claim.status === "Final Rejected" && (
             <div className="mt-1 text-xs text-gray-600">
-              No further action is available. To dispute this decision, contact Finance Officer.
+              No further action is available.
             </div>
           )}
         </div>
