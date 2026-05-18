@@ -6,7 +6,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import {
-  ArrowLeft, Check, AlertTriangle, CreditCard, CheckCircle2, Clock,
+  ArrowLeft, Check, AlertTriangle, CreditCard, CheckCircle2, Clock, MessageSquare,
 } from "lucide-react";
 import { formatBEDate, formatBEDateTime } from "@/lib/utils";
 import { VAT_TYPE_CONFIG } from "@/lib/vat-type-config";
@@ -492,10 +492,9 @@ export default function AccountingClaimDetail() {
           <div className="flex justify-end gap-3">
             <Button
               variant="outline"
-              className="text-destructive border-destructive/30 hover:bg-destructive/10"
               onClick={() => setShowExceptionInput((prev) => !prev)}
             >
-              <AlertTriangle className="h-4 w-4 mr-1" /> Request for More Info
+              <MessageSquare className="h-4 w-4 mr-1" /> Request Info
             </Button>
             <Button
               className="bg-emerald-600 hover:bg-emerald-700 text-white"
