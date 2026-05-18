@@ -1577,6 +1577,61 @@ export default function ClaimDetail() {
             <SectionDivider num={3} label="Documents" />
             <Card className="border border-border rounded-xl">
               <CardContent className="pt-5 space-y-4">
+                {claim.id === "CLM-TEST-FINAL-001" ? (
+                  <div className="space-y-5">
+                    <div className="space-y-2">
+                      <p className="text-[13px] font-semibold text-red-700 flex items-center gap-1.5">
+                        <span className="h-2.5 w-2.5 rounded-full bg-red-500 inline-block" />
+                        Required — Receipt/Tax Invoice
+                      </p>
+                      <div className="flex items-center gap-3 rounded-lg border border-emerald-200 bg-emerald-50/60 px-4 py-3">
+                        <CheckCircle2 className="h-5 w-5 text-emerald-600 shrink-0" />
+                        <div className="min-w-0 flex-1">
+                          <p className="text-[13px] font-medium text-foreground truncate">
+                            20260512_office_supplies_invoice.pdf
+                          </p>
+                          <p className="text-[12px] text-muted-foreground">
+                            Receipt/Tax Invoice • 77.2 KB
+                          </p>
+                        </div>
+                        <span className="inline-flex items-center gap-1 rounded-full border border-emerald-300 px-2.5 py-0.5 text-[11px] font-medium text-emerald-700">
+                          <CheckCircle2 className="h-3 w-3" /> Verified
+                        </span>
+                      </div>
+                    </div>
+
+                    <div className="space-y-2">
+                      <p className="text-[13px] font-semibold text-muted-foreground flex items-center gap-1.5">
+                        <span className="h-2.5 w-2.5 rounded-full bg-amber-400 inline-block" />
+                        Optional — Attach supporting Documents
+                      </p>
+                      <p className="text-[12px] font-medium text-foreground">Travel allowance claim form</p>
+                      <p className="text-[12px] text-muted-foreground">No file attached.</p>
+                    </div>
+
+                    <div className="space-y-2">
+                      <p className="text-[13px] font-semibold text-foreground">Validation Results</p>
+                      <ul className="space-y-1.5 text-[13px] text-foreground">
+                        <li className="flex items-start gap-2">
+                          <span>✅</span>
+                          <span>Tax ID check skipped for this document type</span>
+                        </li>
+                        <li className="flex items-start gap-2">
+                          <span>✅</span>
+                          <span>Amount matched — within 0% or ฿0.00 tolerance (Bank: ฿39,590.00 / Document: ฿39,590.00)</span>
+                        </li>
+                        <li className="flex items-start gap-2">
+                          <span>✅</span>
+                          <span>Invoice date within acceptable range</span>
+                        </li>
+                      </ul>
+                      <p className="flex items-center gap-1.5 pt-1 text-[13px] font-medium text-emerald-700">
+                        <CheckCircle2 className="h-4 w-4" /> Document verified.
+                      </p>
+                    </div>
+                  </div>
+                ) : (
+                <>
                 {statusLabel !== "NOT_STARTED" && statusLabel !== "PENDING_DOCUMENTS" && (
                   <p className="text-[13px] text-muted-foreground">
                     Documents are read-only after submission. You can preview files below.
@@ -1683,6 +1738,8 @@ export default function ClaimDetail() {
                       />
                     ))}
                   </ul>
+                )}
+                </>
                 )}
               </CardContent>
             </Card>
