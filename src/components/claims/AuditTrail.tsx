@@ -280,7 +280,95 @@ export const FINANCE_RETURN_TRAIL: AuditEvent[] = [
   },
 ];
 
+export const CLM_TEST_FINAL_001_TRAIL: AuditEvent[] = [
+  {
+    id: "ctf-9",
+    actor: "manager",
+    actorName: "Somying Kaewsai",
+    title: "Claim permanently rejected",
+    statusBadge: "FINAL_REJECTED",
+    timestamp: "12/05/2569 16:20:00",
+    message: "This claim cannot be reimbursed as it does not meet the conditions of the corporate credit card usage policy.",
+    isCurrent: true,
+    isTerminal: true,
+  },
+  {
+    id: "ctf-8",
+    actor: "manager",
+    actorName: "Somying Kaewsai",
+    title: "Manager rejected resubmitted claim",
+    statusBadge: "REJECTED",
+    badgeClass: "bg-red-50 text-red-700 border-red-200",
+    timestamp: "12/05/2569 16:19:30",
+    message: "The submitted claim does not comply with the corporate credit card usage policy.",
+  },
+  {
+    id: "ctf-7",
+    actor: "cardholder",
+    actorName: "Wilasinee Pratyawongchai",
+    title: "Resubmitted for manager approval",
+    statusBadge: "RESUBMITTED",
+    badgeClass: "bg-blue-50 text-blue-700 border-blue-200",
+    timestamp: "12/05/2569 15:48:12",
+  },
+  {
+    id: "ctf-6",
+    actor: "cardholder",
+    actorName: "Wilasinee Pratyawongchai",
+    title: "Cardholder added note",
+    statusBadge: "NOTE_ADDED",
+    badgeClass: "bg-cyan-50 text-cyan-700 border-cyan-200",
+    timestamp: "12/05/2569 15:47:40",
+    message: "Bought a notebook for client meeting prep. Vendor refused to issue a corrected invoice.",
+  },
+  {
+    id: "ctf-5",
+    actor: "manager",
+    actorName: "Somying Kaewsai",
+    title: "Manager requested correction",
+    statusBadge: "REQUEST_MORE_INFO",
+    badgeClass: "bg-orange-50 text-orange-700 border-orange-200",
+    timestamp: "12/05/2569 14:35:10",
+    message: "Please provide a corrected invoice that complies with the corporate credit card usage requirements.",
+  },
+  {
+    id: "ctf-4",
+    actor: "cardholder",
+    actorName: "Wilasinee Pratyawongchai",
+    title: "Submitted for manager approval",
+    statusBadge: "PENDING_APPROVAL",
+    timestamp: "12/05/2569 13:22:45",
+  },
+  {
+    id: "ctf-3",
+    actor: "system",
+    title: "Document verified",
+    statusBadge: "VERIFIED",
+    badgeClass: "bg-emerald-50 text-emerald-700 border-emerald-200",
+    timestamp: "12/05/2569 13:22:30",
+    message: "Invoice document validated successfully.",
+  },
+  {
+    id: "ctf-2",
+    actor: "cardholder",
+    actorName: "Wilasinee Pratyawongchai",
+    title: "Document uploaded",
+    statusBadge: "UPLOADED",
+    badgeClass: "bg-blue-50 text-blue-700 border-blue-200",
+    timestamp: "12/05/2569 13:21:58",
+    message: "20260512_office_supplies_invoice.pdf",
+  },
+  {
+    id: "ctf-1",
+    actor: "system",
+    title: "Transaction imported from bank file",
+    statusBadge: "NOT_STARTED",
+    timestamp: "09/05/2569 09:00:00",
+  },
+];
+
 export function resolveTrailForClaim(claim: ClaimHeader): AuditEvent[] {
+  if (claim.id === "CLM-TEST-FINAL-001") return CLM_TEST_FINAL_001_TRAIL;
   switch (claim.status) {
     case "Reject":
       // Partial: up to manager-rejected with isCurrent: true.
