@@ -295,7 +295,7 @@ export const mockClaims: ClaimHeader[] = [
   {
     id: "CLM-TEST-FINAL-001", claimNo: "CLM-2026-TEST-004", requesterId: "u1", requesterName: "Somchai Jaidee",
     company: "ABC Co., Ltd.", branch: "Bangkok", department: "9993010460 Finance and Accounting", costCenter: "CC-SALES-01",
-    purpose: "Office Supplies", merchantName: "B2S", currency: "THB", paymentMethod: "Corporate Card",
+    purpose: "Purchased office supplies for business use.", merchantName: "B2S", currency: "THB", paymentMethod: "Corporate Card",
     expenseTypeId: "et-4", subExpenseTypeId: "set-13", vatTypeId: "claim_100", glAccountId: "gl-10",
     totalAmount: 39590, totalVat: 0, status: "Final Rejected", createdDate: "2026-05-09", submittedDate: "2026-05-09",
     lines: [], approvalHistory: [], comments: [],
