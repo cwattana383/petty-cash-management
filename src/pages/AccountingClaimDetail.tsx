@@ -472,31 +472,11 @@ export default function AccountingClaimDetail() {
       {/* ══════ ACCOUNTING DECISION PANEL (Fixed Bottom) ══════ */}
       <div className="fixed bottom-0 left-0 right-0 bg-background border-t border-border px-6 py-4 z-50">
         <div className="max-w-5xl mx-auto">
-          {showExceptionInput && (
-            <div className="mb-3 space-y-2">
-              <Label className="text-[13px] font-semibold text-foreground">Exception reason (required)</Label>
-              <Textarea
-                placeholder="Please describe the reason for flagging this as exception..."
-                value={exceptionReason}
-                onChange={(e) => setExceptionReason(e.target.value)}
-                className="text-[13px] min-h-[80px]"
-              />
-              <div className="flex justify-end">
-                <Button
-                  variant="destructive"
-                  onClick={handleException}
-                  disabled={!exceptionReason.trim()}
-                >
-                  Confirm
-                </Button>
-              </div>
-            </div>
-          )}
           <div className="flex justify-end gap-3">
             <Button
               variant="outline"
               className="border-amber-400 text-amber-700 hover:bg-amber-50"
-              onClick={() => setShowExceptionInput((prev) => !prev)}
+              onClick={() => setRequestInfoOpen(true)}
             >
               <MessageSquare className="h-4 w-4 mr-1" /> Request Info
             </Button>
@@ -509,6 +489,43 @@ export default function AccountingClaimDetail() {
           </div>
         </div>
       </div>
+
+      {/* ══════ REQUEST INFO MODAL ══════ */}
+      <Dialog open={requestInfoOpen} onOpenChange={(v) => { setRequestInfoOpen(v); if (!v) setRequestInfoMessage(""); }}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Request More Information</DialogTitle>
+            <p className="text-sm text-muted-foreground">
+              This message will be sent to {item.cardholderName ?? "the cardholder"} via email
+            </p>
+          </DialogHeader>
+          <div className="space-y-2">
+            <Label className="text-[13px] font-semibold">Message to Employee <span className="text-destructive">*</span></Label>
+            <Textarea
+              autoFocus
+              placeholder="e.g. Please attach the original receipt and specify the names of all attendees..."
+              value={requestInfoMessage}
+              onChange={(e) => setRequestInfoMessage(e.target.value)}
+              className="text-[13px] min-h-[100px]"
+            />
+            <p className={`text-xs ${requestInfoMessage.trim().length >= 10 ? "text-gray-700" : "text-gray-400"}`}>
+              {requestInfoMessage.length} / min 10 characters
+            </p>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => { setRequestInfoOpen(false); setRequestInfoMessage(""); }}>
+              Cancel
+            </Button>
+            <Button
+              className="bg-[#D97706] hover:bg-[#B45309] text-white disabled:opacity-50 disabled:cursor-not-allowed"
+              disabled={requestInfoMessage.trim().length < 10}
+              onClick={handleRequestInfo}
+            >
+              <Send className="h-4 w-4 mr-1" /> Send Request
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
 
       {/* Read-only OCR Verify Modal */}
       {item.fileName && (
