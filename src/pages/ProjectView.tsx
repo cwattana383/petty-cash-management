@@ -1,16 +1,10 @@
 import { useNavigate, useParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { ArrowLeft, Pencil, FolderOpen } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { ArrowLeft, Pencil, FolderOpen, Wallet } from "lucide-react";
 import { getProjectById } from "@/lib/project-mock-data";
-
-function formatDateBE(iso: string) {
-  if (!iso) return "—";
-  const [y, m, d] = iso.split("-");
-  if (!y) return "—";
-  return `${d}/${m}/${Number(y) + 543}`;
-}
 
 export default function ProjectView() {
   const navigate = useNavigate();
@@ -28,15 +22,11 @@ export default function ProjectView() {
     );
   }
 
-  const Row = ({ label, value }: { label: string; value: React.ReactNode }) => (
-    <div className="space-y-1">
-      <div className="text-xs font-medium text-muted-foreground">{label}</div>
-      <div className="text-sm text-foreground">{value || "—"}</div>
-    </div>
-  );
+  const ro = "bg-muted/40";
 
   return (
     <div className="max-w-4xl mx-auto space-y-6 pb-24">
+      {/* Header */}
       <div className="flex items-center justify-between gap-3">
         <div className="flex items-center gap-3">
           <Button variant="ghost" size="icon" onClick={goBack}>
@@ -52,27 +42,67 @@ export default function ProjectView() {
         </Button>
       </div>
 
+      {/* Card 1 — Basic Information */}
       <Card>
         <CardHeader className="pb-3">
           <div className="flex items-center gap-2">
             <FolderOpen className="h-4 w-4 text-muted-foreground" />
-            <CardTitle className="text-sm font-semibold">Project Details</CardTitle>
+            <CardTitle className="text-sm font-semibold">Basic Information</CardTitle>
           </div>
         </CardHeader>
-        <CardContent className="space-y-5">
-          <Row label="Project Name" value={project.name} />
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-            <Row label="Creation Date" value={formatDateBE(project.creationDate)} />
-            <Row label="Creator" value={project.owner} />
-            <Row label="Account Code" value={project.accountCode} />
-            <Row label="Account Name" value={project.accountName} />
-            <Row label="Effective Date From" value={formatDateBE(project.effectiveFrom)} />
-            <Row label="Effective Date To" value={formatDateBE(project.effectiveTo)} />
+        <CardContent className="space-y-4">
+          <div className="space-y-2">
+            <Label htmlFor="projectName">Project Name</Label>
+            <Input id="projectName" value={project.name} readOnly className={ro} />
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <Label htmlFor="creationDate">Creation Date</Label>
+              <Input id="creationDate" type="date" value={project.creationDate} readOnly className={ro} />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="creator">Creator</Label>
+              <Input id="creator" value={project.owner} readOnly className={ro} />
+            </div>
           </div>
         </CardContent>
-
       </Card>
 
+      {/* Card 2 — Account & Period */}
+      <Card>
+        <CardHeader className="pb-3">
+          <div className="flex items-center gap-2">
+            <Wallet className="h-4 w-4 text-muted-foreground" />
+            <CardTitle className="text-sm font-semibold">Account & Period</CardTitle>
+          </div>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <Label htmlFor="accountCode">Account Code</Label>
+              <Input id="accountCode" value={project.accountCode} readOnly className={ro} />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="accountName">Account Name</Label>
+              <Input id="accountName" value={project.accountName} readOnly className={ro} />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="effectiveFrom">Effective Date From</Label>
+              <Input id="effectiveFrom" type="date" value={project.effectiveFrom} readOnly className={ro} />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="effectiveTo">Effective Date To</Label>
+              {project.effectiveTo ? (
+                <Input id="effectiveTo" type="date" value={project.effectiveTo} readOnly className={ro} />
+              ) : (
+                <Input id="effectiveTo" value="—" readOnly className={ro} />
+              )}
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Sticky footer */}
       <div className="fixed bottom-0 left-0 right-0 bg-background border-t z-10">
         <div className="max-w-4xl mx-auto flex justify-end gap-3 px-6 py-3">
           <Button variant="outline" onClick={goBack}>Back</Button>
