@@ -11,23 +11,8 @@ import {
 import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from "@/components/ui/select";
-import { Plus, Search, Eye, Pencil, Trash2, RotateCcw } from "lucide-react";
-
-interface ProjectRow {
-  id: string;
-  code: string;
-  name: string;
-  owner: string;
-  active: boolean;
-  updatedAt: string;
-}
-
-const mockProjects: ProjectRow[] = [
-  { id: "p1", code: "PRJ-001", name: "Digital Transformation 2026", owner: "Somsak Wichan", active: true, updatedAt: "22/04/2569 07:00:00" },
-  { id: "p2", code: "PRJ-002", name: "Branch Expansion - North", owner: "Wipa Sukjai", active: true, updatedAt: "22/04/2569 07:00:00" },
-  { id: "p3", code: "PRJ-003", name: "ERP Upgrade Phase 2", owner: "Pim Dee", active: true, updatedAt: "22/04/2569 07:00:00" },
-  { id: "p4", code: "PRJ-004", name: "Customer Loyalty Program", owner: "Somying Kaewsai", active: false, updatedAt: "22/04/2569 07:00:00" },
-];
+import { Plus, Search, Eye, Pencil, RotateCcw } from "lucide-react";
+import { mockProjects } from "@/lib/project-mock-data";
 
 export default function ProjectPanel() {
   const navigate = useNavigate();
@@ -107,10 +92,10 @@ export default function ProjectPanel() {
                   <TableCell className="text-sm">{p.updatedAt}</TableCell>
                   <TableCell className="text-right">
                     <div className="flex items-center justify-end gap-1">
-                      <Button size="icon" variant="ghost" className="h-7 w-7" title="View">
+                      <Button size="icon" variant="ghost" className="h-7 w-7" title="View" onClick={() => navigate(`/admin/project/${p.id}/view`)}>
                         <Eye className="h-3.5 w-3.5" />
                       </Button>
-                      <Button size="icon" variant="ghost" className="h-7 w-7" title="Edit">
+                      <Button size="icon" variant="ghost" className="h-7 w-7" title="Edit" onClick={() => navigate(`/admin/project/${p.id}/edit`)}>
                         <Pencil className="h-3.5 w-3.5" />
                       </Button>
                     </div>
