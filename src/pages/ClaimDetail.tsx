@@ -1559,17 +1559,8 @@ export default function ClaimDetail() {
                   <ReadOnlyField label="VAT Type" value={roBiz.vatType} />
                   <ReadOnlyField label="GL Account" value={roBiz.glAccount} />
                 </div>
-                <div className="space-y-1.5">
-                  <Label className="text-[13px] font-semibold text-foreground">Project <span className="text-muted-foreground font-normal">(optional)</span></Label>
-                  <Select value={project} onValueChange={setProject}>
-                    <SelectTrigger className="text-[13px]"><SelectValue placeholder="Select project" /></SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="HoReCa" className="text-[13px]">HoReCa</SelectItem>
-                      <SelectItem value="Shohuay" className="text-[13px]">Shohuay</SelectItem>
-                      <SelectItem value="Top300" className="text-[13px]">Top300</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
+                <ReadOnlyField label="Project" value={project || "Select project"} />
+
                 <CardholderNoteField
                   claim={claim}
                   onSave={(v) =>
