@@ -223,7 +223,8 @@ const ACCOUNTING_ITEMS: AccountingItem[] = [
       overallStatus: "Verified",
     },
     approvalHistory: [
-      { id: "evt-008-6", actor: "manager", actorName: "Theem Veokeki", title: "Manager approved", statusBadge: "MANAGER_APPROVED", timestamp: "2026-05-09T10:30:00Z", isCurrent: true },
+      { id: "evt-008-7", actor: "finance", actorName: "Nattapong Srisuk (Finance Officer)", title: "Verified by Finance", statusBadge: "VERIFIED", timestamp: "2026-05-09T12:30:00Z", isCurrent: true },
+      { id: "evt-008-6", actor: "manager", actorName: "Theem Veokeki", title: "Manager approved", statusBadge: "MANAGER_APPROVED", timestamp: "2026-05-09T10:30:00Z", isCurrent: false },
       { id: "evt-008-5", actor: "cardholder", actorName: "Malee Chaiyo", title: "Submitted for manager approval", statusBadge: "PENDING_APPROVAL", timestamp: "2026-05-08T20:30:00Z" },
       { id: "evt-008-4", actor: "cardholder", actorName: "Malee Chaiyo", title: "Document verified", statusBadge: "VERIFIED", message: "Anantara_TaxInvoice_20260508.pdf", timestamp: "2026-05-08T20:25:00Z" },
       { id: "evt-008-3", actor: "cardholder", actorName: "Malee Chaiyo", title: "Document uploaded", statusBadge: "UPLOADED", message: "Anantara_TaxInvoice_20260508.pdf", timestamp: "2026-05-08T20:20:00Z" },
