@@ -227,7 +227,7 @@ export default function AccountingClaimDetail() {
     t === 'info' ? 'neutral' : (t ?? 'warning');
 
   const handleApproveERP = () => {
-    toast({ title: "Sent to ERP", description: `${item.id} has been approved and marked Ready for ERP.` });
+    toast({ title: "Verified", description: `${item.id} has been verified and ready to send to ERP.` });
     navigate("/accounting");
   };
 
