@@ -110,6 +110,8 @@ const initialMockItems: MockItem[] = [
   { id: "TXN2026051500023", date: "2026-05-15", merchantName: "Orawan Pansri", description: "Toll fee", amount: "฿80.00", status: "AUTO_APPROVED", documentStatus: "Validated", deductionPeriod: "—", attachedFiles: [] },
   { id: "TXN2026051500024", date: "2026-05-15", merchantName: "Prasert Khunsri", description: "Workshop materials", amount: "฿3,400.00", status: "MANAGER_APPROVED", documentStatus: "Validated", deductionPeriod: "—", attachedFiles: [] },
   { id: "TXN2026051500025", date: "2026-05-15", merchantName: "Rungnapa Sripong", description: "Internal lunch meeting", amount: "฿890.00", status: "ACCOUNTING_REVIEW", documentStatus: "Validated", deductionPeriod: "—", attachedFiles: [] },
+  { id: "TXN2026051600040", date: "2026-05-16", merchantName: "Wilasinee Pratyawongchai", description: "Client dinner with vendor partners", amount: "฿8,500.00", status: "MANAGER_APPROVED", documentStatus: "Validated", deductionPeriod: "—", attachedFiles: [] },
+  { id: "TXN2026051700041", date: "2026-05-17", merchantName: "Anong Srisuk", description: "Office snacks for team meeting", amount: "฿320.00", status: "AUTO_APPROVED", documentStatus: "Validated", deductionPeriod: "—", attachedFiles: [] },
 ];
 
 const DOC_TYPE_COLORS: Record<string, string> = {
