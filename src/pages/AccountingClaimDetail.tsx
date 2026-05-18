@@ -250,9 +250,6 @@ export default function AccountingClaimDetail() {
               {item.id} · {item.merchantName}
             </h1>
           </div>
-          <Badge variant="outline" className="border-amber-300 bg-amber-50 text-amber-700 shrink-0">
-            {item.status}
-          </Badge>
         </div>
       </div>
 
