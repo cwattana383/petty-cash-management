@@ -10,7 +10,7 @@ import {
 import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from "@/components/ui/select";
-import { Plus, Search, Eye, Pencil, Trash2, Upload, Download, RotateCcw } from "lucide-react";
+import { Plus, Search, Eye, Pencil, Trash2, RotateCcw } from "lucide-react";
 
 interface ProjectRow {
   id: string;
@@ -52,12 +52,6 @@ export default function ProjectPanel() {
           <p className="text-sm text-muted-foreground">Manage projects available for expense allocation.</p>
         </div>
         <div className="flex items-center gap-2">
-          <Button size="sm" variant="outline">
-            <Upload className="h-4 w-4 mr-2" /> Import CSV
-          </Button>
-          <Button size="sm" variant="outline">
-            <Download className="h-4 w-4 mr-2" /> Export CSV
-          </Button>
           <Button size="sm">
             <Plus className="h-4 w-4 mr-2" /> Add Project
           </Button>
