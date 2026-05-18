@@ -10,7 +10,7 @@ import {
 import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from "@/components/ui/select";
-import { Plus, Search, Eye, Pencil, Trash2, Upload, Download, RotateCcw } from "lucide-react";
+import { Plus, Search, Eye, Pencil, Trash2, RotateCcw } from "lucide-react";
 
 interface ProjectRow {
   id: string;
