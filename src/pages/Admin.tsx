@@ -1489,6 +1489,7 @@ const panelMap: Record<string, () => JSX.Element> = {
   "approval-limits": ApprovalLimitsPanel,
   documents: DocumentTypePanel,
   "expense-type": ExpenseTypePanelImported,
+  project: ProjectPanel,
   "expense-item": ExpenseItemPanel,
   "expense-rules": ExpenseRulesPanel,
   "expense-delegates": ExpenseDelegatesPanel,
