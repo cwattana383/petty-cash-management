@@ -85,9 +85,9 @@ interface MockItem {
 }
 
 const initialMockItems: MockItem[] = [
-  { id: "TXN2026050100001", date: "2026-05-01", merchantName: "Somchai Jaidee", description: "Client meeting transport", amount: "฿500.00", status: "ACCOUNTING_REVIEW", documentStatus: "Validated", deductionPeriod: "—", attachedFiles: [] },
-  { id: "TXN2026050200002", date: "2026-05-02", merchantName: "Anong Srisuk", description: "Team lunch", amount: "฿1,250.00", status: "ACCOUNTING_REVIEW", documentStatus: "Validated", deductionPeriod: "—", attachedFiles: [] },
-  { id: "TXN2026050300003", date: "2026-05-03", merchantName: "Wirat Phongsri", description: "Office supplies", amount: "฿680.00", status: "ACCOUNTING_REVIEW", documentStatus: "Validated", deductionPeriod: "—", attachedFiles: [] },
+  { id: "TXN2026050100001", date: "2026-05-01", merchantName: "Somchai Jaidee", description: "Client meeting transport", amount: "฿500.00", status: "MANAGER_APPROVED", documentStatus: "Validated", deductionPeriod: "—", attachedFiles: [] },
+  { id: "TXN2026050200002", date: "2026-05-02", merchantName: "Anong Srisuk", description: "Team lunch", amount: "฿1,250.00", status: "MANAGER_APPROVED", documentStatus: "Validated", deductionPeriod: "—", attachedFiles: [] },
+  { id: "TXN2026050300003", date: "2026-05-03", merchantName: "Wirat Phongsri", description: "Office supplies", amount: "฿680.00", status: "MANAGER_APPROVED", documentStatus: "Validated", deductionPeriod: "—", attachedFiles: [] },
   { id: "TXN2026050400004", date: "2026-05-04", merchantName: "Kanya Watcharee", description: "Airport taxi", amount: "฿420.00", status: "RETURNED_FOR_INFO", documentStatus: "Pending Documents", deductionPeriod: "—", attachedFiles: [] },
   { id: "TXN2026050500005", date: "2026-05-05", merchantName: "Pichai Thongdee", description: "Conference fee", amount: "฿5,000.00", status: "RETURNED_FOR_INFO", documentStatus: "Pending Documents", deductionPeriod: "—", attachedFiles: [] },
   { id: "TXN2026050600006", date: "2026-05-06", merchantName: "Suda Manee", description: "Coffee with client", amount: "฿285.00", status: "AUTO_APPROVED", documentStatus: "Validated", deductionPeriod: "—", attachedFiles: [] },
@@ -103,9 +103,9 @@ const initialMockItems: MockItem[] = [
   { id: "TXN2026051200016", date: "2026-05-12", merchantName: "Apinya Sukjai", description: "Marketing event", amount: "฿12,000.00", status: "SENT_TO_ERP", documentStatus: "Validated", deductionPeriod: "—", attachedFiles: [] },
   { id: "TXN2026051200017", date: "2026-05-12", merchantName: "Boonsong Lerd", description: "Office snacks", amount: "฿650.00", status: "SENT_TO_ERP", documentStatus: "Validated", deductionPeriod: "—", attachedFiles: [] },
   { id: "TXN2026051300018", date: "2026-05-13", merchantName: "Chalita Mongkol", description: "Stationery", amount: "฿420.00", status: "SENT_TO_ERP", documentStatus: "Validated", deductionPeriod: "—", attachedFiles: [] },
-  { id: "TXN2026051300019", date: "2026-05-13", merchantName: "Krit Phusawat", description: "Training course", amount: "฿7,800.00", status: "ACCOUNTING_REVIEW", documentStatus: "Validated", deductionPeriod: "—", attachedFiles: [] },
-  { id: "TXN2026051400020", date: "2026-05-14", merchantName: "Lalita Boonchu", description: "Software subscription", amount: "฿1,990.00", status: "ACCOUNTING_REVIEW", documentStatus: "Validated", deductionPeriod: "—", attachedFiles: [] },
-  { id: "TXN2026051400021", date: "2026-05-14", merchantName: "Manop Saksri", description: "Parking fee", amount: "฿120.00", status: "ACCOUNTING_REVIEW", documentStatus: "Validated", deductionPeriod: "—", attachedFiles: [] },
+  { id: "TXN2026051300019", date: "2026-05-13", merchantName: "Krit Phusawat", description: "Training course", amount: "฿7,800.00", status: "MANAGER_APPROVED", documentStatus: "Validated", deductionPeriod: "—", attachedFiles: [] },
+  { id: "TXN2026051400020", date: "2026-05-14", merchantName: "Lalita Boonchu", description: "Software subscription", amount: "฿1,990.00", status: "MANAGER_APPROVED", documentStatus: "Validated", deductionPeriod: "—", attachedFiles: [] },
+  { id: "TXN2026051400021", date: "2026-05-14", merchantName: "Manop Saksri", description: "Parking fee", amount: "฿120.00", status: "MANAGER_APPROVED", documentStatus: "Validated", deductionPeriod: "—", attachedFiles: [] },
   { id: "TXN2026051500022", date: "2026-05-15", merchantName: "Narongsak Yim", description: "Client gift", amount: "฿2,500.00", status: "ACCOUNTING_REVIEW", documentStatus: "Validated", deductionPeriod: "—", attachedFiles: [] },
   { id: "TXN2026051500023", date: "2026-05-15", merchantName: "Orawan Pansri", description: "Toll fee", amount: "฿80.00", status: "AUTO_APPROVED", documentStatus: "Validated", deductionPeriod: "—", attachedFiles: [] },
   { id: "TXN2026051500024", date: "2026-05-15", merchantName: "Prasert Khunsri", description: "Workshop materials", amount: "฿3,400.00", status: "MANAGER_APPROVED", documentStatus: "Validated", deductionPeriod: "—", attachedFiles: [] },
