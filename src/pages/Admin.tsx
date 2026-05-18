@@ -10,6 +10,7 @@ import DocumentAgingNotificationPanel from "@/components/admin/DocumentAgingNoti
 import ExpenseTypePanelImported from "@/components/admin/ExpenseTypePanel";
 import OcrValidationRulesPanel from "@/components/admin/OcrValidationRulesPanel";
 import DocumentTypePanel from "@/components/admin/DocumentTypePanel";
+import ProjectPanel from "@/components/admin/ProjectPanel";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import {
@@ -102,6 +103,7 @@ const adminMenu = [
     items: [
       { key: "documents", label: "Documents", icon: FileText },
       { key: "expense-type", label: "Expense Type", icon: Layers },
+      { key: "project", label: "Project", icon: FileText },
       { key: "mcc-policy", label: "Policy Management", icon: Shield },
     ],
   },
@@ -1487,6 +1489,7 @@ const panelMap: Record<string, () => JSX.Element> = {
   "approval-limits": ApprovalLimitsPanel,
   documents: DocumentTypePanel,
   "expense-type": ExpenseTypePanelImported,
+  project: ProjectPanel,
   "expense-item": ExpenseItemPanel,
   "expense-rules": ExpenseRulesPanel,
   "expense-delegates": ExpenseDelegatesPanel,
