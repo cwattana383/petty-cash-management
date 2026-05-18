@@ -1803,7 +1803,7 @@ export default function ClaimDetail() {
                   <ReadOnlyField label="GL Account" value={approverBiz.glAccount} />
                 </div>
                 <div className="space-y-1.5">
-                  <Label className="text-[13px] font-semibold text-foreground">Project <span className="text-destructive">*</span></Label>
+                  <Label className="text-[13px] font-semibold text-foreground">Project <span className="text-muted-foreground font-normal">(optional)</span></Label>
                   <Select value={project} onValueChange={setProject}>
                     <SelectTrigger className="text-[13px]"><SelectValue placeholder="Select project" /></SelectTrigger>
                     <SelectContent>
