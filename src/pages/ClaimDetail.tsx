@@ -1739,6 +1739,8 @@ export default function ClaimDetail() {
                     ))}
                   </ul>
                 )}
+                </>
+                )}
               </CardContent>
             </Card>
           </section>
