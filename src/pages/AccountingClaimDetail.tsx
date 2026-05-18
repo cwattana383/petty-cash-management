@@ -413,6 +413,60 @@ export default function AccountingClaimDetail() {
             </CardContent>
           </Card>
         </section>
+
+        {/* ══════ SECTION 4 — AUDIT TRAIL (only when approvalHistory provided) ══════ */}
+        {item.approvalHistory && item.approvalHistory.length > 0 && (
+          <section>
+            <div className="flex items-center gap-3 mb-3">
+              <span className="h-7 w-7 rounded-full bg-primary text-primary-foreground flex items-center justify-center text-xs font-bold shrink-0">
+                4
+              </span>
+              <h2 className="text-[15px] font-bold text-foreground flex items-center gap-2">
+                <Clock className="h-4 w-4 text-muted-foreground" />
+                Audit Trail
+              </h2>
+              <span className="text-[12px] text-muted-foreground">{item.approvalHistory.length} events</span>
+              <div className="flex-1 border-t border-border" />
+            </div>
+            <Card className="border border-border rounded-xl">
+              <CardContent className="pt-5">
+                <ol className="relative border-l border-border ml-3 space-y-5">
+                  {item.approvalHistory.map((event) => {
+                    const dotColor =
+                      event.actor === 'manager' ? 'bg-emerald-500' :
+                      event.actor === 'finance' ? 'bg-blue-500' :
+                      event.actor === 'cardholder' ? 'bg-amber-500' :
+                      'bg-slate-400';
+                    const actorLabel =
+                      event.actor === 'system' ? '⚙️ System' :
+                      event.actor === 'cardholder' ? `👤 ${event.actorName ?? 'Cardholder'}` :
+                      event.actor === 'manager' ? `👔 ${event.actorName ?? 'Manager'}` :
+                      `🏦 ${event.actorName ?? 'Finance Team'}`;
+                    return (
+                      <li key={event.id} className="ml-4">
+                        <span className={`absolute -left-[7px] mt-1.5 h-3 w-3 rounded-full ring-2 ring-background ${dotColor}`} />
+                        <div className="flex flex-wrap items-center gap-2">
+                          <p className="text-[13px] font-semibold text-foreground">{event.title}</p>
+                          {event.statusBadge && (
+                            <Badge variant="outline" className="bg-muted text-muted-foreground border-border text-[10px] font-medium">
+                              {event.statusBadge}
+                            </Badge>
+                          )}
+                        </div>
+                        {event.message && (
+                          <p className="text-[12px] text-muted-foreground italic mt-0.5">"{event.message}"</p>
+                        )}
+                        <p className="text-[11px] text-muted-foreground mt-1">
+                          {actorLabel} · {formatBEDateTime(event.timestamp)}
+                        </p>
+                      </li>
+                    );
+                  })}
+                </ol>
+              </CardContent>
+            </Card>
+          </section>
+        )}
       </div>
 
       {/* ══════ ACCOUNTING DECISION PANEL (Fixed Bottom) ══════ */}
