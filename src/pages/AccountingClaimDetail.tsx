@@ -375,7 +375,7 @@ export default function AccountingClaimDetail() {
                       <div className="space-y-1.5">
                         <p className="text-[13px] font-semibold text-foreground">Validation Results</p>
                         <div className="space-y-1">
-                          <p className="text-[13px] text-foreground">{item.verificationResults.taxIdMatched ? "✅" : "❌"} Tax ID {item.verificationResults.taxIdMatched ? "matched" : "mismatch"} — {activeEntity?.companyNameEn ?? "Company"} confirmed</p>
+                          <p className="text-[13px] text-foreground">{item.verificationResults.taxIdMatched ? "✅" : "❌"} Tax ID {item.verificationResults.taxIdMatched ? "matched" : "mismatch"} — {activeEntity?.legalNameEn ?? "Company"} confirmed</p>
                           <p className="text-[13px] text-foreground">{item.verificationResults.addressMatched ? "✅" : "❌"} {item.verificationResults.addressMatched ? "Address found in document" : "Address not found in document"}</p>
                           <p className="text-[13px] text-foreground">{item.verificationResults.amountMatched ? "✅" : "❌"} Amount {item.verificationResults.amountMatched ? "matched" : "mismatch"} — within {item.verificationResults.amountToleranceUsed} tolerance (Bank: ฿{fmt(item.verificationResults.bankAmount)} / Document: ฿{fmt(item.verificationResults.documentAmount)})</p>
                           <p className="text-[13px] text-foreground">{item.verificationResults.invoiceDateInRange ? "✅" : "❌"} Invoice date {item.verificationResults.invoiceDateInRange ? "within acceptable range" : "out of acceptable range"}</p>
