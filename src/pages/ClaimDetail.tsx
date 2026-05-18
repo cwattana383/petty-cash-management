@@ -1538,8 +1538,8 @@ export default function ClaimDetail() {
                   <Row label="Merchant" value={cardMerchant} className="md:col-start-1 md:row-start-2" />
                   <Row label="Amount" value={`${fmt(cardBillingAmount)} ${cardCurrency}`} className="md:col-start-2 md:row-start-2" />
                   <Row label="MCC Description" value={cardMccDescription} className="sm:col-span-2 md:col-start-1 md:col-end-3 md:row-start-3" />
-                  <StatusBadgeField label="Approval Status" value="Pending Approval" tone="warning" className="md:col-start-3 md:row-start-1" />
-                  <StatusBadgeField label="Document Status" value="Incomplete" tone="warning" className="md:col-start-3 md:row-start-2" />
+                  <StatusBadgeField label="Approval Status" value={claim.status === "Final Rejected" ? "Auto Reject" : "Pending Approval"} tone={claim.status === "Final Rejected" ? "destructive" : "warning"} className="md:col-start-3 md:row-start-1" />
+                  <StatusBadgeField label="Document Status" value={claim.status === "Final Rejected" ? "Validated" : "Incomplete"} tone={claim.status === "Final Rejected" ? "success" : "warning"} className="md:col-start-3 md:row-start-2" />
                 </div>
               </CardContent>
             </Card>
@@ -1780,8 +1780,8 @@ export default function ClaimDetail() {
                   <Row label="Merchant" value={cardMerchant} className="md:col-start-1 md:row-start-2" />
                   <Row label="Amount" value={`${fmt(cardBillingAmount)} ${cardCurrency}`} className="md:col-start-2 md:row-start-2" />
                   <Row label="MCC Description" value={cardMccDescription} className="sm:col-span-2 md:col-start-1 md:col-end-3 md:row-start-3" />
-                  <StatusBadgeField label="Approval Status" value="Pending Approval" tone="warning" className="md:col-start-3 md:row-start-1" />
-                  <StatusBadgeField label="Document Status" value="Incomplete" tone="warning" className="md:col-start-3 md:row-start-2" />
+                  <StatusBadgeField label="Approval Status" value={claim.status === "Final Rejected" ? "Auto Reject" : "Pending Approval"} tone={claim.status === "Final Rejected" ? "destructive" : "warning"} className="md:col-start-3 md:row-start-1" />
+                  <StatusBadgeField label="Document Status" value={claim.status === "Final Rejected" ? "Validated" : "Incomplete"} tone={claim.status === "Final Rejected" ? "success" : "warning"} className="md:col-start-3 md:row-start-2" />
                 </div>
               </CardContent>
             </Card>
