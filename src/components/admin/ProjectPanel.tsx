@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -29,6 +30,7 @@ const mockProjects: ProjectRow[] = [
 ];
 
 export default function ProjectPanel() {
+  const navigate = useNavigate();
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
 
@@ -52,7 +54,7 @@ export default function ProjectPanel() {
           <p className="text-sm text-muted-foreground">Manage projects available for expense allocation.</p>
         </div>
         <div className="flex items-center gap-2">
-          <Button size="sm">
+          <Button size="sm" onClick={() => navigate("/admin/project/new")}>
             <Plus className="h-4 w-4 mr-2" /> Add Project
           </Button>
         </div>
