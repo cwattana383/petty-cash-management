@@ -492,10 +492,9 @@ export default function AccountingClaimDetail() {
           <div className="flex justify-end gap-3">
             <Button
               variant="outline"
-              className="text-destructive border-destructive/30 hover:bg-destructive/10"
               onClick={() => setShowExceptionInput((prev) => !prev)}
             >
-              <AlertTriangle className="h-4 w-4 mr-1" /> Request for More Info
+              <MessageSquare className="h-4 w-4 mr-1" /> Request Info
             </Button>
             <Button
               className="bg-emerald-600 hover:bg-emerald-700 text-white"
