@@ -417,15 +417,6 @@ export default function AuditTrail({ events: eventsProp }: AuditTrailProps) {
 
   return (
     <section>
-      {/* Terminal banner for FINAL_REJECTED */}
-      {hasTerminal && (
-        <div className="flex items-center gap-2 px-4 py-3 mb-4 rounded-lg bg-red-900 text-white">
-          <Lock className="h-4 w-4 shrink-0" />
-          <span className="text-[13px] font-medium">
-            This expense has been permanently closed. No further action is available.
-          </span>
-        </div>
-      )}
 
       {/* Section header — matching SectionDivider style */}
       <div className="flex items-center gap-3 mb-3">
