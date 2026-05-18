@@ -6,7 +6,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import {
-  ArrowLeft, Check, AlertTriangle, CreditCard, CheckCircle2, XCircle, Clock,
+  ArrowLeft, Check, AlertTriangle, CreditCard, CheckCircle2, Clock,
 } from "lucide-react";
 import { formatBEDate, formatBEDateTime } from "@/lib/utils";
 import { VAT_TYPE_CONFIG } from "@/lib/vat-type-config";
