@@ -54,7 +54,7 @@ export default function ProjectPanel() {
           <p className="text-sm text-muted-foreground">Manage projects available for expense allocation.</p>
         </div>
         <div className="flex items-center gap-2">
-          <Button size="sm">
+          <Button size="sm" onClick={() => navigate("/admin/project/new")}>
             <Plus className="h-4 w-4 mr-2" /> Add Project
           </Button>
         </div>
