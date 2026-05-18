@@ -16,6 +16,17 @@ import { useToast } from "@/hooks/use-toast";
 import { useState } from "react";
 
 /* ─── Local mock lookup (mirrors AccountingReview data) ─── */
+interface ApprovalHistoryEvent {
+  id: string;
+  actor: 'system' | 'cardholder' | 'manager' | 'finance';
+  actorName?: string;
+  title: string;
+  statusBadge?: string;
+  timestamp: string;
+  message?: string;
+  isCurrent?: boolean;
+}
+
 interface AccountingItem {
   id: string;
   merchantName: string;
@@ -25,6 +36,31 @@ interface AccountingItem {
   date: string;
   fileName: string;
   docType: string;
+  // Optional rich-detail overrides (all fall back to existing hardcoded literals)
+  approvalStatus?: string;
+  approvalStatusTone?: 'success' | 'warning' | 'info' | 'neutral';
+  documentStatus?: string;
+  documentStatusTone?: 'success' | 'warning';
+  cardholderName?: string;
+  purpose?: string;
+  expenseType?: string;
+  subExpenseType?: string;
+  vatType?: string;
+  glAccount?: string;
+  project?: string | null;
+  vatAmount?: number;
+  transactionDate?: string;
+  verificationResults?: {
+    taxIdMatched: boolean;
+    addressMatched: boolean;
+    amountMatched: boolean;
+    bankAmount: number;
+    documentAmount: number;
+    amountToleranceUsed: string;
+    invoiceDateInRange: boolean;
+    overallStatus: 'Verified' | 'Failed' | 'Pending';
+  };
+  approvalHistory?: ApprovalHistoryEvent[];
 }
 
 const ACCOUNTING_ITEMS: AccountingItem[] = [
