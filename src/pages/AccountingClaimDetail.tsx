@@ -6,9 +6,9 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import {
-  ArrowLeft, Check, AlertTriangle, CreditCard, CheckCircle2,
+  ArrowLeft, Check, AlertTriangle, CreditCard, CheckCircle2, Clock,
 } from "lucide-react";
-import { formatBEDate } from "@/lib/utils";
+import { formatBEDate, formatBEDateTime } from "@/lib/utils";
 import { VAT_TYPE_CONFIG } from "@/lib/vat-type-config";
 import OcrVerifyModal from "@/components/claims/OcrVerifyModal";
 import { mockCompanyIdentities } from "@/components/admin/EntityTypes";
@@ -16,6 +16,17 @@ import { useToast } from "@/hooks/use-toast";
 import { useState } from "react";
 
 /* ─── Local mock lookup (mirrors AccountingReview data) ─── */
+interface ApprovalHistoryEvent {
+  id: string;
+  actor: 'system' | 'cardholder' | 'manager' | 'finance';
+  actorName?: string;
+  title: string;
+  statusBadge?: string;
+  timestamp: string;
+  message?: string;
+  isCurrent?: boolean;
+}
+
 interface AccountingItem {
   id: string;
   merchantName: string;
@@ -25,6 +36,31 @@ interface AccountingItem {
   date: string;
   fileName: string;
   docType: string;
+  // Optional rich-detail overrides (all fall back to existing hardcoded literals)
+  approvalStatus?: string;
+  approvalStatusTone?: 'success' | 'warning' | 'info' | 'neutral';
+  documentStatus?: string;
+  documentStatusTone?: 'success' | 'warning';
+  cardholderName?: string;
+  purpose?: string;
+  expenseType?: string;
+  subExpenseType?: string;
+  vatType?: string;
+  glAccount?: string;
+  project?: string | null;
+  vatAmount?: number;
+  transactionDate?: string;
+  verificationResults?: {
+    taxIdMatched: boolean;
+    addressMatched: boolean;
+    amountMatched: boolean;
+    bankAmount: number;
+    documentAmount: number;
+    amountToleranceUsed: string;
+    invoiceDateInRange: boolean;
+    overallStatus: 'Verified' | 'Failed' | 'Pending';
+  };
+  approvalHistory?: ApprovalHistoryEvent[];
 }
 
 const ACCOUNTING_ITEMS: AccountingItem[] = [
@@ -63,6 +99,87 @@ const ACCOUNTING_ITEMS: AccountingItem[] = [
   { id: "TXN2026051400021", merchantName: "EasyPass", description: "Parking fee", amount: 120.00, status: "Accounting Review", date: "2026-05-14", fileName: "EasyPass_Receipt_20260514.pdf", docType: "Receipt" },
   { id: "TXN2026051500022", merchantName: "Central Department Store", description: "Client gift", amount: 2500.00, status: "Accounting Review", date: "2026-05-15", fileName: "Central_TaxInvoice_20260515.pdf", docType: "Tax Invoice" },
   { id: "TXN2026051500025", merchantName: "MK Restaurants", description: "Internal lunch meeting", amount: 890.00, status: "Accounting Review", date: "2026-05-15", fileName: "MK_TaxInvoice_20260515.pdf", docType: "Tax Invoice" },
+  {
+    id: "TXN2026051600040",
+    merchantName: "Marriott Hotel Bangkok",
+    description: "Lodging — Hotels and Motels",
+    amount: 8500.00,
+    status: "Accounting Review",
+    date: "2026-05-16",
+    fileName: "Marriott_TaxInvoice_20260516.pdf",
+    docType: "Tax Invoice",
+    approvalStatus: "Manager Approved",
+    approvalStatusTone: "success",
+    documentStatus: "Verified",
+    documentStatusTone: "success",
+    cardholderName: "Wilasinee Pratyawongchai",
+    purpose: "Client dinner with vendor partners",
+    expenseType: "Entertainment",
+    subExpenseType: "Client Meals",
+    vatType: "Claim 100",
+    glAccount: "5400-001 — Entertainment - Client Meals",
+    project: null,
+    vatAmount: 556.07,
+    transactionDate: "2026-05-16",
+    verificationResults: {
+      taxIdMatched: true,
+      addressMatched: true,
+      amountMatched: true,
+      bankAmount: 8500.00,
+      documentAmount: 8500.00,
+      amountToleranceUsed: "5%",
+      invoiceDateInRange: true,
+      overallStatus: "Verified",
+    },
+    approvalHistory: [
+      { id: "evt-040-6", actor: "manager", actorName: "Theem Veokeki", title: "Manager approved", statusBadge: "MANAGER_APPROVED", timestamp: "2026-05-17T10:30:00Z" },
+      { id: "evt-040-5", actor: "cardholder", actorName: "Wilasinee Pratyawongchai", title: "Submitted for manager approval", statusBadge: "PENDING_APPROVAL", timestamp: "2026-05-16T19:00:00Z" },
+      { id: "evt-040-4", actor: "cardholder", actorName: "Wilasinee Pratyawongchai", title: "Document verified", statusBadge: "VERIFIED", message: "Marriott_TaxInvoice_20260516.pdf", timestamp: "2026-05-16T18:35:00Z" },
+      { id: "evt-040-3", actor: "cardholder", actorName: "Wilasinee Pratyawongchai", title: "Document uploaded", statusBadge: "UPLOADED", message: "Marriott_TaxInvoice_20260516.pdf", timestamp: "2026-05-16T18:30:00Z" },
+      { id: "evt-040-2", actor: "cardholder", actorName: "Wilasinee Pratyawongchai", title: "Claim created", statusBadge: "NOT_STARTED", timestamp: "2026-05-16T18:00:00Z" },
+      { id: "evt-040-1", actor: "system", title: "Transaction imported from bank file", statusBadge: "NOT_STARTED", timestamp: "2026-05-16T00:15:00Z" },
+    ],
+  },
+  {
+    id: "TXN2026051700041",
+    merchantName: "7-Eleven Bangkok",
+    description: "Convenience Store",
+    amount: 320.00,
+    status: "Accounting Review",
+    date: "2026-05-17",
+    fileName: "7Eleven_Receipt_20260517.pdf",
+    docType: "Receipt",
+    approvalStatus: "Auto Approved",
+    approvalStatusTone: "success",
+    documentStatus: "Verified",
+    documentStatusTone: "success",
+    cardholderName: "Anong Srisuk",
+    purpose: "Office snacks for team meeting",
+    expenseType: "Office Supplies",
+    subExpenseType: "Office Snacks",
+    vatType: "Claim 100",
+    glAccount: "5100-002 — Office Supplies",
+    project: null,
+    vatAmount: 20.93,
+    transactionDate: "2026-05-17",
+    verificationResults: {
+      taxIdMatched: true,
+      addressMatched: true,
+      amountMatched: true,
+      bankAmount: 320.00,
+      documentAmount: 320.00,
+      amountToleranceUsed: "5%",
+      invoiceDateInRange: true,
+      overallStatus: "Verified",
+    },
+    approvalHistory: [
+      { id: "evt-041-5", actor: "system", title: "Policy auto-approved (below threshold)", statusBadge: "AUTO_APPROVED", timestamp: "2026-05-17T10:05:00Z" },
+      { id: "evt-041-4", actor: "cardholder", actorName: "Anong Srisuk", title: "Document verified", statusBadge: "VERIFIED", message: "7Eleven_Receipt_20260517.pdf", timestamp: "2026-05-17T10:05:00Z" },
+      { id: "evt-041-3", actor: "cardholder", actorName: "Anong Srisuk", title: "Document uploaded", statusBadge: "UPLOADED", message: "7Eleven_Receipt_20260517.pdf", timestamp: "2026-05-17T10:00:00Z" },
+      { id: "evt-041-2", actor: "cardholder", actorName: "Anong Srisuk", title: "Claim created", statusBadge: "NOT_STARTED", timestamp: "2026-05-17T09:30:00Z" },
+      { id: "evt-041-1", actor: "system", title: "Transaction imported from bank file", statusBadge: "NOT_STARTED", timestamp: "2026-05-17T00:15:00Z" },
+    ],
+  },
 ];
 
 const GL_ACCOUNT_OPTIONS = [
@@ -105,7 +222,9 @@ export default function AccountingClaimDetail() {
     );
   }
 
-  const mockPurpose = item.description;
+  const mockPurpose = item.purpose ?? item.description;
+  const toneMap = (t?: 'success' | 'warning' | 'info' | 'neutral'): 'success' | 'warning' | 'neutral' | 'destructive' =>
+    t === 'info' ? 'neutral' : (t ?? 'warning');
 
   const handleApproveERP = () => {
     toast({ title: "Sent to ERP", description: `${item.id} has been approved and marked Ready for ERP.` });
@@ -153,8 +272,8 @@ export default function AccountingClaimDetail() {
                 <Row label="Merchant" value={item.merchantName} className="md:col-start-1 md:row-start-2" />
                 <Row label="Amount" value={`${fmt(item.amount)} THB`} className="md:col-start-2 md:row-start-2" />
                 <Row label="MCC Description" value={item.description} className="sm:col-span-2 md:col-start-1 md:col-end-3 md:row-start-3" />
-                <StatusBadgeField label="Approval Status" value="Pending Approval" tone="warning" className="md:col-start-3 md:row-start-1" />
-                <StatusBadgeField label="Document Status" value="Incomplete" tone="warning" className="md:col-start-3 md:row-start-2" />
+                <StatusBadgeField label="Approval Status" value={item.approvalStatus ?? "Pending Approval"} tone={toneMap(item.approvalStatusTone)} className="md:col-start-3 md:row-start-1" />
+                <StatusBadgeField label="Document Status" value={item.documentStatus ?? "Incomplete"} tone={toneMap(item.documentStatusTone)} className="md:col-start-3 md:row-start-2" />
               </div>
             </CardContent>
           </Card>
@@ -170,42 +289,50 @@ export default function AccountingClaimDetail() {
                 <p className="text-[13px] text-foreground">{mockPurpose}</p>
               </div>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <ReadOnlyField label="Expense Type" value="Travel" />
-                <ReadOnlyField label="Sub Expense Type" value="Taxi / Ride-Hailing" />
+                <ReadOnlyField label="Expense Type" value={item.expenseType ?? "Travel"} />
+                <ReadOnlyField label="Sub Expense Type" value={item.subExpenseType ?? "Taxi / Ride-Hailing"} />
 
-                {/* VAT Type — editable */}
-                <div className="space-y-1.5">
-                  <Label className="text-[13px] font-semibold text-muted-foreground">VAT Type</Label>
-                  <Select value={vatType} onValueChange={setVatType}>
-                    <SelectTrigger className="text-[13px]">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {VAT_TYPE_CONFIG.map((v) => (
-                        <SelectItem key={v.id} value={v.id} className="text-[13px]">
-                          {v.label}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
+                {/* VAT Type — read-only when item provides override, otherwise editable */}
+                {item.vatType ? (
+                  <ReadOnlyField label="VAT Type" value={item.vatType} />
+                ) : (
+                  <div className="space-y-1.5">
+                    <Label className="text-[13px] font-semibold text-muted-foreground">VAT Type</Label>
+                    <Select value={vatType} onValueChange={setVatType}>
+                      <SelectTrigger className="text-[13px]">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {VAT_TYPE_CONFIG.map((v) => (
+                          <SelectItem key={v.id} value={v.id} className="text-[13px]">
+                            {v.label}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                )}
 
-                {/* GL Account — editable */}
-                <div className="space-y-1.5">
-                  <Label className="text-[13px] font-semibold text-muted-foreground">GL Account</Label>
-                  <Select value={glAccount} onValueChange={setGlAccount}>
-                    <SelectTrigger className="text-[13px]">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {GL_ACCOUNT_OPTIONS.map((gl) => (
-                        <SelectItem key={gl.code} value={gl.code} className="text-[13px]">
-                          {gl.code} — {gl.name}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
+                {/* GL Account — read-only when item provides override, otherwise editable */}
+                {item.glAccount ? (
+                  <ReadOnlyField label="GL Account" value={item.glAccount} />
+                ) : (
+                  <div className="space-y-1.5">
+                    <Label className="text-[13px] font-semibold text-muted-foreground">GL Account</Label>
+                    <Select value={glAccount} onValueChange={setGlAccount}>
+                      <SelectTrigger className="text-[13px]">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {GL_ACCOUNT_OPTIONS.map((gl) => (
+                          <SelectItem key={gl.code} value={gl.code} className="text-[13px]">
+                            {gl.code} — {gl.name}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                )}
               </div>
               <div className="space-y-1.5">
                 <Label className="text-[13px] font-semibold text-foreground">Project <span className="text-destructive">*</span></Label>
@@ -243,20 +370,42 @@ export default function AccountingClaimDetail() {
                     </Badge>
                   </div>
 
-                  <div className="space-y-1.5">
-                    <p className="text-[13px] font-semibold text-foreground">Validation Results</p>
-                    <div className="space-y-1">
-                      <p className="text-[13px] text-foreground">✅ Tax ID matched — CPAxtra confirmed</p>
-                      <p className="text-[13px] text-foreground">✅ CPAxtra address found in document</p>
-                      <p className="text-[13px] text-foreground">✅ Amount matched — within 5% tolerance (Bank: ฿{fmt(item.amount)} / Document: ฿{fmt(item.amount)})</p>
-                      <p className="text-[13px] text-foreground">✅ Invoice date within acceptable range</p>
-                    </div>
-                  </div>
+                  {item.verificationResults ? (
+                    <>
+                      <div className="space-y-1.5">
+                        <p className="text-[13px] font-semibold text-foreground">Validation Results</p>
+                        <div className="space-y-1">
+                          <p className="text-[13px] text-foreground">{item.verificationResults.taxIdMatched ? "✅" : "❌"} Tax ID {item.verificationResults.taxIdMatched ? "matched" : "mismatch"} — {activeEntity?.legalNameEn ?? "Company"} confirmed</p>
+                          <p className="text-[13px] text-foreground">{item.verificationResults.addressMatched ? "✅" : "❌"} {item.verificationResults.addressMatched ? "Address found in document" : "Address not found in document"}</p>
+                          <p className="text-[13px] text-foreground">{item.verificationResults.amountMatched ? "✅" : "❌"} Amount {item.verificationResults.amountMatched ? "matched" : "mismatch"} — within {item.verificationResults.amountToleranceUsed} tolerance (Bank: ฿{fmt(item.verificationResults.bankAmount)} / Document: ฿{fmt(item.verificationResults.documentAmount)})</p>
+                          <p className="text-[13px] text-foreground">{item.verificationResults.invoiceDateInRange ? "✅" : "❌"} Invoice date {item.verificationResults.invoiceDateInRange ? "within acceptable range" : "out of acceptable range"}</p>
+                        </div>
+                      </div>
+                      {item.verificationResults.overallStatus === "Verified" && (
+                        <p className="text-[13px] text-emerald-600 flex items-center gap-1.5">
+                          <CheckCircle2 className="h-3.5 w-3.5 shrink-0" />
+                          Document verified.
+                        </p>
+                      )}
+                    </>
+                  ) : (
+                    <>
+                      <div className="space-y-1.5">
+                        <p className="text-[13px] font-semibold text-foreground">Validation Results</p>
+                        <div className="space-y-1">
+                          <p className="text-[13px] text-foreground">✅ Tax ID matched — CPAxtra confirmed</p>
+                          <p className="text-[13px] text-foreground">✅ CPAxtra address found in document</p>
+                          <p className="text-[13px] text-foreground">✅ Amount matched — within 5% tolerance (Bank: ฿{fmt(item.amount)} / Document: ฿{fmt(item.amount)})</p>
+                          <p className="text-[13px] text-foreground">✅ Invoice date within acceptable range</p>
+                        </div>
+                      </div>
 
-                  <p className="text-[13px] text-emerald-600 flex items-center gap-1.5">
-                    <CheckCircle2 className="h-3.5 w-3.5 shrink-0" />
-                    Document verified.
-                  </p>
+                      <p className="text-[13px] text-emerald-600 flex items-center gap-1.5">
+                        <CheckCircle2 className="h-3.5 w-3.5 shrink-0" />
+                        Document verified.
+                      </p>
+                    </>
+                  )}
                 </>
               ) : (
                 <p className="text-[13px] text-muted-foreground">No documents attached.</p>
@@ -264,6 +413,60 @@ export default function AccountingClaimDetail() {
             </CardContent>
           </Card>
         </section>
+
+        {/* ══════ SECTION 4 — AUDIT TRAIL (only when approvalHistory provided) ══════ */}
+        {item.approvalHistory && item.approvalHistory.length > 0 && (
+          <section>
+            <div className="flex items-center gap-3 mb-3">
+              <span className="h-7 w-7 rounded-full bg-primary text-primary-foreground flex items-center justify-center text-xs font-bold shrink-0">
+                4
+              </span>
+              <h2 className="text-[15px] font-bold text-foreground flex items-center gap-2">
+                <Clock className="h-4 w-4 text-muted-foreground" />
+                Audit Trail
+              </h2>
+              <span className="text-[12px] text-muted-foreground">{item.approvalHistory.length} events</span>
+              <div className="flex-1 border-t border-border" />
+            </div>
+            <Card className="border border-border rounded-xl">
+              <CardContent className="pt-5">
+                <ol className="relative border-l border-border ml-3 space-y-5">
+                  {item.approvalHistory.map((event) => {
+                    const dotColor =
+                      event.actor === 'manager' ? 'bg-emerald-500' :
+                      event.actor === 'finance' ? 'bg-blue-500' :
+                      event.actor === 'cardholder' ? 'bg-amber-500' :
+                      'bg-slate-400';
+                    const actorLabel =
+                      event.actor === 'system' ? '⚙️ System' :
+                      event.actor === 'cardholder' ? `👤 ${event.actorName ?? 'Cardholder'}` :
+                      event.actor === 'manager' ? `👔 ${event.actorName ?? 'Manager'}` :
+                      `🏦 ${event.actorName ?? 'Finance Team'}`;
+                    return (
+                      <li key={event.id} className="ml-4">
+                        <span className={`absolute -left-[7px] mt-1.5 h-3 w-3 rounded-full ring-2 ring-background ${dotColor}`} />
+                        <div className="flex flex-wrap items-center gap-2">
+                          <p className="text-[13px] font-semibold text-foreground">{event.title}</p>
+                          {event.statusBadge && (
+                            <Badge variant="outline" className="bg-muted text-muted-foreground border-border text-[10px] font-medium">
+                              {event.statusBadge}
+                            </Badge>
+                          )}
+                        </div>
+                        {event.message && (
+                          <p className="text-[12px] text-muted-foreground italic mt-0.5">"{event.message}"</p>
+                        )}
+                        <p className="text-[11px] text-muted-foreground mt-1">
+                          {actorLabel} · {formatBEDateTime(event.timestamp)}
+                        </p>
+                      </li>
+                    );
+                  })}
+                </ol>
+              </CardContent>
+            </Card>
+          </section>
+        )}
       </div>
 
       {/* ══════ ACCOUNTING DECISION PANEL (Fixed Bottom) ══════ */}
