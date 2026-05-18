@@ -63,7 +63,7 @@ const STATUS_COLORS: Record<ApprovalStatusCode, string> = {
 };
 
 const TAB_STATUS_MAP: Record<string, ApprovalStatusCode[] | null> = {
-  pending: ["ACCOUNTING_REVIEW"],
+  pending: ["AUTO_APPROVED", "MANAGER_APPROVED"],
   request_info: ["RETURNED_FOR_INFO"],
   reject: ["AUTO_REJECTED", "MANAGER_REJECTED", "FINAL_REJECTED"],
   approved: ["AUTO_APPROVED", "MANAGER_APPROVED"],
