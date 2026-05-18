@@ -504,7 +504,7 @@ export default function AccountingClaimDetail() {
               className="bg-emerald-600 hover:bg-emerald-700 text-white"
               onClick={handleApproveERP}
             >
-              <Check className="h-4 w-4 mr-1" /> Approve & Send to ERP
+              <Check className="h-4 w-4 mr-1" /> Verified
             </Button>
           </div>
         </div>
