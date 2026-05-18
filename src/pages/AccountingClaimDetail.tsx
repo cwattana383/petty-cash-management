@@ -289,42 +289,50 @@ export default function AccountingClaimDetail() {
                 <p className="text-[13px] text-foreground">{mockPurpose}</p>
               </div>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <ReadOnlyField label="Expense Type" value="Travel" />
-                <ReadOnlyField label="Sub Expense Type" value="Taxi / Ride-Hailing" />
+                <ReadOnlyField label="Expense Type" value={item.expenseType ?? "Travel"} />
+                <ReadOnlyField label="Sub Expense Type" value={item.subExpenseType ?? "Taxi / Ride-Hailing"} />
 
-                {/* VAT Type — editable */}
-                <div className="space-y-1.5">
-                  <Label className="text-[13px] font-semibold text-muted-foreground">VAT Type</Label>
-                  <Select value={vatType} onValueChange={setVatType}>
-                    <SelectTrigger className="text-[13px]">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {VAT_TYPE_CONFIG.map((v) => (
-                        <SelectItem key={v.id} value={v.id} className="text-[13px]">
-                          {v.label}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
+                {/* VAT Type — read-only when item provides override, otherwise editable */}
+                {item.vatType ? (
+                  <ReadOnlyField label="VAT Type" value={item.vatType} />
+                ) : (
+                  <div className="space-y-1.5">
+                    <Label className="text-[13px] font-semibold text-muted-foreground">VAT Type</Label>
+                    <Select value={vatType} onValueChange={setVatType}>
+                      <SelectTrigger className="text-[13px]">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {VAT_TYPE_CONFIG.map((v) => (
+                          <SelectItem key={v.id} value={v.id} className="text-[13px]">
+                            {v.label}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                )}
 
-                {/* GL Account — editable */}
-                <div className="space-y-1.5">
-                  <Label className="text-[13px] font-semibold text-muted-foreground">GL Account</Label>
-                  <Select value={glAccount} onValueChange={setGlAccount}>
-                    <SelectTrigger className="text-[13px]">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {GL_ACCOUNT_OPTIONS.map((gl) => (
-                        <SelectItem key={gl.code} value={gl.code} className="text-[13px]">
-                          {gl.code} — {gl.name}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
+                {/* GL Account — read-only when item provides override, otherwise editable */}
+                {item.glAccount ? (
+                  <ReadOnlyField label="GL Account" value={item.glAccount} />
+                ) : (
+                  <div className="space-y-1.5">
+                    <Label className="text-[13px] font-semibold text-muted-foreground">GL Account</Label>
+                    <Select value={glAccount} onValueChange={setGlAccount}>
+                      <SelectTrigger className="text-[13px]">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {GL_ACCOUNT_OPTIONS.map((gl) => (
+                          <SelectItem key={gl.code} value={gl.code} className="text-[13px]">
+                            {gl.code} — {gl.name}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                )}
               </div>
               <div className="space-y-1.5">
                 <Label className="text-[13px] font-semibold text-foreground">Project <span className="text-destructive">*</span></Label>
