@@ -69,17 +69,8 @@ export default function ProjectView() {
             <Row label="Effective Date From" value={formatDateBE(project.effectiveFrom)} />
             <Row label="Effective Date To" value={formatDateBE(project.effectiveTo)} />
           </div>
-          <Row
-            label="Status"
-            value={
-              project.active ? (
-                <Badge className="bg-green-100 text-green-700 hover:bg-green-100 border-green-200">Active</Badge>
-              ) : (
-                <Badge variant="secondary" className="bg-muted text-muted-foreground">Inactive</Badge>
-              )
-            }
-          />
         </CardContent>
+
       </Card>
 
       <div className="fixed bottom-0 left-0 right-0 bg-background border-t z-10">
