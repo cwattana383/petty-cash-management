@@ -520,25 +520,27 @@ export default function AccountingClaimDetail() {
       </div>
 
       {/* ══════ ACCOUNTING DECISION PANEL (Fixed Bottom) ══════ */}
-      <div className="fixed bottom-0 left-0 right-0 bg-background border-t border-border px-6 py-4 z-50">
-        <div className="max-w-5xl mx-auto">
-          <div className="flex justify-end gap-3">
-            <Button
-              variant="outline"
-              className="border-amber-400 text-amber-700 hover:bg-amber-50"
-              onClick={() => setRequestInfoOpen(true)}
-            >
-              <MessageSquare className="h-4 w-4 mr-1" /> Request Info
-            </Button>
-            <Button
-              className="bg-emerald-600 hover:bg-emerald-700 text-white"
-              onClick={handleApproveERP}
-            >
-              <Check className="h-4 w-4 mr-1" /> Verified
-            </Button>
+      {item.id !== 'TXN2026050800008' && (
+        <div className="fixed bottom-0 left-0 right-0 bg-background border-t border-border px-6 py-4 z-50">
+          <div className="max-w-5xl mx-auto">
+            <div className="flex justify-end gap-3">
+              <Button
+                variant="outline"
+                className="border-amber-400 text-amber-700 hover:bg-amber-50"
+                onClick={() => setRequestInfoOpen(true)}
+              >
+                <MessageSquare className="h-4 w-4 mr-1" /> Request Info
+              </Button>
+              <Button
+                className="bg-emerald-600 hover:bg-emerald-700 text-white"
+                onClick={handleApproveERP}
+              >
+                <Check className="h-4 w-4 mr-1" /> Verified
+              </Button>
+            </div>
           </div>
         </div>
-      </div>
+      )}
 
       {/* ══════ REQUEST INFO MODAL ══════ */}
       <Dialog open={requestInfoOpen} onOpenChange={(v) => { setRequestInfoOpen(v); if (!v) setRequestInfoMessage(""); }}>
