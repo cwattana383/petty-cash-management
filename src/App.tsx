@@ -21,6 +21,7 @@ import Reports from "./pages/Reports";
 
 import Admin from "./pages/Admin";
 import EmployeeProfileCreate from "./pages/EmployeeProfileCreate";
+import ProjectCreate from "./pages/ProjectCreate";
 import EmployeeProfileEdit from "./pages/EmployeeProfileEdit";
 import ExpenseTypeEdit from "./pages/ExpenseTypeEdit";
 import Profile from "./pages/Profile";
