@@ -102,6 +102,7 @@ const adminMenu = [
     items: [
       { key: "documents", label: "Documents", icon: FileText },
       { key: "expense-type", label: "Expense Type", icon: Layers },
+      { key: "project", label: "Project", icon: FileText },
       { key: "mcc-policy", label: "Policy Management", icon: Shield },
     ],
   },
