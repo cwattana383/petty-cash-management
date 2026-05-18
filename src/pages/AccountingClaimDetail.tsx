@@ -222,7 +222,9 @@ export default function AccountingClaimDetail() {
     );
   }
 
-  const mockPurpose = item.description;
+  const mockPurpose = item.purpose ?? item.description;
+  const toneMap = (t?: 'success' | 'warning' | 'info' | 'neutral'): 'success' | 'warning' | 'neutral' | 'destructive' =>
+    t === 'info' ? 'neutral' : (t ?? 'warning');
 
   const handleApproveERP = () => {
     toast({ title: "Sent to ERP", description: `${item.id} has been approved and marked Ready for ERP.` });
