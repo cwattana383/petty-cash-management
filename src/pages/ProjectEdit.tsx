@@ -146,21 +146,6 @@ export default function ProjectEdit() {
               />
             </div>
           </div>
-
-          <div className="flex items-center justify-between pt-2 border-t">
-            <div>
-              <Label htmlFor="active" className="text-sm">Status</Label>
-              <p className="text-xs text-muted-foreground">Toggle to activate or deactivate this project.</p>
-            </div>
-            <div className="flex items-center gap-3">
-              {active ? (
-                <Badge className="bg-green-100 text-green-700 hover:bg-green-100 border-green-200">Active</Badge>
-              ) : (
-                <Badge variant="secondary" className="bg-muted text-muted-foreground">Inactive</Badge>
-              )}
-              <Switch id="active" checked={active} onCheckedChange={setActive} />
-            </div>
-          </div>
         </CardContent>
       </Card>
 
