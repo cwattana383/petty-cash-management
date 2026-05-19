@@ -2302,6 +2302,63 @@ export default function ClaimDetail() {
           <section>
             <SectionDivider num={3} label="Documents" />
             <Card className="border border-border rounded-xl">
+              {claim.id === "CLM-BIZ-DEMO-RFI-001" ? (
+                <CardContent className="pt-5 space-y-5">
+                  <p className="text-xs text-muted-foreground">
+                    Files are not stored on the server until you click Save Draft or Submit for Approval.
+                  </p>
+
+                  <div className="space-y-2">
+                    <p className="text-[13px] font-semibold text-red-700 flex items-center gap-1.5">
+                      <span className="h-2.5 w-2.5 rounded-full bg-red-500 inline-block" />
+                      Required — Attach file before Submit
+                    </p>
+                    {[
+                      { name: "E-Ticket from Thai to Korea.pdf", type: "E-Ticket / Flight ticket *", size: "455.9 KB" },
+                      { name: "CCC_DAT_Quotation-Shrine-InvalidDocType_20260301_v1.pdf", type: "Approval letter for international travel *", size: "2.0 MB" },
+                    ].map((f) => (
+                      <div key={f.name} className="flex items-center gap-3 rounded-lg border border-emerald-200 bg-emerald-50/60 px-4 py-3">
+                        <CheckCircle2 className="h-5 w-5 text-emerald-600 shrink-0" />
+                        <div className="min-w-0 flex-1">
+                          <p className="text-[13px] font-medium text-foreground truncate">{f.name}</p>
+                          <p className="text-[12px] text-muted-foreground">{f.type} • {f.size}</p>
+                        </div>
+                        <span className="inline-flex items-center gap-1 rounded-full border border-emerald-300 px-2.5 py-0.5 text-[11px] font-medium text-emerald-700">
+                          <CheckCircle2 className="h-3 w-3" /> Verified
+                        </span>
+                        <Button variant="ghost" size="icon" className="h-7 w-7 text-muted-foreground hover:text-destructive" type="button">
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    ))}
+                  </div>
+
+                  <div className="space-y-2">
+                    <p className="text-[13px] font-semibold text-muted-foreground flex items-center gap-1.5">
+                      <span className="h-2.5 w-2.5 rounded-full bg-amber-400 inline-block" />
+                      Optional — Attach supporting Documents
+                    </p>
+                    <div className="flex items-center gap-3 rounded-lg border border-emerald-200 bg-emerald-50/60 px-4 py-3">
+                      <CheckCircle2 className="h-5 w-5 text-emerald-600 shrink-0" />
+                      <div className="min-w-0 flex-1">
+                        <p className="text-[13px] font-medium text-foreground truncate">E-Boarding Pass.pdf</p>
+                        <p className="text-[12px] text-muted-foreground">Boarding Pass • 292.3 KB</p>
+                      </div>
+                      <span className="inline-flex items-center gap-1 rounded-full border border-emerald-300 px-2.5 py-0.5 text-[11px] font-medium text-emerald-700">
+                        <CheckCircle2 className="h-3 w-3" /> Verified
+                      </span>
+                      <Button variant="ghost" size="icon" className="h-7 w-7 text-muted-foreground hover:text-destructive" type="button">
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  </div>
+
+                  <p className="text-[13px] text-emerald-600 flex items-center gap-1.5">
+                    <CheckCircle2 className="h-3.5 w-3.5 shrink-0" />
+                    Document verified.
+                  </p>
+                </CardContent>
+              ) : (
               <CardContent className="pt-5 space-y-5">
                 <p className="text-xs text-muted-foreground">
                   Files are uploaded when you confirm verification, or when you Save Draft or Submit for Approval.
