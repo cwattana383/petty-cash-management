@@ -2318,8 +2318,17 @@ export default function ClaimDetail() {
                     {[
                       { name: "E-Ticket from Thai to Korea.pdf", type: "E-Ticket / Flight ticket *", size: "455.9 KB" },
                       { name: "Approval Letter (General)_19052026.pdf", type: "Approval Letter (General) *", size: "2.0 MB" },
-                    ].map((f) => (
-                      <div key={f.name} className="flex items-center gap-3 rounded-lg border border-emerald-200 bg-emerald-50/60 px-4 py-3">
+                    ].map((f) => {
+                      const isETicket = f.name === "E-Ticket from Thai to Korea.pdf";
+                      return (
+                      <div
+                        key={f.name}
+                        role={isETicket ? "button" : undefined}
+                        tabIndex={isETicket ? 0 : undefined}
+                        onClick={isETicket ? () => setETicketModalOpen(true) : undefined}
+                        onKeyDown={isETicket ? (e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); setETicketModalOpen(true); } } : undefined}
+                        className={`flex items-center gap-3 rounded-lg border border-emerald-200 bg-emerald-50/60 px-4 py-3 ${isETicket ? "cursor-pointer hover:bg-emerald-100/60 transition-colors" : ""}`}
+                      >
                         <CheckCircle2 className="h-5 w-5 text-emerald-600 shrink-0" />
                         <div className="min-w-0 flex-1">
                           <p className="text-[13px] font-medium text-foreground truncate">{f.name}</p>
@@ -2328,11 +2337,12 @@ export default function ClaimDetail() {
                         <span className="inline-flex items-center gap-1 rounded-full border border-emerald-300 px-2.5 py-0.5 text-[11px] font-medium text-emerald-700">
                           <CheckCircle2 className="h-3 w-3" /> Verified
                         </span>
-                        <Button variant="ghost" size="icon" className="h-7 w-7 text-muted-foreground hover:text-destructive" type="button">
+                        <Button variant="ghost" size="icon" className="h-7 w-7 text-muted-foreground hover:text-destructive" type="button" onClick={(e) => e.stopPropagation()}>
                           <Trash2 className="h-4 w-4" />
                         </Button>
                       </div>
-                    ))}
+                      );
+                    })}
                   </div>
 
                   <div className="space-y-2">
