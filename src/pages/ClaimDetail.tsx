@@ -2250,7 +2250,9 @@ export default function ClaimDetail() {
                     <SelectContent>
                       {glAccountOptions.map((gl) => (
                         <SelectItem key={gl.id} value={gl.id} className="text-[13px]">
-                          {gl.accountCode} — {gl.accountName}
+                          {claim.id === "CLM-BIZ-DEMO-RFI-001" && gl.id === "gl-1"
+                            ? "Local Travelling - 6190130001"
+                            : `${gl.accountCode} — ${gl.accountName}`}
                         </SelectItem>
                       ))}
                     </SelectContent>
