@@ -2759,6 +2759,132 @@ export default function ClaimDetail() {
           } : undefined}
         />
       )}
+
+      {/* Boarding Pass OCR Verify Modal — CLM-BIZ-DEMO-RFI-001 only */}
+      {claim.id === "CLM-BIZ-DEMO-RFI-001" && (
+        <Dialog open={boardingPassModalOpen} onOpenChange={setBoardingPassModalOpen}>
+          <DialogContent className="max-w-4xl">
+            <DialogHeader>
+              <DialogTitle>Verify Document — E-Boarding Pass.pdf</DialogTitle>
+            </DialogHeader>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {/* Left: OCR Results */}
+              <div className="space-y-4">
+                <div>
+                  <h4 className="text-sm font-semibold">OCR Results</h4>
+                  <p className="text-xs text-muted-foreground">Review and edit if needed before confirming</p>
+                </div>
+                <div className="space-y-3">
+                  <div>
+                    <label className="text-xs font-medium text-foreground">Passenger Name</label>
+                    <input defaultValue="JAMES SMITH" className="mt-1 w-full h-9 rounded-md border border-input bg-background px-3 text-sm" />
+                  </div>
+                  <div>
+                    <label className="text-xs font-medium text-foreground">From</label>
+                    <input defaultValue="NEW YORK" className="mt-1 w-full h-9 rounded-md border border-input bg-background px-3 text-sm" />
+                  </div>
+                  <div>
+                    <label className="text-xs font-medium text-foreground">To</label>
+                    <input defaultValue="JAPAN" className="mt-1 w-full h-9 rounded-md border border-input bg-background px-3 text-sm" />
+                  </div>
+                  <div>
+                    <label className="text-xs font-medium text-foreground">Travel Date (DD/MM/YYYY)</label>
+                    <input defaultValue="15/07/2573" className="mt-1 w-full h-9 rounded-md border border-input bg-background px-3 text-sm" />
+                  </div>
+                </div>
+                <div>
+                  <h4 className="text-sm font-semibold mb-2">Validation Results</h4>
+                  <p className="text-[13px] text-emerald-600 flex items-center gap-1.5">
+                    <CheckCircle2 className="h-4 w-4 shrink-0" />
+                    Passenger name matches cardholder
+                  </p>
+                </div>
+              </div>
+
+              {/* Right: Document Preview */}
+              <div className="space-y-2">
+                <div className="flex items-center justify-between">
+                  <h4 className="text-sm font-semibold">Document Preview</h4>
+                  <div className="flex items-center gap-2">
+                    <Button variant="outline" size="icon" className="h-7 w-7" onClick={() => setBoardingPassZoom((z) => Math.max(50, z - 10))} type="button">
+                      <ZoomOut className="h-3.5 w-3.5" />
+                    </Button>
+                    <span className="text-xs font-medium min-w-[40px] text-center">{boardingPassZoom}%</span>
+                    <Button variant="outline" size="icon" className="h-7 w-7" onClick={() => setBoardingPassZoom((z) => Math.min(200, z + 10))} type="button">
+                      <ZoomIn className="h-3.5 w-3.5" />
+                    </Button>
+                  </div>
+                </div>
+                <div className="border rounded-lg bg-muted/30 flex items-center justify-center overflow-auto min-h-[340px] p-4">
+                  <div style={{ transform: `scale(${boardingPassZoom / 100})`, transformOrigin: "center" }} className="transition-transform">
+                    {/* Mock boarding pass */}
+                    <div className="flex bg-white rounded-md shadow-md overflow-hidden border" style={{ width: 360 }}>
+                      <div className="bg-red-500 text-white flex flex-col justify-between p-3 w-[55%]">
+                        <div className="flex items-center justify-between text-[10px] font-bold">
+                          <span>✈ AIRLINES</span>
+                          <span>BOARDING PASS</span>
+                        </div>
+                        <div className="mt-3 text-[10px] flex items-center justify-between">
+                          <div>
+                            <div className="opacity-80">From</div>
+                            <div className="text-base font-extrabold leading-tight">NEW YORK</div>
+                          </div>
+                          <span className="text-lg">✈</span>
+                          <div className="text-right">
+                            <div className="opacity-80">To</div>
+                            <div className="text-base font-extrabold leading-tight">JAPAN</div>
+                          </div>
+                        </div>
+                        <div className="mt-2 text-[9px]">
+                          <div className="opacity-80">Passenger</div>
+                          <div className="font-bold text-[11px]">JAMES SMITH</div>
+                        </div>
+                        <div className="mt-2 grid grid-cols-4 gap-1 text-[8px]">
+                          <div><div className="opacity-80">Flight</div><div className="font-bold">BA301</div></div>
+                          <div><div className="opacity-80">Date</div><div className="font-bold">15 JUL 30</div></div>
+                          <div><div className="opacity-80">Time</div><div className="font-bold">12:40</div></div>
+                          <div><div className="opacity-80">Arrival</div><div className="font-bold">14:50</div></div>
+                        </div>
+                        <div className="mt-1 grid grid-cols-3 gap-1 text-[8px]">
+                          <div><div className="opacity-80">Gate</div><div className="font-bold">02</div></div>
+                          <div><div className="opacity-80">Boarding</div><div className="font-bold">12:20</div></div>
+                          <div><div className="opacity-80">Seat</div><div className="font-bold">12E</div></div>
+                        </div>
+                        <div className="mt-2 text-[7px] tracking-widest">| || ||| | || ||| | || |</div>
+                        <div className="text-[7px] mt-1">BOARDING GATE CLOSES 15 MINUTES PRIOR TO DEPARTURE TIME</div>
+                      </div>
+                      <div className="bg-red-500 text-white p-3 w-[45%] border-l border-dashed border-white/40">
+                        <div className="text-[10px] font-bold text-right">BOARDING PASS</div>
+                        <div className="mt-2 text-[9px]">
+                          <div className="opacity-80">Passenger</div>
+                          <div className="font-bold text-[11px]">JAMES SMITH</div>
+                          <div className="opacity-80 mt-1">From</div>
+                          <div className="font-bold">NEW YORK</div>
+                          <div className="opacity-80 mt-1">To</div>
+                          <div className="font-bold">JAPAN</div>
+                        </div>
+                        <div className="mt-2 grid grid-cols-3 gap-1 text-[8px]">
+                          <div><div className="opacity-80">Flight</div><div className="font-bold">BA301</div></div>
+                          <div><div className="opacity-80">Date</div><div className="font-bold">15 JUL 30</div></div>
+                          <div><div className="opacity-80">Time</div><div className="font-bold">12:40</div></div>
+                          <div><div className="opacity-80">Gate</div><div className="font-bold">02</div></div>
+                          <div><div className="opacity-80">Boarding</div><div className="font-bold">12:20</div></div>
+                          <div><div className="opacity-80">Seat</div><div className="font-bold">12E</div></div>
+                        </div>
+                        <div className="mt-2 text-[7px] tracking-widest">0 1 2 3 4 5 6 7 8 9 1 0</div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <DialogFooter>
+              <Button variant="outline" onClick={() => setBoardingPassModalOpen(false)}>Cancel</Button>
+              <Button onClick={() => setBoardingPassModalOpen(false)}>Confirm</Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+      )}
     </div>
   );
 }
