@@ -2479,6 +2479,7 @@ export default function ClaimDetail() {
                   </div>
                 )}
               </CardContent>
+              )}
             </Card>
           </section>
         )}
