@@ -2922,7 +2922,7 @@ export default function ClaimDetail() {
             </div>
             <DialogFooter>
               <Button variant="outline" onClick={() => setETicketModalOpen(false)}>Cancel</Button>
-              <Button onClick={() => setETicketModalOpen(false)}>Confirm</Button>
+              <Button onClick={() => setETicketModalOpen(false)} className="bg-emerald-600 hover:bg-emerald-700 text-white">Confirm</Button>
             </DialogFooter>
           </DialogContent>
         </Dialog>
