@@ -2319,19 +2319,32 @@ export default function ClaimDetail() {
                       <span className="h-2.5 w-2.5 rounded-full bg-red-500 inline-block" />
                       Required — Attach file before Submit
                     </p>
-                    {[
-                      { name: "E-Ticket from Thai to Korea.pdf", type: "E-Ticket / Flight ticket *", size: "455.9 KB" },
-                      { name: "Approval Letter (General)_19052026.pdf", type: "Approval Letter (General) *", size: "2.0 MB" },
-                    ].map((f) => {
+                    {(claim.id === "CLM-BIZ-DEMO-RFI-002"
+                      ? [
+                          { name: "E-Ticket from Thai to Korea.pdf", type: "E-Ticket / Flight ticket *", size: "455.9 KB" },
+                          { name: "Approval Letter (General)_19052026.pdf", type: "Approval Letter (General) *", size: "2.0 MB" },
+                          { name: "E-Boarding Pass.pdf", type: "Boarding Pass *", size: "292.3 KB" },
+                          { name: "Receipt Tax Invoice.pdf", type: "Receipt / Tax Invoice *", size: "348.6 KB" },
+                          { name: "Oversea Travelling Request Form.pdf", type: "Oversea Travelling Request Form *", size: "512.4 KB" },
+                          { name: "Travel Insurance Certificate.pdf", type: "Travel Insurance Certificate *", size: "428.1 KB" },
+                        ]
+                      : [
+                          { name: "E-Ticket from Thai to Korea.pdf", type: "E-Ticket / Flight ticket *", size: "455.9 KB" },
+                          { name: "Approval Letter (General)_19052026.pdf", type: "Approval Letter (General) *", size: "2.0 MB" },
+                        ]
+                    ).map((f) => {
                       const isETicket = f.name === "E-Ticket from Thai to Korea.pdf";
+                      const isBoardingPass = f.name === "E-Boarding Pass.pdf";
+                      const isClickable = isETicket || isBoardingPass;
+                      const onOpen = isETicket ? () => setETicketModalOpen(true) : isBoardingPass ? () => setBoardingPassModalOpen(true) : undefined;
                       return (
                       <div
                         key={f.name}
-                        role={isETicket ? "button" : undefined}
-                        tabIndex={isETicket ? 0 : undefined}
-                        onClick={isETicket ? () => setETicketModalOpen(true) : undefined}
-                        onKeyDown={isETicket ? (e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); setETicketModalOpen(true); } } : undefined}
-                        className={`flex items-center gap-3 rounded-lg border border-emerald-200 bg-emerald-50/60 px-4 py-3 ${isETicket ? "cursor-pointer hover:bg-emerald-100/60 transition-colors" : ""}`}
+                        role={isClickable ? "button" : undefined}
+                        tabIndex={isClickable ? 0 : undefined}
+                        onClick={onOpen}
+                        onKeyDown={isClickable ? (e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); onOpen?.(); } } : undefined}
+                        className={`flex items-center gap-3 rounded-lg border border-emerald-200 bg-emerald-50/60 px-4 py-3 ${isClickable ? "cursor-pointer hover:bg-emerald-100/60 transition-colors" : ""}`}
                       >
                         <CheckCircle2 className="h-5 w-5 text-emerald-600 shrink-0" />
                         <div className="min-w-0 flex-1">
@@ -2349,6 +2362,7 @@ export default function ClaimDetail() {
                     })}
                   </div>
 
+                  {claim.id !== "CLM-BIZ-DEMO-RFI-002" && (
                   <div className="space-y-2">
                     <p className="text-[13px] font-semibold text-muted-foreground flex items-center gap-1.5">
                       <span className="h-2.5 w-2.5 rounded-full bg-amber-400 inline-block" />
@@ -2374,6 +2388,7 @@ export default function ClaimDetail() {
                       </Button>
                     </div>
                   </div>
+                  )}
 
                   <p className="text-[13px] text-emerald-600 flex items-center gap-1.5">
                     <CheckCircle2 className="h-3.5 w-3.5 shrink-0" />
