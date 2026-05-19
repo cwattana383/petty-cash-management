@@ -1504,7 +1504,26 @@ const panelMap: Record<string, () => JSX.Element> = {
   "sync-logs": SyncLogsPanel,
   "mcc-policy": PolicyManagement,
   "ocr-validation": OcrValidationRulesPanel,
+  "keyword-detection-rules": KeywordDetectionRulesPanel,
 };
+
+function KeywordDetectionRulesPanel() {
+  return (
+    <div className="space-y-4">
+      <div>
+        <h2 className="text-lg font-semibold">Keyword Detection Rules</h2>
+        <p className="text-sm text-muted-foreground">
+          Manage keyword-based detection rules for expense documents and OCR validation.
+        </p>
+      </div>
+      <Card>
+        <CardContent className="p-6 text-sm text-muted-foreground">
+          Configure keywords that help detect document types, risky expenses, policy violations, and required supporting documents.
+        </CardContent>
+      </Card>
+    </div>
+  );
+}
 
 export default function Admin() {
   const [searchParams, setSearchParams] = useSearchParams();
