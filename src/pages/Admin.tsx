@@ -87,6 +87,7 @@ const adminMenu = [
     items: [
       { key: "entities", label: "Entities", icon: Building2 },
       { key: "ocr-validation", label: "OCR Validation Rules", icon: Gauge },
+      { key: "keyword-detection-rules", label: "Keyword Detection Rules", icon: ListChecks },
     ],
   },
   {
