@@ -1508,18 +1508,78 @@ const panelMap: Record<string, () => JSX.Element> = {
 };
 
 function KeywordDetectionRulesPanel() {
+  const [search, setSearch] = useState("");
+  const rules = [
+    { id: "1", name: "Boarding Pass", expectedType: "Boarding Pass", keywords: 14, active: true },
+    { id: "2", name: "E-Ticket", expectedType: "E-Ticket", keywords: 19, active: true },
+    { id: "3", name: "Receipt or Tax Invoice", expectedType: "All", keywords: 39, active: true },
+  ];
+  const filtered = rules.filter((r) => r.name.toLowerCase().includes(search.toLowerCase()));
+
   return (
     <div className="space-y-4">
       <div>
         <h2 className="text-lg font-semibold">Keyword Detection Rules</h2>
         <p className="text-sm text-muted-foreground">
-          Manage keyword-based detection rules for expense documents and OCR validation.
+          Create reusable OCR keyword rules for document types.
         </p>
       </div>
+
+      <div className="flex items-center justify-between gap-3">
+        <div className="relative max-w-sm flex-1">
+          <Input
+            placeholder="Search rule..."
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+          />
+        </div>
+        <Button className="bg-primary text-primary-foreground hover:bg-primary/90">
+          <Plus className="h-4 w-4 mr-1" /> Add Rule
+        </Button>
+      </div>
+
       <Card>
-        <CardContent className="p-6 text-sm text-muted-foreground">
-          Configure keywords that help detect document types, risky expenses, policy violations, and required supporting documents.
-        </CardContent>
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead>Rule</TableHead>
+              <TableHead>Expected Type</TableHead>
+              <TableHead>Keywords</TableHead>
+              <TableHead>Active</TableHead>
+              <TableHead className="text-right">Actions</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {filtered.map((r) => (
+              <TableRow key={r.id}>
+                <TableCell className="font-medium">{r.name}</TableCell>
+                <TableCell>
+                  <Badge variant="outline" className="rounded-full border-border bg-muted text-foreground">
+                    {r.expectedType}
+                  </Badge>
+                </TableCell>
+                <TableCell>{r.keywords}</TableCell>
+                <TableCell>
+                  <Badge className="rounded-full border-green-300 bg-green-50 text-green-700 hover:bg-green-50">
+                    Active
+                  </Badge>
+                </TableCell>
+                <TableCell className="text-right">
+                  <div className="flex justify-end gap-1">
+                    <Button size="sm" variant="ghost" title="View"><Eye className="h-4 w-4" /></Button>
+                    <Button size="sm" variant="ghost" title="Edit"><Pencil className="h-4 w-4" /></Button>
+                    <Button size="sm" variant="ghost" title="Delete"><Trash2 className="h-4 w-4 text-destructive" /></Button>
+                  </div>
+                </TableCell>
+              </TableRow>
+            ))}
+            {filtered.length === 0 && (
+              <TableRow>
+                <TableCell colSpan={5} className="text-center text-muted-foreground py-8">No rules found</TableCell>
+              </TableRow>
+            )}
+          </TableBody>
+        </Table>
       </Card>
     </div>
   );
