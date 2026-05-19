@@ -488,6 +488,8 @@ export default function ClaimDetail() {
   // Action dialog
   const [actionDialog, setActionDialog] = useState<{ open: boolean; type: "approve" | "reject" | "info" }>({ open: false, type: "approve" });
   const [comment, setComment] = useState("");
+  const [passportVerifyOpen, setPassportVerifyOpen] = useState(false);
+  const [passportZoom, setPassportZoom] = useState(100);
 
   // Step 2 fields
   const [purpose, setPurpose] = useState("");
