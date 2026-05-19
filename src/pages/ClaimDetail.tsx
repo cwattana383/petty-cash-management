@@ -2401,10 +2401,13 @@ export default function ClaimDetail() {
                     {[
                       { name: "Passport.pdf", type: "Passport", size: "386.5 KB" },
                       { name: "Memo - Business Class Seat Justification.pdf", type: "Memo – Business Class Seat Justification", size: "274.8 KB" },
-                    ].map((f) => (
+                    ].map((f) => {
+                      const isPassport = f.name === "Passport.pdf";
+                      return (
                       <div
                         key={f.name}
-                        className="flex items-center gap-3 rounded-lg border border-emerald-200 bg-emerald-50/60 px-4 py-3"
+                        className={`flex items-center gap-3 rounded-lg border border-emerald-200 bg-emerald-50/60 px-4 py-3 ${isPassport ? "cursor-pointer hover:bg-emerald-50" : ""}`}
+                        onClick={isPassport ? () => setPassportVerifyOpen(true) : undefined}
                       >
                         <CheckCircle2 className="h-5 w-5 text-emerald-600 shrink-0" />
                         <div className="min-w-0 flex-1">
@@ -2418,7 +2421,8 @@ export default function ClaimDetail() {
                           <Trash2 className="h-4 w-4" />
                         </Button>
                       </div>
-                    ))}
+                      );
+                    })}
                   </div>
                   )}
 
