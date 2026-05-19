@@ -490,6 +490,8 @@ export default function ClaimDetail() {
   const [comment, setComment] = useState("");
   const [passportVerifyOpen, setPassportVerifyOpen] = useState(false);
   const [passportZoom, setPassportZoom] = useState(100);
+  const [otrfVerifyOpen, setOtrfVerifyOpen] = useState(false);
+  const [otrfZoom, setOtrfZoom] = useState(100);
 
   // Step 2 fields
   const [purpose, setPurpose] = useState("");
