@@ -2772,6 +2772,160 @@ export default function ClaimDetail() {
         />
       )}
 
+      {/* E-Ticket OCR Verify Modal — CLM-BIZ-DEMO-RFI-001 only */}
+      {claim.id === "CLM-BIZ-DEMO-RFI-001" && (
+        <Dialog open={eTicketModalOpen} onOpenChange={setETicketModalOpen}>
+          <DialogContent className="max-w-5xl max-h-[90vh] overflow-y-auto">
+            <DialogHeader>
+              <DialogTitle>Verify Document — E-Ticket from Thai to Korea.pdf</DialogTitle>
+            </DialogHeader>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {/* Left: OCR Results */}
+              <div className="space-y-4">
+                <div>
+                  <h4 className="text-sm font-semibold">OCR Results</h4>
+                  <p className="text-xs text-muted-foreground">Review and edit if needed before confirming</p>
+                </div>
+                <div className="space-y-3">
+                  {[
+                    { label: "Passenger Name", value: "TANVISUT/UEA ANGKUN MRS" },
+                    { label: "Trip / Travel Period", value: "07 DEC 2025 - 15 DEC 2025" },
+                    { label: "Destination / Trip Purpose", value: "Trip to Boston, MA" },
+                    { label: "Reservation Code", value: "MLTSFB" },
+                    { label: "Airline Reservation Code", value: "EXB329 (KE)" },
+                    { label: "Airline", value: "KOREAN AIR" },
+                    { label: "Flight 1", value: "KE 0654" },
+                    { label: "Route 1", value: "BKK Bangkok Suvarnabhumi, Thailand → ICN Seoul Incheon, Korea Republic" },
+                    { label: "Departure 1", value: "07 DEC 2025 00:55" },
+                    { label: "Arrival 1", value: "07 DEC 2025 08:15" },
+                    { label: "Flight 2", value: "KE 0091" },
+                    { label: "Route 2", value: "ICN Seoul Incheon, Korea Republic → BOS Boston, MA" },
+                    { label: "Departure 2", value: "07 DEC 2025 09:10" },
+                    { label: "Arrival 2", value: "07 DEC 2025 08:40" },
+                    { label: "Cabin / Class", value: "Business / R" },
+                    { label: "Status", value: "Confirmed" },
+                    { label: "Seat(s)", value: "09B, 10D" },
+                    { label: "E-Ticket Receipt Number", value: "1802798768972" },
+                    { label: "Issued By", value: "Travel Click (Thailand) Co Ltd" },
+                  ].map((f) => (
+                    <div key={f.label}>
+                      <label className="text-xs font-medium text-foreground">{f.label}</label>
+                      <input defaultValue={f.value} className="mt-1 w-full h-9 rounded-md border border-input bg-background px-3 text-sm" />
+                    </div>
+                  ))}
+                </div>
+                <div>
+                  <h4 className="text-sm font-semibold mb-2">Validation Results</h4>
+                  <div className="space-y-1.5">
+                    {[
+                      "Passenger name matches cardholder",
+                      "Document type detected as E-Ticket / Flight Ticket",
+                      "Ticket status is Confirmed",
+                      "Travel date is within the claimed business trip period",
+                      "Route and destination are relevant to the travel claim",
+                    ].map((msg) => (
+                      <p key={msg} className="text-[13px] text-emerald-600 flex items-center gap-1.5">
+                        <CheckCircle2 className="h-4 w-4 shrink-0" />
+                        {msg}
+                      </p>
+                    ))}
+                  </div>
+                </div>
+              </div>
+
+              {/* Right: Document Preview */}
+              <div className="space-y-2 md:sticky md:top-0 md:self-start">
+                <div className="flex items-center justify-between">
+                  <h4 className="text-sm font-semibold">Document Preview</h4>
+                  <div className="flex items-center gap-2">
+                    <Button variant="outline" size="icon" className="h-7 w-7" onClick={() => setETicketZoom((z) => Math.max(50, z - 10))} type="button">
+                      <ZoomOut className="h-3.5 w-3.5" />
+                    </Button>
+                    <span className="text-xs font-medium min-w-[40px] text-center">{eTicketZoom}%</span>
+                    <Button variant="outline" size="icon" className="h-7 w-7" onClick={() => setETicketZoom((z) => Math.min(200, z + 10))} type="button">
+                      <ZoomIn className="h-3.5 w-3.5" />
+                    </Button>
+                  </div>
+                </div>
+                <div className="border rounded-lg bg-muted/30 overflow-auto min-h-[480px] max-h-[640px] p-4 flex items-start justify-center">
+                  <div style={{ transform: `scale(${eTicketZoom / 100})`, transformOrigin: "top center" }} className="transition-transform">
+                    {/* Mock E-Ticket */}
+                    <div className="bg-white text-[10px] text-gray-800 border shadow-sm" style={{ width: 380 }}>
+                      <div className="flex items-center justify-between px-3 py-2 border-b bg-sky-50">
+                        <div className="font-bold text-sky-700 text-[12px]">KOREAN AIR</div>
+                        <div className="text-[9px] text-gray-500">e-Ticket Itinerary &amp; Receipt</div>
+                      </div>
+                      <div className="px-3 py-2 space-y-1 border-b">
+                        <div className="flex justify-between"><span className="text-gray-500">Passenger</span><span className="font-semibold">TANVISUT/UEA ANGKUN MRS</span></div>
+                        <div className="flex justify-between"><span className="text-gray-500">Reservation</span><span className="font-semibold">MLTSFB</span></div>
+                        <div className="flex justify-between"><span className="text-gray-500">Airline Ref</span><span className="font-semibold">EXB329 (KE)</span></div>
+                        <div className="flex justify-between"><span className="text-gray-500">E-Ticket No.</span><span className="font-semibold">1802798768972</span></div>
+                      </div>
+                      <div className="px-3 py-2 border-b">
+                        <div className="font-semibold text-[11px] mb-1">Flight 1 — KE 0654</div>
+                        <div className="grid grid-cols-2 gap-1">
+                          <div>
+                            <div className="text-gray-500">From</div>
+                            <div className="font-semibold">BKK Bangkok</div>
+                            <div className="text-gray-500">Suvarnabhumi, Thailand</div>
+                            <div className="mt-1 text-gray-500">Departure</div>
+                            <div className="font-semibold">07 DEC 2025 00:55</div>
+                          </div>
+                          <div>
+                            <div className="text-gray-500">To</div>
+                            <div className="font-semibold">ICN Seoul</div>
+                            <div className="text-gray-500">Incheon, Korea Rep.</div>
+                            <div className="mt-1 text-gray-500">Arrival</div>
+                            <div className="font-semibold">07 DEC 2025 08:15</div>
+                          </div>
+                        </div>
+                        <div className="mt-1 flex justify-between text-[9px] text-gray-600">
+                          <span>Cabin: Business / R</span>
+                          <span>Seat: 09B</span>
+                          <span>Status: Confirmed</span>
+                        </div>
+                      </div>
+                      <div className="px-3 py-2 border-b">
+                        <div className="font-semibold text-[11px] mb-1">Flight 2 — KE 0091</div>
+                        <div className="grid grid-cols-2 gap-1">
+                          <div>
+                            <div className="text-gray-500">From</div>
+                            <div className="font-semibold">ICN Seoul</div>
+                            <div className="text-gray-500">Incheon, Korea Rep.</div>
+                            <div className="mt-1 text-gray-500">Departure</div>
+                            <div className="font-semibold">07 DEC 2025 09:10</div>
+                          </div>
+                          <div>
+                            <div className="text-gray-500">To</div>
+                            <div className="font-semibold">BOS Boston</div>
+                            <div className="text-gray-500">MA, USA</div>
+                            <div className="mt-1 text-gray-500">Arrival</div>
+                            <div className="font-semibold">07 DEC 2025 08:40</div>
+                          </div>
+                        </div>
+                        <div className="mt-1 flex justify-between text-[9px] text-gray-600">
+                          <span>Cabin: Business / R</span>
+                          <span>Seat: 10D</span>
+                          <span>Status: Confirmed</span>
+                        </div>
+                      </div>
+                      <div className="px-3 py-2 text-[9px] text-gray-500 flex justify-between">
+                        <span>Issued by: Travel Click (Thailand) Co Ltd</span>
+                        <span>Trip to Boston, MA</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <DialogFooter>
+              <Button variant="outline" onClick={() => setETicketModalOpen(false)}>Cancel</Button>
+              <Button onClick={() => setETicketModalOpen(false)}>Confirm</Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+      )}
+
       {/* Boarding Pass OCR Verify Modal — CLM-BIZ-DEMO-RFI-001 only */}
       {claim.id === "CLM-BIZ-DEMO-RFI-001" && (
         <Dialog open={boardingPassModalOpen} onOpenChange={setBoardingPassModalOpen}>
