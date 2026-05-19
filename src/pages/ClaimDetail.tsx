@@ -488,6 +488,8 @@ export default function ClaimDetail() {
   // Action dialog
   const [actionDialog, setActionDialog] = useState<{ open: boolean; type: "approve" | "reject" | "info" }>({ open: false, type: "approve" });
   const [comment, setComment] = useState("");
+  const [passportVerifyOpen, setPassportVerifyOpen] = useState(false);
+  const [passportZoom, setPassportZoom] = useState(100);
 
   // Step 2 fields
   const [purpose, setPurpose] = useState("");
@@ -2399,10 +2401,13 @@ export default function ClaimDetail() {
                     {[
                       { name: "Passport.pdf", type: "Passport", size: "386.5 KB" },
                       { name: "Memo - Business Class Seat Justification.pdf", type: "Memo – Business Class Seat Justification", size: "274.8 KB" },
-                    ].map((f) => (
+                    ].map((f) => {
+                      const isPassport = f.name === "Passport.pdf";
+                      return (
                       <div
                         key={f.name}
-                        className="flex items-center gap-3 rounded-lg border border-emerald-200 bg-emerald-50/60 px-4 py-3"
+                        className={`flex items-center gap-3 rounded-lg border border-emerald-200 bg-emerald-50/60 px-4 py-3 ${isPassport ? "cursor-pointer hover:bg-emerald-50" : ""}`}
+                        onClick={isPassport ? () => setPassportVerifyOpen(true) : undefined}
                       >
                         <CheckCircle2 className="h-5 w-5 text-emerald-600 shrink-0" />
                         <div className="min-w-0 flex-1">
@@ -2416,7 +2421,8 @@ export default function ClaimDetail() {
                           <Trash2 className="h-4 w-4" />
                         </Button>
                       </div>
-                    ))}
+                      );
+                    })}
                   </div>
                   )}
 
@@ -3094,6 +3100,102 @@ export default function ClaimDetail() {
             <DialogFooter>
               <Button variant="outline" onClick={() => setBoardingPassModalOpen(false)}>Cancel</Button>
               <Button onClick={() => setBoardingPassModalOpen(false)} className="bg-emerald-600 hover:bg-emerald-700 text-white">Confirm</Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+      )}
+
+      {/* Passport Verify Modal — CLM-BIZ-DEMO-RFI-002 only */}
+      {claim.id === "CLM-BIZ-DEMO-RFI-002" && (
+        <Dialog open={passportVerifyOpen} onOpenChange={setPassportVerifyOpen}>
+          <DialogContent className="max-w-4xl">
+            <DialogHeader>
+              <DialogTitle>Verify Document — Passport.pdf</DialogTitle>
+            </DialogHeader>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {/* Left: OCR Results */}
+              <div className="space-y-4">
+                <div>
+                  <h4 className="text-sm font-semibold">OCR Results</h4>
+                  <p className="text-xs text-muted-foreground">Review and edit if needed before confirming</p>
+                </div>
+                <div className="space-y-3">
+                  {[
+                    { label: "Full Name", value: "TANVISUT UEA ANGKUN" },
+                    { label: "Passport Number", value: "AA1234567" },
+                    { label: "Nationality", value: "THAI" },
+                    { label: "Date of Birth", value: "15/07/2535" },
+                    { label: "Gender", value: "F" },
+                    { label: "Issue Date", value: "10/01/2565" },
+                    { label: "Expiry Date", value: "09/01/2575" },
+                    { label: "Issuing Country / Authority", value: "Thailand" },
+                    { label: "Document Type", value: "Passport" },
+                  ].map((f) => (
+                    <div key={f.label}>
+                      <label className="text-xs font-medium text-foreground">{f.label}</label>
+                      <input defaultValue={f.value} className="mt-1 w-full h-9 rounded-md border border-input bg-background px-3 text-sm" />
+                    </div>
+                  ))}
+                </div>
+                <div className="rounded-lg border border-emerald-200 bg-emerald-50/60 p-3 space-y-1.5">
+                  <p className="text-xs font-semibold text-emerald-800">Validation Results</p>
+                  {[
+                    "Passenger name matches cardholder",
+                    "Document type detected as Passport",
+                    "Passport is not expired",
+                    "Passport supports international travel claim",
+                  ].map((msg) => (
+                    <p key={msg} className="text-xs text-emerald-700 flex items-center gap-1.5">
+                      <CheckCircle2 className="h-3.5 w-3.5 shrink-0" /> {msg}
+                    </p>
+                  ))}
+                </div>
+              </div>
+
+              {/* Right: Document Preview */}
+              <div className="space-y-3">
+                <div className="flex items-center justify-between">
+                  <h4 className="text-sm font-semibold">Document Preview</h4>
+                  <div className="flex items-center gap-1">
+                    <Button variant="outline" size="icon" className="h-7 w-7" onClick={() => setPassportZoom((z) => Math.max(50, z - 10))}>
+                      <ZoomOut className="h-3.5 w-3.5" />
+                    </Button>
+                    <span className="text-xs w-10 text-center">{passportZoom}%</span>
+                    <Button variant="outline" size="icon" className="h-7 w-7" onClick={() => setPassportZoom((z) => Math.min(200, z + 10))}>
+                      <ZoomIn className="h-3.5 w-3.5" />
+                    </Button>
+                  </div>
+                </div>
+                <div className="rounded-lg border bg-muted/30 p-4 flex items-center justify-center overflow-auto" style={{ minHeight: 380 }}>
+                  <div style={{ transform: `scale(${passportZoom / 100})`, transformOrigin: "center" }}>
+                    <div className="w-[320px] rounded-md bg-gradient-to-b from-rose-900 to-rose-950 text-amber-100 p-4 shadow-xl font-mono">
+                      <div className="text-center text-[10px] tracking-[0.3em] opacity-90">KINGDOM OF THAILAND</div>
+                      <div className="text-center text-[9px] tracking-[0.2em] opacity-75 mb-2">หนังสือเดินทาง • PASSPORT</div>
+                      <div className="bg-amber-50 text-gray-900 rounded p-3 space-y-1.5 text-[10px]">
+                        <div className="flex gap-2"><div className="w-16 h-20 bg-gray-300 rounded shrink-0" /><div className="flex-1 space-y-1">
+                          <div><div className="text-[8px] text-gray-500">Type / Code / Passport No.</div><div className="font-bold">P / THA / AA1234567</div></div>
+                          <div><div className="text-[8px] text-gray-500">Surname / Given Names</div><div className="font-bold">UEA ANGKUN<br/>TANVISUT</div></div>
+                        </div></div>
+                        <div className="grid grid-cols-2 gap-1">
+                          <div><div className="text-[8px] text-gray-500">Nationality</div><div className="font-bold">THAI</div></div>
+                          <div><div className="text-[8px] text-gray-500">Sex</div><div className="font-bold">F</div></div>
+                          <div><div className="text-[8px] text-gray-500">Date of Birth</div><div className="font-bold">15 JUL 2535</div></div>
+                          <div><div className="text-[8px] text-gray-500">Place of Birth</div><div className="font-bold">BANGKOK</div></div>
+                          <div><div className="text-[8px] text-gray-500">Date of Issue</div><div className="font-bold">10 JAN 2565</div></div>
+                          <div><div className="text-[8px] text-gray-500">Date of Expiry</div><div className="font-bold">09 JAN 2575</div></div>
+                        </div>
+                        <div className="text-[8px] text-gray-500 pt-1 border-t">Authority: Ministry of Foreign Affairs</div>
+                      </div>
+                      <div className="mt-2 text-[8px] tracking-widest text-center opacity-80">P&lt;THAUEA ANGKUN&lt;&lt;TANVISUT&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;</div>
+                      <div className="text-[8px] tracking-widest text-center opacity-80">AA1234567&lt;7THA3507150F7501090&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;04</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <DialogFooter>
+              <Button variant="outline" onClick={() => setPassportVerifyOpen(false)}>Cancel</Button>
+              <Button onClick={() => setPassportVerifyOpen(false)} className="bg-emerald-600 hover:bg-emerald-700 text-white">Confirm</Button>
             </DialogFooter>
           </DialogContent>
         </Dialog>
