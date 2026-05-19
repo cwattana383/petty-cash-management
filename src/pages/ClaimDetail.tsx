@@ -2337,8 +2337,9 @@ export default function ClaimDetail() {
                     ).map((f) => {
                       const isETicket = f.name === "E-Ticket from Thai to Korea.pdf";
                       const isBoardingPass = f.name === "E-Boarding Pass.pdf";
-                      const isClickable = isETicket || isBoardingPass;
-                      const onOpen = isETicket ? () => setETicketModalOpen(true) : isBoardingPass ? () => setBoardingPassModalOpen(true) : undefined;
+                      const isOtrf = f.name === "Oversea Travelling Request Form.pdf" && claim.id === "CLM-BIZ-DEMO-RFI-002";
+                      const isClickable = isETicket || isBoardingPass || isOtrf;
+                      const onOpen = isETicket ? () => setETicketModalOpen(true) : isBoardingPass ? () => setBoardingPassModalOpen(true) : isOtrf ? () => setOtrfVerifyOpen(true) : undefined;
                       return (
                       <div
                         key={f.name}
