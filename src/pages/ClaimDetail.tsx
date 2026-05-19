@@ -2338,7 +2338,13 @@ export default function ClaimDetail() {
                       <span className="h-2.5 w-2.5 rounded-full bg-amber-400 inline-block" />
                       Optional — Attach supporting Documents
                     </p>
-                    <div className="flex items-center gap-3 rounded-lg border border-emerald-200 bg-emerald-50/60 px-4 py-3">
+                    <div
+                      role="button"
+                      tabIndex={0}
+                      onClick={() => setBoardingPassModalOpen(true)}
+                      onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); setBoardingPassModalOpen(true); } }}
+                      className="flex items-center gap-3 rounded-lg border border-emerald-200 bg-emerald-50/60 px-4 py-3 cursor-pointer hover:bg-emerald-100/60 transition-colors"
+                    >
                       <CheckCircle2 className="h-5 w-5 text-emerald-600 shrink-0" />
                       <div className="min-w-0 flex-1">
                         <p className="text-[13px] font-medium text-foreground truncate">E-Boarding Pass.pdf</p>
@@ -2347,7 +2353,7 @@ export default function ClaimDetail() {
                       <span className="inline-flex items-center gap-1 rounded-full border border-emerald-300 px-2.5 py-0.5 text-[11px] font-medium text-emerald-700">
                         <CheckCircle2 className="h-3 w-3" /> Verified
                       </span>
-                      <Button variant="ghost" size="icon" className="h-7 w-7 text-muted-foreground hover:text-destructive" type="button">
+                      <Button variant="ghost" size="icon" className="h-7 w-7 text-muted-foreground hover:text-destructive" type="button" onClick={(e) => e.stopPropagation()}>
                         <Trash2 className="h-4 w-4" />
                       </Button>
                     </div>
