@@ -2315,7 +2315,7 @@ export default function ClaimDetail() {
                     </p>
                     {[
                       { name: "E-Ticket from Thai to Korea.pdf", type: "E-Ticket / Flight ticket *", size: "455.9 KB" },
-                      { name: "CCC_DAT_Quotation-Shrine-InvalidDocType_20260301_v1.pdf", type: "Approval letter for international travel *", size: "2.0 MB" },
+                      { name: "Approval Letter (General)_19052026.pdf", type: "Approval Letter (General) *", size: "2.0 MB" },
                     ].map((f) => (
                       <div key={f.name} className="flex items-center gap-3 rounded-lg border border-emerald-200 bg-emerald-50/60 px-4 py-3">
                         <CheckCircle2 className="h-5 w-5 text-emerald-600 shrink-0" />
