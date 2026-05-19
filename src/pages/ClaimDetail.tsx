@@ -509,6 +509,8 @@ export default function ClaimDetail() {
   const [verifyModal, setVerifyModal] = useState<{ open: boolean; docId: string } | null>(null);
   const [boardingPassModalOpen, setBoardingPassModalOpen] = useState(false);
   const [boardingPassZoom, setBoardingPassZoom] = useState(100);
+  const [eTicketModalOpen, setETicketModalOpen] = useState(false);
+  const [eTicketZoom, setETicketZoom] = useState(100);
 
   // Approver view state
   const [showRejectInput, setShowRejectInput] = useState(false);
