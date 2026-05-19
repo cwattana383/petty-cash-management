@@ -9,7 +9,7 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/comp
 import {
   ArrowLeft, Check, X, Clock, CheckCircle, XCircle,
   AlertCircle, Send, AlertTriangle, Upload, FileText,
-  Loader2, CheckCircle2, Info, CreditCard, Trash2, Eye, MessageSquare
+  Loader2, CheckCircle2, Info, CreditCard, Trash2, Eye, MessageSquare, ZoomIn, ZoomOut
 } from "lucide-react";
 import { formatBEDate, cn } from "@/lib/utils";
 import { useClaims } from "@/lib/claims-context";
