@@ -3111,7 +3111,8 @@ export default function ClaimDetail() {
       {/* Passport Verify Modal — CLM-BIZ-DEMO-RFI-002 only */}
       {claim.id === "CLM-BIZ-DEMO-RFI-002" && (
         <Dialog open={passportVerifyOpen} onOpenChange={setPassportVerifyOpen}>
-          <DialogContent className="max-w-4xl">
+          <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+
             <DialogHeader>
               <DialogTitle>Verify Document — Passport.pdf</DialogTitle>
             </DialogHeader>
