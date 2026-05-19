@@ -490,6 +490,8 @@ export default function ClaimDetail() {
   const [comment, setComment] = useState("");
   const [passportVerifyOpen, setPassportVerifyOpen] = useState(false);
   const [passportZoom, setPassportZoom] = useState(100);
+  const [otrfVerifyOpen, setOtrfVerifyOpen] = useState(false);
+  const [otrfZoom, setOtrfZoom] = useState(100);
 
   // Step 2 fields
   const [purpose, setPurpose] = useState("");
@@ -2337,8 +2339,9 @@ export default function ClaimDetail() {
                     ).map((f) => {
                       const isETicket = f.name === "E-Ticket from Thai to Korea.pdf";
                       const isBoardingPass = f.name === "E-Boarding Pass.pdf";
-                      const isClickable = isETicket || isBoardingPass;
-                      const onOpen = isETicket ? () => setETicketModalOpen(true) : isBoardingPass ? () => setBoardingPassModalOpen(true) : undefined;
+                      const isOtrf = f.name === "Oversea Travelling Request Form.pdf" && claim.id === "CLM-BIZ-DEMO-RFI-002";
+                      const isClickable = isETicket || isBoardingPass || isOtrf;
+                      const onOpen = isETicket ? () => setETicketModalOpen(true) : isBoardingPass ? () => setBoardingPassModalOpen(true) : isOtrf ? () => setOtrfVerifyOpen(true) : undefined;
                       return (
                       <div
                         key={f.name}
@@ -3196,6 +3199,129 @@ export default function ClaimDetail() {
             <DialogFooter>
               <Button variant="outline" onClick={() => setPassportVerifyOpen(false)}>Cancel</Button>
               <Button onClick={() => setPassportVerifyOpen(false)} className="bg-emerald-600 hover:bg-emerald-700 text-white">Confirm</Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+      )}
+
+      {/* Oversea Travelling Request Form Verify Modal — CLM-BIZ-DEMO-RFI-002 only */}
+      {claim.id === "CLM-BIZ-DEMO-RFI-002" && (
+        <Dialog open={otrfVerifyOpen} onOpenChange={setOtrfVerifyOpen}>
+          <DialogContent className="max-w-5xl max-h-[90vh] overflow-y-auto">
+            <DialogHeader>
+              <DialogTitle>Verify Document — Oversea Travelling Request Form.pdf</DialogTitle>
+            </DialogHeader>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {/* Left: OCR Results */}
+              <div className="space-y-4">
+                <div>
+                  <h4 className="text-sm font-semibold">OCR Results</h4>
+                  <p className="text-xs text-muted-foreground">Review and edit if needed before confirming</p>
+                </div>
+                <div className="space-y-3">
+                  {[
+                    { label: "Traveller Name(s)", value: "Jin Tae Seor, Tannakom Srisomchart, Rasiyon Molarng" },
+                    { label: "Destination Country", value: "Hong Kong" },
+                    { label: "Travelling Period Start Date", value: "20/02/2569" },
+                    { label: "Travelling Period End Date", value: "21/02/2569" },
+                    { label: "Number of Days", value: "2" },
+                    { label: "Purpose of the Trip", value: "To survey campaign and in-store execution for CNF and seasonal campaign benchmarking" },
+                    { label: "Position / Level", value: "Associate Director" },
+                    { label: "Division / Department / Branch", value: "Commercial Non Food" },
+                    { label: "Estimated Per Diem Amount", value: "3,200 THB" },
+                    { label: "Hotel Accommodation", value: "19,260 THB" },
+                    { label: "Roundtrip Air Tickets", value: "45,000 THB" },
+                    { label: "Transportation", value: "15,300 THB" },
+                    { label: "Total Out of Pocket Expenses", value: "116,230 THB" },
+                    { label: "Total Estimated Travelling Cost", value: "126,260 THB" },
+                    { label: "Cash Advance Request Currency", value: "THB" },
+                    { label: "Requested By", value: "Jin Tae Seor" },
+                    { label: "Approved By Line Manager", value: "Yasuyuki Banpongi" },
+                    { label: "Verified By HRD", value: "Kanyarat Sittisak" },
+                  ].map((f) => (
+                    <div key={f.label}>
+                      <label className="text-xs font-medium text-foreground">{f.label}</label>
+                      <input defaultValue={f.value} className="mt-1 w-full h-9 rounded-md border border-input bg-background px-3 text-sm" />
+                    </div>
+                  ))}
+                </div>
+                <div className="rounded-lg border border-emerald-200 bg-emerald-50/60 p-3 space-y-1.5">
+                  <p className="text-xs font-semibold text-emerald-800">Validation Results</p>
+                  {[
+                    "Document type detected as Oversea Travelling Request Form",
+                    "Traveller name matches cardholder or travelling group",
+                    "Destination country is present",
+                    "Travelling period is present",
+                    "Purpose of trip is present",
+                    "Estimated travelling cost is present",
+                    "Required approval signatures are present",
+                    "Document supports overseas travel claim",
+                  ].map((msg) => (
+                    <p key={msg} className="text-xs text-emerald-700 flex items-center gap-1.5">
+                      <CheckCircle2 className="h-3.5 w-3.5 shrink-0" /> {msg}
+                    </p>
+                  ))}
+                </div>
+              </div>
+
+              {/* Right: Document Preview */}
+              <div className="space-y-3">
+                <div className="flex items-center justify-between">
+                  <h4 className="text-sm font-semibold">Document Preview</h4>
+                  <div className="flex items-center gap-1">
+                    <Button variant="outline" size="icon" className="h-7 w-7" onClick={() => setOtrfZoom((z) => Math.max(50, z - 10))}>
+                      <ZoomOut className="h-3.5 w-3.5" />
+                    </Button>
+                    <span className="text-xs w-10 text-center">{otrfZoom}%</span>
+                    <Button variant="outline" size="icon" className="h-7 w-7" onClick={() => setOtrfZoom((z) => Math.min(200, z + 10))}>
+                      <ZoomIn className="h-3.5 w-3.5" />
+                    </Button>
+                  </div>
+                </div>
+                <div className="rounded-lg border bg-muted/30 p-4 flex items-start justify-center overflow-auto" style={{ minHeight: 480 }}>
+                  <div style={{ transform: `scale(${otrfZoom / 100})`, transformOrigin: "top center" }}>
+                    <div className="w-[420px] bg-white text-gray-900 p-5 shadow-lg border text-[10px] space-y-2">
+                      <div className="text-center border-b pb-2">
+                        <div className="font-bold text-[13px]">OVERSEA TRAVELLING REQUEST FORM</div>
+                        <div className="text-[9px] text-gray-500">Form No. TR-001</div>
+                      </div>
+                      <div className="grid grid-cols-2 gap-x-3 gap-y-1.5">
+                        <div className="col-span-2"><div className="text-gray-500 text-[8px]">Traveller Name(s)</div><div className="font-semibold">Jin Tae Seor, Tannakom Srisomchart, Rasiyon Molarng</div></div>
+                        <div><div className="text-gray-500 text-[8px]">Position / Level</div><div className="font-semibold">Associate Director</div></div>
+                        <div><div className="text-gray-500 text-[8px]">Division / Dept / Branch</div><div className="font-semibold">Commercial Non Food</div></div>
+                        <div><div className="text-gray-500 text-[8px]">Destination Country</div><div className="font-semibold">Hong Kong</div></div>
+                        <div><div className="text-gray-500 text-[8px]">Number of Days</div><div className="font-semibold">2</div></div>
+                        <div><div className="text-gray-500 text-[8px]">Start Date</div><div className="font-semibold">20/02/2569</div></div>
+                        <div><div className="text-gray-500 text-[8px]">End Date</div><div className="font-semibold">21/02/2569</div></div>
+                        <div className="col-span-2"><div className="text-gray-500 text-[8px]">Purpose of the Trip</div><div className="font-semibold">To survey campaign and in-store execution for CNF and seasonal campaign benchmarking</div></div>
+                      </div>
+                      <div className="border-t pt-2">
+                        <div className="font-semibold text-[10px] mb-1">Estimated Cost Breakdown</div>
+                        <table className="w-full text-[9px]">
+                          <tbody>
+                            <tr><td className="py-0.5">Per Diem</td><td className="text-right font-semibold">3,200 THB</td></tr>
+                            <tr><td className="py-0.5">Hotel Accommodation</td><td className="text-right font-semibold">19,260 THB</td></tr>
+                            <tr><td className="py-0.5">Roundtrip Air Tickets</td><td className="text-right font-semibold">45,000 THB</td></tr>
+                            <tr><td className="py-0.5">Transportation</td><td className="text-right font-semibold">15,300 THB</td></tr>
+                            <tr className="border-t"><td className="py-0.5">Total Out of Pocket</td><td className="text-right font-semibold">116,230 THB</td></tr>
+                            <tr className="border-t"><td className="py-1 font-bold">Total Estimated Cost</td><td className="text-right font-bold">126,260 THB</td></tr>
+                            <tr><td className="py-0.5">Cash Advance Currency</td><td className="text-right font-semibold">THB</td></tr>
+                          </tbody>
+                        </table>
+                      </div>
+                      <div className="border-t pt-2 grid grid-cols-3 gap-2 text-[9px]">
+                        <div><div className="text-gray-500 text-[8px]">Requested By</div><div className="font-semibold italic">Jin Tae Seor</div><div className="border-t mt-3 pt-0.5 text-[7px] text-gray-500">Signature</div></div>
+                        <div><div className="text-gray-500 text-[8px]">Approved By Line Manager</div><div className="font-semibold italic">Yasuyuki Banpongi</div><div className="border-t mt-3 pt-0.5 text-[7px] text-gray-500">Signature</div></div>
+                        <div><div className="text-gray-500 text-[8px]">Verified By HRD</div><div className="font-semibold italic">Kanyarat Sittisak</div><div className="border-t mt-3 pt-0.5 text-[7px] text-gray-500">Signature</div></div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <DialogFooter>
+              <Button variant="outline" onClick={() => setOtrfVerifyOpen(false)}>Cancel</Button>
+              <Button onClick={() => setOtrfVerifyOpen(false)} className="bg-emerald-600 hover:bg-emerald-700 text-white">Confirm</Button>
             </DialogFooter>
           </DialogContent>
         </Dialog>
