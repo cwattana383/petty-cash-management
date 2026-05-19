@@ -286,9 +286,11 @@ export const mockClaims: ClaimHeader[] = [
   {
     id: "CLM-BIZ-DEMO-RFI-001", claimNo: "CLM-2026-TEST-002", requesterId: "u1", requesterName: "Somchai Jaidee",
     company: "ABC Co., Ltd.", branch: "Bangkok", department: "9993010460 Finance and Accounting", costCenter: "CC-SALES-01",
-    purpose: "Cloud Services", merchantName: "AMAZON WEB SERVICES", currency: "THB", paymentMethod: "Corporate Card",
+    purpose: "Travel to train End User at Chiang Mai from 19 May 2026 to 20 May 2026", merchantName: "AMAZON WEB SERVICES", currency: "THB", paymentMethod: "Corporate Card",
+    expenseTypeId: "et-1", subExpenseTypeId: "set-5", vatTypeId: "claim_100", glAccountId: "gl-1",
     totalAmount: 5420.50, totalVat: 0, status: "Returned For Info", createdDate: "2026-05-10", submittedDate: "2026-05-10",
     lines: [], approvalHistory: [], comments: [],
+    cardholderNote: "Add Boarding Pass for reference",
     returnSource: "MANAGER_RFI", returnedByUserId: "u2", returnedAt: "2026-05-11T17:45:00Z",
     returnMessage: "Can you justify this as a business expense and attach pre-approval from Director Y? What project does this AWS bill cover?",
   },
