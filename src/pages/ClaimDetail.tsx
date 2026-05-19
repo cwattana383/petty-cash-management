@@ -1542,8 +1542,8 @@ export default function ClaimDetail() {
                   <Row label="Merchant" value={cardMerchant} className="md:col-start-1 md:row-start-2" />
                   <Row label="Amount" value={`${fmt(cardBillingAmount)} ${cardCurrency}`} className="md:col-start-2 md:row-start-2" />
                   <Row label="MCC Description" value={cardMccDescription} className="sm:col-span-2 md:col-start-1 md:col-end-3 md:row-start-3" />
-                  <StatusBadgeField label="Approval Status" value={claim.id === "CLM-BIZ-DEMO-RFI-001" ? "Returned for Info" : claim.status === "Final Rejected" ? "Auto Reject" : "Pending Approval"} tone={claim.id === "CLM-BIZ-DEMO-RFI-001" ? "warning" : claim.status === "Final Rejected" ? "destructive" : "warning"} className="md:col-start-3 md:row-start-1" />
-                  <StatusBadgeField label="Document Status" value={claim.id === "CLM-BIZ-DEMO-RFI-001" ? "Validated" : claim.status === "Final Rejected" ? "Validated" : "Incomplete"} tone={claim.id === "CLM-BIZ-DEMO-RFI-001" ? "success" : claim.status === "Final Rejected" ? "success" : "warning"} className="md:col-start-3 md:row-start-2" />
+                  <StatusBadgeField label="Approval Status" value={(claim.id === "CLM-BIZ-DEMO-RFI-001" || claim.id === "CLM-BIZ-DEMO-RFI-002") ? "Returned for Info" : claim.status === "Final Rejected" ? "Auto Reject" : "Pending Approval"} tone={(claim.id === "CLM-BIZ-DEMO-RFI-001" || claim.id === "CLM-BIZ-DEMO-RFI-002") ? "warning" : claim.status === "Final Rejected" ? "destructive" : "warning"} className="md:col-start-3 md:row-start-1" />
+                  <StatusBadgeField label="Document Status" value={(claim.id === "CLM-BIZ-DEMO-RFI-001" || claim.id === "CLM-BIZ-DEMO-RFI-002") ? "Validated" : claim.status === "Final Rejected" ? "Validated" : "Incomplete"} tone={(claim.id === "CLM-BIZ-DEMO-RFI-001" || claim.id === "CLM-BIZ-DEMO-RFI-002") ? "success" : claim.status === "Final Rejected" ? "success" : "warning"} className="md:col-start-3 md:row-start-2" />
 
                 </div>
               </CardContent>
@@ -1835,8 +1835,8 @@ export default function ClaimDetail() {
                   <Row label="Merchant" value={cardMerchant} className="md:col-start-1 md:row-start-2" />
                   <Row label="Amount" value={`${fmt(cardBillingAmount)} ${cardCurrency}`} className="md:col-start-2 md:row-start-2" />
                   <Row label="MCC Description" value={cardMccDescription} className="sm:col-span-2 md:col-start-1 md:col-end-3 md:row-start-3" />
-                  <StatusBadgeField label="Approval Status" value={claim.id === "CLM-BIZ-DEMO-RFI-001" ? "Returned for Info" : claim.status === "Final Rejected" ? "Auto Reject" : "Pending Approval"} tone={claim.id === "CLM-BIZ-DEMO-RFI-001" ? "warning" : claim.status === "Final Rejected" ? "destructive" : "warning"} className="md:col-start-3 md:row-start-1" />
-                  <StatusBadgeField label="Document Status" value={claim.id === "CLM-BIZ-DEMO-RFI-001" ? "Validated" : claim.status === "Final Rejected" ? "Validated" : "Incomplete"} tone={claim.id === "CLM-BIZ-DEMO-RFI-001" ? "success" : claim.status === "Final Rejected" ? "success" : "warning"} className="md:col-start-3 md:row-start-2" />
+                  <StatusBadgeField label="Approval Status" value={(claim.id === "CLM-BIZ-DEMO-RFI-001" || claim.id === "CLM-BIZ-DEMO-RFI-002") ? "Returned for Info" : claim.status === "Final Rejected" ? "Auto Reject" : "Pending Approval"} tone={(claim.id === "CLM-BIZ-DEMO-RFI-001" || claim.id === "CLM-BIZ-DEMO-RFI-002") ? "warning" : claim.status === "Final Rejected" ? "destructive" : "warning"} className="md:col-start-3 md:row-start-1" />
+                  <StatusBadgeField label="Document Status" value={(claim.id === "CLM-BIZ-DEMO-RFI-001" || claim.id === "CLM-BIZ-DEMO-RFI-002") ? "Validated" : claim.status === "Final Rejected" ? "Validated" : "Incomplete"} tone={(claim.id === "CLM-BIZ-DEMO-RFI-001" || claim.id === "CLM-BIZ-DEMO-RFI-002") ? "success" : claim.status === "Final Rejected" ? "success" : "warning"} className="md:col-start-3 md:row-start-2" />
 
                 </div>
               </CardContent>
@@ -2136,8 +2136,8 @@ export default function ClaimDetail() {
                 <Row label="Merchant" value={cardMerchant} className="md:col-start-1 md:row-start-2" />
                 <Row label="Amount" value={`${fmt(cardBillingAmount)} ${cardCurrency}`} className="md:col-start-2 md:row-start-2" />
                 <Row label="MCC Description" value={cardMccDescription} className="sm:col-span-2 md:col-start-1 md:col-end-3 md:row-start-3" />
-                <StatusBadgeField label="Approval Status" value={claim.id === "CLM-BIZ-DEMO-RFI-001" ? "Returned for Info" : "Pending Approval"} tone="warning" className="md:col-start-3 md:row-start-1" />
-                <StatusBadgeField label="Document Status" value={claim.id === "CLM-BIZ-DEMO-RFI-001" ? "Validated" : "Incomplete"} tone={claim.id === "CLM-BIZ-DEMO-RFI-001" ? "success" : "warning"} className="md:col-start-3 md:row-start-2" />
+                <StatusBadgeField label="Approval Status" value={(claim.id === "CLM-BIZ-DEMO-RFI-001" || claim.id === "CLM-BIZ-DEMO-RFI-002") ? "Returned for Info" : "Pending Approval"} tone="warning" className="md:col-start-3 md:row-start-1" />
+                <StatusBadgeField label="Document Status" value={(claim.id === "CLM-BIZ-DEMO-RFI-001" || claim.id === "CLM-BIZ-DEMO-RFI-002") ? "Validated" : "Incomplete"} tone={(claim.id === "CLM-BIZ-DEMO-RFI-001" || claim.id === "CLM-BIZ-DEMO-RFI-002") ? "success" : "warning"} className="md:col-start-3 md:row-start-2" />
               </div>
             </CardContent>
           </Card>
@@ -2250,7 +2250,7 @@ export default function ClaimDetail() {
                     <SelectContent>
                       {glAccountOptions.map((gl) => (
                         <SelectItem key={gl.id} value={gl.id} className="text-[13px]">
-                          {claim.id === "CLM-BIZ-DEMO-RFI-001" && gl.id === "gl-1"
+                          {(claim.id === "CLM-BIZ-DEMO-RFI-001" || claim.id === "CLM-BIZ-DEMO-RFI-002") && gl.id === "gl-1"
                             ? "Local Travelling - 6190130001"
                             : `${gl.accountCode} — ${gl.accountName}`}
                         </SelectItem>
@@ -2308,7 +2308,7 @@ export default function ClaimDetail() {
           <section>
             <SectionDivider num={3} label="Documents" />
             <Card className="border border-border rounded-xl">
-              {claim.id === "CLM-BIZ-DEMO-RFI-001" ? (
+              {(claim.id === "CLM-BIZ-DEMO-RFI-001" || claim.id === "CLM-BIZ-DEMO-RFI-002") ? (
                 <CardContent className="pt-5 space-y-5">
                   <p className="text-xs text-muted-foreground">
                     Files are not stored on the server until you click Save Draft or Submit for Approval.
@@ -2775,7 +2775,7 @@ export default function ClaimDetail() {
       )}
 
       {/* E-Ticket OCR Verify Modal — CLM-BIZ-DEMO-RFI-001 only */}
-      {claim.id === "CLM-BIZ-DEMO-RFI-001" && (
+      {(claim.id === "CLM-BIZ-DEMO-RFI-001" || claim.id === "CLM-BIZ-DEMO-RFI-002") && (
         <Dialog open={eTicketModalOpen} onOpenChange={setETicketModalOpen}>
           <DialogContent className="max-w-5xl max-h-[90vh] overflow-y-auto">
             <DialogHeader>
@@ -2929,7 +2929,7 @@ export default function ClaimDetail() {
       )}
 
       {/* Boarding Pass OCR Verify Modal — CLM-BIZ-DEMO-RFI-001 only */}
-      {claim.id === "CLM-BIZ-DEMO-RFI-001" && (
+      {(claim.id === "CLM-BIZ-DEMO-RFI-001" || claim.id === "CLM-BIZ-DEMO-RFI-002") && (
         <Dialog open={boardingPassModalOpen} onOpenChange={setBoardingPassModalOpen}>
           <DialogContent className="max-w-4xl">
             <DialogHeader>
