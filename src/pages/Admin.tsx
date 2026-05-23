@@ -50,6 +50,7 @@ import {
   Loader2 as Loader2Icon,
   PanelLeftClose,
   PanelLeftOpen,
+  BarChart3,
 } from "lucide-react";
 import EntityDrawer from "@/components/admin/EntityDrawer";
 import InviteUserDialog from "@/components/admin/InviteUserDialog";
