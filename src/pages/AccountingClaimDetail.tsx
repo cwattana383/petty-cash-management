@@ -103,6 +103,7 @@ const ACCOUNTING_ITEMS: AccountingItem[] = [
     { id: "evt-001-1", actor: "system", title: "Transaction imported from bank file", statusBadge: "NOT_STARTED", timestamp: "2026-05-01T00:15:00Z" },
   ] },
   { id: "TXN2026050200002", merchantName: "Sizzler", description: "Team lunch", amount: 1250.00, status: "Accounting Review", date: "2026-05-02", fileName: "Sizzler_TaxInvoice_20260502.pdf", docType: "Tax Invoice" },
+  { id: "TXN2026050600006", merchantName: "Suda Manee", description: "Coffee with client", amount: 285.00, status: "Accounting Review", date: "2026-05-06", fileName: "Coffee_Receipt_20260506.pdf", docType: "Receipt", approvalStatus: "Auto Approved", approvalStatusTone: "success", documentStatus: "Validated", documentStatusTone: "success" },
   { id: "TXN2026050300003", merchantName: "B2S", description: "Office supplies", amount: 680.00, status: "Accounting Review", date: "2026-05-03", fileName: "B2S_TaxInvoice_20260503.pdf", docType: "Tax Invoice" },
   { id: "TXN2026051300019", merchantName: "Udemy", description: "Training course", amount: 7800.00, status: "Accounting Review", date: "2026-05-13", fileName: "Udemy_Invoice_20260513.pdf", docType: "Tax Invoice" },
   { id: "TXN2026051400020", merchantName: "Adobe", description: "Software subscription", amount: 1990.00, status: "Accounting Review", date: "2026-05-14", fileName: "Adobe_TaxInvoice_20260514.pdf", docType: "Tax Invoice" },
