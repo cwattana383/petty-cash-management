@@ -54,6 +54,7 @@ import {
   PanelLeftClose,
   PanelLeftOpen,
   BarChart3,
+  FileSpreadsheet,
 } from "lucide-react";
 import EntityDrawer from "@/components/admin/EntityDrawer";
 import InviteUserDialog from "@/components/admin/InviteUserDialog";
