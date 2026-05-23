@@ -128,7 +128,10 @@ const adminMenu = [
     group: "Reports",
     icon: BarChart3,
     items: [
-      { key: "report", label: "Report", icon: BarChart3 },
+      { key: "month-end-summary", label: "Month-End Summary", icon: FileSpreadsheet },
+      { key: "hr-finance-report", label: "HR & Finance Report", icon: Receipt },
+      { key: "monthly-cardholder-summary", label: "Monthly Cardholder Summary", icon: Mail },
+      { key: "monthly-approver-summary", label: "Monthly Approver Summary", icon: MailPlus },
     ],
   },
 ];
