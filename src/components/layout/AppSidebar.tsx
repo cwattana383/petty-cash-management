@@ -35,12 +35,7 @@ const mainNav = [
   { title: "Approval Inbox", url: "/approvals", icon: CheckSquare },
   { title: "Accounting Review", url: "/accounting", icon: ClipboardList },
   { title: "Bank Transactions", url: "/bank-transactions", icon: CreditCard },
-  {
-    title: "Admin",
-    url: "/admin",
-    icon: Settings,
-    children: [{ title: "Report", url: "/reports", icon: BarChart3 }],
-  },
+  { title: "Admin", url: "/admin", icon: Settings },
 ];
 
 const allRoleTabs = [
