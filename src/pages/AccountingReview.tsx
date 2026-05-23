@@ -51,7 +51,7 @@ const STATUS_LABELS: Record<ApprovalStatusCode, string> = {
 };
 
 const STATUS_COLORS: Record<ApprovalStatusCode, string> = {
-  ACCOUNTING_REVIEW: "bg-purple-50 text-purple-700 border-purple-200",
+  ACCOUNTING_REVIEW: "bg-sky-100 text-sky-800 border-sky-300",
   RETURNED_FOR_INFO: "bg-orange-100 text-orange-800 border-orange-300",
   AUTO_APPROVED: "bg-green-100 text-green-800 border-green-300",
   MANAGER_APPROVED: "bg-green-100 text-green-800 border-green-300",
@@ -63,7 +63,7 @@ const STATUS_COLORS: Record<ApprovalStatusCode, string> = {
 };
 
 const TAB_STATUS_MAP: Record<string, ApprovalStatusCode[] | null> = {
-  pending: ["AUTO_APPROVED", "MANAGER_APPROVED"],
+  pending: ["AUTO_APPROVED", "MANAGER_APPROVED", "ACCOUNTING_REVIEW"],
   request_info: ["RETURNED_FOR_INFO"],
   reject: ["AUTO_REJECTED", "MANAGER_REJECTED", "FINAL_REJECTED"],
   approved: ["AUTO_APPROVED", "MANAGER_APPROVED"],
@@ -93,7 +93,7 @@ const initialMockItems: MockItem[] = [
   { id: "TXN2026050600006", date: "2026-05-06", merchantName: "Suda Manee", description: "Coffee with client", amount: "฿285.00", status: "AUTO_APPROVED", documentStatus: "Validated", deductionPeriod: "—", attachedFiles: [] },
   { id: "TXN2026050700007", date: "2026-05-07", merchantName: "Anucha Rakdee", description: "Train ticket BKK-CNX", amount: "฿1,500.00", status: "AUTO_APPROVED", documentStatus: "Validated", deductionPeriod: "—", attachedFiles: [] },
   { id: "TXN2026050800008", date: "2026-05-08", merchantName: "Malee Chaiyo", description: "Hotel one night", amount: "฿2,800.00", status: "VERIFIED", documentStatus: "Validated", deductionPeriod: "—", attachedFiles: [] },
-  { id: "TXN2026050800009", date: "2026-05-08", merchantName: "Thanit Boonmee", description: "Team building dinner", amount: "฿4,200.00", status: "MANAGER_APPROVED", documentStatus: "Validated", deductionPeriod: "—", attachedFiles: [] },
+  { id: "TXN2026050800009", date: "2026-05-08", merchantName: "Thanit Boonmee", description: "Team building dinner", amount: "฿4,200.00", status: "ACCOUNTING_REVIEW", documentStatus: "Validated", deductionPeriod: "—", attachedFiles: [] },
   { id: "TXN2026050900010", date: "2026-05-09", merchantName: "Niran Suwan", description: "Personal item — disallowed", amount: "฿1,100.00", status: "AUTO_REJECTED", documentStatus: "Pending Documents", deductionPeriod: "—", attachedFiles: [] },
   { id: "TXN2026050900011", date: "2026-05-09", merchantName: "Ratchanee Pim", description: "No receipt provided", amount: "฿320.00", status: "MANAGER_REJECTED", documentStatus: "Pending Documents", deductionPeriod: "—", attachedFiles: [] },
   { id: "TXN2026051000012", date: "2026-05-10", merchantName: "Phakorn Suk", description: "Out of policy spend", amount: "฿8,500.00", status: "FINAL_REJECTED", documentStatus: "Pending Documents", deductionPeriod: "—", attachedFiles: [] },
