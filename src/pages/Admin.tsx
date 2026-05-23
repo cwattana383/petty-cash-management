@@ -12,6 +12,9 @@ import OcrValidationRulesPanel from "@/components/admin/OcrValidationRulesPanel"
 import DocumentTypePanel from "@/components/admin/DocumentTypePanel";
 import ProjectPanel from "@/components/admin/ProjectPanel";
 import Reports from "./Reports";
+import MonthEndReportNotificationPanel from "@/components/admin/MonthEndReportNotificationPanel";
+import MonthlyCardholderSummaryPanel from "@/components/admin/MonthlyCardholderSummaryPanel";
+import MonthlyApproverSummaryPanel from "@/components/admin/MonthlyApproverSummaryPanel";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import {
