@@ -140,24 +140,6 @@ export function AppSidebar() {
                       )}
                     </NavLink>
                   </SidebarMenuButton>
-                  {item.children && item.children.length > 0 && (
-                    <SidebarMenuSub>
-                      {item.children.map((child) => (
-                        <SidebarMenuSubItem key={child.title}>
-                          <SidebarMenuSubButton asChild isActive={location.pathname === child.url}>
-                            <NavLink
-                              to={child.url}
-                              className="hover:bg-sidebar-accent"
-                              activeClassName="bg-sidebar-accent text-sidebar-accent-foreground font-medium"
-                            >
-                              <child.icon className="h-4 w-4" />
-                              <span className="flex-1">{child.title}</span>
-                            </NavLink>
-                          </SidebarMenuSubButton>
-                        </SidebarMenuSubItem>
-                      ))}
-                    </SidebarMenuSub>
-                  )}
                 </SidebarMenuItem>
               ))}
             </SidebarMenu>
