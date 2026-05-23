@@ -309,6 +309,7 @@ export const mockClaims: ClaimHeader[] = [
     id: "CLM-TEST-FIN-001", claimNo: "CLM-2026-TEST-003", requesterId: "u1", requesterName: "Somchai Jaidee",
     company: "ABC Co., Ltd.", branch: "Bangkok", department: "9993010460 Finance and Accounting", costCenter: "CC-SALES-01",
     purpose: "Drinking Places (Bars)", merchantName: "IRON FAIRIES", currency: "THB", paymentMethod: "Corporate Card",
+    expenseTypeId: "et-1", subExpenseTypeId: "set-7", vatTypeId: "claim_100", glAccountId: "gl-1",
     totalAmount: 3200.00, totalVat: 0, status: "Returned By Finance", createdDate: "2026-05-11", submittedDate: "2026-05-11",
     lines: [], approvalHistory: [], comments: [],
     returnSource: "FINANCE_RETURN", returnedByUserId: "u7", returnedAt: "2026-05-12T09:10:00Z",
