@@ -120,6 +120,13 @@ const adminMenu = [
       { key: "document-aging-email", label: "Document Aging — Auto Reject", icon: AlertTriangle },
     ],
   },
+  {
+    group: "Reports",
+    icon: BarChart3,
+    items: [
+      { key: "report", label: "Report", icon: BarChart3 },
+    ],
+  },
 ];
 
 // --- Mock data ---
