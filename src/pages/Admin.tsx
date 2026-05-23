@@ -1521,7 +1521,10 @@ const panelMap: Record<string, () => JSX.Element> = {
   "mcc-policy": PolicyManagement,
   "ocr-validation": OcrValidationRulesPanel,
   "keyword-detection-rules": KeywordDetectionRulesPanel,
-  report: Reports,
+  "month-end-summary": MonthEndSummaryPanel,
+  "hr-finance-report": MonthEndReportNotificationPanel,
+  "monthly-cardholder-summary": MonthlyCardholderSummaryPanel,
+  "monthly-approver-summary": MonthlyApproverSummaryPanel,
 };
 
 function KeywordDetectionRulesPanel() {
