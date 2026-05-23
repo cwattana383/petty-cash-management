@@ -97,7 +97,7 @@ const ACCOUNTING_ITEMS: AccountingItem[] = [
     { id: "evt-001-7", actor: "cardholder", actorName: "Somchai Jaidee", title: "Resubmitted for manager approval", statusBadge: "RESUBMITTED", message: "Client meeting at Marriott Hotel Sukhumvit with vendor partners — discussed Q3 partnership terms.", timestamp: "2026-05-02T09:15:00Z" },
     { id: "evt-001-6", actor: "manager", actorName: "Theem Veokeki", title: "Manager requested more information", statusBadge: "REQUEST_MORE_INFO", message: "Please clarify the business purpose of this trip and who you were meeting.", timestamp: "2026-05-01T16:45:00Z" },
     { id: "evt-001-5", actor: "cardholder", actorName: "Somchai Jaidee", title: "Submitted for manager approval", statusBadge: "PENDING_APPROVAL", timestamp: "2026-05-01T14:30:00Z" },
-    { id: "evt-001-4", actor: "cardholder", actorName: "Somchai Jaidee", title: "Document verified", statusBadge: "VERIFIED", message: "GrabTaxi_Receipt_20260501.pdf", timestamp: "2026-05-01T14:25:00Z" },
+    { id: "evt-001-4", actor: "cardholder", actorName: "Somchai Jaidee", title: "Document validated", statusBadge: "VALIDATED", message: "GrabTaxi_Receipt_20260501.pdf", timestamp: "2026-05-01T14:25:00Z" },
     { id: "evt-001-3", actor: "cardholder", actorName: "Somchai Jaidee", title: "Document uploaded", statusBadge: "UPLOADED", message: "GrabTaxi_Receipt_20260501.pdf", timestamp: "2026-05-01T14:20:00Z" },
     { id: "evt-001-2", actor: "cardholder", actorName: "Somchai Jaidee", title: "Claim created", statusBadge: "NOT_STARTED", timestamp: "2026-05-01T14:15:00Z" },
     { id: "evt-001-1", actor: "system", title: "Transaction imported from bank file", statusBadge: "NOT_STARTED", timestamp: "2026-05-01T00:15:00Z" },
