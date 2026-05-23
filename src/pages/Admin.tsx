@@ -1514,6 +1514,7 @@ const panelMap: Record<string, () => JSX.Element> = {
   "mcc-policy": PolicyManagement,
   "ocr-validation": OcrValidationRulesPanel,
   "keyword-detection-rules": KeywordDetectionRulesPanel,
+  report: Reports,
 };
 
 function KeywordDetectionRulesPanel() {
