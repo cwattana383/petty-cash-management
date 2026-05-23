@@ -11,7 +11,10 @@ import ExpenseTypePanelImported from "@/components/admin/ExpenseTypePanel";
 import OcrValidationRulesPanel from "@/components/admin/OcrValidationRulesPanel";
 import DocumentTypePanel from "@/components/admin/DocumentTypePanel";
 import ProjectPanel from "@/components/admin/ProjectPanel";
-import Reports from "./Reports";
+import { MonthEndSummaryPanel } from "./Reports";
+import MonthEndReportNotificationPanel from "@/components/admin/MonthEndReportNotificationPanel";
+import MonthlyCardholderSummaryPanel from "@/components/admin/MonthlyCardholderSummaryPanel";
+import MonthlyApproverSummaryPanel from "@/components/admin/MonthlyApproverSummaryPanel";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import {
@@ -51,6 +54,7 @@ import {
   PanelLeftClose,
   PanelLeftOpen,
   BarChart3,
+  FileSpreadsheet,
 } from "lucide-react";
 import EntityDrawer from "@/components/admin/EntityDrawer";
 import InviteUserDialog from "@/components/admin/InviteUserDialog";
@@ -124,7 +128,10 @@ const adminMenu = [
     group: "Reports",
     icon: BarChart3,
     items: [
-      { key: "report", label: "Report", icon: BarChart3 },
+      { key: "month-end-summary", label: "Month-End Summary", icon: FileSpreadsheet },
+      { key: "hr-finance-report", label: "HR & Finance Report", icon: Receipt },
+      { key: "monthly-cardholder-summary", label: "Monthly Cardholder Summary", icon: Mail },
+      { key: "monthly-approver-summary", label: "Monthly Approver Summary", icon: MailPlus },
     ],
   },
 ];
@@ -1514,7 +1521,10 @@ const panelMap: Record<string, () => JSX.Element> = {
   "mcc-policy": PolicyManagement,
   "ocr-validation": OcrValidationRulesPanel,
   "keyword-detection-rules": KeywordDetectionRulesPanel,
-  report: Reports,
+  "month-end-summary": MonthEndSummaryPanel,
+  "hr-finance-report": MonthEndReportNotificationPanel,
+  "monthly-cardholder-summary": MonthlyCardholderSummaryPanel,
+  "monthly-approver-summary": MonthlyApproverSummaryPanel,
 };
 
 function KeywordDetectionRulesPanel() {

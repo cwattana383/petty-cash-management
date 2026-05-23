@@ -51,7 +51,7 @@ const monthEndRows = [
 const grandTotalCount = monthEndRows.reduce((s, r) => s + r.count, 0);
 const grandTotalAmount = monthEndRows.reduce((s, r) => s + r.amount, 0);
 
-function MonthEndSummaryPanel() {
+export function MonthEndSummaryPanel() {
   return (
     <div className="space-y-4">
       <h2 className="text-lg font-semibold text-foreground">Month-End Summary</h2>
