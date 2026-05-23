@@ -5,7 +5,6 @@ import {
   ClipboardList,
   CreditCard,
   Bell,
-  BarChart3,
 } from "lucide-react";
 import { NavLink } from "@/components/NavLink";
 import { useLocation, useNavigate } from "react-router-dom";
@@ -24,9 +23,6 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
-  SidebarMenuSub,
-  SidebarMenuSubButton,
-  SidebarMenuSubItem,
 } from "@/components/ui/sidebar";
 
 const mainNav = [
@@ -35,12 +31,7 @@ const mainNav = [
   { title: "Approval Inbox", url: "/approvals", icon: CheckSquare },
   { title: "Accounting Review", url: "/accounting", icon: ClipboardList },
   { title: "Bank Transactions", url: "/bank-transactions", icon: CreditCard },
-  {
-    title: "Admin",
-    url: "/admin",
-    icon: Settings,
-    children: [{ title: "Report", url: "/reports", icon: BarChart3 }],
-  },
+  { title: "Admin", url: "/admin", icon: Settings },
 ];
 
 const allRoleTabs = [
@@ -145,24 +136,6 @@ export function AppSidebar() {
                       )}
                     </NavLink>
                   </SidebarMenuButton>
-                  {item.children && item.children.length > 0 && (
-                    <SidebarMenuSub>
-                      {item.children.map((child) => (
-                        <SidebarMenuSubItem key={child.title}>
-                          <SidebarMenuSubButton asChild isActive={location.pathname === child.url}>
-                            <NavLink
-                              to={child.url}
-                              className="hover:bg-sidebar-accent"
-                              activeClassName="bg-sidebar-accent text-sidebar-accent-foreground font-medium"
-                            >
-                              <child.icon className="h-4 w-4" />
-                              <span className="flex-1">{child.title}</span>
-                            </NavLink>
-                          </SidebarMenuSubButton>
-                        </SidebarMenuSubItem>
-                      ))}
-                    </SidebarMenuSub>
-                  )}
                 </SidebarMenuItem>
               ))}
             </SidebarMenu>

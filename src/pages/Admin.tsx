@@ -11,6 +11,7 @@ import ExpenseTypePanelImported from "@/components/admin/ExpenseTypePanel";
 import OcrValidationRulesPanel from "@/components/admin/OcrValidationRulesPanel";
 import DocumentTypePanel from "@/components/admin/DocumentTypePanel";
 import ProjectPanel from "@/components/admin/ProjectPanel";
+import Reports from "./Reports";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import {
@@ -49,6 +50,7 @@ import {
   Loader2 as Loader2Icon,
   PanelLeftClose,
   PanelLeftOpen,
+  BarChart3,
 } from "lucide-react";
 import EntityDrawer from "@/components/admin/EntityDrawer";
 import InviteUserDialog from "@/components/admin/InviteUserDialog";
@@ -116,6 +118,13 @@ const adminMenu = [
       { key: "pending-approval-email", label: "Pending Approval Email", icon: UserCheck },
       { key: "request-for-info-email", label: "Request for Info Email", icon: AlertCircle },
       { key: "document-aging-email", label: "Document Aging — Auto Reject", icon: AlertTriangle },
+    ],
+  },
+  {
+    group: "Reports",
+    icon: BarChart3,
+    items: [
+      { key: "report", label: "Report", icon: BarChart3 },
     ],
   },
 ];
@@ -1505,6 +1514,7 @@ const panelMap: Record<string, () => JSX.Element> = {
   "mcc-policy": PolicyManagement,
   "ocr-validation": OcrValidationRulesPanel,
   "keyword-detection-rules": KeywordDetectionRulesPanel,
+  report: Reports,
 };
 
 function KeywordDetectionRulesPanel() {
