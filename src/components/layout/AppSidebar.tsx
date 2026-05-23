@@ -24,6 +24,9 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
+  SidebarMenuSub,
+  SidebarMenuSubButton,
+  SidebarMenuSubItem,
 } from "@/components/ui/sidebar";
 
 const mainNav = [
@@ -32,8 +35,12 @@ const mainNav = [
   { title: "Approval Inbox", url: "/approvals", icon: CheckSquare },
   { title: "Accounting Review", url: "/accounting", icon: ClipboardList },
   { title: "Bank Transactions", url: "/bank-transactions", icon: CreditCard },
-  { title: "Report", url: "/reports", icon: BarChart3 },
-  { title: "Admin", url: "/admin", icon: Settings },
+  {
+    title: "Admin",
+    url: "/admin",
+    icon: Settings,
+    children: [{ title: "Report", url: "/reports", icon: BarChart3 }],
+  },
 ];
 
 const allRoleTabs = [
@@ -48,10 +55,10 @@ function getNavForRole(selectedRole: string) {
     case "Admin":
       return mainNav.filter((i) => !i.cardholderOnly);
     case "Approver":
-      return mainNav.filter((i) => ["My Expense", "Approval Inbox", "Report"].includes(i.title));
+      return mainNav.filter((i) => ["My Expense", "Approval Inbox"].includes(i.title));
     case "Cardholder":
     default:
-      return mainNav.filter((i) => ["My Expense", "Notifications", "Report"].includes(i.title));
+      return mainNav.filter((i) => ["My Expense", "Notifications"].includes(i.title));
   }
 }
 
@@ -138,6 +145,24 @@ export function AppSidebar() {
                       )}
                     </NavLink>
                   </SidebarMenuButton>
+                  {item.children && item.children.length > 0 && (
+                    <SidebarMenuSub>
+                      {item.children.map((child) => (
+                        <SidebarMenuSubItem key={child.title}>
+                          <SidebarMenuSubButton asChild isActive={location.pathname === child.url}>
+                            <NavLink
+                              to={child.url}
+                              className="hover:bg-sidebar-accent"
+                              activeClassName="bg-sidebar-accent text-sidebar-accent-foreground font-medium"
+                            >
+                              <child.icon className="h-4 w-4" />
+                              <span className="flex-1">{child.title}</span>
+                            </NavLink>
+                          </SidebarMenuSubButton>
+                        </SidebarMenuSubItem>
+                      ))}
+                    </SidebarMenuSub>
+                  )}
                 </SidebarMenuItem>
               ))}
             </SidebarMenu>
