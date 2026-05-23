@@ -11,7 +11,7 @@ import ExpenseTypePanelImported from "@/components/admin/ExpenseTypePanel";
 import OcrValidationRulesPanel from "@/components/admin/OcrValidationRulesPanel";
 import DocumentTypePanel from "@/components/admin/DocumentTypePanel";
 import ProjectPanel from "@/components/admin/ProjectPanel";
-import Reports from "./Reports";
+import { MonthEndSummaryPanel } from "./Reports";
 import MonthEndReportNotificationPanel from "@/components/admin/MonthEndReportNotificationPanel";
 import MonthlyCardholderSummaryPanel from "@/components/admin/MonthlyCardholderSummaryPanel";
 import MonthlyApproverSummaryPanel from "@/components/admin/MonthlyApproverSummaryPanel";
