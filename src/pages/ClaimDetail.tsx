@@ -3118,23 +3118,20 @@ export default function ClaimDetail() {
                   <p className="text-xs text-muted-foreground">Review and edit if needed before confirming</p>
                 </div>
                 <div className="space-y-3">
-                  {[
-                    { label: "Full Name", value: "TANVISUT UEA ANGKUN" },
-                    { label: "Passport Number", value: "AA1234567" },
-                    { label: "Nationality", value: "THAI" },
-                    { label: "Date of Birth", value: "15/07/2535" },
-                    { label: "Gender", value: "F" },
-                    { label: "Issue Date", value: "10/01/2565" },
-                    { label: "Expiry Date", value: "09/01/2575" },
-                    { label: "Issuing Country / Authority", value: "Thailand" },
-                    { label: "Document Type", value: "Passport" },
-                  ].map((f) => (
-                    <div key={f.label}>
-                      <label className="text-xs font-medium text-foreground">{f.label}</label>
-                      <input defaultValue={f.value} className="mt-1 w-full h-9 rounded-md border border-input bg-background px-3 text-sm" />
-                    </div>
-                  ))}
+                  <div>
+                    <label className="text-xs font-medium text-foreground">Full Name</label>
+                    <input defaultValue="TANVISUT UEA ANGKUN" className="mt-1 w-full h-9 rounded-md border-2 border-blue-400 bg-background px-3 text-sm focus:outline-none focus:ring-2 focus:ring-blue-300" />
+                  </div>
+                  <div>
+                    <label className="text-xs font-medium text-foreground">Passport Number</label>
+                    <input readOnly value="AA1234567" className="mt-1 w-full h-9 rounded-md border border-input bg-muted px-3 text-sm" />
+                  </div>
+                  <div>
+                    <label className="text-xs font-medium text-foreground">Expiry Date</label>
+                    <input readOnly value="09/01/2575" className="mt-1 w-full h-9 rounded-md border border-input bg-muted px-3 text-sm" />
+                  </div>
                 </div>
+
                 <div className="rounded-lg border border-emerald-200 bg-emerald-50/60 p-3 space-y-1.5">
                   <p className="text-xs font-semibold text-emerald-800">Validation Results</p>
                   {[
