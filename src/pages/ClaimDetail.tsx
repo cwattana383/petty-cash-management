@@ -2843,32 +2843,28 @@ export default function ClaimDetail() {
                   <p className="text-xs text-muted-foreground">Review and edit if needed before confirming</p>
                 </div>
                 <div className="space-y-3">
+                  <div>
+                    <label className="text-xs font-medium text-foreground">Passenger Name</label>
+                    <input defaultValue="TANVISUT/UEA ANGKUN MRS" className="mt-1 w-full h-9 rounded-md border border-blue-400 bg-background px-3 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400" />
+                  </div>
                   {[
-                    { label: "Passenger Name", value: "TANVISUT/UEA ANGKUN MRS" },
-                    { label: "Trip / Travel Period", value: "07 DEC 2025 - 15 DEC 2025" },
-                    { label: "Destination / Trip Purpose", value: "Trip to Boston, MA" },
-                    { label: "Reservation Code", value: "MLTSFB" },
-                    { label: "Airline Reservation Code", value: "EXB329 (KE)" },
+                    { label: "Travel Period", value: "07 Dec 2025 – 15 Dec 2025" },
+                    { label: "Route Summary", value: "BKK Bangkok → ICN Seoul → BOS Boston" },
                     { label: "Airline", value: "KOREAN AIR" },
-                    { label: "Flight 1", value: "KE 0654" },
-                    { label: "Route 1", value: "BKK Bangkok Suvarnabhumi, Thailand → ICN Seoul Incheon, Korea Republic" },
-                    { label: "Departure 1", value: "07 DEC 2025 00:55" },
-                    { label: "Arrival 1", value: "07 DEC 2025 08:15" },
-                    { label: "Flight 2", value: "KE 0091" },
-                    { label: "Route 2", value: "ICN Seoul Incheon, Korea Republic → BOS Boston, MA" },
-                    { label: "Departure 2", value: "07 DEC 2025 09:10" },
-                    { label: "Arrival 2", value: "07 DEC 2025 08:40" },
-                    { label: "Cabin / Class", value: "Business / R" },
-                    { label: "Status", value: "Confirmed" },
-                    { label: "Seat(s)", value: "09B, 10D" },
-                    { label: "E-Ticket Receipt Number", value: "1802798768972" },
-                    { label: "Issued By", value: "Travel Click (Thailand) Co Ltd" },
                   ].map((f) => (
                     <div key={f.label}>
                       <label className="text-xs font-medium text-foreground">{f.label}</label>
-                      <input defaultValue={f.value} className="mt-1 w-full h-9 rounded-md border border-input bg-background px-3 text-sm" />
+                      <input readOnly value={f.value} className="mt-1 w-full h-9 rounded-md border border-input bg-muted/40 px-3 text-sm" />
                     </div>
                   ))}
+                  <div>
+                    <label className="text-xs font-medium text-foreground">Ticket Status</label>
+                    <div className="mt-1">
+                      <span className="inline-flex items-center gap-1 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200 px-2 py-0.5 text-xs font-medium">
+                        <CheckCircle2 className="h-3 w-3" /> Confirmed
+                      </span>
+                    </div>
+                  </div>
                 </div>
                 <div>
                   <h4 className="text-sm font-semibold mb-2">Validation Results</h4>
