@@ -2873,8 +2873,6 @@ export default function ClaimDetail() {
                       "Passenger name matches cardholder",
                       "Document type detected as E-Ticket / Flight Ticket",
                       "Ticket status is Confirmed",
-                      "Travel date is within the claimed business trip period",
-                      "Route and destination are relevant to the travel claim",
                     ].map((msg) => (
                       <p key={msg} className="text-[13px] text-emerald-600 flex items-center gap-1.5">
                         <CheckCircle2 className="h-4 w-4 shrink-0" />
