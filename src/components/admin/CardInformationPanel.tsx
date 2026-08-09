@@ -94,7 +94,7 @@ function FieldLabel({ children, required }: { children: React.ReactNode; require
   );
 }
 
-export default function CardInformationPanel({ record }: Props) {
+export default function CardInformationPanel({ record }: Props = {}) {
   const [cardId] = useState(() => record?.cardId ?? generateCardId());
   const [form, setForm] = useState<CardInformationRecord>({
     cardType: "Corporate Credit Card",
