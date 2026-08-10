@@ -11,7 +11,7 @@ import ExpenseTypePanelImported from "@/components/admin/ExpenseTypePanel";
 import OcrValidationRulesPanel from "@/components/admin/OcrValidationRulesPanel";
 import DocumentTypePanel from "@/components/admin/DocumentTypePanel";
 import ProjectPanel from "@/components/admin/ProjectPanel";
-import CardInformationPanel from "@/components/admin/CardInformationPanel";
+import CardListingPanel from "@/components/admin/CardListingPanel";
 import { MonthEndSummaryPanel } from "./Reports";
 import MonthEndReportNotificationPanel from "@/components/admin/MonthEndReportNotificationPanel";
 import MonthlyCardholderSummaryPanel from "@/components/admin/MonthlyCardholderSummaryPanel";
@@ -1510,7 +1510,7 @@ const panelMap: Record<string, () => JSX.Element> = {
   documents: DocumentTypePanel,
   "expense-type": ExpenseTypePanelImported,
   project: ProjectPanel,
-  "card-information": CardInformationPanel,
+  "card-information": CardListingPanel,
   "expense-item": ExpenseItemPanel,
   "expense-rules": ExpenseRulesPanel,
   "expense-delegates": ExpenseDelegatesPanel,
