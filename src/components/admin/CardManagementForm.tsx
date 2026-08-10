@@ -188,13 +188,13 @@ export default function CardManagementForm({ record }: Props = {}) {
             {errors.last4 && <p className="text-xs text-destructive">{errors.last4}</p>}
           </div>
           <div className="space-y-2">
-            <FieldLabel required>Cardholder Name</FieldLabel>
-            <Input className={inputCls} value={form.cardholderName ?? ""} onChange={(ev) => set("cardholderName", ev.target.value)} />
-            {errors.cardholderName && <p className="text-xs text-destructive">{errors.cardholderName}</p>}
-          </div>
-          <div className="space-y-2">
-            <FieldLabel>Employee ID</FieldLabel>
-            <Input className={inputCls} value={form.employeeId ?? ""} onChange={(ev) => set("employeeId", ev.target.value)} />
+            <FieldLabel>Card Status</FieldLabel>
+            <Select value={effectiveStatus} onValueChange={(v) => set("cardStatus", v)} disabled={expired}>
+              <SelectTrigger className={inputCls}><SelectValue /></SelectTrigger>
+              <SelectContent>
+                {statusOptions.map((b) => <SelectItem key={b} value={b}>{b}</SelectItem>)}
+              </SelectContent>
+            </Select>
           </div>
           <div className="space-y-2">
             <FieldLabel required>Issuing Bank</FieldLabel>
@@ -205,15 +205,6 @@ export default function CardManagementForm({ record }: Props = {}) {
               </SelectContent>
             </Select>
             {errors.issuingBank && <p className="text-xs text-destructive">{errors.issuingBank}</p>}
-          </div>
-          <div className="space-y-2">
-            <FieldLabel>Card Network</FieldLabel>
-            <Select value={form.cardNetwork} onValueChange={(v) => set("cardNetwork", v)}>
-              <SelectTrigger className={inputCls}><SelectValue placeholder="" /></SelectTrigger>
-              <SelectContent>
-                {networkOptions.map((b) => <SelectItem key={b} value={b}>{b}</SelectItem>)}
-              </SelectContent>
-            </Select>
           </div>
           <div className="space-y-2">
             <FieldLabel>Issue Date</FieldLabel>
@@ -237,14 +228,20 @@ export default function CardManagementForm({ record }: Props = {}) {
             {errors.expiry && <p className="text-xs text-destructive">{errors.expiry}</p>}
           </div>
           <div className="space-y-2">
-            <FieldLabel>Card Status</FieldLabel>
-            <Select value={effectiveStatus} onValueChange={(v) => set("cardStatus", v)} disabled={expired}>
-              <SelectTrigger className={inputCls}><SelectValue /></SelectTrigger>
+            <FieldLabel>Card Network</FieldLabel>
+            <Select value={form.cardNetwork} onValueChange={(v) => set("cardNetwork", v)}>
+              <SelectTrigger className={inputCls}><SelectValue placeholder="" /></SelectTrigger>
               <SelectContent>
-                {statusOptions.map((b) => <SelectItem key={b} value={b}>{b}</SelectItem>)}
+                {networkOptions.map((b) => <SelectItem key={b} value={b}>{b}</SelectItem>)}
               </SelectContent>
             </Select>
           </div>
+          <div className="space-y-2">
+            <FieldLabel required>Cardholder Name</FieldLabel>
+            <Input className={inputCls} value={form.cardholderName ?? ""} onChange={(ev) => set("cardholderName", ev.target.value)} />
+            {errors.cardholderName && <p className="text-xs text-destructive">{errors.cardholderName}</p>}
+          </div>
+
         </div>
       </Card>
 
