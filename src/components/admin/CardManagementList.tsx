@@ -32,6 +32,12 @@ const YELLOW = "#F6C24A";
 const ALL = "ทั้งหมด";
 const bankOptions = [ALL, "กสิกรไทย", "กรุงศรี", "ไทยพาณิชย์", "กรุงเทพ", "กรุงไทย", "ทีทีบี"];
 const statusOptions = [ALL, "Active", "Suspended", "Cancelled", "Expired"];
+const statusLabelTh: Record<string, string> = {
+  Active: "ใช้งานอยู่",
+  Suspended: "ระงับใช้งาน",
+  Cancelled: "ยกเลิกแล้ว",
+  Expired: "หมดอายุ",
+};
 const companyOptions = [ALL, "CP AXTRA PCL", "Lotus's", "Makro"];
 const typeOptions = [ALL, "Corporate Credit", "Fleet"];
 
@@ -73,7 +79,7 @@ function StatusPill({ status }: { status: CardMasterStatus }) {
       className="inline-flex rounded-full px-2.5 py-0.5 text-xs font-semibold border"
       style={{ color: s.color, backgroundColor: s.bg, borderColor: status === "Suspended" ? YELLOW : s.color }}
     >
-      {status}
+      {statusLabelTh[status] ?? status}
     </span>
   );
 }
@@ -156,7 +162,7 @@ export default function CardManagementList() {
   if (debounced) chips.push({ label: `ค้นหา: ${debounced}`, clear: () => setSearch("") });
   if (type !== ALL) chips.push({ label: `ประเภทบัตร: ${type}`, clear: () => setType(ALL) });
   if (bank !== ALL) chips.push({ label: `ธนาคาร: ${bank}`, clear: () => setBank(ALL) });
-  if (status !== ALL) chips.push({ label: `สถานะ: ${status}`, clear: () => setStatus(ALL) });
+  if (status !== ALL) chips.push({ label: `สถานะ: ${statusLabelTh[status] ?? status}`, clear: () => setStatus(ALL) });
   if (company !== ALL) chips.push({ label: `บริษัท: ${company}`, clear: () => setCompany(ALL) });
   if (expiringOnly) chips.push({ label: "ใกล้หมดอายุ", clear: () => setExpiringOnly(false) });
   const hasFilters = chips.length > 0;
@@ -189,7 +195,7 @@ export default function CardManagementList() {
         r.kind === "corporate" ? `พนักงาน · ${r.cardholderName ?? ""}` : `ยานพาหนะ · ${r.plateNo ?? ""}`,
         String(r.creditLimit),
         expiryBE(r.expiry),
-        effectiveStatus(r),
+        statusLabelTh[effectiveStatus(r)] ?? effectiveStatus(r),
       ]
         .map((c) => `"${String(c).replace(/"/g, '""')}"`)
         .join(","),
@@ -207,7 +213,7 @@ export default function CardManagementList() {
     if (!confirm) return;
     const next: CardMasterStatus = confirm.action === "Suspend" ? "Suspended" : "Cancelled";
     setRows((p) => p.map((r) => (r.cardId === confirm.row.cardId ? { ...r, status: next } : r)));
-    toast({ title: `${confirm.row.cardId} → ${next}` });
+    toast({ title: `${confirm.row.cardId} → ${statusLabelTh[next] ?? next}` });
     setConfirm(null);
   };
 
@@ -225,7 +231,7 @@ export default function CardManagementList() {
   const statCards = [
     { label: "บัตรทั้งหมด", value: stats.total, color: "inherit", onClick: clearAll },
     {
-      label: "Active",
+      label: "ใช้งานอยู่",
       value: stats.active,
       color: GREEN,
       onClick: () => {
@@ -234,7 +240,7 @@ export default function CardManagementList() {
       },
     },
     {
-      label: "Suspended",
+      label: "ระงับใช้งาน",
       value: stats.suspended,
       color: YELLOW,
       onClick: () => {
@@ -296,7 +302,7 @@ export default function CardManagementList() {
           </Select>
           <Select value={status} onValueChange={setStatus}>
             <SelectTrigger className="w-[150px] bg-background rounded-lg"><SelectValue /></SelectTrigger>
-            <SelectContent>{statusOptions.map((o) => <SelectItem key={o} value={o}>{o === ALL ? "สถานะ: ทั้งหมด" : o}</SelectItem>)}</SelectContent>
+            <SelectContent>{statusOptions.map((o) => <SelectItem key={o} value={o}>{o === ALL ? "สถานะ: ทั้งหมด" : statusLabelTh[o] ?? o}</SelectItem>)}</SelectContent>
           </Select>
           <Select value={company} onValueChange={setCompany}>
             <SelectTrigger className="w-[170px] bg-background rounded-lg"><SelectValue /></SelectTrigger>
@@ -418,8 +424,8 @@ export default function CardManagementList() {
                           <DropdownMenuContent align="end">
                             <DropdownMenuItem onClick={() => navigate(`/admin/card-management/${r.cardId}`)}>ดูรายละเอียด</DropdownMenuItem>
                             <DropdownMenuItem onClick={() => navigate(`/admin/card-management/${r.cardId}`)}>แก้ไข</DropdownMenuItem>
-                            <DropdownMenuItem onClick={() => setConfirm({ row: r, action: "Suspend" })}>ระงับการใช้งาน (Suspend)</DropdownMenuItem>
-                            <DropdownMenuItem onClick={() => setConfirm({ row: r, action: "Cancel" })}>ยกเลิกบัตร (Cancel)</DropdownMenuItem>
+                            <DropdownMenuItem onClick={() => setConfirm({ row: r, action: "Suspend" })}>ระงับใช้งาน</DropdownMenuItem>
+                            <DropdownMenuItem onClick={() => setConfirm({ row: r, action: "Cancel" })}>ยกเลิกบัตร</DropdownMenuItem>
                           </DropdownMenuContent>
                         </DropdownMenu>
                       </td>
