@@ -46,8 +46,7 @@ const bankLabelEn: Record<string, string> = {
   "กรุงไทย": "Krungthai",
   "ทีทีบี": "TTB",
 };
-const companyOptions = [ALL, "CP AXTRA PCL", "Lotus's", "Makro"];
-const typeOptions = [ALL, "Corporate Credit", "Fleet"];
+const typeOptions = [ALL, "Corporate Credit", "Fleet Card"];
 
 function expiryDate(mmYY: string) {
   const m = /^(\d{2})\/(\d{2})$/.exec(mmYY);
@@ -102,7 +101,6 @@ export default function CardManagementList() {
   const [type, setType] = useState(ALL);
   const [bank, setBank] = useState(ALL);
   const [status, setStatus] = useState(ALL);
-  const [company, setCompany] = useState(ALL);
   const [expiringOnly, setExpiringOnly] = useState(false);
   const [sortKey, setSortKey] = useState<SortKey>("cardId");
   const [sortDir, setSortDir] = useState<"asc" | "desc">("desc");
@@ -119,7 +117,7 @@ export default function CardManagementList() {
     const t = setTimeout(() => setDebounced(search), 300);
     return () => clearTimeout(t);
   }, [search]);
-  useEffect(() => setPage(1), [debounced, type, bank, status, company, expiringOnly, pageSize]);
+  useEffect(() => setPage(1), [debounced, type, bank, status, expiringOnly, pageSize]);
 
   const stats = useMemo(() => {
     return {
@@ -139,11 +137,10 @@ export default function CardManagementList() {
       }
       if (type !== ALL) {
         if (type === "Corporate Credit" && r.kind !== "corporate") return false;
-        if (type === "Fleet" && r.kind !== "fleet") return false;
+        if (type === "Fleet Card" && r.kind !== "fleet") return false;
       }
       if (bank !== ALL && r.bankTh !== bank) return false;
       if (status !== ALL && effectiveStatus(r) !== status) return false;
-      if (company !== ALL && r.company !== company) return false;
       if (expiringOnly && !isExpiringSoon(r)) return false;
       return true;
     });
@@ -159,7 +156,7 @@ export default function CardManagementList() {
       return sortDir === "asc" ? cmp : -cmp;
     });
     return list;
-  }, [rows, debounced, type, bank, status, company, expiringOnly, sortKey, sortDir]);
+  }, [rows, debounced, type, bank, status, expiringOnly, sortKey, sortDir]);
 
   const totalPages = Math.max(1, Math.ceil(filtered.length / pageSize));
   const current = filtered.slice((page - 1) * pageSize, page * pageSize);
@@ -171,7 +168,6 @@ export default function CardManagementList() {
   if (type !== ALL) chips.push({ label: `Card Type: ${type}`, clear: () => setType(ALL) });
   if (bank !== ALL) chips.push({ label: `Bank: ${bankLabelEn[bank] ?? bank}`, clear: () => setBank(ALL) });
   if (status !== ALL) chips.push({ label: `Status: ${statusLabelTh[status] ?? status}`, clear: () => setStatus(ALL) });
-  if (company !== ALL) chips.push({ label: `Company: ${company}`, clear: () => setCompany(ALL) });
   if (expiringOnly) chips.push({ label: "Expiring Soon", clear: () => setExpiringOnly(false) });
   const hasFilters = chips.length > 0;
 
@@ -180,7 +176,6 @@ export default function CardManagementList() {
     setType(ALL);
     setBank(ALL);
     setStatus(ALL);
-    setCompany(ALL);
     setExpiringOnly(false);
   };
 
@@ -197,7 +192,7 @@ export default function CardManagementList() {
     const lines = filtered.map((r) =>
       [
         r.cardId,
-        r.kind === "corporate" ? "Corporate Credit" : `Fleet (${r.fuelBrand ?? "-"})`,
+        r.kind === "corporate" ? "Corporate Credit" : "Fleet Card",
         bankLabelEn[r.bankTh] ?? r.bankTh,
         r.last4,
         r.kind === "corporate" ? `Employee · ${r.cardholderName ?? ""}` : `Vehicle · ${r.plateNo ?? ""}`,
@@ -302,20 +297,16 @@ export default function CardManagementList() {
             onChange={(e) => setSearch(e.target.value)}
           />
           <Select value={type} onValueChange={setType}>
-            <SelectTrigger className="w-[170px] bg-background rounded-lg"><SelectValue /></SelectTrigger>
+            <SelectTrigger className="flex-1 min-w-[150px] bg-background rounded-lg"><SelectValue /></SelectTrigger>
             <SelectContent>{typeOptions.map((o) => <SelectItem key={o} value={o}>{o === ALL ? "Card Type: All" : o}</SelectItem>)}</SelectContent>
           </Select>
           <Select value={bank} onValueChange={setBank}>
-            <SelectTrigger className="w-[150px] bg-background rounded-lg"><SelectValue /></SelectTrigger>
+            <SelectTrigger className="flex-1 min-w-[150px] bg-background rounded-lg"><SelectValue /></SelectTrigger>
             <SelectContent>{bankOptions.map((o) => <SelectItem key={o} value={o}>{o === ALL ? "Bank: All" : bankLabelEn[o] ?? o}</SelectItem>)}</SelectContent>
           </Select>
           <Select value={status} onValueChange={setStatus}>
-            <SelectTrigger className="w-[150px] bg-background rounded-lg"><SelectValue /></SelectTrigger>
+            <SelectTrigger className="flex-1 min-w-[150px] bg-background rounded-lg"><SelectValue /></SelectTrigger>
             <SelectContent>{statusOptions.map((o) => <SelectItem key={o} value={o}>{o === ALL ? "Status: All" : statusLabelTh[o] ?? o}</SelectItem>)}</SelectContent>
-          </Select>
-          <Select value={company} onValueChange={setCompany}>
-            <SelectTrigger className="w-[170px] bg-background rounded-lg"><SelectValue /></SelectTrigger>
-            <SelectContent>{companyOptions.map((o) => <SelectItem key={o} value={o}>{o === ALL ? "Company: All" : o}</SelectItem>)}</SelectContent>
           </Select>
           {hasFilters && (
             <Button variant="ghost" onClick={clearAll} style={{ color: "#306FC7" }}>Clear filters</Button>
@@ -396,7 +387,7 @@ export default function CardManagementList() {
                     >
                       <td className="px-4 py-3 font-mono font-semibold text-foreground">{r.cardId}</td>
                       <td className="px-4 py-3">
-                        {r.kind === "corporate" ? "Corporate Credit" : `Fleet (${r.fuelBrand})`}
+                        {r.kind === "corporate" ? "Corporate Credit" : "Fleet Card"}
                       </td>
                       <td className="px-4 py-3">{bankLabelEn[r.bankTh] ?? r.bankTh}</td>
                       <td className="px-4 py-3 font-mono">{r.last4}</td>
