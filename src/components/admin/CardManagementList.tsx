@@ -258,9 +258,6 @@ export default function CardManagementList() {
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div>
           <h2 className="text-xl font-bold text-foreground">Card Management</h2>
-          <p className="text-sm text-muted-foreground">
-            ทะเบียนบัตรเครดิตองค์กรและบัตรน้ำมัน · Corporate Card &amp; Fleet Card Register
-          </p>
         </div>
         <div className="flex items-center gap-2">
           <Button variant="outline" onClick={exportExcel}>ส่งออก Excel</Button>
