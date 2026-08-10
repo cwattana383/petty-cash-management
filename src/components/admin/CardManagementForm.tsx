@@ -250,6 +250,10 @@ export default function CardManagementForm({ record }: Props = {}) {
         <SectionHeader icon={User} title="Cardholder &amp; Ownership" />
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <div className="space-y-2">
+            <FieldLabel>Employee ID</FieldLabel>
+            <Input className={inputCls} value={form.employeeId ?? ""} onChange={(ev) => set("employeeId", ev.target.value)} />
+          </div>
+          <div className="space-y-2">
             <FieldLabel>Company</FieldLabel>
             <Select value={form.company} onValueChange={(v) => set("company", v)}>
               <SelectTrigger className={inputCls}><SelectValue placeholder="" /></SelectTrigger>
