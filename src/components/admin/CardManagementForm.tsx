@@ -48,7 +48,7 @@ interface Props {
   record?: CardManagementRecord;
 }
 
-const bankOptions = ["KBank", "SCB", "Bangkok Bank", "Krungthai", "Krungsri", "TTB", "UOB"];
+const bankOptions = ["KBank", "Krungsri"];
 const networkOptions = ["Visa", "Mastercard", "JCB", "UnionPay", "Amex"];
 const statusOptions = ["Active", "Suspended", "Cancelled", "Expired"];
 const companyOptions = ["CP AXTRA PCL", "Lotus's", "Makro"];
