@@ -46,6 +46,12 @@ interface Props {
 const bankOptions = ["KBank", "SCB", "Bangkok Bank", "Krungthai", "Krungsri", "TTB", "UOB"];
 const networkOptions = ["Visa", "Mastercard", "JCB", "UnionPay", "Amex"];
 const statusOptions = ["Active", "Suspended", "Cancelled", "Expired"];
+const statusLabelTh: Record<string, string> = {
+  Active: "ใช้งานอยู่",
+  Suspended: "ระงับใช้งาน",
+  Cancelled: "ยกเลิกแล้ว",
+  Expired: "หมดอายุ",
+};
 const companyOptions = ["CP AXTRA PCL", "Lotus's", "Makro"];
 const currencyOptions = ["THB", "USD", "EUR", "SGD", "CNY"];
 
@@ -242,7 +248,7 @@ export default function CardManagementForm({ record }: Props = {}) {
             <Select value={effectiveStatus} onValueChange={(v) => set("cardStatus", v)} disabled={expired}>
               <SelectTrigger className={inputCls}><SelectValue /></SelectTrigger>
               <SelectContent>
-                {statusOptions.map((b) => <SelectItem key={b} value={b}>{b}</SelectItem>)}
+                {statusOptions.map((b) => <SelectItem key={b} value={b}>{statusLabelTh[b] ?? b}</SelectItem>)}
               </SelectContent>
             </Select>
           </div>
