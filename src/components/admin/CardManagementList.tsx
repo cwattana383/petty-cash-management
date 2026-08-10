@@ -297,15 +297,15 @@ export default function CardManagementList() {
             onChange={(e) => setSearch(e.target.value)}
           />
           <Select value={type} onValueChange={setType}>
-            <SelectTrigger className="w-[170px] bg-background rounded-lg"><SelectValue /></SelectTrigger>
+            <SelectTrigger className="flex-1 min-w-[150px] bg-background rounded-lg"><SelectValue /></SelectTrigger>
             <SelectContent>{typeOptions.map((o) => <SelectItem key={o} value={o}>{o === ALL ? "Card Type: All" : o}</SelectItem>)}</SelectContent>
           </Select>
           <Select value={bank} onValueChange={setBank}>
-            <SelectTrigger className="w-[150px] bg-background rounded-lg"><SelectValue /></SelectTrigger>
+            <SelectTrigger className="flex-1 min-w-[150px] bg-background rounded-lg"><SelectValue /></SelectTrigger>
             <SelectContent>{bankOptions.map((o) => <SelectItem key={o} value={o}>{o === ALL ? "Bank: All" : bankLabelEn[o] ?? o}</SelectItem>)}</SelectContent>
           </Select>
           <Select value={status} onValueChange={setStatus}>
-            <SelectTrigger className="w-[150px] bg-background rounded-lg"><SelectValue /></SelectTrigger>
+            <SelectTrigger className="flex-1 min-w-[150px] bg-background rounded-lg"><SelectValue /></SelectTrigger>
             <SelectContent>{statusOptions.map((o) => <SelectItem key={o} value={o}>{o === ALL ? "Status: All" : statusLabelTh[o] ?? o}</SelectItem>)}</SelectContent>
           </Select>
           {hasFilters && (
