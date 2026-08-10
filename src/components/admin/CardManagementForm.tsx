@@ -1,4 +1,5 @@
-import { useState } from "react";
+import { useRef, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { CreditCard, User, DollarSign, Truck, Paperclip, FileText, X } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -8,6 +9,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { toast } from "@/hooks/use-toast";
 import EmployeePicker from "@/components/admin/EmployeePicker";
 import { employeeFullName } from "@/lib/employee-directory-mock-data";
+import { useAuth } from "@/lib/auth-context";
 function formatCEDate(v: string) {
   const d = new Date(v);
   if (isNaN(d.getTime())) return v;
@@ -57,9 +59,15 @@ const statusOptions = ["Created", "Active", "Suspended", "Cancelled", "Expired"]
 const companyOptions = ["CP AXTRA PCL", "Lotus's", "Makro"];
 const currencyOptions = ["THB", "USD", "EUR", "SGD", "CNY"];
 
-function generateCardId() {
+function generateCardId(cardType?: string) {
   const n = String(Math.floor(Math.random() * 90000) + 10000).slice(0, 5);
-  return `CC-${new Date().getFullYear() + 543 - 543}-${n}`;
+  const prefix = cardType === "Fleet Card" ? "FL" : "CC";
+  return `${prefix}-${new Date().getFullYear()}-${n}`;
+}
+
+function formatStamp(d: Date) {
+  const p = (n: number) => String(n).padStart(2, "0");
+  return `${p(d.getDate())}/${p(d.getMonth() + 1)}/${d.getFullYear()} ${p(d.getHours())}:${p(d.getMinutes())}:${p(d.getSeconds())}`;
 }
 
 function groupNumber(v: string) {
@@ -103,7 +111,9 @@ function FieldLabel({ children, required }: { children: React.ReactNode; require
 }
 
 export default function CardManagementForm({ record }: Props = {}) {
-  const [cardId] = useState(() => record?.cardId ?? generateCardId());
+  const navigate = useNavigate();
+  const { user } = useAuth();
+  const [cardId, setCardId] = useState(() => record?.cardId ?? "");
   const [form, setForm] = useState<CardManagementRecord>({
     cardType: "Corporate Credit Card",
     currency: "THB",
@@ -114,6 +124,11 @@ export default function CardManagementForm({ record }: Props = {}) {
     { name: "card-request-form.pdf", size: 120 * 1024 },
   ]);
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const [audit, setAudit] = useState<{ by: string; at: string } | null>(null);
+  const fieldRefs = useRef<Record<string, HTMLElement | null>>({});
+  const registerRef = (k: string) => (el: HTMLElement | null) => {
+    fieldRefs.current[k] = el;
+  };
 
   const set = (k: keyof CardManagementRecord, v: string) => setForm((p) => ({ ...p, [k]: v }));
   const isFleet = form.cardType === "Fleet Card";
@@ -121,27 +136,85 @@ export default function CardManagementForm({ record }: Props = {}) {
   const effectiveStatus = expired ? "Expired" : form.cardStatus;
 
   const inputCls = "bg-background border rounded-lg";
+  const errCls = (k: string) => (errors[k] ? " border-2" : "");
+  const errStyle = (k: string) => (errors[k] ? { borderColor: RED } : undefined);
+
+  const validateField = (k: string, f: CardManagementRecord = form): string | undefined => {
+    const credit = toNumber(f.creditLimit);
+    const perTxn = toNumber(f.perTxnLimit);
+    const monthly = toNumber(f.monthlyLimit);
+    switch (k) {
+      case "cardType":
+        return f.cardType ? undefined : "Please enter all required fields";
+      case "last4":
+        if (!f.last4) return "Must be 4 digits";
+        return /^\d{4}$/.test(f.last4) ? undefined : "Must be 4 digits";
+      case "cardholderName":
+        return f.cardholderName?.trim() ? undefined : "Please enter all required fields";
+      case "issuingBank":
+        return f.issuingBank ? undefined : "Please enter all required fields";
+      case "expiry":
+        if (!f.expiry) return "Use MM/YY";
+        if (!/^(0[1-9]|1[0-2])\/\d{2}$/.test(f.expiry)) return "Use MM/YY";
+        return expiryIsPast(f.expiry) ? "Expiry date is in the past" : undefined;
+      case "email":
+        if (!f.email) return undefined;
+        return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(f.email) ? undefined : "Invalid email";
+      case "perTxnLimit":
+        if (isNaN(perTxn) || isNaN(monthly)) return undefined;
+        return perTxn > monthly ? "Must be ≤ Monthly Limit" : undefined;
+      case "monthlyLimit":
+        if (isNaN(monthly) || isNaN(credit)) return undefined;
+        return monthly > credit ? "Must be ≤ Credit Limit" : undefined;
+      default:
+        return undefined;
+    }
+  };
+
+  const runBlur = (...keys: string[]) => {
+    setErrors((prev) => {
+      const next = { ...prev };
+      keys.forEach((k) => {
+        const msg = validateField(k);
+        if (msg) next[k] = msg;
+        else delete next[k];
+      });
+      return next;
+    });
+  };
 
   const handleSave = () => {
+    const keys = ["cardType", "last4", "cardholderName", "issuingBank", "expiry", "email", "perTxnLimit", "monthlyLimit"];
     const e: Record<string, string> = {};
-    if (!form.cardType) e.cardType = "Required";
-    if (!form.last4 || !/^\d{4}$/.test(form.last4)) e.last4 = "Must be 4 digits";
-    if (!form.cardholderName?.trim()) e.cardholderName = "Required";
-    if (!form.issuingBank) e.issuingBank = "Required";
-    if (!form.expiry || !/^(0[1-9]|1[0-2])\/\d{2}$/.test(form.expiry)) e.expiry = "Use MM/YY";
-    else if (expiryIsPast(form.expiry)) e.expiry = "Expiry date is in the past";
-    if (form.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email)) e.email = "Invalid email";
-    const credit = toNumber(form.creditLimit);
-    const perTxn = toNumber(form.perTxnLimit);
-    const monthly = toNumber(form.monthlyLimit);
-    if (!isNaN(perTxn) && !isNaN(monthly) && perTxn > monthly) e.perTxnLimit = "Must be ≤ Monthly Limit";
-    if (!isNaN(monthly) && !isNaN(credit) && monthly > credit) e.monthlyLimit = "Must be ≤ Credit Limit";
+    keys.forEach((k) => {
+      const msg = validateField(k);
+      if (msg) e[k] = msg;
+    });
     setErrors(e);
-    if (Object.keys(e).length > 0) {
-      toast({ title: "Please fix the highlighted fields", variant: "destructive" });
+    const firstInvalid = keys.find((k) => e[k]);
+    if (firstInvalid) {
+      const missingRequired = ["cardType", "last4", "cardholderName", "issuingBank", "expiry"].some(
+        (k) =>
+          !!e[k] &&
+          !form[k as keyof CardManagementRecord],
+      );
+      toast({
+        title: missingRequired ? "Please enter all required fields" : "Please fix the highlighted fields",
+        variant: "destructive",
+      });
+      const el = fieldRefs.current[firstInvalid];
+      if (el) {
+        el.scrollIntoView({ behavior: "smooth", block: "center" });
+        (el as HTMLElement).focus?.();
+      }
       return;
     }
-    toast({ title: "Card saved", description: `${cardId} has been saved successfully.` });
+    const id = cardId || generateCardId(form.cardType);
+    setCardId(id);
+    const stamp = formatStamp(new Date());
+    setAudit({ by: user?.name ?? "System", at: stamp });
+    toast({ title: `Card saved — ${id}` });
+    navigate("/admin/card-management");
   };
 
   const onUpload = (list: FileList | null) => {
@@ -183,10 +256,13 @@ export default function CardManagementForm({ record }: Props = {}) {
           <div className="space-y-2">
             <FieldLabel required>Credit Card Number (Last 4 Digits)</FieldLabel>
             <Input
-              className={inputCls}
+              ref={registerRef("last4") as any}
+              className={inputCls + errCls("last4")}
+              style={errStyle("last4")}
               maxLength={4}
               value={form.last4 ?? ""}
               onChange={(ev) => /^\d{0,4}$/.test(ev.target.value) && set("last4", ev.target.value)}
+              onBlur={() => runBlur("last4")}
             />
             {errors.last4 && <p className="text-xs text-destructive">{errors.last4}</p>}
           </div>
@@ -201,8 +277,8 @@ export default function CardManagementForm({ record }: Props = {}) {
           </div>
           <div className="space-y-2">
             <FieldLabel required>Issuing Bank</FieldLabel>
-            <Select value={form.issuingBank} onValueChange={(v) => set("issuingBank", v)}>
-              <SelectTrigger className={inputCls}><SelectValue placeholder="" /></SelectTrigger>
+            <Select value={form.issuingBank} onValueChange={(v) => { set("issuingBank", v); setErrors((p) => { const n = { ...p }; delete n.issuingBank; return n; }); }}>
+              <SelectTrigger ref={registerRef("issuingBank") as any} className={inputCls + errCls("issuingBank")} style={errStyle("issuingBank")}><SelectValue placeholder="" /></SelectTrigger>
               <SelectContent>
                 {bankOptions.map((b) => <SelectItem key={b} value={b}>{b}</SelectItem>)}
               </SelectContent>
@@ -219,8 +295,11 @@ export default function CardManagementForm({ record }: Props = {}) {
           <div className="space-y-2">
             <FieldLabel required>Expiry Date (MM/YY)</FieldLabel>
             <Input
-              className={inputCls}
+              ref={registerRef("expiry") as any}
+              className={inputCls + errCls("expiry")}
+              style={errStyle("expiry")}
               maxLength={5}
+              onBlur={() => runBlur("expiry")}
               value={form.expiry ?? ""}
               onChange={(ev) => {
                 let v = ev.target.value.replace(/[^\d]/g, "").slice(0, 4);
@@ -241,7 +320,7 @@ export default function CardManagementForm({ record }: Props = {}) {
           </div>
           <div className="space-y-2">
             <FieldLabel required>Cardholder Name</FieldLabel>
-            <Input className={inputCls} value={form.cardholderName ?? ""} onChange={(ev) => set("cardholderName", ev.target.value)} />
+            <Input ref={registerRef("cardholderName") as any} className={inputCls + errCls("cardholderName")} style={errStyle("cardholderName")} value={form.cardholderName ?? ""} onChange={(ev) => set("cardholderName", ev.target.value)} onBlur={() => runBlur("cardholderName")} />
             {!!form.employeeName && form.cardholderName !== form.employeeName && (
               <p className="text-xs text-muted-foreground">Overridden — differs from employee record</p>
             )}
@@ -285,7 +364,7 @@ export default function CardManagementForm({ record }: Props = {}) {
 
           <div className="space-y-2">
             <FieldLabel>Email</FieldLabel>
-            <Input type="email" className={inputCls} value={form.email ?? ""} onChange={(ev) => set("email", ev.target.value)} />
+            <Input ref={registerRef("email") as any} type="email" className={inputCls + errCls("email")} style={errStyle("email")} value={form.email ?? ""} onChange={(ev) => set("email", ev.target.value)} onBlur={() => runBlur("email")} />
             {errors.email && <p className="text-xs text-destructive">{errors.email}</p>}
           </div>
           <div className="space-y-2">
@@ -301,7 +380,7 @@ export default function CardManagementForm({ record }: Props = {}) {
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
           <div className="space-y-2">
             <FieldLabel>Credit Limit</FieldLabel>
-            <Input inputMode="numeric" className={inputCls} value={form.creditLimit ?? ""} onChange={(ev) => set("creditLimit", groupNumber(ev.target.value))} />
+            <Input inputMode="numeric" className={inputCls} value={form.creditLimit ?? ""} onChange={(ev) => set("creditLimit", groupNumber(ev.target.value))} onBlur={() => runBlur("monthlyLimit", "perTxnLimit")} />
           </div>
           <div className="space-y-2">
             <FieldLabel>Currency</FieldLabel>
@@ -314,12 +393,12 @@ export default function CardManagementForm({ record }: Props = {}) {
           </div>
           <div className="space-y-2">
             <FieldLabel>Per-transaction Limit</FieldLabel>
-            <Input inputMode="numeric" className={inputCls} value={form.perTxnLimit ?? ""} onChange={(ev) => set("perTxnLimit", groupNumber(ev.target.value))} />
+            <Input ref={registerRef("perTxnLimit") as any} inputMode="numeric" className={inputCls + errCls("perTxnLimit")} style={errStyle("perTxnLimit")} value={form.perTxnLimit ?? ""} onChange={(ev) => set("perTxnLimit", groupNumber(ev.target.value))} onBlur={() => runBlur("perTxnLimit")} />
             {errors.perTxnLimit && <p className="text-xs text-destructive">{errors.perTxnLimit}</p>}
           </div>
           <div className="space-y-2">
             <FieldLabel>Monthly Limit</FieldLabel>
-            <Input inputMode="numeric" className={inputCls} value={form.monthlyLimit ?? ""} onChange={(ev) => set("monthlyLimit", groupNumber(ev.target.value))} />
+            <Input ref={registerRef("monthlyLimit") as any} inputMode="numeric" className={inputCls + errCls("monthlyLimit")} style={errStyle("monthlyLimit")} value={form.monthlyLimit ?? ""} onChange={(ev) => set("monthlyLimit", groupNumber(ev.target.value))} onBlur={() => runBlur("monthlyLimit", "perTxnLimit")} />
             {errors.monthlyLimit && <p className="text-xs text-destructive">{errors.monthlyLimit}</p>}
           </div>
         </div>
@@ -390,6 +469,11 @@ export default function CardManagementForm({ record }: Props = {}) {
       </Card>
 
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        {audit && (
+          <p className="text-xs text-muted-foreground">
+            {`Created by: ${audit.by} · ${audit.at} | Last modified by: ${audit.by} · ${audit.at}`}
+          </p>
+        )}
         <div className="flex justify-end gap-2">
           <Button variant="outline">Cancel</Button>
           <Button onClick={handleSave} style={{ backgroundColor: RED, color: "#fff" }}>Save Card</Button>
