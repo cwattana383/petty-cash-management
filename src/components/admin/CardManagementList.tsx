@@ -31,8 +31,9 @@ const YELLOW = "#F6C24A";
 
 const ALL = "ทั้งหมด";
 const bankOptions = [ALL, "กสิกรไทย", "กรุงศรี"];
-const statusOptions = [ALL, "Active", "Suspended", "Cancelled", "Expired"];
+const statusOptions = [ALL, "Created", "Active", "Suspended", "Cancelled", "Expired"];
 const statusLabelTh: Record<string, string> = {
+  Created: "Created",
   Active: "Active",
   Suspended: "Suspended",
   Cancelled: "Cancelled",
@@ -75,6 +76,7 @@ function effectiveStatus(row: CardMasterRow): CardMasterStatus {
 
 function StatusPill({ status }: { status: CardMasterStatus }) {
   const map: Record<CardMasterStatus, { color: string; bg: string }> = {
+    Created: { color: "#306FC7", bg: "#E7EFFA" },
     Active: { color: GREEN, bg: "#E6F2F1" },
     Suspended: { color: "#8A6400", bg: "#FDF3D8" },
     Cancelled: { color: "#6B7280", bg: "#F1F2F4" },
