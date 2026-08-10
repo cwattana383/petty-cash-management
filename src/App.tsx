@@ -20,7 +20,7 @@ import AccountingClaimDetail from "./pages/AccountingClaimDetail";
 import Reports from "./pages/Reports";
 
 import Admin from "./pages/Admin";
-import CardInformation from "./pages/CardInformation";
+import CardManagement from "./pages/CardManagement";
 import EmployeeProfileCreate from "./pages/EmployeeProfileCreate";
 import ProjectCreate from "./pages/ProjectCreate";
 import ProjectView from "./pages/ProjectView";
@@ -65,8 +65,10 @@ const App = () => (
                             <Route path="/bank-transactions" element={<RoleGuard allowedRoles={["Admin"]}><BankTransactions /></RoleGuard>} />
                             <Route path="/policy-management" element={<RoleGuard allowedRoles={["Admin"]}><PolicyManagement /></RoleGuard>} />
                             <Route path="/admin" element={<RoleGuard allowedRoles={["Admin"]}><Admin /></RoleGuard>} />
-                            <Route path="/admin/card-information" element={<RoleGuard allowedRoles={["Admin"]}><CardInformation /></RoleGuard>} />
-                            <Route path="/admin/card-information/:cardId" element={<RoleGuard allowedRoles={["Admin"]}><CardInformation /></RoleGuard>} />
+                            <Route path="/admin/card-management" element={<RoleGuard allowedRoles={["Admin"]}><CardManagement /></RoleGuard>} />
+                            <Route path="/admin/card-management/:cardId" element={<RoleGuard allowedRoles={["Admin"]}><CardManagement /></RoleGuard>} />
+                            <Route path="/admin/card-information" element={<Navigate to="/admin/card-management" replace />} />
+                            <Route path="/admin/card-information/:cardId" element={<CardInformationRedirect />} />
                             <Route path="/admin/employee/create" element={<RoleGuard allowedRoles={["Admin"]}><EmployeeProfileCreate /></RoleGuard>} />
                             <Route path="/admin/employee/:id/edit" element={<RoleGuard allowedRoles={["Admin"]}><EmployeeProfileEdit /></RoleGuard>} />
                             <Route path="/admin/employee/:id" element={<RoleGuard allowedRoles={["Admin"]}><EmployeeProfileEdit /></RoleGuard>} />

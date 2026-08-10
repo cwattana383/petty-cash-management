@@ -11,7 +11,7 @@ import ExpenseTypePanelImported from "@/components/admin/ExpenseTypePanel";
 import OcrValidationRulesPanel from "@/components/admin/OcrValidationRulesPanel";
 import DocumentTypePanel from "@/components/admin/DocumentTypePanel";
 import ProjectPanel from "@/components/admin/ProjectPanel";
-import CardListingPanel from "@/components/admin/CardListingPanel";
+import CardManagementList from "@/components/admin/CardManagementList";
 import { MonthEndSummaryPanel } from "./Reports";
 import MonthEndReportNotificationPanel from "@/components/admin/MonthEndReportNotificationPanel";
 import MonthlyCardholderSummaryPanel from "@/components/admin/MonthlyCardholderSummaryPanel";
@@ -104,7 +104,7 @@ const adminMenu = [
     items: [
       { key: "employees", label: "Employee Profiles", icon: Users },
       { key: "roles", label: "Roles & Permissions", icon: Shield },
-      { key: "card-information", label: "Card Information", icon: CreditCardIcon },
+      { key: "card-management", label: "Card Management", icon: CreditCardIcon },
     ],
   },
   {
@@ -1510,7 +1510,7 @@ const panelMap: Record<string, () => JSX.Element> = {
   documents: DocumentTypePanel,
   "expense-type": ExpenseTypePanelImported,
   project: ProjectPanel,
-  "card-information": CardListingPanel,
+  "card-management": CardManagementList,
   "expense-item": ExpenseItemPanel,
   "expense-rules": ExpenseRulesPanel,
   "expense-delegates": ExpenseDelegatesPanel,
