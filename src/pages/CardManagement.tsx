@@ -19,7 +19,7 @@ export default function CardManagement() {
         className="text-sm font-medium"
         style={{ color: "#306FC7" }}
       >
-        ← กลับไปหน้ารายการบัตร
+        ← Back to card list
       </button>
       <CardManagementForm
         record={
