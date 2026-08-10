@@ -114,7 +114,7 @@ export default function CardManagementForm({ record }: Props = {}) {
   const [errors, setErrors] = useState<Record<string, string>>({});
 
   const set = (k: keyof CardManagementRecord, v: string) => setForm((p) => ({ ...p, [k]: v }));
-  const isFleet = form.cardType === "Store Fleet Card";
+  const isFleet = form.cardType === "Fleet Card";
   const expired = !!form.expiry && expiryIsPast(form.expiry);
   const effectiveStatus = expired ? "Expired" : form.cardStatus;
 
@@ -160,7 +160,7 @@ export default function CardManagementForm({ record }: Props = {}) {
       <div className="flex items-start justify-between gap-4">
         <div>
           <h2 className="text-xl font-bold text-foreground">Card Management</h2>
-          <p className="text-sm text-muted-foreground">Corporate Credit Card &amp; Store Fleet Card — Card Master</p>
+          <p className="text-sm text-muted-foreground">Corporate Credit Card &amp; Fleet Card — Card Master</p>
         </div>
         <span
           className="shrink-0 rounded-full px-3 py-1 text-xs font-semibold text-white"
@@ -180,7 +180,7 @@ export default function CardManagementForm({ record }: Props = {}) {
               <SelectTrigger className={inputCls}><SelectValue /></SelectTrigger>
               <SelectContent>
                 <SelectItem value="Corporate Credit Card">Corporate Credit Card</SelectItem>
-                <SelectItem value="Store Fleet Card">Store Fleet Card</SelectItem>
+                <SelectItem value="Fleet Card">Fleet Card</SelectItem>
               </SelectContent>
             </Select>
           </div>
@@ -337,7 +337,7 @@ export default function CardManagementForm({ record }: Props = {}) {
             title="Fleet Card Details"
             badge={
               <span className="rounded-full px-2.5 py-0.5 text-xs font-medium" style={{ backgroundColor: "#E6F2F1", color: GREEN }}>
-                แสดงเมื่อ Card Type = Store Fleet Card
+                แสดงเมื่อ Card Type = Fleet Card
               </span>
             }
           />
