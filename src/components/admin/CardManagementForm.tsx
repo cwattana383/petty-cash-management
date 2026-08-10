@@ -6,6 +6,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from "@/hooks/use-toast";
+import EmployeePicker from "@/components/admin/EmployeePicker";
+import { employeeFullName } from "@/lib/employee-directory-mock-data";
 function formatCEDate(v: string) {
   const d = new Date(v);
   if (isNaN(d.getTime())) return v;
@@ -23,6 +25,7 @@ export interface CardManagementRecord {
   last4?: string;
   cardholderName?: string;
   employeeId?: string;
+  employeeName?: string;
   issuingBank?: string;
   cardNetwork?: string;
   issueDate?: string;
@@ -239,8 +242,12 @@ export default function CardManagementForm({ record }: Props = {}) {
           <div className="space-y-2">
             <FieldLabel required>Cardholder Name</FieldLabel>
             <Input className={inputCls} value={form.cardholderName ?? ""} onChange={(ev) => set("cardholderName", ev.target.value)} />
+            {!!form.employeeName && form.cardholderName !== form.employeeName && (
+              <p className="text-xs text-muted-foreground">Overridden — differs from employee record</p>
+            )}
             {errors.cardholderName && <p className="text-xs text-destructive">{errors.cardholderName}</p>}
           </div>
+
 
         </div>
       </Card>
@@ -251,13 +258,31 @@ export default function CardManagementForm({ record }: Props = {}) {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <div className="space-y-2">
             <FieldLabel>Employee ID</FieldLabel>
-            <Input className={inputCls} value={form.employeeId ?? ""} onChange={(ev) => set("employeeId", ev.target.value)} />
+            <EmployeePicker
+              value={form.employeeId}
+              className={inputCls}
+              onSelect={(e) =>
+                setForm((p) => ({
+                  ...p,
+                  employeeId: e.employeeId,
+                  employeeName: employeeFullName(e),
+                  cardholderName: employeeFullName(e),
+                  position: e.position,
+                  email: e.email,
+                  phone: e.phone,
+                }))
+              }
+            />
           </div>
           <div className="space-y-2">
-
+            <FieldLabel>Employee Name</FieldLabel>
+            <Input className={`${inputCls} bg-muted`} readOnly value={form.employeeName ?? ""} />
+          </div>
+          <div className="space-y-2">
             <FieldLabel>Position / Role</FieldLabel>
             <Input className={inputCls} value={form.position ?? ""} onChange={(ev) => set("position", ev.target.value)} />
           </div>
+
           <div className="space-y-2">
             <FieldLabel>Email</FieldLabel>
             <Input type="email" className={inputCls} value={form.email ?? ""} onChange={(ev) => set("email", ev.target.value)} />
