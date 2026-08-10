@@ -1,7 +1,7 @@
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate, useParams } from "react-router-dom";
 import { AuthProvider } from "@/lib/auth-provider";
 import { AppLayout } from "@/components/layout/AppLayout";
 import { AuthGuard } from "@/components/layout/AuthGuard";
@@ -34,6 +34,11 @@ import Notifications from "./pages/Notifications";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
+
+const CardInformationRedirect = () => {
+  const { cardId } = useParams();
+  return <Navigate to={`/admin/card-management/${cardId}`} replace />;
+};
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
