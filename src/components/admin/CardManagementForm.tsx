@@ -254,26 +254,7 @@ export default function CardManagementForm({ record }: Props = {}) {
             <Input className={inputCls} value={form.employeeId ?? ""} onChange={(ev) => set("employeeId", ev.target.value)} />
           </div>
           <div className="space-y-2">
-            <FieldLabel>Company</FieldLabel>
-            <Select value={form.company} onValueChange={(v) => set("company", v)}>
-              <SelectTrigger className={inputCls}><SelectValue placeholder="" /></SelectTrigger>
-              <SelectContent>
-                {companyOptions.map((b) => <SelectItem key={b} value={b}>{b}</SelectItem>)}
-              </SelectContent>
-            </Select>
-          </div>
-          <div className="space-y-2">
-            <FieldLabel>Department / Cost Center</FieldLabel>
-            <Input className={inputCls} value={form.department ?? ""} onChange={(ev) => set("department", ev.target.value)} />
-          </div>
-          <div className="space-y-2">
-            <div className="flex items-center gap-1.5">
-              <FieldLabel>Store / Branch Code</FieldLabel>
-              <span className="text-xs text-muted-foreground">(Fleet)</span>
-            </div>
-            <Input className={inputCls} value={form.storeCode ?? ""} onChange={(ev) => set("storeCode", ev.target.value)} />
-          </div>
-          <div className="space-y-2">
+
             <FieldLabel>Position / Role</FieldLabel>
             <Input className={inputCls} value={form.position ?? ""} onChange={(ev) => set("position", ev.target.value)} />
           </div>
