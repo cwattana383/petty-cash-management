@@ -30,7 +30,7 @@ const GREEN = "#43938F";
 const YELLOW = "#F6C24A";
 
 const ALL = "ทั้งหมด";
-const bankOptions = [ALL, "กสิกรไทย", "กรุงศรี", "ไทยพาณิชย์", "กรุงเทพ", "กรุงไทย", "ทีทีบี"];
+const bankOptions = [ALL, "กสิกรไทย", "กรุงศรี"];
 const statusOptions = [ALL, "Active", "Suspended", "Cancelled", "Expired"];
 const statusLabelTh: Record<string, string> = {
   Active: "Active",
