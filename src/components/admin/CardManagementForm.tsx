@@ -161,12 +161,6 @@ export default function CardManagementForm({ record }: Props = {}) {
           <h2 className="text-xl font-bold text-foreground">Card Management</h2>
           <p className="text-sm text-muted-foreground">Corporate Credit Card &amp; Fleet Card — Card Master</p>
         </div>
-        <span
-          className="shrink-0 rounded-full px-3 py-1 text-xs font-semibold text-white"
-          style={{ backgroundColor: BLUE }}
-        >
-          Card ID: {cardId}
-        </span>
       </div>
 
       {/* SECTION 1 */}
@@ -393,9 +387,6 @@ export default function CardManagementForm({ record }: Props = {}) {
       </Card>
 
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-        <p className="text-xs text-muted-foreground">
-          Created by: Somchai Jaidee · {"18/05/2026 09:12:00"} | Last modified by: Somchai Jaidee · {"09/08/2026 14:05:00"}
-        </p>
         <div className="flex justify-end gap-2">
           <Button variant="outline">Cancel</Button>
           <Button onClick={handleSave} style={{ backgroundColor: RED, color: "#fff" }}>Save Card</Button>
