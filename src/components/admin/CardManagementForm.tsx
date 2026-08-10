@@ -6,7 +6,12 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from "@/hooks/use-toast";
-import { formatBEDate, formatBEDateTime } from "@/lib/utils";
+function formatCEDate(v: string) {
+  const d = new Date(v);
+  if (isNaN(d.getTime())) return v;
+  const p = (n: number) => String(n).padStart(2, "0");
+  return `${p(d.getDate())}/${p(d.getMonth() + 1)}/${d.getFullYear()}`;
+}
 
 const RED = "#DA3832";
 const BLUE = "#306FC7";
@@ -46,12 +51,6 @@ interface Props {
 const bankOptions = ["KBank", "SCB", "Bangkok Bank", "Krungthai", "Krungsri", "TTB", "UOB"];
 const networkOptions = ["Visa", "Mastercard", "JCB", "UnionPay", "Amex"];
 const statusOptions = ["Active", "Suspended", "Cancelled", "Expired"];
-const statusLabelTh: Record<string, string> = {
-  Active: "ใช้งานอยู่",
-  Suspended: "ระงับใช้งาน",
-  Cancelled: "ยกเลิกแล้ว",
-  Expired: "หมดอายุ",
-};
 const companyOptions = ["CP AXTRA PCL", "Lotus's", "Makro"];
 const currencyOptions = ["THB", "USD", "EUR", "SGD", "CNY"];
 
@@ -175,7 +174,7 @@ export default function CardManagementForm({ record }: Props = {}) {
         <SectionHeader icon={CreditCard} title="Credit Card Information" />
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <div className="space-y-2">
-            <FieldLabel required>Card Type · ประเภทบัตร</FieldLabel>
+            <FieldLabel required>Card Type</FieldLabel>
             <Select value={form.cardType} onValueChange={(v) => set("cardType", v)}>
               <SelectTrigger className={inputCls}><SelectValue /></SelectTrigger>
               <SelectContent>
@@ -200,11 +199,11 @@ export default function CardManagementForm({ record }: Props = {}) {
             {errors.cardholderName && <p className="text-xs text-destructive">{errors.cardholderName}</p>}
           </div>
           <div className="space-y-2">
-            <FieldLabel>Employee ID · รหัสพนักงาน</FieldLabel>
+            <FieldLabel>Employee ID</FieldLabel>
             <Input className={inputCls} value={form.employeeId ?? ""} onChange={(ev) => set("employeeId", ev.target.value)} />
           </div>
           <div className="space-y-2">
-            <FieldLabel required>Issuing Bank · ธนาคารผู้ออกบัตร</FieldLabel>
+            <FieldLabel required>Issuing Bank</FieldLabel>
             <Select value={form.issuingBank} onValueChange={(v) => set("issuingBank", v)}>
               <SelectTrigger className={inputCls}><SelectValue placeholder="" /></SelectTrigger>
               <SelectContent>
@@ -214,7 +213,7 @@ export default function CardManagementForm({ record }: Props = {}) {
             {errors.issuingBank && <p className="text-xs text-destructive">{errors.issuingBank}</p>}
           </div>
           <div className="space-y-2">
-            <FieldLabel>Card Network · เครือข่ายบัตร</FieldLabel>
+            <FieldLabel>Card Network</FieldLabel>
             <Select value={form.cardNetwork} onValueChange={(v) => set("cardNetwork", v)}>
               <SelectTrigger className={inputCls}><SelectValue placeholder="" /></SelectTrigger>
               <SelectContent>
@@ -223,14 +222,14 @@ export default function CardManagementForm({ record }: Props = {}) {
             </Select>
           </div>
           <div className="space-y-2">
-            <FieldLabel>Issue Date · วันที่ออกบัตร</FieldLabel>
+            <FieldLabel>Issue Date</FieldLabel>
             <div className="flex items-center gap-2">
               <Input type="date" className={inputCls} value={form.issueDate ?? ""} onChange={(ev) => set("issueDate", ev.target.value)} />
-              {form.issueDate && <span className="text-sm text-muted-foreground whitespace-nowrap">{formatBEDate(form.issueDate)}</span>}
+              {form.issueDate && <span className="text-sm text-muted-foreground whitespace-nowrap">{formatCEDate(form.issueDate)}</span>}
             </div>
           </div>
           <div className="space-y-2">
-            <FieldLabel required>Expiry Date (MM/YY) · วันหมดอายุ</FieldLabel>
+            <FieldLabel required>Expiry Date (MM/YY)</FieldLabel>
             <Input
               className={inputCls}
               maxLength={5}
@@ -244,11 +243,11 @@ export default function CardManagementForm({ record }: Props = {}) {
             {errors.expiry && <p className="text-xs text-destructive">{errors.expiry}</p>}
           </div>
           <div className="space-y-2">
-            <FieldLabel>Card Status · สถานะบัตร</FieldLabel>
+            <FieldLabel>Card Status</FieldLabel>
             <Select value={effectiveStatus} onValueChange={(v) => set("cardStatus", v)} disabled={expired}>
               <SelectTrigger className={inputCls}><SelectValue /></SelectTrigger>
               <SelectContent>
-                {statusOptions.map((b) => <SelectItem key={b} value={b}>{statusLabelTh[b] ?? b}</SelectItem>)}
+                {statusOptions.map((b) => <SelectItem key={b} value={b}>{b}</SelectItem>)}
               </SelectContent>
             </Select>
           </div>
@@ -260,7 +259,7 @@ export default function CardManagementForm({ record }: Props = {}) {
         <SectionHeader icon={User} title="Cardholder &amp; Ownership" />
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <div className="space-y-2">
-            <FieldLabel>Company · บริษัท</FieldLabel>
+            <FieldLabel>Company</FieldLabel>
             <Select value={form.company} onValueChange={(v) => set("company", v)}>
               <SelectTrigger className={inputCls}><SelectValue placeholder="" /></SelectTrigger>
               <SelectContent>
@@ -269,27 +268,27 @@ export default function CardManagementForm({ record }: Props = {}) {
             </Select>
           </div>
           <div className="space-y-2">
-            <FieldLabel>Department / Cost Center · ฝ่าย/ศูนย์ต้นทุน</FieldLabel>
+            <FieldLabel>Department / Cost Center</FieldLabel>
             <Input className={inputCls} value={form.department ?? ""} onChange={(ev) => set("department", ev.target.value)} />
           </div>
           <div className="space-y-2">
             <div className="flex items-center gap-1.5">
-              <FieldLabel>Store / Branch Code · รหัสสาขา</FieldLabel>
+              <FieldLabel>Store / Branch Code</FieldLabel>
               <span className="text-xs text-muted-foreground">(Fleet)</span>
             </div>
             <Input className={inputCls} value={form.storeCode ?? ""} onChange={(ev) => set("storeCode", ev.target.value)} />
           </div>
           <div className="space-y-2">
-            <FieldLabel>Position / Role · ตำแหน่ง</FieldLabel>
+            <FieldLabel>Position / Role</FieldLabel>
             <Input className={inputCls} value={form.position ?? ""} onChange={(ev) => set("position", ev.target.value)} />
           </div>
           <div className="space-y-2">
-            <FieldLabel>Email · อีเมล</FieldLabel>
+            <FieldLabel>Email</FieldLabel>
             <Input type="email" className={inputCls} value={form.email ?? ""} onChange={(ev) => set("email", ev.target.value)} />
             {errors.email && <p className="text-xs text-destructive">{errors.email}</p>}
           </div>
           <div className="space-y-2">
-            <FieldLabel>Phone · เบอร์โทร</FieldLabel>
+            <FieldLabel>Phone</FieldLabel>
             <Input type="tel" className={inputCls} value={form.phone ?? ""} onChange={(ev) => set("phone", ev.target.value)} />
           </div>
         </div>
@@ -300,11 +299,11 @@ export default function CardManagementForm({ record }: Props = {}) {
         <SectionHeader icon={DollarSign} title="Financial Control" />
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
           <div className="space-y-2">
-            <FieldLabel>Credit Limit · วงเงิน</FieldLabel>
+            <FieldLabel>Credit Limit</FieldLabel>
             <Input inputMode="numeric" className={inputCls} value={form.creditLimit ?? ""} onChange={(ev) => set("creditLimit", groupNumber(ev.target.value))} />
           </div>
           <div className="space-y-2">
-            <FieldLabel>Currency · สกุลเงิน</FieldLabel>
+            <FieldLabel>Currency</FieldLabel>
             <Select value={form.currency} onValueChange={(v) => set("currency", v)}>
               <SelectTrigger className={inputCls}><SelectValue /></SelectTrigger>
               <SelectContent>
@@ -313,17 +312,17 @@ export default function CardManagementForm({ record }: Props = {}) {
             </Select>
           </div>
           <div className="space-y-2">
-            <FieldLabel>Per-transaction Limit · วงเงินต่อรายการ</FieldLabel>
+            <FieldLabel>Per-transaction Limit</FieldLabel>
             <Input inputMode="numeric" className={inputCls} value={form.perTxnLimit ?? ""} onChange={(ev) => set("perTxnLimit", groupNumber(ev.target.value))} />
             {errors.perTxnLimit && <p className="text-xs text-destructive">{errors.perTxnLimit}</p>}
           </div>
           <div className="space-y-2">
-            <FieldLabel>Monthly Limit · วงเงินต่อเดือน</FieldLabel>
+            <FieldLabel>Monthly Limit</FieldLabel>
             <Input inputMode="numeric" className={inputCls} value={form.monthlyLimit ?? ""} onChange={(ev) => set("monthlyLimit", groupNumber(ev.target.value))} />
             {errors.monthlyLimit && <p className="text-xs text-destructive">{errors.monthlyLimit}</p>}
           </div>
           <div className="space-y-2 md:col-span-2">
-            <FieldLabel>GL Account / Account Mapping · ผังบัญชี</FieldLabel>
+            <FieldLabel>GL Account / Account Mapping</FieldLabel>
             <Input className={inputCls} value={form.glAccount ?? ""} onChange={(ev) => set("glAccount", ev.target.value)} />
           </div>
         </div>
@@ -337,22 +336,22 @@ export default function CardManagementForm({ record }: Props = {}) {
             title="Fleet Card Details"
             badge={
               <span className="rounded-full px-2.5 py-0.5 text-xs font-medium" style={{ backgroundColor: "#E6F2F1", color: GREEN }}>
-                แสดงเมื่อ Card Type = Fleet Card
+                Shown when Card Type = Fleet Card
               </span>
             }
           />
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div className="space-y-2">
-              <FieldLabel>Vehicle / Plate No. · ทะเบียนรถ</FieldLabel>
-              <Input className={inputCls} placeholder="กข-1234 กรุงเทพฯ" value={form.plateNo ?? ""} onChange={(ev) => set("plateNo", ev.target.value)} />
+              <FieldLabel>Vehicle / Plate No.</FieldLabel>
+              <Input className={inputCls} placeholder="AB-1234 Bangkok" value={form.plateNo ?? ""} onChange={(ev) => set("plateNo", ev.target.value)} />
             </div>
             <div className="space-y-2">
-              <FieldLabel>Fuel Type · ประเภทเชื้อเพลิง</FieldLabel>
+              <FieldLabel>Fuel Type</FieldLabel>
               <Input className={inputCls} placeholder="Diesel / Gasohol 95" value={form.fuelType ?? ""} onChange={(ev) => set("fuelType", ev.target.value)} />
             </div>
             <div className="space-y-2">
-              <FieldLabel>Usage Rules · กฎการใช้งาน</FieldLabel>
-              <Input className={inputCls} placeholder="รอ Ops/HR ยืนยัน" value={form.usageRules ?? ""} onChange={(ev) => set("usageRules", ev.target.value)} />
+              <FieldLabel>Usage Rules</FieldLabel>
+              <Input className={inputCls} placeholder="Pending Ops/HR confirmation" value={form.usageRules ?? ""} onChange={(ev) => set("usageRules", ev.target.value)} />
             </div>
           </div>
         </Card>
@@ -395,7 +394,7 @@ export default function CardManagementForm({ record }: Props = {}) {
 
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <p className="text-xs text-muted-foreground">
-          Created by: Somchai Jaidee · {formatBEDateTime("2026-05-18T09:12:00")} | Last modified by: Somchai Jaidee · {formatBEDateTime("2026-08-09T14:05:00")}
+          Created by: Somchai Jaidee · {"18/05/2026 09:12:00"} | Last modified by: Somchai Jaidee · {"09/08/2026 14:05:00"}
         </p>
         <div className="flex justify-end gap-2">
           <Button variant="outline">Cancel</Button>
