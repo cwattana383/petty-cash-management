@@ -80,7 +80,7 @@ function StatusPill({ status }: { status: CardMasterStatus }) {
 
 type SortKey = "cardId" | "creditLimit" | "expiry";
 
-export default function CardListingPanel() {
+export default function CardManagementList() {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
@@ -198,7 +198,7 @@ export default function CardListingPanel() {
     const url = URL.createObjectURL(new Blob([csv], { type: "text/csv;charset=utf-8;" }));
     const a = document.createElement("a");
     a.href = url;
-    a.download = "card-information.csv";
+    a.download = "card-management.csv";
     a.click();
     URL.revokeObjectURL(url);
   };
@@ -257,14 +257,14 @@ export default function CardListingPanel() {
     <div className="space-y-4 rounded-xl p-4" style={{ backgroundColor: "#F5F6F7" }}>
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div>
-          <h2 className="text-xl font-bold text-foreground">Card Information</h2>
+          <h2 className="text-xl font-bold text-foreground">Card Management</h2>
           <p className="text-sm text-muted-foreground">
             ทะเบียนบัตรเครดิตองค์กรและบัตรน้ำมัน · Corporate Card &amp; Fleet Card Register
           </p>
         </div>
         <div className="flex items-center gap-2">
           <Button variant="outline" onClick={exportExcel}>ส่งออก Excel</Button>
-          <Button style={{ backgroundColor: RED, color: "#fff" }} onClick={() => navigate("/admin/card-information/new")}>
+          <Button style={{ backgroundColor: RED, color: "#fff" }} onClick={() => navigate("/admin/card-management/new")}>
             + สร้างบัตรใหม่
           </Button>
         </div>
@@ -356,7 +356,7 @@ export default function CardListingPanel() {
                     {rows.length === 0 ? (
                       <>
                         <p className="mt-3 text-sm text-muted-foreground">ยังไม่มีข้อมูลบัตรในระบบ</p>
-                        <Button className="mt-3" style={{ backgroundColor: RED, color: "#fff" }} onClick={() => navigate("/admin/card-information/new")}>
+                        <Button className="mt-3" style={{ backgroundColor: RED, color: "#fff" }} onClick={() => navigate("/admin/card-management/new")}>
                           + สร้างบัตรใหม่
                         </Button>
                       </>
@@ -380,7 +380,7 @@ export default function CardListingPanel() {
                       key={r.cardId}
                       className="border-t hover:bg-muted/40 cursor-pointer"
                       style={{ height: 64 }}
-                      onClick={() => navigate(`/admin/card-information/${r.cardId}`)}
+                      onClick={() => navigate(`/admin/card-management/${r.cardId}`)}
                     >
                       <td className="px-4 py-3 font-mono font-semibold text-foreground">{r.cardId}</td>
                       <td className="px-4 py-3">
@@ -419,8 +419,8 @@ export default function CardListingPanel() {
                             </Button>
                           </DropdownMenuTrigger>
                           <DropdownMenuContent align="end">
-                            <DropdownMenuItem onClick={() => navigate(`/admin/card-information/${r.cardId}`)}>ดูรายละเอียด</DropdownMenuItem>
-                            <DropdownMenuItem onClick={() => navigate(`/admin/card-information/${r.cardId}`)}>แก้ไข</DropdownMenuItem>
+                            <DropdownMenuItem onClick={() => navigate(`/admin/card-management/${r.cardId}`)}>ดูรายละเอียด</DropdownMenuItem>
+                            <DropdownMenuItem onClick={() => navigate(`/admin/card-management/${r.cardId}`)}>แก้ไข</DropdownMenuItem>
                             <DropdownMenuItem onClick={() => setConfirm({ row: r, action: "Suspend" })}>ระงับการใช้งาน (Suspend)</DropdownMenuItem>
                             <DropdownMenuItem onClick={() => setConfirm({ row: r, action: "Cancel" })}>ยกเลิกบัตร (Cancel)</DropdownMenuItem>
                           </DropdownMenuContent>

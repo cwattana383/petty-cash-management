@@ -1,13 +1,13 @@
 import { useNavigate, useParams } from "react-router-dom";
-import CardInformationPanel from "@/components/admin/CardInformationPanel";
-import CardListingPanel from "@/components/admin/CardListingPanel";
+import CardManagementForm from "@/components/admin/CardManagementForm";
+import CardManagementList from "@/components/admin/CardManagementList";
 import { CARD_MASTER_ROWS } from "@/lib/card-master-mock-data";
 
-export default function CardInformation() {
+export default function CardManagement() {
   const { cardId } = useParams();
   const navigate = useNavigate();
 
-  if (!cardId) return <CardListingPanel />;
+  if (!cardId) return <CardManagementList />;
 
   const row = cardId === "new" ? undefined : CARD_MASTER_ROWS.find((r) => r.cardId === cardId);
 
@@ -15,13 +15,13 @@ export default function CardInformation() {
     <div className="space-y-3">
       <button
         type="button"
-        onClick={() => navigate("/admin/card-information")}
+        onClick={() => navigate("/admin/card-management")}
         className="text-sm font-medium"
         style={{ color: "#306FC7" }}
       >
         ← กลับไปหน้ารายการบัตร
       </button>
-      <CardInformationPanel
+      <CardManagementForm
         record={
           cardId === "new"
             ? undefined

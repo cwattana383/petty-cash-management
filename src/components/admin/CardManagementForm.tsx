@@ -12,7 +12,7 @@ const RED = "#DA3832";
 const BLUE = "#306FC7";
 const GREEN = "#43938F";
 
-export interface CardInformationRecord {
+export interface CardManagementRecord {
   cardId?: string;
   cardType?: string;
   last4?: string;
@@ -40,7 +40,7 @@ export interface CardInformationRecord {
 }
 
 interface Props {
-  record?: CardInformationRecord;
+  record?: CardManagementRecord;
 }
 
 const bankOptions = ["KBank", "SCB", "Bangkok Bank", "Krungthai", "Krungsri", "TTB", "UOB"];
@@ -94,9 +94,9 @@ function FieldLabel({ children, required }: { children: React.ReactNode; require
   );
 }
 
-export default function CardInformationPanel({ record }: Props = {}) {
+export default function CardManagementForm({ record }: Props = {}) {
   const [cardId] = useState(() => record?.cardId ?? generateCardId());
-  const [form, setForm] = useState<CardInformationRecord>({
+  const [form, setForm] = useState<CardManagementRecord>({
     cardType: "Corporate Credit Card",
     currency: "THB",
     cardStatus: "Active",
@@ -107,7 +107,7 @@ export default function CardInformationPanel({ record }: Props = {}) {
   ]);
   const [errors, setErrors] = useState<Record<string, string>>({});
 
-  const set = (k: keyof CardInformationRecord, v: string) => setForm((p) => ({ ...p, [k]: v }));
+  const set = (k: keyof CardManagementRecord, v: string) => setForm((p) => ({ ...p, [k]: v }));
   const isFleet = form.cardType === "Store Fleet Card";
   const expired = !!form.expiry && expiryIsPast(form.expiry);
   const effectiveStatus = expired ? "Expired" : form.cardStatus;
@@ -153,7 +153,7 @@ export default function CardInformationPanel({ record }: Props = {}) {
     <div className="space-y-4 rounded-xl p-4" style={{ backgroundColor: "#F5F6F7" }}>
       <div className="flex items-start justify-between gap-4">
         <div>
-          <h2 className="text-xl font-bold text-foreground">Card Information</h2>
+          <h2 className="text-xl font-bold text-foreground">Card Management</h2>
           <p className="text-sm text-muted-foreground">Corporate Credit Card &amp; Store Fleet Card — Card Master</p>
         </div>
         <span
