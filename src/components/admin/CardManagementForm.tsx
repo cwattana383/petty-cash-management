@@ -316,10 +316,6 @@ export default function CardManagementForm({ record }: Props = {}) {
             <Input inputMode="numeric" className={inputCls} value={form.monthlyLimit ?? ""} onChange={(ev) => set("monthlyLimit", groupNumber(ev.target.value))} />
             {errors.monthlyLimit && <p className="text-xs text-destructive">{errors.monthlyLimit}</p>}
           </div>
-          <div className="space-y-2 md:col-span-2">
-            <FieldLabel>GL Account / Account Mapping</FieldLabel>
-            <Input className={inputCls} value={form.glAccount ?? ""} onChange={(ev) => set("glAccount", ev.target.value)} />
-          </div>
         </div>
       </Card>
 
