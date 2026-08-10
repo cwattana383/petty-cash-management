@@ -66,6 +66,7 @@ const App = () => (
                             <Route path="/policy-management" element={<RoleGuard allowedRoles={["Admin"]}><PolicyManagement /></RoleGuard>} />
                             <Route path="/admin" element={<RoleGuard allowedRoles={["Admin"]}><Admin /></RoleGuard>} />
                             <Route path="/admin/card-information" element={<RoleGuard allowedRoles={["Admin"]}><CardInformation /></RoleGuard>} />
+                            <Route path="/admin/card-information/:cardId" element={<RoleGuard allowedRoles={["Admin"]}><CardInformation /></RoleGuard>} />
                             <Route path="/admin/employee/create" element={<RoleGuard allowedRoles={["Admin"]}><EmployeeProfileCreate /></RoleGuard>} />
                             <Route path="/admin/employee/:id/edit" element={<RoleGuard allowedRoles={["Admin"]}><EmployeeProfileEdit /></RoleGuard>} />
                             <Route path="/admin/employee/:id" element={<RoleGuard allowedRoles={["Admin"]}><EmployeeProfileEdit /></RoleGuard>} />
