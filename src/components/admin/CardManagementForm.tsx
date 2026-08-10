@@ -50,7 +50,7 @@ interface Props {
 
 const bankOptions = ["KBank", "Krungsri"];
 const networkOptions = ["Visa", "Mastercard", "JCB", "UnionPay", "Amex"];
-const statusOptions = ["Active", "Suspended", "Cancelled", "Expired"];
+const statusOptions = ["Created", "Active", "Suspended", "Cancelled", "Expired"];
 const companyOptions = ["CP AXTRA PCL", "Lotus's", "Makro"];
 const currencyOptions = ["THB", "USD", "EUR", "SGD", "CNY"];
 
@@ -104,7 +104,7 @@ export default function CardManagementForm({ record }: Props = {}) {
   const [form, setForm] = useState<CardManagementRecord>({
     cardType: "Corporate Credit Card",
     currency: "THB",
-    cardStatus: "Active",
+    cardStatus: "Created",
     ...record,
   });
   const [files, setFiles] = useState<{ name: string; size: number }[]>([

@@ -1,4 +1,4 @@
-export type CardMasterStatus = "Active" | "Suspended" | "Cancelled" | "Expired";
+export type CardMasterStatus = "Created" | "Active" | "Suspended" | "Cancelled" | "Expired";
 
 export interface CardMasterRow {
   cardId: string;
