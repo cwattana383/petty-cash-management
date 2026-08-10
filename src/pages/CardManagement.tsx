@@ -27,7 +27,7 @@ export default function CardManagement() {
             ? undefined
             : {
                 cardId,
-                cardType: row?.kind === "fleet" ? "Store Fleet Card" : "Corporate Credit Card",
+                cardType: row?.kind === "fleet" ? "Fleet Card" : "Corporate Credit Card",
                 last4: row?.last4,
                 cardholderName: row?.cardholderName,
                 employeeId: row?.employeeId,
