@@ -33,10 +33,18 @@ const ALL = "ทั้งหมด";
 const bankOptions = [ALL, "กสิกรไทย", "กรุงศรี", "ไทยพาณิชย์", "กรุงเทพ", "กรุงไทย", "ทีทีบี"];
 const statusOptions = [ALL, "Active", "Suspended", "Cancelled", "Expired"];
 const statusLabelTh: Record<string, string> = {
-  Active: "ใช้งานอยู่",
-  Suspended: "ระงับใช้งาน",
-  Cancelled: "ยกเลิกแล้ว",
-  Expired: "หมดอายุ",
+  Active: "Active",
+  Suspended: "Suspended",
+  Cancelled: "Cancelled",
+  Expired: "Expired",
+};
+const bankLabelEn: Record<string, string> = {
+  "กสิกรไทย": "KBank",
+  "กรุงศรี": "Krungsri",
+  "ไทยพาณิชย์": "SCB",
+  "กรุงเทพ": "Bangkok Bank",
+  "กรุงไทย": "Krungthai",
+  "ทีทีบี": "TTB",
 };
 const companyOptions = [ALL, "CP AXTRA PCL", "Lotus's", "Makro"];
 const typeOptions = [ALL, "Corporate Credit", "Fleet"];
@@ -159,12 +167,12 @@ export default function CardManagementList() {
   const to = Math.min(page * pageSize, filtered.length);
 
   const chips: { label: string; clear: () => void }[] = [];
-  if (debounced) chips.push({ label: `ค้นหา: ${debounced}`, clear: () => setSearch("") });
-  if (type !== ALL) chips.push({ label: `ประเภทบัตร: ${type}`, clear: () => setType(ALL) });
-  if (bank !== ALL) chips.push({ label: `ธนาคาร: ${bank}`, clear: () => setBank(ALL) });
-  if (status !== ALL) chips.push({ label: `สถานะ: ${statusLabelTh[status] ?? status}`, clear: () => setStatus(ALL) });
-  if (company !== ALL) chips.push({ label: `บริษัท: ${company}`, clear: () => setCompany(ALL) });
-  if (expiringOnly) chips.push({ label: "ใกล้หมดอายุ", clear: () => setExpiringOnly(false) });
+  if (debounced) chips.push({ label: `Search: ${debounced}`, clear: () => setSearch("") });
+  if (type !== ALL) chips.push({ label: `Card Type: ${type}`, clear: () => setType(ALL) });
+  if (bank !== ALL) chips.push({ label: `Bank: ${bankLabelEn[bank] ?? bank}`, clear: () => setBank(ALL) });
+  if (status !== ALL) chips.push({ label: `Status: ${statusLabelTh[status] ?? status}`, clear: () => setStatus(ALL) });
+  if (company !== ALL) chips.push({ label: `Company: ${company}`, clear: () => setCompany(ALL) });
+  if (expiringOnly) chips.push({ label: "Expiring Soon", clear: () => setExpiringOnly(false) });
   const hasFilters = chips.length > 0;
 
   const clearAll = () => {
@@ -185,14 +193,14 @@ export default function CardManagementList() {
   };
 
   const exportExcel = () => {
-    const header = ["Card ID", "ประเภท", "ธนาคาร", "Last 4", "ผูกกับ", "วงเงิน", "หมดอายุ", "สถานะ"];
+    const header = ["CARD ID", "TYPE", "BANK", "LAST 4", "LINKED TO", "CREDIT LIMIT", "EXPIRY", "STATUS"];
     const lines = filtered.map((r) =>
       [
         r.cardId,
         r.kind === "corporate" ? "Corporate Credit" : `Fleet (${r.fuelBrand ?? "-"})`,
-        r.bankTh,
+        bankLabelEn[r.bankTh] ?? r.bankTh,
         r.last4,
-        r.kind === "corporate" ? `พนักงาน · ${r.cardholderName ?? ""}` : `ยานพาหนะ · ${r.plateNo ?? ""}`,
+        r.kind === "corporate" ? `Employee · ${r.cardholderName ?? ""}` : `Vehicle · ${r.plateNo ?? ""}`,
         String(r.creditLimit),
         expiryBE(r.expiry),
         statusLabelTh[effectiveStatus(r)] ?? effectiveStatus(r),
@@ -229,9 +237,9 @@ export default function CardManagementList() {
   );
 
   const statCards = [
-    { label: "บัตรทั้งหมด", value: stats.total, color: "inherit", onClick: clearAll },
+    { label: "Total Cards", value: stats.total, color: "inherit", onClick: clearAll },
     {
-      label: "ใช้งานอยู่",
+      label: "Active",
       value: stats.active,
       color: GREEN,
       onClick: () => {
@@ -240,7 +248,7 @@ export default function CardManagementList() {
       },
     },
     {
-      label: "ระงับใช้งาน",
+      label: "Suspended",
       value: stats.suspended,
       color: YELLOW,
       onClick: () => {
@@ -249,7 +257,7 @@ export default function CardManagementList() {
       },
     },
     {
-      label: "ใกล้หมดอายุ (บัตรที่หมดอายุภายใน 90 วัน)",
+      label: "Expiring Soon (within 90 days)",
       value: stats.expiring,
       color: RED,
       onClick: () => {
@@ -264,11 +272,12 @@ export default function CardManagementList() {
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div>
           <h2 className="text-xl font-bold text-foreground">Card Management</h2>
+          <p className="text-sm text-muted-foreground">Corporate Card &amp; Fleet Card Register</p>
         </div>
         <div className="flex items-center gap-2">
-          <Button variant="outline" onClick={exportExcel}>ส่งออก Excel</Button>
+          <Button variant="outline" onClick={exportExcel}>Export to Excel</Button>
           <Button style={{ backgroundColor: RED, color: "#fff" }} onClick={() => navigate("/admin/card-management/new")}>
-            + สร้างบัตรใหม่
+            + New Card
           </Button>
         </div>
       </div>
@@ -288,28 +297,28 @@ export default function CardManagementList() {
         <div className="flex flex-wrap items-center gap-2">
           <Input
             className="flex-1 min-w-[240px] bg-background rounded-lg"
-            placeholder="ค้นหา Card ID, ชื่อผู้ถือบัตร, เลข 4 หลักท้าย, ทะเบียนรถ"
+            placeholder="Search Card ID, cardholder name, last 4 digits, plate no."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
           />
           <Select value={type} onValueChange={setType}>
             <SelectTrigger className="w-[170px] bg-background rounded-lg"><SelectValue /></SelectTrigger>
-            <SelectContent>{typeOptions.map((o) => <SelectItem key={o} value={o}>{o === ALL ? "ประเภทบัตร: ทั้งหมด" : o}</SelectItem>)}</SelectContent>
+            <SelectContent>{typeOptions.map((o) => <SelectItem key={o} value={o}>{o === ALL ? "Card Type: All" : o}</SelectItem>)}</SelectContent>
           </Select>
           <Select value={bank} onValueChange={setBank}>
             <SelectTrigger className="w-[150px] bg-background rounded-lg"><SelectValue /></SelectTrigger>
-            <SelectContent>{bankOptions.map((o) => <SelectItem key={o} value={o}>{o === ALL ? "ธนาคาร: ทั้งหมด" : o}</SelectItem>)}</SelectContent>
+            <SelectContent>{bankOptions.map((o) => <SelectItem key={o} value={o}>{o === ALL ? "Bank: All" : bankLabelEn[o] ?? o}</SelectItem>)}</SelectContent>
           </Select>
           <Select value={status} onValueChange={setStatus}>
             <SelectTrigger className="w-[150px] bg-background rounded-lg"><SelectValue /></SelectTrigger>
-            <SelectContent>{statusOptions.map((o) => <SelectItem key={o} value={o}>{o === ALL ? "สถานะ: ทั้งหมด" : statusLabelTh[o] ?? o}</SelectItem>)}</SelectContent>
+            <SelectContent>{statusOptions.map((o) => <SelectItem key={o} value={o}>{o === ALL ? "Status: All" : statusLabelTh[o] ?? o}</SelectItem>)}</SelectContent>
           </Select>
           <Select value={company} onValueChange={setCompany}>
             <SelectTrigger className="w-[170px] bg-background rounded-lg"><SelectValue /></SelectTrigger>
-            <SelectContent>{companyOptions.map((o) => <SelectItem key={o} value={o}>{o === ALL ? "บริษัท: ทั้งหมด" : o}</SelectItem>)}</SelectContent>
+            <SelectContent>{companyOptions.map((o) => <SelectItem key={o} value={o}>{o === ALL ? "Company: All" : o}</SelectItem>)}</SelectContent>
           </Select>
           {hasFilters && (
-            <Button variant="ghost" onClick={clearAll} style={{ color: "#306FC7" }}>ล้างตัวกรอง</Button>
+            <Button variant="ghost" onClick={clearAll} style={{ color: "#306FC7" }}>Clear filters</Button>
           )}
         </div>
         {hasFilters && (
@@ -317,7 +326,7 @@ export default function CardManagementList() {
             {chips.map((c) => (
               <span key={c.label} className="inline-flex items-center gap-1 rounded-full border bg-background px-3 py-1 text-xs">
                 {c.label}
-                <button type="button" onClick={c.clear} aria-label={`ลบ ${c.label}`}>
+                <button type="button" onClick={c.clear} aria-label={`Remove ${c.label}`}>
                   <X className="h-3 w-3" />
                 </button>
               </span>
@@ -332,13 +341,13 @@ export default function CardManagementList() {
             <thead>
               <tr style={{ backgroundColor: "#F5F6F7" }} className="text-left">
                 <th className="px-4 py-3"><SortHeader k="cardId">Card ID</SortHeader></th>
-                <th className="px-4 py-3 text-xs font-bold uppercase tracking-wide text-muted-foreground">ประเภท</th>
-                <th className="px-4 py-3 text-xs font-bold uppercase tracking-wide text-muted-foreground">ธนาคาร</th>
-                <th className="px-4 py-3 text-xs font-bold uppercase tracking-wide text-muted-foreground">Last 4</th>
-                <th className="px-4 py-3 text-xs font-bold uppercase tracking-wide text-muted-foreground">ผูกกับ</th>
-                <th className="px-4 py-3"><SortHeader k="creditLimit" align="right">วงเงิน</SortHeader></th>
-                <th className="px-4 py-3"><SortHeader k="expiry">หมดอายุ</SortHeader></th>
-                <th className="px-4 py-3 text-xs font-bold uppercase tracking-wide text-muted-foreground">สถานะ</th>
+                <th className="px-4 py-3 text-xs font-bold uppercase tracking-wide text-muted-foreground">TYPE</th>
+                <th className="px-4 py-3 text-xs font-bold uppercase tracking-wide text-muted-foreground">BANK</th>
+                <th className="px-4 py-3 text-xs font-bold uppercase tracking-wide text-muted-foreground">LAST 4</th>
+                <th className="px-4 py-3 text-xs font-bold uppercase tracking-wide text-muted-foreground">LINKED TO</th>
+                <th className="px-4 py-3"><SortHeader k="creditLimit" align="right">CREDIT LIMIT</SortHeader></th>
+                <th className="px-4 py-3"><SortHeader k="expiry">EXPIRY</SortHeader></th>
+                <th className="px-4 py-3 text-xs font-bold uppercase tracking-wide text-muted-foreground">STATUS</th>
                 <th className="px-4 py-3 w-10" />
               </tr>
             </thead>
@@ -358,15 +367,15 @@ export default function CardManagementList() {
                     <CreditCard className="mx-auto h-10 w-10 text-muted-foreground" />
                     {rows.length === 0 ? (
                       <>
-                        <p className="mt-3 text-sm text-muted-foreground">ยังไม่มีข้อมูลบัตรในระบบ</p>
+                        <p className="mt-3 text-sm text-muted-foreground">No cards yet</p>
                         <Button className="mt-3" style={{ backgroundColor: RED, color: "#fff" }} onClick={() => navigate("/admin/card-management/new")}>
-                          + สร้างบัตรใหม่
+                          + New Card
                         </Button>
                       </>
                     ) : (
                       <>
-                        <p className="mt-3 text-sm text-muted-foreground">ไม่พบบัตรที่ตรงกับเงื่อนไขการค้นหา</p>
-                        <Button variant="outline" className="mt-3" onClick={clearAll}>ล้างตัวกรอง</Button>
+                        <p className="mt-3 text-sm text-muted-foreground">No cards match your filters</p>
+                        <Button variant="outline" className="mt-3" onClick={clearAll}>Clear filters</Button>
                       </>
                     )}
                   </td>
@@ -389,16 +398,16 @@ export default function CardManagementList() {
                       <td className="px-4 py-3">
                         {r.kind === "corporate" ? "Corporate Credit" : `Fleet (${r.fuelBrand})`}
                       </td>
-                      <td className="px-4 py-3">{r.bankTh}</td>
+                      <td className="px-4 py-3">{bankLabelEn[r.bankTh] ?? r.bankTh}</td>
                       <td className="px-4 py-3 font-mono">{r.last4}</td>
                       <td className="px-4 py-3">
                         {r.kind === "corporate" ? (
                           <div>
-                            <div>พนักงาน</div>
+                            <div>Employee</div>
                             <div className="text-xs text-muted-foreground">{r.cardholderName}</div>
                           </div>
                         ) : (
-                          <span>ยานพาหนะ · {r.plateNo}</span>
+                          <span>Vehicle · {r.plateNo}</span>
                         )}
                       </td>
                       <td className="px-4 py-3 text-right font-bold">{r.creditLimit.toLocaleString("en-US")}</td>
@@ -417,15 +426,15 @@ export default function CardManagementList() {
                       <td className="px-4 py-3" onClick={(e) => e.stopPropagation()}>
                         <DropdownMenu>
                           <DropdownMenuTrigger asChild>
-                            <Button variant="ghost" size="icon" aria-label="เมนู">
+                            <Button variant="ghost" size="icon" aria-label="Menu">
                               <MoreHorizontal className="h-4 w-4" />
                             </Button>
                           </DropdownMenuTrigger>
                           <DropdownMenuContent align="end">
-                            <DropdownMenuItem onClick={() => navigate(`/admin/card-management/${r.cardId}`)}>ดูรายละเอียด</DropdownMenuItem>
-                            <DropdownMenuItem onClick={() => navigate(`/admin/card-management/${r.cardId}`)}>แก้ไข</DropdownMenuItem>
-                            <DropdownMenuItem onClick={() => setConfirm({ row: r, action: "Suspend" })}>ระงับใช้งาน</DropdownMenuItem>
-                            <DropdownMenuItem onClick={() => setConfirm({ row: r, action: "Cancel" })}>ยกเลิกบัตร</DropdownMenuItem>
+                            <DropdownMenuItem onClick={() => navigate(`/admin/card-management/${r.cardId}`)}>View details</DropdownMenuItem>
+                            <DropdownMenuItem onClick={() => navigate(`/admin/card-management/${r.cardId}`)}>Edit</DropdownMenuItem>
+                            <DropdownMenuItem onClick={() => setConfirm({ row: r, action: "Suspend" })}>Suspend card</DropdownMenuItem>
+                            <DropdownMenuItem onClick={() => setConfirm({ row: r, action: "Cancel" })}>Cancel card</DropdownMenuItem>
                           </DropdownMenuContent>
                         </DropdownMenu>
                       </td>
@@ -439,16 +448,17 @@ export default function CardManagementList() {
 
       <div className="flex flex-wrap items-center justify-between gap-3">
         <p className="text-sm text-muted-foreground">
-          แสดง {from}–{to} จาก {filtered.length} รายการ
+          Showing {from}–{to} of {filtered.length} cards
         </p>
         <div className="flex items-center gap-2">
+          <span className="text-sm text-muted-foreground">Rows per page</span>
           <Select value={String(pageSize)} onValueChange={(v) => setPageSize(Number(v))}>
             <SelectTrigger className="w-[90px] bg-background rounded-lg"><SelectValue /></SelectTrigger>
             <SelectContent>
               {[20, 50, 100].map((n) => <SelectItem key={n} value={String(n)}>{n}</SelectItem>)}
             </SelectContent>
           </Select>
-          <Button variant="outline" size="sm" disabled={page <= 1} onClick={() => setPage((p) => p - 1)}>ก่อนหน้า</Button>
+          <Button variant="outline" size="sm" disabled={page <= 1} onClick={() => setPage((p) => p - 1)}>Previous</Button>
           {Array.from({ length: totalPages }).map((_, i) => (
             <Button
               key={i}
@@ -460,7 +470,7 @@ export default function CardManagementList() {
               {i + 1}
             </Button>
           ))}
-          <Button variant="outline" size="sm" disabled={page >= totalPages} onClick={() => setPage((p) => p + 1)}>ถัดไป</Button>
+          <Button variant="outline" size="sm" disabled={page >= totalPages} onClick={() => setPage((p) => p + 1)}>Next</Button>
         </div>
       </div>
 
@@ -468,17 +478,17 @@ export default function CardManagementList() {
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle>
-              {confirm?.action === "Suspend" ? "ระงับการใช้งานบัตร" : "ยกเลิกบัตร"}
+              {confirm?.action === "Suspend" ? "Suspend card" : "Cancel card"}
             </AlertDialogTitle>
             <AlertDialogDescription>
               {confirm?.action === "Suspend"
-                ? `ยืนยันการระงับการใช้งานบัตร ${confirm?.row.cardId}?`
-                : `ยืนยันการยกเลิกบัตร ${confirm?.row.cardId}?`}
+                ? `Confirm suspending card ${confirm?.row.cardId}?`
+                : `Confirm cancelling card ${confirm?.row.cardId}?`}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>ยกเลิก</AlertDialogCancel>
-            <AlertDialogAction onClick={applyAction} style={{ backgroundColor: RED, color: "#fff" }}>ยืนยัน</AlertDialogAction>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={applyAction} style={{ backgroundColor: RED, color: "#fff" }}>Confirm</AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
