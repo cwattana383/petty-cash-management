@@ -76,6 +76,7 @@ function effectiveStatus(row: CardMasterRow): CardMasterStatus {
 
 function StatusPill({ status }: { status: CardMasterStatus }) {
   const map: Record<CardMasterStatus, { color: string; bg: string }> = {
+    Created: { color: "#306FC7", bg: "#E7EFFA" },
     Active: { color: GREEN, bg: "#E6F2F1" },
     Suspended: { color: "#8A6400", bg: "#FDF3D8" },
     Cancelled: { color: "#6B7280", bg: "#F1F2F4" },
