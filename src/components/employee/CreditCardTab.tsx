@@ -1,10 +1,8 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { CreditCard } from "lucide-react";
+import { CreditCard, Lock } from "lucide-react";
 
 interface Props {
-  employeeName: string;
+  employeeName?: string;
   last4Digit?: string;
   cardHolderName?: string;
   onChangeLast4?: (val: string) => void;
@@ -14,55 +12,46 @@ interface Props {
   showErrors?: boolean;
 }
 
-export default function CreditCardTab({
-  employeeName,
-  last4Digit = "",
-  cardHolderName,
-  onChangeLast4,
-  onChangeHolder,
-  readOnly,
-  required,
-  showErrors,
-}: Props) {
-  const holder = cardHolderName ?? employeeName;
-  const last4Error = showErrors && required && !last4Digit;
-  const holderError = showErrors && required && !holder.trim();
+const CARD_ROWS = [
+  { type: "Fleet Card", last4: "4821", status: "Active" },
+  { type: "Credit Card", last4: "7390", status: "Suspended" },
+  { type: "Fleet Card", last4: "1156", status: "Expired" },
+];
 
+export default function CreditCardTab(_props: Props) {
   return (
     <Card>
       <CardHeader>
         <CardTitle className="flex items-center gap-2 text-base">
           <CreditCard className="h-5 w-5 text-primary" />
-          Credit Card Information
+          Card information
+          <span className="inline-flex items-center gap-1 rounded-full bg-muted px-2 py-0.5 text-[12px] font-normal text-muted-foreground">
+            <Lock className="h-3 w-3" />
+            Read only
+          </span>
         </CardTitle>
       </CardHeader>
       <CardContent>
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <div className="space-y-2">
-            <Label>Credit Card Number (Last 4 Digits){required && <span className="text-destructive">*</span>}</Label>
-            <Input
-              maxLength={4}
-              placeholder="0000"
-              value={last4Digit}
-              disabled={readOnly}
-              className={last4Error ? "border-destructive focus-visible:ring-destructive" : ""}
-              onChange={(e) => {
-                if (/^\d{0,4}$/.test(e.target.value)) onChangeLast4?.(e.target.value);
-              }}
-            />
-            {last4Error && <p className="text-sm text-destructive">Please enter the last 4 digits of the card</p>}
+        <div>
+          <div
+            className="grid gap-3 border-t border-border px-1 py-3 text-[12px] text-muted-foreground"
+            style={{ gridTemplateColumns: "1fr 1.2fr 1fr", borderTopWidth: "0.5px" }}
+          >
+            <div>Card type</div>
+            <div>Card number (last 4 digits)</div>
+            <div>Card status</div>
           </div>
-          <div className="space-y-2">
-            <Label>Cardholder Name{required && <span className="text-destructive">*</span>}</Label>
-            <Input
-              placeholder="Cardholder name on card"
-              value={holder}
-              disabled={readOnly}
-              className={holderError ? "border-destructive focus-visible:ring-destructive" : ""}
-              onChange={(e) => onChangeHolder?.(e.target.value)}
-            />
-            {holderError && <p className="text-sm text-destructive">Please enter the cardholder name</p>}
-          </div>
+          {CARD_ROWS.map((row) => (
+            <div
+              key={`${row.type}-${row.last4}`}
+              className="grid gap-3 border-t border-border px-1 py-3 text-[14px] text-foreground"
+              style={{ gridTemplateColumns: "1fr 1.2fr 1fr", borderTopWidth: "0.5px" }}
+            >
+              <div>{row.type}</div>
+              <div className="font-mono">{row.last4}</div>
+              <div>{row.status}</div>
+            </div>
+          ))}
         </div>
       </CardContent>
     </Card>
