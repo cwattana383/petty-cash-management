@@ -70,6 +70,10 @@ function formatStamp(d: Date) {
   return `${p(d.getDate())}/${p(d.getMonth() + 1)}/${d.getFullYear()} ${p(d.getHours())}:${p(d.getMinutes())}:${p(d.getSeconds())}`;
 }
 
+function formatCardDigits(v: string) {
+  return v.replace(/\D/g, "").slice(0, 16).replace(/(.{4})/g, "$1 ").trim();
+}
+
 function groupNumber(v: string) {
   const digits = v.replace(/[^\d]/g, "");
   if (!digits) return "";
