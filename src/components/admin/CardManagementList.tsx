@@ -392,7 +392,11 @@ export default function CardManagementList() {
                         {r.kind === "corporate" ? "Corporate Credit" : "Fleet Card"}
                       </td>
                       <td className="px-4 py-3">{bankLabelEn[r.bankTh] ?? r.bankTh}</td>
-                      <td className="px-4 py-3 font-mono">{r.last4}</td>
+                      <td className="px-4 py-3 font-mono">
+                        {r.kind === "fleet"
+                          ? `•••• •••• •••• ${r.last4.slice(-4)}`
+                          : `•••• ${r.last4.slice(-4)}`}
+                      </td>
                       <td className="px-4 py-3">
                         {r.kind === "corporate" ? (
                           <div>

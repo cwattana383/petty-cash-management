@@ -70,6 +70,10 @@ function formatStamp(d: Date) {
   return `${p(d.getDate())}/${p(d.getMonth() + 1)}/${d.getFullYear()} ${p(d.getHours())}:${p(d.getMinutes())}:${p(d.getSeconds())}`;
 }
 
+function formatCardDigits(v: string) {
+  return v.replace(/\D/g, "").slice(0, 16).replace(/(.{4})/g, "$1 ").trim();
+}
+
 function groupNumber(v: string) {
   const digits = v.replace(/[^\d]/g, "");
   if (!digits) return "";
@@ -146,9 +150,11 @@ export default function CardManagementForm({ record }: Props = {}) {
     switch (k) {
       case "cardType":
         return f.cardType ? undefined : "Please enter all required fields";
-      case "last4":
-        if (!f.last4) return "Must be 4 digits";
-        return /^\d{4}$/.test(f.last4) ? undefined : "Must be 4 digits";
+      case "last4": {
+        const digits = (f.last4 ?? "").replace(/\D/g, "");
+        const need = f.cardType === "Fleet Card" ? 16 : 4;
+        return digits.length === need ? undefined : `Card number must be exactly ${need} digits`;
+      }
       case "cardholderName":
         return f.cardholderName?.trim() ? undefined : "Please enter all required fields";
       case "issuingBank":
@@ -241,11 +247,17 @@ export default function CardManagementForm({ record }: Props = {}) {
 
       {/* SECTION 1 */}
       <Card className="rounded-2xl p-5">
-        <SectionHeader icon={CreditCard} title="Credit Card Information" />
+        <SectionHeader icon={CreditCard} title="Card Information" />
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <div className="space-y-2">
             <FieldLabel required>Card Type</FieldLabel>
-            <Select value={form.cardType} onValueChange={(v) => set("cardType", v)}>
+            <Select
+              value={form.cardType}
+              onValueChange={(v) => {
+                setForm((p) => ({ ...p, cardType: v, last4: "" }));
+                setErrors((p) => { const n = { ...p }; delete n.last4; return n; });
+              }}
+            >
               <SelectTrigger className={inputCls}><SelectValue /></SelectTrigger>
               <SelectContent>
                 <SelectItem value="Corporate Credit Card">Corporate Credit Card</SelectItem>
@@ -254,17 +266,28 @@ export default function CardManagementForm({ record }: Props = {}) {
             </Select>
           </div>
           <div className="space-y-2">
-            <FieldLabel required>Credit Card Number (Last 4 Digits)</FieldLabel>
+            <FieldLabel required>Card Number</FieldLabel>
             <Input
               ref={registerRef("last4") as any}
               className={inputCls + errCls("last4")}
               style={errStyle("last4")}
-              maxLength={4}
-              value={form.last4 ?? ""}
-              onChange={(ev) => /^\d{0,4}$/.test(ev.target.value) && set("last4", ev.target.value)}
+              inputMode="numeric"
+              maxLength={isFleet ? 19 : 4}
+              placeholder={isFleet ? "1114700054212262" : "1234"}
+              value={isFleet ? formatCardDigits(form.last4 ?? "") : (form.last4 ?? "")}
+              onChange={(ev) => {
+                const digits = ev.target.value.replace(/\D/g, "").slice(0, isFleet ? 16 : 4);
+                set("last4", digits);
+              }}
               onBlur={() => runBlur("last4")}
             />
-            {errors.last4 && <p className="text-xs text-destructive">{errors.last4}</p>}
+            {errors.last4 ? (
+              <p className="text-xs text-destructive">{errors.last4}</p>
+            ) : (
+              <p className="text-xs text-muted-foreground">
+                {isFleet ? "Enter the full 16-digit card number" : "Enter the last 4 digits only"}
+              </p>
+            )}
           </div>
           <div className="space-y-2">
             <FieldLabel>Card Status</FieldLabel>
