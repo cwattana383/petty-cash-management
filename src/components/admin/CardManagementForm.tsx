@@ -146,9 +146,11 @@ export default function CardManagementForm({ record }: Props = {}) {
     switch (k) {
       case "cardType":
         return f.cardType ? undefined : "Please enter all required fields";
-      case "last4":
-        if (!f.last4) return "Must be 4 digits";
-        return /^\d{4}$/.test(f.last4) ? undefined : "Must be 4 digits";
+      case "last4": {
+        const digits = (f.last4 ?? "").replace(/\D/g, "");
+        const need = f.cardType === "Fleet Card" ? 16 : 4;
+        return digits.length === need ? undefined : `Card number must be exactly ${need} digits`;
+      }
       case "cardholderName":
         return f.cardholderName?.trim() ? undefined : "Please enter all required fields";
       case "issuingBank":
