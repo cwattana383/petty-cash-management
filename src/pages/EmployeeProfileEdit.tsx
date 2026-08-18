@@ -13,6 +13,7 @@ import { useRolesOverview } from "@/hooks/use-roles";
 import { useEmployee, useUpdateEmployee } from "@/hooks/use-employees";
 import CreditCardTab from "@/components/employee/CreditCardTab";
 import ApprovalChainTab from "@/components/employee/ApprovalChainTab";
+import DelegatedAccessTab from "@/components/employee/DelegatedAccessTab";
 import type { ApprovalLevel } from "@/components/employee/employee-types";
 import type { CreateApprovalLevelData } from "@/hooks/use-employees";
 
