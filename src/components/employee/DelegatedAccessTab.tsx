@@ -135,7 +135,6 @@ export default function DelegatedAccessTab({ assistants, onAdd, onRemove }: Prop
           <div className="space-y-4">
             <div className="space-y-2">
 
-            <div className="space-y-2">
               <Label htmlFor="assistant-code">Employee Code</Label>
               <Input
                 id="assistant-code"
