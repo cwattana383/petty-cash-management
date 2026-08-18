@@ -4,6 +4,8 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import EmployeePicker from "@/components/admin/EmployeePicker";
+import { employeeFullName } from "@/lib/employee-directory-mock-data";
 import {
   Dialog,
   DialogContent,
@@ -134,12 +136,12 @@ export default function DelegatedAccessTab({ assistants, onAdd, onRemove }: Prop
           </DialogHeader>
           <div className="space-y-4">
             <div className="space-y-2">
-
               <Label htmlFor="assistant-code">Employee Code</Label>
-              <Input
-                id="assistant-code"
-                value={form.employeeCode}
-                onChange={(e) => setForm((p) => ({ ...p, employeeCode: e.target.value }))}
+              <EmployeePicker
+                value={form.employeeCode ? `${form.name} — ${form.employeeCode}` : ""}
+                onSelect={(e) =>
+                  setForm({ name: employeeFullName(e), employeeCode: e.employeeId })
+                }
               />
             </div>
           </div>
@@ -147,7 +149,7 @@ export default function DelegatedAccessTab({ assistants, onAdd, onRemove }: Prop
             <Button type="button" variant="outline" onClick={() => setDialogOpen(false)}>
               Cancel
             </Button>
-            <Button type="button" onClick={handleSave}>
+            <Button type="button" onClick={handleSave} disabled={!form.employeeCode}>
               Save
             </Button>
           </DialogFooter>
