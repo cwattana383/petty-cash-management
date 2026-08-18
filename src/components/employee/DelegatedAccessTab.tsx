@@ -134,13 +134,7 @@ export default function DelegatedAccessTab({ assistants, onAdd, onRemove }: Prop
           </DialogHeader>
           <div className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="assistant-name">Assistant Name</Label>
-              <Input
-                id="assistant-name"
-                value={form.name}
-                onChange={(e) => setForm((p) => ({ ...p, name: e.target.value }))}
-              />
-            </div>
+
             <div className="space-y-2">
               <Label htmlFor="assistant-code">Employee Code</Label>
               <Input
