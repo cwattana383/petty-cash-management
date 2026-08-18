@@ -283,12 +283,16 @@ export default function EmployeeProfileEdit() {
         showErrors={saveAttempted && isCardholderSelected}
       />
 
+      {/* Delegated Access — Assistants */}
+      <DelegatedAccessTab cardholderName={employeeName || "the cardholder"} />
+
       {/* Section 3: Approval Chain */}
       <ApprovalChainTab
         onLevelsChange={handleLevelsChange}
         initialLevels={initialApprovalLevels}
         readOnly={isViewMode}
       />
+
 
       {/* Footer Buttons */}
       {!isViewMode && (
