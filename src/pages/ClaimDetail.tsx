@@ -19,6 +19,12 @@ import OcrVerifyModal, { type OcrExtractedData, type OcrVerifyConfirmMeta } from
 import { mockCompanyIdentities } from "@/components/admin/EntityTypes";
 import { useToast } from "@/hooks/use-toast";
 import AuditTrail, { resolveTrailForClaim } from "@/components/claims/AuditTrail";
+import DelegatedAuditTrail from "@/components/claims/DelegatedAuditTrail";
+
+/** Single demo claim rendered with the delegated-access audit trail. */
+const DELEGATED_AUDIT_CLAIM_NOS = ["Transaction20260415004", "CLM-Transaction20260415004"];
+const isDelegatedAuditClaim = (c: { claimNo?: string; id?: string }) =>
+  DELEGATED_AUDIT_CLAIM_NOS.includes(c?.claimNo || "") || DELEGATED_AUDIT_CLAIM_NOS.includes(c?.id || "");
 import { ResponsePanel } from "@/components/claims/ResponsePanel";
 import { useState, useCallback, useRef, useMemo, useEffect } from "react";
 import { useQueryClient } from "@tanstack/react-query";
@@ -1754,7 +1760,7 @@ export default function ClaimDetail() {
             </Card>
           </section>
 
-          <AuditTrail events={resolveTrailForClaim(claim)} />
+          {isDelegatedAuditClaim(claim) ? <DelegatedAuditTrail /> : <AuditTrail events={resolveTrailForClaim(claim)} />}
         </div>
 
         {readOnlyPreviewDoc && (
@@ -1898,7 +1904,7 @@ export default function ClaimDetail() {
           </section>
 
           {/* ══════ SECTION 4 — AUDIT TRAIL ══════ */}
-          <AuditTrail events={resolveTrailForClaim(claim)} />
+          {isDelegatedAuditClaim(claim) ? <DelegatedAuditTrail /> : <AuditTrail events={resolveTrailForClaim(claim)} />}
         </div>
 
 
@@ -2608,7 +2614,7 @@ export default function ClaimDetail() {
 
         {/* ══════ AUDIT TRAIL (visible to all roles) ══════ */}
         <div className="mt-8">
-          <AuditTrail events={resolveTrailForClaim(claim)} />
+          {isDelegatedAuditClaim(claim) ? <DelegatedAuditTrail /> : <AuditTrail events={resolveTrailForClaim(claim)} />}
         </div>
       </div>
 
