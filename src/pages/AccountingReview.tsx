@@ -361,7 +361,13 @@ export default function AccountingReview() {
                     <TableRow key={item.id} className={cn("cursor-pointer hover:bg-muted/30", drawerItemId === item.id && "bg-accent")} onClick={() => navigate(`/accounting/${item.id}`)}>
                       <TableCell className="font-medium">{item.id}</TableCell>
                       <TableCell>{formatBEDate(item.date)}</TableCell>
+                      <TableCell>
+                        <Badge className={cardTypeColors[getCardType(item.id)]} variant="outline">
+                          {getCardType(item.id)}
+                        </Badge>
+                      </TableCell>
                       <TableCell>{item.merchantName}</TableCell>
+
                       <TableCell>{item.description}</TableCell>
                       <TableCell className="text-right font-medium">{item.amount}</TableCell>
                       <TableCell>
