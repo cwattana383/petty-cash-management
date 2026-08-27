@@ -152,6 +152,7 @@ export default function MyClaims() {
   }, [claimsOverlayQuery.data]);
   const filteredItems = useMemo(() => {
     return rawItems.filter((txn) => {
+      if (cardType !== "all" && cardTypeOf(txn.bankTransactionId) !== cardType) return false;
       const claim = txn.bankTransactionId ? claimByBankTxnId.get(txn.bankTransactionId) : undefined;
       const att = attachments[rowRouteId(txn)];
       const displayFromClaim = claim ? toDisplayStatus(claim.status, !!att, claim.statusDisplay) : null;
@@ -161,16 +162,25 @@ export default function MyClaims() {
       const docStatus = toDocumentContractStatus(rawDoc);
       return isPortalStatusInTab(portalStatus, activeTab, docStatus, claim);
     });
-  }, [rawItems, claimByBankTxnId, attachments, activeTab]);
+  }, [rawItems, claimByBankTxnId, attachments, activeTab, cardType]);
 
   const items = filteredItems;
-  const meta = corpQuery.data?.data?.meta ?? {
+  const baseMeta = corpQuery.data?.data?.meta ?? {
     total: 0,
     totalAmount: 0,
     page,
     limit: PAGE_SIZE,
     totalPages: 1,
   };
+  const meta =
+    cardType === "all"
+      ? baseMeta
+      : {
+          ...baseMeta,
+          total: filteredItems.length,
+          totalAmount: filteredItems.reduce((s, t) => s + (t.amount ?? 0), 0),
+        };
+
 
   const stats = statsQuery.data;
   const showDeductionCol = activeTab === "rejected" || activeTab === "all";
