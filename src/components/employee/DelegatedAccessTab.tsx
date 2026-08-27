@@ -219,7 +219,7 @@ export default function DelegatedAccessTab({ assistants, onAdd, onRemove }: Prop
               <TableRow>
                 <TableHead className="text-xs font-medium text-muted-foreground">Assistant</TableHead>
                 <TableHead className="text-xs font-medium text-muted-foreground">Employee Code</TableHead>
-                <TableHead className="text-xs font-medium text-muted-foreground">Permissions</TableHead>
+                
                 <TableHead className="w-28 text-xs font-medium text-muted-foreground">Valid From</TableHead>
                 <TableHead className="w-28 text-xs font-medium text-muted-foreground">Valid Until</TableHead>
                 <TableHead className="w-24 text-center text-xs font-medium text-muted-foreground">Status</TableHead>
@@ -229,7 +229,7 @@ export default function DelegatedAccessTab({ assistants, onAdd, onRemove }: Prop
             <TableBody>
               {rows.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={7} className="py-8 text-center text-sm text-muted-foreground">
+                  <TableCell colSpan={6} className="py-8 text-center text-sm text-muted-foreground">
                     No assistants added yet. Click + Add Assistant to add one.
                   </TableCell>
                 </TableRow>
@@ -238,9 +238,6 @@ export default function DelegatedAccessTab({ assistants, onAdd, onRemove }: Prop
                   <TableRow key={`${row.employeeCode}-${index}`}>
                     <TableCell>{row.name}</TableCell>
                     <TableCell>{row.employeeCode}</TableCell>
-                    <TableCell>
-                      <PermissionChips permissions={row.permissions ?? []} />
-                    </TableCell>
                     <TableCell className="whitespace-nowrap">{formatDate(row.validFrom)}</TableCell>
                     <TableCell className="whitespace-nowrap">
                       {row.validUntil ? (
