@@ -2,7 +2,12 @@ import { useState, type ReactNode } from "react";
 import { useNavigate } from "react-router-dom";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Check, X, Paperclip } from "lucide-react";
+import { Check, X, Paperclip, Search } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Badge } from "@/components/ui/badge";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+
 import {
   Table,
   TableBody,
@@ -96,12 +101,27 @@ function inboxActionsCell(
   return <span className="text-xs text-muted-foreground text-center block">—</span>;
 }
 
+/** Mock-only card type assignment for UI demonstration. */
+function getInboxCardType(claimNo: string): "Credit Card" | "Fleet Card" {
+  const key = claimNo ?? "";
+  let sum = 0;
+  for (let i = 0; i < key.length; i++) sum += key.charCodeAt(i);
+  return sum % 2 === 0 ? "Fleet Card" : "Credit Card";
+}
+
+const inboxCardTypeColors: Record<string, string> = {
+  "Credit Card": "bg-blue-100 text-blue-800 border-blue-300",
+  "Fleet Card": "bg-green-100 text-green-800 border-green-300",
+};
+
 export default function ApprovalInbox() {
   const navigate = useNavigate();
   const { toast } = useToast();
   const { user } = useAuth();
 
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
+  const [searchQuery, setSearchQuery] = useState("");
+  const [cardTypeFilter, setCardTypeFilter] = useState<"all" | "Credit Card" | "Fleet Card">("all");
   const [rejectDialog, setRejectDialog] = useState<{
     id: string;
     claimNo: string;
@@ -113,8 +133,41 @@ export default function ApprovalInbox() {
   const approveMutation = useApproveClaimInbox();
   const rejectMutation = useRejectClaimInbox();
 
-  const claims = (inboxData?.data ?? []).filter((c) => !isAutoApprovedInboxClaim(c));
+  const allClaims = (inboxData?.data ?? []).filter((c) => !isAutoApprovedInboxClaim(c));
+  const q = searchQuery.trim().toLowerCase();
+  const claims = allClaims.filter((c) => {
+    if (cardTypeFilter !== "all" && getInboxCardType(c.claimNo) !== cardTypeFilter) return false;
+    if (!q) return true;
+    return [c.claimNo, c.requesterName, c.department, c.purpose]
+      .filter(Boolean)
+      .some((v) => String(v).toLowerCase().includes(q));
+  });
   const actionableClaims = claims.filter((c) => needsApproverAction(c));
+
+  const cardTypeScoped =
+    cardTypeFilter === "all"
+      ? allClaims
+      : allClaims.filter((c) => getInboxCardType(c.claimNo) === cardTypeFilter);
+  const scopedPending = cardTypeScoped.filter((c) => needsApproverAction(c));
+  const summary =
+    cardTypeFilter === "all"
+      ? {
+          pendingCount: stats?.pendingCount ?? 0,
+          approvedThisMonth: stats?.approvedThisMonth ?? 0,
+          totalPendingAmount: stats?.totalPendingAmount ?? 0,
+        }
+      : {
+          pendingCount: scopedPending.length,
+          approvedThisMonth: Math.round(
+            (stats?.approvedThisMonth ?? 0) *
+              (allClaims.length > 0 ? cardTypeScoped.length / allClaims.length : 0),
+          ),
+          totalPendingAmount: scopedPending.reduce(
+            (sum, c) => sum + Number(c.totalAmount ?? 0),
+            0,
+          ),
+        };
+
 
   const handleApprove = (id: string, claimNo: string) => {
     if (!user) return;
@@ -201,7 +254,7 @@ export default function ApprovalInbox() {
         <Card>
           <CardContent className="p-4 text-center">
             <p className="text-2xl font-bold text-primary">
-              {stats?.pendingCount ?? 0}
+              {summary.pendingCount}
             </p>
             <p className="text-sm text-muted-foreground">Pending</p>
           </CardContent>
@@ -209,7 +262,7 @@ export default function ApprovalInbox() {
         <Card>
           <CardContent className="p-4 text-center">
             <p className="text-2xl font-bold text-foreground">
-              {stats?.approvedThisMonth ?? 0}
+              {summary.approvedThisMonth}
             </p>
             <p className="text-sm text-muted-foreground">Approved This Month</p>
             <p className="text-[11px] text-muted-foreground mt-1 leading-snug">
@@ -221,7 +274,7 @@ export default function ApprovalInbox() {
           <CardContent className="p-4 text-center">
             <p className="text-2xl font-bold text-foreground">
               ฿
-              {(stats?.totalPendingAmount ?? 0).toLocaleString("en-US", {
+              {summary.totalPendingAmount.toLocaleString("en-US", {
                 minimumFractionDigits: 2,
                 maximumFractionDigits: 2,
               })}
@@ -232,6 +285,30 @@ export default function ApprovalInbox() {
           </CardContent>
         </Card>
       </div>
+
+      {/* Search & Card Type Filter */}
+      <div className="rounded-lg border border-border bg-background p-4 space-y-3">
+        <div className="relative">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+          <Input
+            placeholder="Search expenses..."
+            className="pl-9"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+          />
+        </div>
+        <div className="flex items-center gap-3">
+          <Label className="text-sm text-foreground shrink-0">Card Type:</Label>
+          <Tabs value={cardTypeFilter} onValueChange={(v) => setCardTypeFilter(v as typeof cardTypeFilter)}>
+            <TabsList>
+              <TabsTrigger value="all">All Cards</TabsTrigger>
+              <TabsTrigger value="Credit Card">Credit Card</TabsTrigger>
+              <TabsTrigger value="Fleet Card">Fleet Card</TabsTrigger>
+            </TabsList>
+          </Tabs>
+        </div>
+      </div>
+
 
       {/* Bulk action bar */}
       {selectedIds.size > 0 && (
@@ -285,6 +362,7 @@ export default function ApprovalInbox() {
                   />
                 </TableHead>
                 <TableHead>Transaction No.</TableHead>
+                <TableHead>Card Type</TableHead>
                 <TableHead>Requester</TableHead>
                 <TableHead>Department</TableHead>
                 <TableHead>Description</TableHead>
@@ -298,7 +376,7 @@ export default function ApprovalInbox() {
               {isLoading ? (
                 <TableRow>
                   <TableCell
-                    colSpan={9}
+                    colSpan={10}
                     className="text-center text-muted-foreground py-8"
                   >
                     Loading...
@@ -307,7 +385,7 @@ export default function ApprovalInbox() {
               ) : claims.length === 0 ? (
                 <TableRow>
                   <TableCell
-                    colSpan={9}
+                    colSpan={10}
                     className="text-center text-muted-foreground py-8"
                   >
                     No pending approvals at this time
@@ -331,6 +409,15 @@ export default function ApprovalInbox() {
                     <TableCell className="font-medium">
                       {claim.claimNo}
                     </TableCell>
+                    <TableCell>
+                      <Badge
+                        variant="outline"
+                        className={`${inboxCardTypeColors[getInboxCardType(claim.claimNo)]} text-xs font-medium`}
+                      >
+                        {getInboxCardType(claim.claimNo)}
+                      </Badge>
+                    </TableCell>
+
                     <TableCell>{claim.requesterName}</TableCell>
                     <TableCell>{claim.department}</TableCell>
                     <TableCell>{claim.purpose}</TableCell>
