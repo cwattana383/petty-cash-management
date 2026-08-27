@@ -135,7 +135,7 @@ export default function MyClaims() {
 
   useEffect(() => {
     setPage(1);
-  }, [search, activeTab, dateFrom, dateTo]);
+  }, [search, activeTab, dateFrom, dateTo, cardType]);
 
   const rawItems = useMemo(() => corpQuery.data?.data?.items ?? [], [corpQuery.data?.data?.items]);
   const claimsOverlayQuery = useCardholderClaimsCorpOverlay({
