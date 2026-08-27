@@ -208,11 +208,12 @@ export default function AccountingReview() {
       }
       return true;
     });
-  }, [items, activeTab, searchQuery, dateFrom, dateTo]);
+  }, [items, activeTab, searchQuery, dateFrom, dateTo, cardTypeFilter]);
 
   useEffect(() => {
     setPage(1);
-  }, [activeTab, searchQuery, dateFrom, dateTo]);
+  }, [activeTab, searchQuery, dateFrom, dateTo, cardTypeFilter]);
+
 
   const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
   const currentPage = Math.min(page, totalPages);
