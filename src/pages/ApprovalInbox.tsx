@@ -96,12 +96,27 @@ function inboxActionsCell(
   return <span className="text-xs text-muted-foreground text-center block">—</span>;
 }
 
+/** Mock-only card type assignment for UI demonstration. */
+function getInboxCardType(claimNo: string): "Credit Card" | "Fleet Card" {
+  const key = claimNo ?? "";
+  let sum = 0;
+  for (let i = 0; i < key.length; i++) sum += key.charCodeAt(i);
+  return sum % 2 === 0 ? "Fleet Card" : "Credit Card";
+}
+
+const inboxCardTypeColors: Record<string, string> = {
+  "Credit Card": "bg-blue-100 text-blue-800 border-blue-300",
+  "Fleet Card": "bg-green-100 text-green-800 border-green-300",
+};
+
 export default function ApprovalInbox() {
   const navigate = useNavigate();
   const { toast } = useToast();
   const { user } = useAuth();
 
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
+  const [searchQuery, setSearchQuery] = useState("");
+  const [cardTypeFilter, setCardTypeFilter] = useState<"all" | "Credit Card" | "Fleet Card">("all");
   const [rejectDialog, setRejectDialog] = useState<{
     id: string;
     claimNo: string;
@@ -113,8 +128,41 @@ export default function ApprovalInbox() {
   const approveMutation = useApproveClaimInbox();
   const rejectMutation = useRejectClaimInbox();
 
-  const claims = (inboxData?.data ?? []).filter((c) => !isAutoApprovedInboxClaim(c));
+  const allClaims = (inboxData?.data ?? []).filter((c) => !isAutoApprovedInboxClaim(c));
+  const q = searchQuery.trim().toLowerCase();
+  const claims = allClaims.filter((c) => {
+    if (cardTypeFilter !== "all" && getInboxCardType(c.claimNo) !== cardTypeFilter) return false;
+    if (!q) return true;
+    return [c.claimNo, c.requesterName, c.department, c.purpose]
+      .filter(Boolean)
+      .some((v) => String(v).toLowerCase().includes(q));
+  });
   const actionableClaims = claims.filter((c) => needsApproverAction(c));
+
+  const cardTypeScoped =
+    cardTypeFilter === "all"
+      ? allClaims
+      : allClaims.filter((c) => getInboxCardType(c.claimNo) === cardTypeFilter);
+  const scopedPending = cardTypeScoped.filter((c) => needsApproverAction(c));
+  const summary =
+    cardTypeFilter === "all"
+      ? {
+          pendingCount: stats?.pendingCount ?? 0,
+          approvedThisMonth: stats?.approvedThisMonth ?? 0,
+          totalPendingAmount: stats?.totalPendingAmount ?? 0,
+        }
+      : {
+          pendingCount: scopedPending.length,
+          approvedThisMonth: Math.round(
+            (stats?.approvedThisMonth ?? 0) *
+              (allClaims.length > 0 ? cardTypeScoped.length / allClaims.length : 0),
+          ),
+          totalPendingAmount: scopedPending.reduce(
+            (sum, c) => sum + Number(c.totalAmount ?? 0),
+            0,
+          ),
+        };
+
 
   const handleApprove = (id: string, claimNo: string) => {
     if (!user) return;
