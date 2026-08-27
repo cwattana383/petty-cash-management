@@ -186,6 +186,8 @@ export default function AccountingReview() {
 
     return items.filter((item) => {
       if (allowed && !allowed.includes(item.status)) return false;
+      if (cardTypeFilter !== "all" && getCardType(item.id) !== cardTypeFilter) return false;
+
 
       const d = new Date(item.date + "T12:00:00");
       if (from && d < from) return false;
