@@ -339,7 +339,7 @@ export default function MyClaims() {
           <Tabs value={cardType} onValueChange={(v) => setCardType(v as CardTypeFilter)}>
             <TabsList>
               <TabsTrigger value="all">All Cards</TabsTrigger>
-              <TabsTrigger value="corporate">Corporate Card</TabsTrigger>
+              <TabsTrigger value="corporate">Credit Card</TabsTrigger>
               <TabsTrigger value="fleet">Fleet Card</TabsTrigger>
             </TabsList>
           </Tabs>
@@ -472,7 +472,7 @@ export default function MyClaims() {
                         </Badge>
                       ) : (
                         <Badge variant="outline" className="bg-blue-50 text-blue-700 border-blue-200 whitespace-nowrap">
-                          Corporate Card
+                          Credit Card
                         </Badge>
                       )}
                     </TableCell>
