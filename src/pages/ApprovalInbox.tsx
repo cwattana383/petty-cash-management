@@ -249,7 +249,7 @@ export default function ApprovalInbox() {
         <Card>
           <CardContent className="p-4 text-center">
             <p className="text-2xl font-bold text-primary">
-              {stats?.pendingCount ?? 0}
+              {summary.pendingCount}
             </p>
             <p className="text-sm text-muted-foreground">Pending</p>
           </CardContent>
@@ -257,7 +257,7 @@ export default function ApprovalInbox() {
         <Card>
           <CardContent className="p-4 text-center">
             <p className="text-2xl font-bold text-foreground">
-              {stats?.approvedThisMonth ?? 0}
+              {summary.approvedThisMonth}
             </p>
             <p className="text-sm text-muted-foreground">Approved This Month</p>
             <p className="text-[11px] text-muted-foreground mt-1 leading-snug">
@@ -269,7 +269,7 @@ export default function ApprovalInbox() {
           <CardContent className="p-4 text-center">
             <p className="text-2xl font-bold text-foreground">
               ฿
-              {(stats?.totalPendingAmount ?? 0).toLocaleString("en-US", {
+              {summary.totalPendingAmount.toLocaleString("en-US", {
                 minimumFractionDigits: 2,
                 maximumFractionDigits: 2,
               })}
@@ -280,6 +280,30 @@ export default function ApprovalInbox() {
           </CardContent>
         </Card>
       </div>
+
+      {/* Search & Card Type Filter */}
+      <div className="rounded-lg border border-border bg-background p-4 space-y-3">
+        <div className="relative">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+          <Input
+            placeholder="Search expenses..."
+            className="pl-9"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+          />
+        </div>
+        <div className="flex items-center gap-3">
+          <Label className="text-sm text-foreground shrink-0">Card Type:</Label>
+          <Tabs value={cardTypeFilter} onValueChange={(v) => setCardTypeFilter(v as typeof cardTypeFilter)}>
+            <TabsList>
+              <TabsTrigger value="all">All Cards</TabsTrigger>
+              <TabsTrigger value="Credit Card">Credit Card</TabsTrigger>
+              <TabsTrigger value="Fleet Card">Fleet Card</TabsTrigger>
+            </TabsList>
+          </Tabs>
+        </div>
+      </div>
+
 
       {/* Bulk action bar */}
       {selectedIds.size > 0 && (
