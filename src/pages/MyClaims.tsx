@@ -48,6 +48,14 @@ import {
 
 type UploadFlowState = "dropzone" | "processing" | "result" | "confirmed";
 
+type CardTypeFilter = "all" | "corporate" | "fleet";
+
+const FLEET_CARD_TXN_IDS = new Set(["bt-8", "bt-15", "bt-19", "bt-23"]);
+
+function cardTypeOf(bankTransactionId?: string | null): "corporate" | "fleet" {
+  return bankTransactionId && FLEET_CARD_TXN_IDS.has(bankTransactionId) ? "fleet" : "corporate";
+}
+
 interface ClaimAttachmentData {
   taxInvoiceFileName: string;
   ocrStatus: AttachmentOcrStatus;
