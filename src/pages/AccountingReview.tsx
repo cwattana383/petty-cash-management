@@ -128,14 +128,37 @@ const documentStatusColors: Record<string, string> = {
   "Validated": "bg-green-100 text-green-800 border-green-300",
 };
 
+const FLEET_CARD_TXN_IDS = new Set([
+  "TXN2026050100001",
+  "TXN2026050400004",
+  "TXN2026050600007",
+  "TXN2026050800009",
+  "TXN2026051000013",
+  "TXN2026051200016",
+  "TXN2026051400020",
+  "TXN2026051500023",
+  "TXN2026051600040",
+]);
+
+const getCardType = (id: string): "Credit Card" | "Fleet Card" =>
+  FLEET_CARD_TXN_IDS.has(id) ? "Fleet Card" : "Credit Card";
+
+const cardTypeColors: Record<string, string> = {
+  "Credit Card": "bg-blue-100 text-blue-800 border-blue-300",
+  "Fleet Card": "bg-green-100 text-green-800 border-green-300",
+};
+
 const PAGE_SIZE = 20;
+
 
 export default function AccountingReview() {
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState("pending");
   const [searchQuery, setSearchQuery] = useState("");
+  const [cardTypeFilter, setCardTypeFilter] = useState<"all" | "Credit Card" | "Fleet Card">("all");
   const [dateFrom, setDateFrom] = useState(() => {
     const now = new Date();
+
     return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}-01`;
   });
   const [dateTo, setDateTo] = useState(() => {
@@ -163,6 +186,8 @@ export default function AccountingReview() {
 
     return items.filter((item) => {
       if (allowed && !allowed.includes(item.status)) return false;
+      if (cardTypeFilter !== "all" && getCardType(item.id) !== cardTypeFilter) return false;
+
 
       const d = new Date(item.date + "T12:00:00");
       if (from && d < from) return false;
@@ -183,11 +208,12 @@ export default function AccountingReview() {
       }
       return true;
     });
-  }, [items, activeTab, searchQuery, dateFrom, dateTo]);
+  }, [items, activeTab, searchQuery, dateFrom, dateTo, cardTypeFilter]);
 
   useEffect(() => {
     setPage(1);
-  }, [activeTab, searchQuery, dateFrom, dateTo]);
+  }, [activeTab, searchQuery, dateFrom, dateTo, cardTypeFilter]);
+
 
   const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
   const currentPage = Math.min(page, totalPages);
@@ -266,6 +292,17 @@ export default function AccountingReview() {
             />
           </div>
           <div className="flex items-center gap-3">
+            <Label className="text-sm text-foreground shrink-0">Card Type:</Label>
+            <Tabs value={cardTypeFilter} onValueChange={(v) => setCardTypeFilter(v as typeof cardTypeFilter)}>
+              <TabsList>
+                <TabsTrigger value="all">All Cards</TabsTrigger>
+                <TabsTrigger value="Credit Card">Credit Card</TabsTrigger>
+                <TabsTrigger value="Fleet Card">Fleet Card</TabsTrigger>
+              </TabsList>
+            </Tabs>
+          </div>
+
+          <div className="flex items-center gap-3">
             <Label className="text-sm text-foreground shrink-0">Transaction Date:</Label>
             <Input
               type="date"
@@ -303,7 +340,9 @@ export default function AccountingReview() {
                 <TableRow>
                   <TableHead>Transaction No.</TableHead>
                   <TableHead>Transaction Date</TableHead>
+                  <TableHead>Card Type</TableHead>
                   <TableHead>Cardholder Name</TableHead>
+
                   <TableHead>Purpose</TableHead>
                   <TableHead className="text-right">Amount</TableHead>
                   <TableHead>Approval Status</TableHead>
@@ -313,7 +352,7 @@ export default function AccountingReview() {
               <TableBody>
                 {paged.length === 0 ? (
                   <TableRow>
-                    <TableCell colSpan={7} className="text-center text-muted-foreground py-8">
+                    <TableCell colSpan={8} className="text-center text-muted-foreground py-8">
                       No transactions found for the selected filters.
                     </TableCell>
                   </TableRow>
@@ -322,7 +361,13 @@ export default function AccountingReview() {
                     <TableRow key={item.id} className={cn("cursor-pointer hover:bg-muted/30", drawerItemId === item.id && "bg-accent")} onClick={() => navigate(`/accounting/${item.id}`)}>
                       <TableCell className="font-medium">{item.id}</TableCell>
                       <TableCell>{formatBEDate(item.date)}</TableCell>
+                      <TableCell>
+                        <Badge className={cardTypeColors[getCardType(item.id)]} variant="outline">
+                          {getCardType(item.id)}
+                        </Badge>
+                      </TableCell>
                       <TableCell>{item.merchantName}</TableCell>
+
                       <TableCell>{item.description}</TableCell>
                       <TableCell className="text-right font-medium">{item.amount}</TableCell>
                       <TableCell>
