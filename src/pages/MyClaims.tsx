@@ -335,6 +335,16 @@ export default function MyClaims() {
           />
         </div>
         <div className="flex flex-wrap gap-3 items-center">
+          <span className="text-sm text-muted-foreground whitespace-nowrap">Card Type:</span>
+          <Tabs value={cardType} onValueChange={(v) => setCardType(v as CardTypeFilter)}>
+            <TabsList>
+              <TabsTrigger value="all">All Cards</TabsTrigger>
+              <TabsTrigger value="corporate">Corporate Card</TabsTrigger>
+              <TabsTrigger value="fleet">Fleet Card</TabsTrigger>
+            </TabsList>
+          </Tabs>
+        </div>
+        <div className="flex flex-wrap gap-3 items-center">
           <span className="text-sm text-muted-foreground whitespace-nowrap">Transaction Date:</span>
           <Popover>
             <PopoverTrigger asChild>
