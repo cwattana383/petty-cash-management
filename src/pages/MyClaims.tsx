@@ -418,6 +418,7 @@ export default function MyClaims() {
             <TableRow>
               <TableHead>Transaction No.</TableHead>
               <TableHead>Transaction Date</TableHead>
+              <TableHead>Card Type</TableHead>
               <TableHead>Merchant Name</TableHead>
               <TableHead>Description</TableHead>
               <TableHead className="text-right">Amount</TableHead>
@@ -430,7 +431,7 @@ export default function MyClaims() {
             {items.length === 0 ? (
               <TableRow>
                 <TableCell
-                  colSpan={showDeductionCol ? 8 : 7}
+                  colSpan={showDeductionCol ? 9 : 8}
                   className="text-center text-muted-foreground py-8"
                 >
                   {corpQuery.isFetching ? "Loading…" : "No transactions found for this status."}
@@ -464,6 +465,17 @@ export default function MyClaims() {
                   >
                     <TableCell className="font-medium">{txn.bankTransactionId ?? "—"}</TableCell>
                     <TableCell>{formatBEDate(dateStr)}</TableCell>
+                    <TableCell>
+                      {cardTypeOf(txn.bankTransactionId) === "fleet" ? (
+                        <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200 whitespace-nowrap">
+                          Fleet Card
+                        </Badge>
+                      ) : (
+                        <Badge variant="outline" className="bg-blue-50 text-blue-700 border-blue-200 whitespace-nowrap">
+                          Corporate Card
+                        </Badge>
+                      )}
+                    </TableCell>
                     <TableCell>{txn.merchantName || "—"}</TableCell>
                     <TableCell>{txn.mccDescription || "—"}</TableCell>
                     <TableCell className="text-right">
