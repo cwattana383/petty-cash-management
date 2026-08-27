@@ -71,6 +71,7 @@ export default function MyClaims() {
   const isAdminView = roles.includes("Admin");
   const [search, setSearch] = useState("");
   const [activeTab, setActiveTab] = useState<StatusTab>("pending_invoice");
+  const [cardType, setCardType] = useState<CardTypeFilter>("all");
   const [page, setPage] = useState(1);
   const [dateFrom, setDateFrom] = useState<Date>(() => {
     const saved = localStorage.getItem("claims_dateFrom");
