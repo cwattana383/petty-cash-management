@@ -292,6 +292,17 @@ export default function AccountingReview() {
             />
           </div>
           <div className="flex items-center gap-3">
+            <Label className="text-sm text-foreground shrink-0">Card Type:</Label>
+            <Tabs value={cardTypeFilter} onValueChange={(v) => setCardTypeFilter(v as typeof cardTypeFilter)}>
+              <TabsList>
+                <TabsTrigger value="all">All Cards</TabsTrigger>
+                <TabsTrigger value="Credit Card">Credit Card</TabsTrigger>
+                <TabsTrigger value="Fleet Card">Fleet Card</TabsTrigger>
+              </TabsList>
+            </Tabs>
+          </div>
+
+          <div className="flex items-center gap-3">
             <Label className="text-sm text-foreground shrink-0">Transaction Date:</Label>
             <Input
               type="date"
