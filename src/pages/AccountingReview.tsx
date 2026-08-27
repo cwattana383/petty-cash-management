@@ -340,7 +340,9 @@ export default function AccountingReview() {
                 <TableRow>
                   <TableHead>Transaction No.</TableHead>
                   <TableHead>Transaction Date</TableHead>
+                  <TableHead>Card Type</TableHead>
                   <TableHead>Cardholder Name</TableHead>
+
                   <TableHead>Purpose</TableHead>
                   <TableHead className="text-right">Amount</TableHead>
                   <TableHead>Approval Status</TableHead>
