@@ -362,6 +362,7 @@ export default function ApprovalInbox() {
                   />
                 </TableHead>
                 <TableHead>Transaction No.</TableHead>
+                <TableHead>Card Type</TableHead>
                 <TableHead>Requester</TableHead>
                 <TableHead>Department</TableHead>
                 <TableHead>Description</TableHead>
@@ -375,7 +376,7 @@ export default function ApprovalInbox() {
               {isLoading ? (
                 <TableRow>
                   <TableCell
-                    colSpan={9}
+                    colSpan={10}
                     className="text-center text-muted-foreground py-8"
                   >
                     Loading...
@@ -384,7 +385,7 @@ export default function ApprovalInbox() {
               ) : claims.length === 0 ? (
                 <TableRow>
                   <TableCell
-                    colSpan={9}
+                    colSpan={10}
                     className="text-center text-muted-foreground py-8"
                   >
                     No pending approvals at this time
