@@ -128,7 +128,28 @@ const documentStatusColors: Record<string, string> = {
   "Validated": "bg-green-100 text-green-800 border-green-300",
 };
 
+const FLEET_CARD_TXN_IDS = new Set([
+  "TXN2026050100001",
+  "TXN2026050400004",
+  "TXN2026050600007",
+  "TXN2026050800009",
+  "TXN2026051000013",
+  "TXN2026051200016",
+  "TXN2026051400020",
+  "TXN2026051500023",
+  "TXN2026051600040",
+]);
+
+const getCardType = (id: string): "Credit Card" | "Fleet Card" =>
+  FLEET_CARD_TXN_IDS.has(id) ? "Fleet Card" : "Credit Card";
+
+const cardTypeColors: Record<string, string> = {
+  "Credit Card": "bg-blue-100 text-blue-800 border-blue-300",
+  "Fleet Card": "bg-green-100 text-green-800 border-green-300",
+};
+
 const PAGE_SIZE = 20;
+
 
 export default function AccountingReview() {
   const navigate = useNavigate();
