@@ -408,6 +408,15 @@ export default function ApprovalInbox() {
                     <TableCell className="font-medium">
                       {claim.claimNo}
                     </TableCell>
+                    <TableCell>
+                      <Badge
+                        variant="outline"
+                        className={`${inboxCardTypeColors[getInboxCardType(claim.claimNo)]} text-xs font-medium`}
+                      >
+                        {getInboxCardType(claim.claimNo)}
+                      </Badge>
+                    </TableCell>
+
                     <TableCell>{claim.requesterName}</TableCell>
                     <TableCell>{claim.department}</TableCell>
                     <TableCell>{claim.purpose}</TableCell>
