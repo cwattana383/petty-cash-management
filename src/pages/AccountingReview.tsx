@@ -155,7 +155,8 @@ export default function AccountingReview() {
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState("pending");
   const [searchQuery, setSearchQuery] = useState("");
-  const [dateFrom, setDateFrom] = useState(() => {
+  const [cardTypeFilter, setCardTypeFilter] = useState<"all" | "Credit Card" | "Fleet Card">("all");
+
     const now = new Date();
     return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}-01`;
   });
