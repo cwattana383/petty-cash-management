@@ -48,6 +48,14 @@ import {
 
 type UploadFlowState = "dropzone" | "processing" | "result" | "confirmed";
 
+type CardTypeFilter = "all" | "corporate" | "fleet";
+
+const FLEET_CARD_TXN_IDS = new Set(["bt-8", "bt-15", "bt-19", "bt-23"]);
+
+function cardTypeOf(bankTransactionId?: string | null): "corporate" | "fleet" {
+  return bankTransactionId && FLEET_CARD_TXN_IDS.has(bankTransactionId) ? "fleet" : "corporate";
+}
+
 interface ClaimAttachmentData {
   taxInvoiceFileName: string;
   ocrStatus: AttachmentOcrStatus;
@@ -63,6 +71,7 @@ export default function MyClaims() {
   const isAdminView = roles.includes("Admin");
   const [search, setSearch] = useState("");
   const [activeTab, setActiveTab] = useState<StatusTab>("pending_invoice");
+  const [cardType, setCardType] = useState<CardTypeFilter>("all");
   const [page, setPage] = useState(1);
   const [dateFrom, setDateFrom] = useState<Date>(() => {
     const saved = localStorage.getItem("claims_dateFrom");
@@ -126,7 +135,7 @@ export default function MyClaims() {
 
   useEffect(() => {
     setPage(1);
-  }, [search, activeTab, dateFrom, dateTo]);
+  }, [search, activeTab, dateFrom, dateTo, cardType]);
 
   const rawItems = useMemo(() => corpQuery.data?.data?.items ?? [], [corpQuery.data?.data?.items]);
   const claimsOverlayQuery = useCardholderClaimsCorpOverlay({
@@ -143,6 +152,7 @@ export default function MyClaims() {
   }, [claimsOverlayQuery.data]);
   const filteredItems = useMemo(() => {
     return rawItems.filter((txn) => {
+      if (cardType !== "all" && cardTypeOf(txn.bankTransactionId) !== cardType) return false;
       const claim = txn.bankTransactionId ? claimByBankTxnId.get(txn.bankTransactionId) : undefined;
       const att = attachments[rowRouteId(txn)];
       const displayFromClaim = claim ? toDisplayStatus(claim.status, !!att, claim.statusDisplay) : null;
@@ -152,16 +162,25 @@ export default function MyClaims() {
       const docStatus = toDocumentContractStatus(rawDoc);
       return isPortalStatusInTab(portalStatus, activeTab, docStatus, claim);
     });
-  }, [rawItems, claimByBankTxnId, attachments, activeTab]);
+  }, [rawItems, claimByBankTxnId, attachments, activeTab, cardType]);
 
   const items = filteredItems;
-  const meta = corpQuery.data?.data?.meta ?? {
+  const baseMeta = corpQuery.data?.data?.meta ?? {
     total: 0,
     totalAmount: 0,
     page,
     limit: PAGE_SIZE,
     totalPages: 1,
   };
+  const meta =
+    cardType === "all"
+      ? baseMeta
+      : {
+          ...baseMeta,
+          total: filteredItems.length,
+          totalAmount: filteredItems.reduce((s, t) => s + (t.amount ?? 0), 0),
+        };
+
 
   const stats = statsQuery.data;
   const showDeductionCol = activeTab === "rejected" || activeTab === "all";
@@ -316,6 +335,16 @@ export default function MyClaims() {
           />
         </div>
         <div className="flex flex-wrap gap-3 items-center">
+          <span className="text-sm text-muted-foreground whitespace-nowrap">Card Type:</span>
+          <Tabs value={cardType} onValueChange={(v) => setCardType(v as CardTypeFilter)}>
+            <TabsList>
+              <TabsTrigger value="all">All Cards</TabsTrigger>
+              <TabsTrigger value="corporate">Corporate Card</TabsTrigger>
+              <TabsTrigger value="fleet">Fleet Card</TabsTrigger>
+            </TabsList>
+          </Tabs>
+        </div>
+        <div className="flex flex-wrap gap-3 items-center">
           <span className="text-sm text-muted-foreground whitespace-nowrap">Transaction Date:</span>
           <Popover>
             <PopoverTrigger asChild>
@@ -389,6 +418,7 @@ export default function MyClaims() {
             <TableRow>
               <TableHead>Transaction No.</TableHead>
               <TableHead>Transaction Date</TableHead>
+              <TableHead>Card Type</TableHead>
               <TableHead>Merchant Name</TableHead>
               <TableHead>Description</TableHead>
               <TableHead className="text-right">Amount</TableHead>
@@ -401,7 +431,7 @@ export default function MyClaims() {
             {items.length === 0 ? (
               <TableRow>
                 <TableCell
-                  colSpan={showDeductionCol ? 8 : 7}
+                  colSpan={showDeductionCol ? 9 : 8}
                   className="text-center text-muted-foreground py-8"
                 >
                   {corpQuery.isFetching ? "Loading…" : "No transactions found for this status."}
@@ -435,6 +465,17 @@ export default function MyClaims() {
                   >
                     <TableCell className="font-medium">{txn.bankTransactionId ?? "—"}</TableCell>
                     <TableCell>{formatBEDate(dateStr)}</TableCell>
+                    <TableCell>
+                      {cardTypeOf(txn.bankTransactionId) === "fleet" ? (
+                        <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200 whitespace-nowrap">
+                          Fleet Card
+                        </Badge>
+                      ) : (
+                        <Badge variant="outline" className="bg-blue-50 text-blue-700 border-blue-200 whitespace-nowrap">
+                          Corporate Card
+                        </Badge>
+                      )}
+                    </TableCell>
                     <TableCell>{txn.merchantName || "—"}</TableCell>
                     <TableCell>{txn.mccDescription || "—"}</TableCell>
                     <TableCell className="text-right">

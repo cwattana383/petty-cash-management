@@ -43,7 +43,7 @@ export function TopBar() {
         </Tooltip>
         <div className="flex items-center gap-2">
           <h1 className="text-lg font-bold hidden md:inline topbar-title">
-            Corporate Card Expense Management
+            Card Expense Management
           </h1>
           <style>{`
             .topbar-title {
