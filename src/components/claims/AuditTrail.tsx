@@ -446,6 +446,13 @@ export default function AuditTrail({ events: eventsProp }: AuditTrailProps) {
   const hasTerminal = events.some((e) => e.isTerminal);
   const hasMore = events.length > VISIBLE_COUNT;
 
+  const latest = events[0];
+  const actingAs =
+    latest && latest.actor === "assistant" && latest.actorName && latest.onBehalfOf
+      ? { assistant: latest.actorName, cardholder: latest.onBehalfOf }
+      : null;
+
+
   const [expanded, setExpanded] = useState(false);
   const collapsibleRef = useRef<HTMLDivElement>(null);
   const [collapsibleHeight, setCollapsibleHeight] = useState<number | undefined>(undefined);
