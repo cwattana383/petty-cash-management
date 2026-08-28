@@ -4,12 +4,14 @@ import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 import type { ClaimHeader } from "@/lib/types";
 
-type ActorType = "system" | "cardholder" | "manager" | "finance";
+type ActorType = "system" | "cardholder" | "manager" | "finance" | "assistant";
 
 export interface AuditEvent {
   id: string;
   actor: ActorType;
   actorName?: string;
+  /** Cardholder the assistant acted on behalf of (assistant actions only). */
+  onBehalfOf?: string;
   title: string;
   statusBadge: string;
   badgeClass?: string;
@@ -18,6 +20,7 @@ export interface AuditEvent {
   isCurrent?: boolean;
   isTerminal?: boolean;
 }
+
 
 const actorConfig: Record<ActorType, { emoji: string; label: string; dotColor: string; badgeClass: string }> = {
   system: {
@@ -44,7 +47,14 @@ const actorConfig: Record<ActorType, { emoji: string; label: string; dotColor: s
     dotColor: "bg-blue-500",
     badgeClass: "bg-blue-50 text-blue-700 border-blue-200",
   },
+  assistant: {
+    emoji: "🧑‍💼",
+    label: "Assistant",
+    dotColor: "bg-sky-500",
+    badgeClass: "bg-sky-50 text-sky-700 border-sky-200",
+  },
 };
+
 
 const STATUS_BADGE_OVERRIDES: Record<string, string> = {
   PENDING_APPROVAL: "bg-blue-50 text-blue-700 border-blue-200",
@@ -57,12 +67,23 @@ const STATUS_BADGE_OVERRIDES: Record<string, string> = {
 
 export const REQUEST_INFO_TRAIL: AuditEvent[] = [
   {
-    id: "evt-5",
-    actor: "cardholder",
-    title: "Waiting for cardholder response",
-    statusBadge: "REQUEST_MORE_INFO",
+    id: "evt-7",
+    actor: "assistant",
+    actorName: "Sarah Lee",
+    onBehalfOf: "Somying Prasertsuk",
+    title: "Waiting for manager approval",
+    statusBadge: "PENDING_APPROVAL",
     timestamp: "now",
     isCurrent: true,
+  },
+  {
+    id: "evt-6",
+    actor: "assistant",
+    actorName: "Sarah Lee",
+    onBehalfOf: "Somying Prasertsuk",
+    title: "Re-submitted for manager approval",
+    statusBadge: "PENDING_APPROVAL",
+    timestamp: "02/03/2026 09:15",
   },
   {
     id: "evt-4",
@@ -75,16 +96,27 @@ export const REQUEST_INFO_TRAIL: AuditEvent[] = [
   },
   {
     id: "evt-3",
-    actor: "cardholder",
-    actorName: "Somying Prasertsuk",
+    actor: "assistant",
+    actorName: "Sarah Lee",
+    onBehalfOf: "Somying Prasertsuk",
     title: "Submitted for manager approval",
     statusBadge: "PENDING_APPROVAL",
+    timestamp: "01/03/2026 09:48",
+  },
+  {
+    id: "evt-2b",
+    actor: "assistant",
+    actorName: "Sarah Lee",
+    onBehalfOf: "Somying Prasertsuk",
+    title: "OCR results confirmed",
+    statusBadge: "VALIDATED",
     timestamp: "01/03/2026 09:45",
   },
   {
     id: "evt-2",
-    actor: "cardholder",
-    actorName: "Somying Prasertsuk",
+    actor: "assistant",
+    actorName: "Sarah Lee",
+    onBehalfOf: "Somying Prasertsuk",
     title: "Documents uploaded",
     statusBadge: "VALIDATED",
     timestamp: "01/03/2026 09:42",
@@ -96,6 +128,7 @@ export const REQUEST_INFO_TRAIL: AuditEvent[] = [
     statusBadge: "NOT_STARTED",
     timestamp: "01/03/2026 00:15",
   },
+
 ];
 
 export const FINAL_REJECTED_TRAIL: AuditEvent[] = [
@@ -391,6 +424,18 @@ export function resolveTrailForClaim(claim: ClaimHeader): AuditEvent[] {
 
 const VISIBLE_COUNT = 5;
 
+/** "Sarah Lee (Assistant for Somying Prasertsuk)" / "Somying Prasertsuk (Cardholder)" / "System" */
+function formatActor(evt: AuditEvent, fallbackLabel: string): string {
+  if (evt.actor === "system") return evt.actorName || fallbackLabel;
+  const name = evt.actorName || fallbackLabel;
+  if (name.includes("(")) return name;
+  if (evt.actor === "assistant") {
+    return evt.onBehalfOf ? `${name} (Assistant for ${evt.onBehalfOf})` : `${name} (Assistant)`;
+  }
+  return `${name} (${fallbackLabel})`;
+}
+
+
 interface AuditTrailProps {
   events?: AuditEvent[];
 }
@@ -400,6 +445,13 @@ export default function AuditTrail({ events: eventsProp }: AuditTrailProps) {
   const isSystem = (a: ActorType) => a === "system";
   const hasTerminal = events.some((e) => e.isTerminal);
   const hasMore = events.length > VISIBLE_COUNT;
+
+  const latest = events[0];
+  const actingAs =
+    latest && latest.actor === "assistant" && latest.actorName && latest.onBehalfOf
+      ? { assistant: latest.actorName, cardholder: latest.onBehalfOf }
+      : null;
+
 
   const [expanded, setExpanded] = useState(false);
   const collapsibleRef = useRef<HTMLDivElement>(null);
@@ -429,6 +481,22 @@ export default function AuditTrail({ events: eventsProp }: AuditTrailProps) {
         </Badge>
         <div className="flex-1 border-t border-border" />
       </div>
+
+      {/* Cardholder / Acting-as identity indicator — only when latest action was by an assistant */}
+      {actingAs && (
+        <div className="mb-4 flex flex-wrap items-center gap-x-8 gap-y-1 rounded-lg border border-border bg-muted/30 px-3 py-2">
+          <div>
+            <p className="text-[11px] uppercase tracking-wide text-muted-foreground">Cardholder</p>
+            <p className="text-[13px] font-medium text-foreground">{actingAs.cardholder}</p>
+          </div>
+          <div>
+            <p className="text-[11px] uppercase tracking-wide text-muted-foreground">Acting as</p>
+            <p className="text-[13px] font-medium text-foreground">{actingAs.assistant} · Assistant</p>
+          </div>
+        </div>
+      )}
+
+
 
       <div className="relative pl-7">
         {/* Vertical connector line */}
@@ -515,10 +583,11 @@ function EventRow({ evt, isSystem }: { evt: AuditEvent; isSystem: (a: ActorType)
         )}
         <p className={cn("flex items-center gap-1.5", sys ? "text-[11px] text-gray-400" : "text-xs text-muted-foreground")}>
           <span>{config.emoji}</span>
-          <span>{evt.actorName || config.label}</span>
+          <span>{formatActor(evt, config.label)}</span>
           <span>·</span>
           <span>{evt.timestamp}</span>
         </p>
+
       </div>
     </div>
   );
