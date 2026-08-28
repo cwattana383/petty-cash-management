@@ -47,7 +47,14 @@ const actorConfig: Record<ActorType, { emoji: string; label: string; dotColor: s
     dotColor: "bg-blue-500",
     badgeClass: "bg-blue-50 text-blue-700 border-blue-200",
   },
+  assistant: {
+    emoji: "🧑‍💼",
+    label: "Assistant",
+    dotColor: "bg-sky-500",
+    badgeClass: "bg-sky-50 text-sky-700 border-sky-200",
+  },
 };
+
 
 const STATUS_BADGE_OVERRIDES: Record<string, string> = {
   PENDING_APPROVAL: "bg-blue-50 text-blue-700 border-blue-200",
