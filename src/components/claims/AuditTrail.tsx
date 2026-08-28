@@ -4,12 +4,14 @@ import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 import type { ClaimHeader } from "@/lib/types";
 
-type ActorType = "system" | "cardholder" | "manager" | "finance";
+type ActorType = "system" | "cardholder" | "manager" | "finance" | "assistant";
 
 export interface AuditEvent {
   id: string;
   actor: ActorType;
   actorName?: string;
+  /** Cardholder the assistant acted on behalf of (assistant actions only). */
+  onBehalfOf?: string;
   title: string;
   statusBadge: string;
   badgeClass?: string;
@@ -18,6 +20,7 @@ export interface AuditEvent {
   isCurrent?: boolean;
   isTerminal?: boolean;
 }
+
 
 const actorConfig: Record<ActorType, { emoji: string; label: string; dotColor: string; badgeClass: string }> = {
   system: {
