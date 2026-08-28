@@ -475,6 +475,22 @@ export default function AuditTrail({ events: eventsProp }: AuditTrailProps) {
         <div className="flex-1 border-t border-border" />
       </div>
 
+      {/* Cardholder / Acting-as identity indicator — only when latest action was by an assistant */}
+      {actingAs && (
+        <div className="mb-4 flex flex-wrap items-center gap-x-8 gap-y-1 rounded-lg border border-border bg-muted/30 px-3 py-2">
+          <div>
+            <p className="text-[11px] uppercase tracking-wide text-muted-foreground">Cardholder</p>
+            <p className="text-[13px] font-medium text-foreground">{actingAs.cardholder}</p>
+          </div>
+          <div>
+            <p className="text-[11px] uppercase tracking-wide text-muted-foreground">Acting as</p>
+            <p className="text-[13px] font-medium text-foreground">{actingAs.assistant} · Assistant</p>
+          </div>
+        </div>
+      )}
+
+
+
       <div className="relative pl-7">
         {/* Vertical connector line */}
         <div className="absolute left-[7px] top-2 bottom-2 w-px bg-border" />
