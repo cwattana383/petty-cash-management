@@ -424,6 +424,18 @@ export function resolveTrailForClaim(claim: ClaimHeader): AuditEvent[] {
 
 const VISIBLE_COUNT = 5;
 
+/** "Sarah Lee (Assistant for Somying Prasertsuk)" / "Somying Prasertsuk (Cardholder)" / "System" */
+function formatActor(evt: AuditEvent, fallbackLabel: string): string {
+  if (evt.actor === "system") return evt.actorName || fallbackLabel;
+  const name = evt.actorName || fallbackLabel;
+  if (name.includes("(")) return name;
+  if (evt.actor === "assistant") {
+    return evt.onBehalfOf ? `${name} (Assistant for ${evt.onBehalfOf})` : `${name} (Assistant)`;
+  }
+  return `${name} (${fallbackLabel})`;
+}
+
+
 interface AuditTrailProps {
   events?: AuditEvent[];
 }
