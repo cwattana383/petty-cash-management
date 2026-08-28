@@ -67,12 +67,23 @@ const STATUS_BADGE_OVERRIDES: Record<string, string> = {
 
 export const REQUEST_INFO_TRAIL: AuditEvent[] = [
   {
-    id: "evt-5",
-    actor: "cardholder",
-    title: "Waiting for cardholder response",
-    statusBadge: "REQUEST_MORE_INFO",
+    id: "evt-7",
+    actor: "assistant",
+    actorName: "Sarah Lee",
+    onBehalfOf: "Somying Prasertsuk",
+    title: "Waiting for manager approval",
+    statusBadge: "PENDING_APPROVAL",
     timestamp: "now",
     isCurrent: true,
+  },
+  {
+    id: "evt-6",
+    actor: "assistant",
+    actorName: "Sarah Lee",
+    onBehalfOf: "Somying Prasertsuk",
+    title: "Re-submitted for manager approval",
+    statusBadge: "PENDING_APPROVAL",
+    timestamp: "02/03/2026 09:15",
   },
   {
     id: "evt-4",
@@ -85,16 +96,27 @@ export const REQUEST_INFO_TRAIL: AuditEvent[] = [
   },
   {
     id: "evt-3",
-    actor: "cardholder",
-    actorName: "Somying Prasertsuk",
+    actor: "assistant",
+    actorName: "Sarah Lee",
+    onBehalfOf: "Somying Prasertsuk",
     title: "Submitted for manager approval",
     statusBadge: "PENDING_APPROVAL",
+    timestamp: "01/03/2026 09:48",
+  },
+  {
+    id: "evt-2b",
+    actor: "assistant",
+    actorName: "Sarah Lee",
+    onBehalfOf: "Somying Prasertsuk",
+    title: "OCR results confirmed",
+    statusBadge: "VALIDATED",
     timestamp: "01/03/2026 09:45",
   },
   {
     id: "evt-2",
-    actor: "cardholder",
-    actorName: "Somying Prasertsuk",
+    actor: "assistant",
+    actorName: "Sarah Lee",
+    onBehalfOf: "Somying Prasertsuk",
     title: "Documents uploaded",
     statusBadge: "VALIDATED",
     timestamp: "01/03/2026 09:42",
@@ -106,6 +128,7 @@ export const REQUEST_INFO_TRAIL: AuditEvent[] = [
     statusBadge: "NOT_STARTED",
     timestamp: "01/03/2026 00:15",
   },
+
 ];
 
 export const FINAL_REJECTED_TRAIL: AuditEvent[] = [
