@@ -548,10 +548,11 @@ function EventRow({ evt, isSystem }: { evt: AuditEvent; isSystem: (a: ActorType)
         )}
         <p className={cn("flex items-center gap-1.5", sys ? "text-[11px] text-gray-400" : "text-xs text-muted-foreground")}>
           <span>{config.emoji}</span>
-          <span>{evt.actorName || config.label}</span>
+          <span>{formatActor(evt, config.label)}</span>
           <span>·</span>
           <span>{evt.timestamp}</span>
         </p>
+
       </div>
     </div>
   );
