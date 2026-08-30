@@ -710,7 +710,9 @@ export default function PolicyManagement() {
                 </Select>
                 {formErrors.expense_type_id && <p className="text-xs text-destructive">{formErrors.expense_type_id}</p>}
               </div>
+              <div className="space-y-1.5">
                 <Label>Sub Expense Type <span className="text-destructive">*</span></Label>
+
                 <Select value={formLevel2} onValueChange={(v) => { setFormLevel2(v); setForm({ ...form, sub_expense_type_id: v }); }} disabled={!formLevel1}>
                   <SelectTrigger><SelectValue placeholder={formLevel1 ? "Select sub type" : "Select expense type first"} /></SelectTrigger>
                   <SelectContent>
