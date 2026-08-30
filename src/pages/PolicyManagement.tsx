@@ -759,8 +759,6 @@ export default function PolicyManagement() {
               </div>
             </div>
             <div className="space-y-1.5">
-
-            <div className="space-y-1.5">
               <Label>Policy Type</Label>
               <Select value={form.policy_type} onValueChange={(v) => setForm({ ...form, policy_type: v as PolicyType, threshold_amount: v !== "AUTO_APPROVE" ? null : form.threshold_amount })}>
                 <SelectTrigger><SelectValue /></SelectTrigger>
