@@ -556,7 +556,7 @@ export default function PolicyManagement() {
       <div className="flex flex-wrap items-center gap-3">
         <div className="relative flex-1 max-w-xs">
           <Search className="absolute left-2 top-2.5 h-3.5 w-3.5 text-muted-foreground" />
-          <Input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Search expense type, description, MCC..." className="pl-7 h-9 text-sm" />
+          <Input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Search expense type, sub type..." className="pl-7 h-9 text-sm" />
         </div>
         <Select value={expenseTypeFilter} onValueChange={(v) => { setExpenseTypeFilter(v); setSubExpenseTypeFilter("all"); }}>
           <SelectTrigger className="w-[180px] h-9 text-sm"><SelectValue placeholder="Expense Type" /></SelectTrigger>
@@ -622,10 +622,8 @@ export default function PolicyManagement() {
                 </TableHead>
                 <TableHead className="text-center">Expense Type</TableHead>
                 <TableHead className="text-center min-w-[180px]">Sub Expense Type</TableHead>
-                <TableHead className="text-center w-[100px]">MCC Code (Ref)</TableHead>
-                <TableHead className="text-center w-[160px]">MCC Code Description</TableHead>
-                <TableHead className="text-center">Description / Sub-type</TableHead>
                 <TableHead className="text-center">Policy Type</TableHead>
+
                 <TableHead className="text-center">Threshold Amount</TableHead>
                 <TableHead className="text-center">Currency</TableHead>
                 <TableHead className="text-center">Active</TableHead>
@@ -663,10 +661,8 @@ export default function PolicyManagement() {
                   </TableCell>
                   <TableCell className="text-center">{p.expense_type_name ?? <span className="text-muted-foreground text-xs">—</span>}</TableCell>
                   <TableCell className="text-center text-sm">{p.sub_expense_type_name || "—"}</TableCell>
-                  <TableCell className="text-center text-xs font-mono">{p.mcc_code || "—"}</TableCell>
-                  <TableCell className="text-center text-xs">{p.mcc_code_description || "—"}</TableCell>
-                  <TableCell className="text-center">{p.description}</TableCell>
                   <TableCell className="text-center">
+
                     <div className="flex justify-center">
                     <Select value={p.policy_type} onValueChange={(v) => handleInlinePolicyType(p.id, v as PolicyType)}>
                       <SelectTrigger className="h-8 w-[185px] text-xs">
