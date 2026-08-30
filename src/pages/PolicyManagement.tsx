@@ -148,16 +148,13 @@ export default function PolicyManagement() {
       return;
     }
 
-    const headers = ["Expense_Type", "Sub_Expense_Type", "MCC_Code", "MCC_Code_Description", "Description", "Policy_Type", "Threshold_Amount", "Currency", "Active"];
+    const headers = ["Expense_Type", "Sub_Expense_Type", "Policy_Type", "Threshold_Amount", "Currency", "Active"];
     const rows: string[] = [headers.join(",")];
 
     for (const p of allPolicies) {
       rows.push([
         escapeCsvField(p.expense_type_name ?? ""),
         escapeCsvField(p.sub_expense_type_name ?? ""),
-        escapeCsvField(p.mcc_code ?? ""),
-        escapeCsvField(p.mcc_code_description ?? ""),
-        escapeCsvField(p.description ?? ""),
         escapeCsvField(p.policy_type),
         p.threshold_amount != null ? String(p.threshold_amount) : "",
         escapeCsvField(p.currency ?? "THB"),
@@ -203,7 +200,7 @@ export default function PolicyManagement() {
   };
 
   const downloadImportTemplate = () => {
-    const csv = "\uFEFFExpense_Type,Sub_Expense_Type,MCC_Code,MCC_Code_Description,Description,Policy_Type,Threshold_Amount,Active\n";
+    const csv = "\uFEFFExpense_Type,Sub_Expense_Type,Policy_Type,Threshold_Amount,Currency,Active\n";
     const blob = new Blob([csv], { type: "text/csv;charset=utf-8" });
     const url = URL.createObjectURL(blob);
     try { const a = document.createElement("a"); a.href = url; a.download = "policy_import_template.csv"; a.click(); }
@@ -211,11 +208,11 @@ export default function PolicyManagement() {
   };
 
   const downloadImportSample = () => {
-    const csv = "\uFEFFExpense_Type,Sub_Expense_Type,MCC_Code,MCC_Code_Description,Description,Policy_Type,Threshold_Amount,Active\n" +
-      "Transportation,Taxi / Ride-Hailing \u2014 Domestic,4121,Taxicabs & Limousines,Taxi Domestic,AUTO_APPROVE,500,Yes\n" +
-      "Entertainment,Motion Picture / Non-Business Entertainment,7832,Motion Picture Theaters,Non-Business Entertainment,AUTO_REJECT,,Yes\n" +
-      "Hotel,Hotel \u2014 Domestic Single Room,7011,Hotels & Motels,Hotel Domestic AD-Chief Single Room,AUTO_APPROVE,2500,Yes\n" +
-      "Transportation,Airline Tickets \u2014 Domestic & International,4511,Airlines,Airline Tickets,REQUIRES_APPROVAL,,Yes\n";
+    const csv = "\uFEFFExpense_Type,Sub_Expense_Type,Policy_Type,Threshold_Amount,Currency,Active\n" +
+      "Transportation,Taxi / Ride-Hailing \u2014 Domestic,AUTO_APPROVE,500,THB,Yes\n" +
+      "Entertainment,Motion Picture / Non-Business Entertainment,AUTO_REJECT,,THB,Yes\n" +
+      "Hotel,Hotel \u2014 Domestic Single Room,AUTO_APPROVE,2500,THB,Yes\n" +
+      "Transportation,Airline Tickets \u2014 Domestic & International,REQUIRES_APPROVAL,,THB,Yes\n";
     const blob = new Blob([csv], { type: "text/csv;charset=utf-8" });
     const url = URL.createObjectURL(blob);
     try { const a = document.createElement("a"); a.href = url; a.download = "policy_import_sample.csv"; a.click(); }
@@ -224,16 +221,9 @@ export default function PolicyManagement() {
 
   const checkCsvIssues = (rows: CsvRow[]) => {
     const issues = new Map<number, string>();
-    const seenMcc = new Set<string>();
-    const existingMcc = new Set((allPoliciesForImport ?? []).map((p) => p.mcc_code).filter(Boolean) as string[]);
 
     for (let i = 0; i < rows.length; i++) {
       const r = rows[i];
-      // MCC code within CSV
-      if (seenMcc.has(r.mccCode)) { issues.set(i, "Duplicate MCC_Code in CSV"); seenMcc.add(r.mccCode); continue; }
-      seenMcc.add(r.mccCode);
-      // MCC code in DB
-      if (existingMcc.has(r.mccCode)) { issues.set(i, "MCC_Code already exists in DB"); continue; }
       // Expense type not found
       if (!r.expenseTypeId) { issues.set(i, `Expense_Type "${r.expenseType}" not found`); continue; }
       // Sub expense type not found or wrong parent
@@ -271,7 +261,7 @@ export default function PolicyManagement() {
       }
 
       const headers = parseCsvLine(lines[0]).map((h) => h.toLowerCase());
-      const required = ["expense_type", "sub_expense_type", "mcc_code", "mcc_code_description", "description", "policy_type", "threshold_amount", "active"];
+      const required = ["expense_type", "sub_expense_type", "policy_type", "threshold_amount", "active"];
       const missing = required.filter((r) => !headers.includes(r));
       if (missing.length > 0) {
         toast({ title: "Invalid Headers", description: `Missing columns: ${missing.join(", ")}`, variant: "destructive" });
@@ -299,13 +289,11 @@ export default function PolicyManagement() {
         const cols = parseCsvLine(lines[i]);
         const expenseType = cols[idx.expense_type] ?? "";
         const subExpenseType = cols[idx.sub_expense_type] ?? "";
-        const mccCode = cols[idx.mcc_code] ?? "";
         const policyType = (cols[idx.policy_type] ?? "").toUpperCase();
         const active = cols[idx.active] ?? "";
 
         if (!expenseType) rowErrors.push(`Row ${i + 1}: Expense_Type is required`);
         if (!subExpenseType) rowErrors.push(`Row ${i + 1}: Sub_Expense_Type is required`);
-        if (!mccCode) rowErrors.push(`Row ${i + 1}: MCC_Code is required`);
         if (!policyType) rowErrors.push(`Row ${i + 1}: Policy_Type is required`);
         if (!active) rowErrors.push(`Row ${i + 1}: Active is required`);
 
@@ -313,9 +301,7 @@ export default function PolicyManagement() {
         const stId = etId ? (stLookup.get(`${etId}||${subExpenseType.toLowerCase()}`) ?? "") : "";
 
         rows.push({
-          expenseType, subExpenseType, mccCode,
-          mccCodeDescription: cols[idx.mcc_code_description] ?? "",
-          description: cols[idx.description] ?? "",
+          expenseType, subExpenseType,
           policyType,
           thresholdAmount: cols[idx.threshold_amount] ?? "",
           active,
@@ -344,9 +330,6 @@ export default function PolicyManagement() {
 
   const confirmImport = () => {
     const payload = csvPreview.map((r) => ({
-      mccCode: r.mccCode,
-      description: r.description,
-      mccCodeDescription: r.mccCodeDescription || undefined,
       policyType: r.policyType as PolicyType,
       thresholdAmount: r.thresholdAmount ? parseFloat(r.thresholdAmount) : undefined,
       activeFlag: r.active.toLowerCase() === "yes" || r.active.toLowerCase() === "true",
@@ -388,8 +371,7 @@ export default function PolicyManagement() {
   const { data: allExpenseTypesForImport } = useAllExpenseTypes({ enabled: bulkOpen });
 
   interface CsvRow {
-    expenseType: string; subExpenseType: string; mccCode: string;
-    mccCodeDescription: string; description: string; policyType: string;
+    expenseType: string; subExpenseType: string; policyType: string;
     thresholdAmount: string; active: string;
     expenseTypeId: string; subExpenseTypeId: string;
   }
@@ -418,8 +400,6 @@ export default function PolicyManagement() {
     const errors: Record<string, string> = {};
     if (!formLevel1.trim()) errors.expense_type_id = "Required";
     if (!formLevel2.trim()) errors.sub_expense_type_id = "Required";
-    if (!form.mcc_code?.trim()) errors.mcc_code = "Required";
-    if (!form.description.trim()) errors.description = "Required";
     if (form.policy_type === "AUTO_APPROVE" && form.threshold_amount !== null && form.threshold_amount <= 0)
       errors.threshold_amount = "Must be > 0";
     setFormErrors(errors);
@@ -437,9 +417,6 @@ export default function PolicyManagement() {
         await updateMutation.mutateAsync({
           id: editingPolicy.id,
           data: {
-            mccCode: form.mcc_code,
-            description: form.description,
-            mccCodeDescription: form.mcc_code_description,
             policyCategory: null,
             policyType,
             thresholdAmount,
@@ -452,18 +429,11 @@ export default function PolicyManagement() {
         setModalOpen(false);
       } catch (err: unknown) {
         const msg = err instanceof Error ? err.message : "Failed to update policy.";
-        if (msg.toLowerCase().includes("already exists")) {
-          setFormErrors((prev) => ({ ...prev, mcc_code: msg }));
-        } else {
-          toast({ title: "Error", description: msg, variant: "destructive" });
-        }
+        toast({ title: "Error", description: msg, variant: "destructive" });
       }
     } else {
       try {
         await createMutation.mutateAsync({
-          mccCode: form.mcc_code?.trim() || undefined,
-          description: form.description,
-          mccCodeDescription: form.mcc_code_description,
           policyCategory: null,
           policyType,
           thresholdAmount,
@@ -476,11 +446,7 @@ export default function PolicyManagement() {
         setModalOpen(false);
       } catch (err: unknown) {
         const msg = err instanceof Error ? err.message : "Failed to create policy.";
-        if (msg.toLowerCase().includes("already exists")) {
-          setFormErrors((prev) => ({ ...prev, mcc_code: msg }));
-        } else {
-          toast({ title: "Error", description: msg, variant: "destructive" });
-        }
+        toast({ title: "Error", description: msg, variant: "destructive" });
       }
     }
   };
@@ -634,20 +600,20 @@ export default function PolicyManagement() {
             <TableBody>
               {isLoading ? (
                 <TableRow>
-                  <TableCell colSpan={12} className="text-center py-12">
+                  <TableCell colSpan={9} className="text-center py-12">
                     <Loader2 className="h-6 w-6 animate-spin mx-auto text-muted-foreground" />
                     <p className="text-sm text-muted-foreground mt-2">Loading policies...</p>
                   </TableCell>
                 </TableRow>
               ) : isError ? (
                 <TableRow>
-                  <TableCell colSpan={12} className="text-center py-12 text-destructive">
+                  <TableCell colSpan={9} className="text-center py-12 text-destructive">
                     Failed to load policies. Please try again.
                   </TableCell>
                 </TableRow>
               ) : policies.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={12} className="text-center py-12 text-muted-foreground">
+                  <TableCell colSpan={9} className="text-center py-12 text-muted-foreground">
                     No policies found.
                   </TableCell>
                 </TableRow>
