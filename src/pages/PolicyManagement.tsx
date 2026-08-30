@@ -748,7 +748,6 @@ export default function PolicyManagement() {
                 </Select>
                 {formErrors.expense_type_id && <p className="text-xs text-destructive">{formErrors.expense_type_id}</p>}
               </div>
-              <div className="space-y-1.5">
                 <Label>Sub Expense Type <span className="text-destructive">*</span></Label>
                 <Select value={formLevel2} onValueChange={(v) => { setFormLevel2(v); setForm({ ...form, sub_expense_type_id: v }); }} disabled={!formLevel1}>
                   <SelectTrigger><SelectValue placeholder={formLevel1 ? "Select sub type" : "Select expense type first"} /></SelectTrigger>
@@ -759,22 +758,8 @@ export default function PolicyManagement() {
                 {formErrors.sub_expense_type_id && <p className="text-xs text-destructive">{formErrors.sub_expense_type_id}</p>}
               </div>
             </div>
-            <div className="grid grid-cols-2 gap-3">
-              <div className="space-y-1.5">
-                <Label>MCC Code (Ref) <span className="text-destructive">*</span></Label>
-                <Input value={form.mcc_code ?? ""} onChange={(e) => setForm({ ...form, mcc_code: e.target.value || null })} placeholder="e.g. 5812" />
-                {formErrors.mcc_code && <p className="text-xs text-destructive">{formErrors.mcc_code}</p>}
-              </div>
-              <div className="space-y-1.5">
-                <Label>MCC Code Description</Label>
-                <Input value={form.mcc_code_description ?? ""} onChange={(e) => setForm({ ...form, mcc_code_description: e.target.value || null })} placeholder="e.g. Restaurants" />
-              </div>
-            </div>
             <div className="space-y-1.5">
-              <Label>Description</Label>
-              <Input value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} placeholder="e.g. Eating Places/Restaurants" />
-              {formErrors.description && <p className="text-xs text-destructive">{formErrors.description}</p>}
-            </div>
+
             <div className="space-y-1.5">
               <Label>Policy Type</Label>
               <Select value={form.policy_type} onValueChange={(v) => setForm({ ...form, policy_type: v as PolicyType, threshold_amount: v !== "AUTO_APPROVE" ? null : form.threshold_amount })}>
@@ -879,9 +864,8 @@ export default function PolicyManagement() {
                       <TableRow>
                         <TableHead>Expense Type</TableHead>
                         <TableHead>Sub Expense Type</TableHead>
-                        <TableHead>MCC Code</TableHead>
-                        <TableHead>Description</TableHead>
                         <TableHead>Policy Type</TableHead>
+
                         <TableHead>Threshold</TableHead>
                         <TableHead>Active</TableHead>
                         <TableHead className="text-center">Status</TableHead>
@@ -893,9 +877,8 @@ export default function PolicyManagement() {
                         <TableRow key={i} className={csvIssues.has(i) ? "bg-destructive/5" : ""}>
                           <TableCell className="text-sm">{r.expenseType}</TableCell>
                           <TableCell className="text-sm">{r.subExpenseType}</TableCell>
-                          <TableCell className="text-sm">{r.mccCode}</TableCell>
-                          <TableCell className="text-sm">{r.description || "—"}</TableCell>
                           <TableCell className="text-sm">{r.policyType}</TableCell>
+
                           <TableCell className="text-sm">{r.thresholdAmount || "—"}</TableCell>
                           <TableCell className="text-sm">{r.active}</TableCell>
                           <TableCell className="text-center">
