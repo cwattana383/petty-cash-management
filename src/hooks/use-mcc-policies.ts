@@ -62,10 +62,7 @@ export function useMccPolicies(params: MccPolicyQueryParams) {
 }
 
 interface CreateMccPolicyPayload {
-  mccCode?: string | null;
-  description: string;
-  mccCodeDescription?: string | null;
-  policyCategory?: string;
+  policyCategory?: string | null;
   policyType: PolicyType;
   thresholdAmount?: number | null;
   currency: string;
@@ -88,10 +85,7 @@ export function useCreateMccPolicy() {
 interface UpdateMccPolicyPayload {
   id: string;
   data: {
-    mccCode?: string | null;
-    description?: string;
-    mccCodeDescription?: string | null;
-    policyCategory?: string;
+    policyCategory?: string | null;
     policyType?: PolicyType;
     thresholdAmount?: number | null;
     activeFlag?: boolean;
@@ -135,9 +129,6 @@ export function useDeleteMccPolicy() {
 }
 
 interface ImportMccPolicyPayload {
-  mccCode: string;
-  description: string;
-  mccCodeDescription?: string;
   policyType: PolicyType;
   thresholdAmount?: number | null;
   activeFlag: boolean;

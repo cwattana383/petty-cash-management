@@ -794,7 +794,7 @@ export default function PolicyManagement() {
         <DialogContent className="sm:max-w-5xl max-h-[85vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>Import Policy Rules from CSV</DialogTitle>
-            <DialogDescription>Upload a CSV file to bulk-import MCC policy rules. All rows are validated before import.</DialogDescription>
+            <DialogDescription>Upload a CSV file to bulk-import policy rules. All rows are validated before import.</DialogDescription>
           </DialogHeader>
           <div className="space-y-4 py-2">
             <div className="flex items-center gap-2">
