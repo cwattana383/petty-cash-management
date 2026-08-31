@@ -31,6 +31,8 @@ import Profile from "./pages/Profile";
 import BankTransactions from "./pages/BankTransactions";
 import PolicyManagement from "./pages/PolicyManagement";
 import Notifications from "./pages/Notifications";
+import CardRequests from "./pages/CardRequests";
+import CardRequestNew from "./pages/CardRequestNew";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -83,6 +85,8 @@ const App = () => (
                             <Route path="/admin/project/new" element={<RoleGuard allowedRoles={["Admin"]}><ProjectCreate /></RoleGuard>} />
                             <Route path="/admin/project/:id/view" element={<RoleGuard allowedRoles={["Admin"]}><ProjectView /></RoleGuard>} />
                             <Route path="/admin/project/:id/edit" element={<RoleGuard allowedRoles={["Admin"]}><ProjectEdit /></RoleGuard>} />
+                            <Route path="/card-requests" element={<CardRequests />} />
+                            <Route path="/card-requests/new" element={<CardRequestNew />} />
                             <Route path="/notifications" element={<Notifications />} />
                             <Route path="/profile" element={<Profile />} />
                             <Route path="*" element={<NotFound />} />

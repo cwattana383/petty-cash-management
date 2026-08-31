@@ -4,6 +4,7 @@ import {
   CheckSquare,
   ClipboardList,
   CreditCard,
+  IdCard,
   Bell,
 } from "lucide-react";
 import { NavLink } from "@/components/NavLink";
