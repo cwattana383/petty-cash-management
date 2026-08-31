@@ -4,6 +4,7 @@ import {
   CheckSquare,
   ClipboardList,
   CreditCard,
+  IdCard,
   Bell,
 } from "lucide-react";
 import { NavLink } from "@/components/NavLink";
@@ -27,6 +28,7 @@ import {
 
 const mainNav = [
   { title: "My Expense", url: "/claims", icon: FileText },
+  { title: "Card Requests", url: "/card-requests", icon: IdCard },
   { title: "Notifications", url: "/notifications", icon: Bell, cardholderOnly: true },
   { title: "Approval Inbox", url: "/approvals", icon: CheckSquare },
   { title: "Accounting Review", url: "/accounting", icon: ClipboardList },
@@ -46,10 +48,10 @@ function getNavForRole(selectedRole: string) {
     case "Admin":
       return mainNav.filter((i) => !i.cardholderOnly);
     case "Approver":
-      return mainNav.filter((i) => ["My Expense", "Approval Inbox"].includes(i.title));
+      return mainNav.filter((i) => ["My Expense", "Card Requests", "Approval Inbox"].includes(i.title));
     case "Cardholder":
     default:
-      return mainNav.filter((i) => ["My Expense", "Notifications"].includes(i.title));
+      return mainNav.filter((i) => ["My Expense", "Card Requests", "Notifications"].includes(i.title));
   }
 }
 
