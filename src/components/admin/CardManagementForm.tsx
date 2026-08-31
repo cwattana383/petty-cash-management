@@ -10,6 +10,10 @@ import { toast } from "@/hooks/use-toast";
 import EmployeePicker from "@/components/admin/EmployeePicker";
 import { employeeFullName } from "@/lib/employee-directory-mock-data";
 import { useAuth } from "@/lib/auth-context";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command";
+import { ChevronDown } from "lucide-react";
+import { STORE_LOCATIONS } from "@/lib/card-request-types";
 function formatCEDate(v: string) {
   const d = new Date(v);
   if (isNaN(d.getTime())) return v;
@@ -39,6 +43,8 @@ export interface CardManagementRecord {
   position?: string;
   email?: string;
   phone?: string;
+  locationCode?: string;
+  locationName?: string;
   creditLimit?: string;
   currency?: string;
   perTxnLimit?: string;
@@ -114,6 +120,58 @@ function FieldLabel({ children, required }: { children: React.ReactNode; require
   );
 }
 
+function LocationPicker({
+  value,
+  className,
+  onSelect,
+}: {
+  value?: string;
+  className?: string;
+  onSelect: (loc: { storeCode: string; name: string }) => void;
+}) {
+  const [open, setOpen] = useState(false);
+  return (
+    <Popover open={open} onOpenChange={setOpen}>
+      <PopoverTrigger asChild>
+        <Button
+          type="button"
+          variant="outline"
+          role="combobox"
+          aria-expanded={open}
+          className={`w-full justify-between font-normal ${className ?? ""}`}
+        >
+          <span className={value ? "" : "text-muted-foreground"}>{value || "Search by store code or name"}</span>
+          <ChevronDown className="h-4 w-4 opacity-50 shrink-0" />
+        </Button>
+      </PopoverTrigger>
+      <PopoverContent className="p-0 w-[--radix-popover-trigger-width]" align="start">
+        <Command>
+          <CommandInput placeholder="Search by store code or name" />
+          <CommandList className="max-h-72">
+            <CommandEmpty>No locations found</CommandEmpty>
+            <CommandGroup>
+              {STORE_LOCATIONS.map((s) => (
+                <CommandItem
+                  key={s.storeCode}
+                  value={`${s.storeCode} ${s.name}`}
+                  onSelect={() => {
+                    onSelect(s);
+                    setOpen(false);
+                  }}
+                >
+                  {s.storeCode} — {s.name}
+                </CommandItem>
+              ))}
+            </CommandGroup>
+          </CommandList>
+        </Command>
+      </PopoverContent>
+    </Popover>
+  );
+}
+
+
+
 export default function CardManagementForm({ record }: Props = {}) {
   const navigate = useNavigate();
   const { user } = useAuth();
@@ -166,6 +224,9 @@ export default function CardManagementForm({ record }: Props = {}) {
       case "email":
         if (!f.email) return undefined;
         return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(f.email) ? undefined : "Invalid email";
+      case "locationCode":
+        if (f.cardType !== "Fleet Card") return undefined;
+        return f.locationCode ? undefined : "Select a store/location";
       case "perTxnLimit":
         if (isNaN(perTxn) || isNaN(monthly)) return undefined;
         return perTxn > monthly ? "Must be ≤ Monthly Limit" : undefined;
@@ -190,7 +251,7 @@ export default function CardManagementForm({ record }: Props = {}) {
   };
 
   const handleSave = () => {
-    const keys = ["cardType", "last4", "cardholderName", "issuingBank", "expiry", "email", "perTxnLimit", "monthlyLimit"];
+    const keys = ["cardType", "last4", "cardholderName", "issuingBank", "expiry", "email", "locationCode", "perTxnLimit", "monthlyLimit"];
     const e: Record<string, string> = {};
     keys.forEach((k) => {
       const msg = validateField(k);
@@ -384,6 +445,19 @@ export default function CardManagementForm({ record }: Props = {}) {
             <FieldLabel>Position / Role</FieldLabel>
             <Input className={inputCls} value={form.position ?? ""} onChange={(ev) => set("position", ev.target.value)} />
           </div>
+
+          <div className="space-y-2" ref={registerRef("locationCode") as any}>
+            <FieldLabel required={isFleet}>Location / สาขา-สถานที่</FieldLabel>
+            <LocationPicker
+              value={form.locationName}
+              className={inputCls + errCls("locationCode")}
+              onSelect={(s) =>
+                setForm((p) => ({ ...p, locationCode: s.storeCode, locationName: `${s.storeCode} — ${s.name}` }))
+              }
+            />
+            {errors.locationCode && <p className="text-xs text-destructive">{errors.locationCode}</p>}
+          </div>
+
 
           <div className="space-y-2">
             <FieldLabel>Email</FieldLabel>
