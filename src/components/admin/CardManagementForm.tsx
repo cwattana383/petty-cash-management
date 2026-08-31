@@ -43,6 +43,8 @@ export interface CardManagementRecord {
   position?: string;
   email?: string;
   phone?: string;
+  locationCode?: string;
+  locationName?: string;
   creditLimit?: string;
   currency?: string;
   perTxnLimit?: string;
