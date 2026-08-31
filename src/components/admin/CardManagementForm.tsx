@@ -199,7 +199,7 @@ export default function CardManagementForm({ record }: Props = {}) {
   };
 
   const handleSave = () => {
-    const keys = ["cardType", "last4", "cardholderName", "issuingBank", "expiry", "email", "perTxnLimit", "monthlyLimit"];
+    const keys = ["cardType", "last4", "cardholderName", "issuingBank", "expiry", "email", "locationCode", "perTxnLimit", "monthlyLimit"];
     const e: Record<string, string> = {};
     keys.forEach((k) => {
       const msg = validateField(k);
