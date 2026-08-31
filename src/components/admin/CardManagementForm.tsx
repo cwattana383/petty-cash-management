@@ -120,6 +120,58 @@ function FieldLabel({ children, required }: { children: React.ReactNode; require
   );
 }
 
+function LocationPicker({
+  value,
+  className,
+  onSelect,
+}: {
+  value?: string;
+  className?: string;
+  onSelect: (loc: { storeCode: string; name: string }) => void;
+}) {
+  const [open, setOpen] = useState(false);
+  return (
+    <Popover open={open} onOpenChange={setOpen}>
+      <PopoverTrigger asChild>
+        <Button
+          type="button"
+          variant="outline"
+          role="combobox"
+          aria-expanded={open}
+          className={`w-full justify-between font-normal ${className ?? ""}`}
+        >
+          <span className={value ? "" : "text-muted-foreground"}>{value || "Search by store code or name"}</span>
+          <ChevronDown className="h-4 w-4 opacity-50 shrink-0" />
+        </Button>
+      </PopoverTrigger>
+      <PopoverContent className="p-0 w-[--radix-popover-trigger-width]" align="start">
+        <Command>
+          <CommandInput placeholder="Search by store code or name" />
+          <CommandList className="max-h-72">
+            <CommandEmpty>No locations found</CommandEmpty>
+            <CommandGroup>
+              {STORE_LOCATIONS.map((s) => (
+                <CommandItem
+                  key={s.storeCode}
+                  value={`${s.storeCode} ${s.name}`}
+                  onSelect={() => {
+                    onSelect(s);
+                    setOpen(false);
+                  }}
+                >
+                  {s.storeCode} — {s.name}
+                </CommandItem>
+              ))}
+            </CommandGroup>
+          </CommandList>
+        </Command>
+      </PopoverContent>
+    </Popover>
+  );
+}
+
+
+
 export default function CardManagementForm({ record }: Props = {}) {
   const navigate = useNavigate();
   const { user } = useAuth();
