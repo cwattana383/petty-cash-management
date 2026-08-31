@@ -33,6 +33,7 @@ import PolicyManagement from "./pages/PolicyManagement";
 import Notifications from "./pages/Notifications";
 import CardRequests from "./pages/CardRequests";
 import CardRequestNew from "./pages/CardRequestNew";
+import CardRequestDetail from "./pages/CardRequestDetail";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
