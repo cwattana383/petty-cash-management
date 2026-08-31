@@ -172,6 +172,9 @@ export default function CardManagementForm({ record }: Props = {}) {
       case "email":
         if (!f.email) return undefined;
         return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(f.email) ? undefined : "Invalid email";
+      case "locationCode":
+        if (f.cardType !== "Fleet Card") return undefined;
+        return f.locationCode ? undefined : "Select a store/location";
       case "perTxnLimit":
         if (isNaN(perTxn) || isNaN(monthly)) return undefined;
         return perTxn > monthly ? "Must be ≤ Monthly Limit" : undefined;
