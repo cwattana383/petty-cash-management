@@ -10,6 +10,10 @@ import { toast } from "@/hooks/use-toast";
 import EmployeePicker from "@/components/admin/EmployeePicker";
 import { employeeFullName } from "@/lib/employee-directory-mock-data";
 import { useAuth } from "@/lib/auth-context";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command";
+import { ChevronDown } from "lucide-react";
+import { STORE_LOCATIONS } from "@/lib/card-request-types";
 function formatCEDate(v: string) {
   const d = new Date(v);
   if (isNaN(d.getTime())) return v;
