@@ -446,19 +446,6 @@ export default function CardManagementForm({ record }: Props = {}) {
             <Input className={inputCls} value={form.position ?? ""} onChange={(ev) => set("position", ev.target.value)} />
           </div>
 
-          <div className="space-y-2" ref={registerRef("locationCode") as any}>
-            <FieldLabel required={isFleet}>Location / สาขา-สถานที่</FieldLabel>
-            <LocationPicker
-              value={form.locationName}
-              className={inputCls + errCls("locationCode")}
-              onSelect={(s) =>
-                setForm((p) => ({ ...p, locationCode: s.storeCode, locationName: `${s.storeCode} — ${s.name}` }))
-              }
-            />
-            {errors.locationCode && <p className="text-xs text-destructive">{errors.locationCode}</p>}
-          </div>
-
-
           <div className="space-y-2">
             <FieldLabel>Email</FieldLabel>
             <Input ref={registerRef("email") as any} type="email" className={inputCls + errCls("email")} style={errStyle("email")} value={form.email ?? ""} onChange={(ev) => set("email", ev.target.value)} onBlur={() => runBlur("email")} />
@@ -467,6 +454,18 @@ export default function CardManagementForm({ record }: Props = {}) {
           <div className="space-y-2">
             <FieldLabel>Phone</FieldLabel>
             <Input type="tel" className={inputCls} value={form.phone ?? ""} onChange={(ev) => set("phone", ev.target.value)} />
+          </div>
+
+          <div className="space-y-2" ref={registerRef("locationCode") as any}>
+            <FieldLabel required={isFleet}>Store</FieldLabel>
+            <LocationPicker
+              value={form.locationName}
+              className={inputCls + errCls("locationCode")}
+              onSelect={(s) =>
+                setForm((p) => ({ ...p, locationCode: s.storeCode, locationName: `${s.storeCode} — ${s.name}` }))
+              }
+            />
+            {errors.locationCode && <p className="text-xs text-destructive">{errors.locationCode}</p>}
           </div>
         </div>
       </Card>
