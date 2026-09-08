@@ -361,7 +361,7 @@ export default function HrisSyncExceptionsPanel() {
                   )}
                 </TableCell>
                 <TableCell className="text-right">
-                  <Button size="sm" variant="ghost" title="View">
+                  <Button size="sm" variant="ghost" title="View" onClick={() => setDetailOpen(true)}>
                     <Eye className="h-4 w-4" />
                   </Button>
                 </TableCell>
