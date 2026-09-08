@@ -1,6 +1,7 @@
 import { useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { CreditCard, User, DollarSign, Truck, Paperclip, FileText, X } from "lucide-react";
+import { CreditCard, User, DollarSign, Truck, Paperclip, FileText, X, Download } from "lucide-react";
+import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -202,6 +203,9 @@ export default function CardManagementForm({ record }: Props = {}) {
   const registerRef = (k: string) => (el: HTMLElement | null) => {
     fieldRefs.current[k] = el;
   };
+
+  const [handoverOpen, setHandoverOpen] = useState(false);
+  const isEdit = !!record?.cardId;
 
   const set = (k: keyof CardManagementRecord, v: string) => setForm((p) => ({ ...p, [k]: v }));
   const isFleet = form.cardType === "Fleet Card";
