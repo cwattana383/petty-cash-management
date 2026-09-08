@@ -504,6 +504,7 @@ export default function CardManagementForm({ record }: Props = {}) {
 
         </div>
       </Card>
+      )}
 
       {/* SECTION 2 */}
       <Card className="rounded-2xl p-5">
