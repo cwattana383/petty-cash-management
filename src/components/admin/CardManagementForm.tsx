@@ -319,9 +319,84 @@ export default function CardManagementForm({ record }: Props = {}) {
           <h2 className="text-xl font-bold text-foreground">Card Management</h2>
           <p className="text-sm text-muted-foreground">Corporate Credit Card &amp; Fleet Card — Card Master</p>
         </div>
+        {isEdit && effectiveStatus === "Created" && (
+          <Button onClick={() => setHandoverOpen(true)} style={{ backgroundColor: RED, color: "#fff" }}>
+            Confirm Handover
+          </Button>
+        )}
       </div>
 
+      <Dialog open={handoverOpen} onOpenChange={setHandoverOpen}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Do you want to confirm Card handover?</DialogTitle>
+          </DialogHeader>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setHandoverOpen(false)}>Cancel</Button>
+            <Button
+              style={{ backgroundColor: RED, color: "#fff" }}
+              onClick={() => {
+                set("cardStatus", "Handed Over");
+                setHandoverOpen(false);
+              }}
+            >
+              Yes
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
       {/* SECTION 1 */}
+      {isEdit ? (
+        <Card className="rounded-2xl p-5">
+          <SectionHeader
+            icon={CreditCard}
+            title="Card Information"
+            badge={
+              <span className="rounded-full px-2.5 py-0.5 text-xs font-medium bg-muted text-muted-foreground">
+                Read-only
+              </span>
+            }
+          />
+          <p className="text-sm text-muted-foreground -mt-2 mb-4">
+            Issued card details are locked and cannot be edited on this page.
+          </p>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="space-y-2">
+              <FieldLabel>Card Type</FieldLabel>
+              <ReadOnlyValue value={form.cardType} />
+            </div>
+            <div className="space-y-2">
+              <FieldLabel>Card Number</FieldLabel>
+              <ReadOnlyValue value={isFleet ? formatCardDigits(form.last4 ?? "") : form.last4} />
+            </div>
+            <div className="space-y-2">
+              <FieldLabel>Card Status</FieldLabel>
+              <ReadOnlyValue value={effectiveStatus} />
+            </div>
+            <div className="space-y-2">
+              <FieldLabel>Issuing Bank</FieldLabel>
+              <ReadOnlyValue value={form.issuingBank} />
+            </div>
+            <div className="space-y-2">
+              <FieldLabel>Issue Date</FieldLabel>
+              <ReadOnlyValue value={form.issueDate ? formatCEDate(form.issueDate) : ""} />
+            </div>
+            <div className="space-y-2">
+              <FieldLabel>Expiry Date (MM/YY)</FieldLabel>
+              <ReadOnlyValue value={form.expiry} />
+            </div>
+            <div className="space-y-2">
+              <FieldLabel>Card Network</FieldLabel>
+              <ReadOnlyValue value={form.cardNetwork} />
+            </div>
+            <div className="space-y-2">
+              <FieldLabel>Cardholder Name</FieldLabel>
+              <ReadOnlyValue value={form.cardholderName} />
+            </div>
+          </div>
+        </Card>
+      ) : (
       <Card className="rounded-2xl p-5">
         <SectionHeader icon={CreditCard} title="Card Information" />
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
