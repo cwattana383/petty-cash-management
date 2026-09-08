@@ -85,8 +85,11 @@ interface ExceptionRow {
   ageing: number;
 }
 
+const EMPTY_RUN_ID = "RUN-20260828-0600";
+
 const RUNS = [
-  { id: "RUN-20260827-0600", label: "Run: 27/08/2026 06:00 (latest)" },
+  { id: EMPTY_RUN_ID, label: "Run: 28/08/2026 06:00 (latest)" },
+  { id: "RUN-20260827-0600", label: "Run: 27/08/2026 06:00" },
   { id: "RUN-20260826-0600", label: "Run: 26/08/2026 06:00" },
   { id: "RUN-20260825-0600", label: "Run: 25/08/2026 06:00" },
 ];
