@@ -534,30 +534,56 @@ export default function CardManagementForm({ record }: Props = {}) {
           </div>
           <div className="space-y-2">
             <FieldLabel>Position / Role</FieldLabel>
-            <Input className={inputCls} value={form.position ?? ""} onChange={(ev) => set("position", ev.target.value)} />
+            {isEdit ? (
+              <ReadOnlyValue value={form.position} />
+            ) : (
+              <Input className={inputCls} value={form.position ?? ""} onChange={(ev) => set("position", ev.target.value)} />
+            )}
           </div>
 
           <div className="space-y-2">
             <FieldLabel>Email</FieldLabel>
-            <Input ref={registerRef("email") as any} type="email" className={inputCls + errCls("email")} style={errStyle("email")} value={form.email ?? ""} onChange={(ev) => set("email", ev.target.value)} onBlur={() => runBlur("email")} />
-            {errors.email && <p className="text-xs text-destructive">{errors.email}</p>}
+            {isEdit ? (
+              <ReadOnlyValue value={form.email} />
+            ) : (
+              <>
+                <Input ref={registerRef("email") as any} type="email" className={inputCls + errCls("email")} style={errStyle("email")} value={form.email ?? ""} onChange={(ev) => set("email", ev.target.value)} onBlur={() => runBlur("email")} />
+                {errors.email && <p className="text-xs text-destructive">{errors.email}</p>}
+              </>
+            )}
           </div>
           <div className="space-y-2">
             <FieldLabel>Phone</FieldLabel>
-            <Input type="tel" className={inputCls} value={form.phone ?? ""} onChange={(ev) => set("phone", ev.target.value)} />
+            {isEdit ? (
+              <ReadOnlyValue value={form.phone} />
+            ) : (
+              <Input type="tel" className={inputCls} value={form.phone ?? ""} onChange={(ev) => set("phone", ev.target.value)} />
+            )}
           </div>
 
           <div className="space-y-2" ref={registerRef("locationCode") as any}>
-            <FieldLabel required={isFleet}>Store</FieldLabel>
+            <FieldLabel required>Store</FieldLabel>
             <LocationPicker
               value={form.locationName}
               className={inputCls + errCls("locationCode")}
+              searchLabel={isEdit ? "Search by Location code or name" : undefined}
               onSelect={(s) =>
-                setForm((p) => ({ ...p, locationCode: s.storeCode, locationName: `${s.storeCode} — ${s.name}` }))
+                setForm((p) => ({ ...p, locationCode: s.storeCode, locationName: `${s.storeCode} — ${s.name}`, sgm: s.sgm }))
               }
             />
             {errors.locationCode && <p className="text-xs text-destructive">{errors.locationCode}</p>}
           </div>
+          {isEdit && (
+            <div className="space-y-2">
+              <div className="flex items-center gap-2">
+                <FieldLabel>SGM (Store General Manager)</FieldLabel>
+                <span className="rounded-full px-2 py-0.5 text-[11px] font-medium bg-muted text-muted-foreground">
+                  Derived from Store · HRIS
+                </span>
+              </div>
+              <ReadOnlyValue value={form.sgm} />
+            </div>
+          )}
         </div>
       </Card>
 
