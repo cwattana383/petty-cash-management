@@ -165,6 +165,7 @@ export default function HrisSyncExceptionsPanel() {
   const [type, setType] = useState("all");
   const [selected, setSelected] = useState<string[]>([]);
   const [detailOpen, setDetailOpen] = useState(false);
+  const isEmptyRun = run === EMPTY_RUN_ID;
 
   const filtered = useMemo(
     () =>
@@ -207,7 +208,7 @@ export default function HrisSyncExceptionsPanel() {
               ))}
             </SelectContent>
           </Select>
-          <Button variant="outline">
+          <Button variant="outline" disabled={isEmptyRun}>
             <Download className="h-4 w-4 mr-2" />
             Export &amp; Send to HRIS
           </Button>
@@ -243,8 +244,18 @@ export default function HrisSyncExceptionsPanel() {
         <StatCard icon={Users} value="8,432" label="Records Received" tone="blue" />
         <StatCard icon={UserPlus} value="7,983" label="Inserted" tone="green" />
         <StatCard icon={RefreshCw} value="429" label="Updated" tone="blue" />
-        <StatCard icon={XCircle} value="20" label="Not Inserted (Rejected)" tone="red" />
-        <StatCard icon={Flag} value="47" label="Flagged (Incomplete)" tone="amber" />
+        <StatCard
+          icon={isEmptyRun ? CheckCircle2 : XCircle}
+          value={isEmptyRun ? "0" : "20"}
+          label="Not Inserted (Rejected)"
+          tone={isEmptyRun ? "green" : "red"}
+        />
+        <StatCard
+          icon={isEmptyRun ? CheckCircle2 : Flag}
+          value={isEmptyRun ? "0" : "47"}
+          label="Flagged (Incomplete)"
+          tone={isEmptyRun ? "green" : "amber"}
+        />
       </div>
 
       {/* Warning banner */}
@@ -417,6 +428,7 @@ export default function HrisSyncExceptionsPanel() {
           </div>
         </div>
       </Card>
+      )}
 
       {/* Legend */}
       <Card className="rounded-xl p-4 space-y-2">
