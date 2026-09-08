@@ -1,4 +1,4 @@
-export type CardMasterStatus = "Created" | "Active" | "Suspended" | "Cancelled" | "Expired";
+export type CardMasterStatus = "Created" | "Handed Over" | "Received" | "Active" | "Suspended" | "Cancelled" | "Expired";
 
 export interface CardMasterRow {
   cardId: string;
@@ -24,6 +24,50 @@ const soon = new Date();
 soon.setDate(soon.getDate() + 45);
 
 export const CARD_MASTER_ROWS: CardMasterRow[] = [
+  {
+    cardId: "FL-2026-00427",
+    kind: "fleet",
+    bankTh: "กสิกรไทย",
+    last4: "8841",
+    plateNo: "70-8814",
+    creditLimit: 200000,
+    expiry: "08/29",
+    status: "Created",
+    company: "Makro",
+  },
+  {
+    cardId: "FL-2026-00431",
+    kind: "fleet",
+    bankTh: "กสิกรไทย",
+    last4: "9012",
+    plateNo: "82-1150",
+    creditLimit: 150000,
+    expiry: "09/29",
+    status: "Created",
+    company: "Makro",
+  },
+  {
+    cardId: "FL-2026-00419",
+    kind: "fleet",
+    bankTh: "กรุงศรี",
+    last4: "7745",
+    plateNo: "กข-5678",
+    creditLimit: 120000,
+    expiry: "07/29",
+    status: "Handed Over",
+    company: "Makro",
+  },
+  {
+    cardId: "FL-2026-00405",
+    kind: "fleet",
+    bankTh: "กสิกรไทย",
+    last4: "6623",
+    plateNo: "3ขค-9911",
+    creditLimit: 100000,
+    expiry: "10/29",
+    status: "Received",
+    company: "Makro",
+  },
   {
     cardId: "CC-2026-35775",
     kind: "corporate",
