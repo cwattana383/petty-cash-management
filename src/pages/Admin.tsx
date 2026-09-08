@@ -11,6 +11,7 @@ import ExpenseTypePanelImported from "@/components/admin/ExpenseTypePanel";
 import OcrValidationRulesPanel from "@/components/admin/OcrValidationRulesPanel";
 import DocumentTypePanel from "@/components/admin/DocumentTypePanel";
 import ProjectPanel from "@/components/admin/ProjectPanel";
+import HrisSyncExceptionsPanel from "@/components/admin/HrisSyncExceptionsPanel";
 import CardManagementList from "@/components/admin/CardManagementList";
 import { MonthEndSummaryPanel } from "./Reports";
 import MonthEndReportNotificationPanel from "@/components/admin/MonthEndReportNotificationPanel";
@@ -105,6 +106,7 @@ const adminMenu = [
       { key: "employees", label: "Employee Profiles", icon: Users },
       { key: "roles", label: "Roles & Permissions", icon: Shield },
       { key: "card-management", label: "Card Management", icon: CreditCardIcon },
+      { key: "hris-sync-exceptions", label: "HRIS Sync Exceptions", icon: AlertTriangle, badge: 67 },
     ],
   },
   {
@@ -1511,6 +1513,7 @@ const panelMap: Record<string, () => JSX.Element> = {
   "expense-type": ExpenseTypePanelImported,
   project: ProjectPanel,
   "card-management": CardManagementList,
+  "hris-sync-exceptions": HrisSyncExceptionsPanel,
   "expense-item": ExpenseItemPanel,
   "expense-rules": ExpenseRulesPanel,
   "expense-delegates": ExpenseDelegatesPanel,
@@ -1672,7 +1675,19 @@ export default function Admin() {
                     )}
                   >
                     <item.icon className="h-4 w-4 shrink-0" />
-                    <span>{item.label}</span>
+                    <span className="flex-1">{item.label}</span>
+                    {"badge" in item && item.badge ? (
+                      <span
+                        className={cn(
+                          "ml-auto inline-flex items-center justify-center min-w-[20px] h-5 px-1.5 rounded-full text-[10px] font-bold",
+                          activeKey === item.key
+                            ? "bg-primary-foreground text-primary"
+                            : "bg-primary text-primary-foreground"
+                        )}
+                      >
+                        {item.badge}
+                      </span>
+                    ) : null}
                   </button>
                 ))}
               </div>
