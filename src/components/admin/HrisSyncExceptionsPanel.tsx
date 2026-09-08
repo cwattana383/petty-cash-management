@@ -160,6 +160,7 @@ export default function HrisSyncExceptionsPanel() {
   const [file, setFile] = useState("all");
   const [type, setType] = useState("all");
   const [selected, setSelected] = useState<string[]>([]);
+  const [detailOpen, setDetailOpen] = useState(false);
 
   const filtered = useMemo(
     () =>
