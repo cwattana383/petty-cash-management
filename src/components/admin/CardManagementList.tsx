@@ -31,9 +31,11 @@ const YELLOW = "#F6C24A";
 
 const ALL = "ทั้งหมด";
 const bankOptions = [ALL, "กสิกรไทย", "กรุงศรี"];
-const statusOptions = [ALL, "Created", "Active", "Suspended", "Cancelled", "Expired"];
+const statusOptions = [ALL, "Created", "Handed Over", "Received", "Active", "Suspended", "Cancelled", "Expired"];
 const statusLabelTh: Record<string, string> = {
   Created: "Created",
+  "Handed Over": "Handed Over",
+  Received: "Received",
   Active: "Active",
   Suspended: "Suspended",
   Cancelled: "Cancelled",
@@ -76,11 +78,13 @@ function effectiveStatus(row: CardMasterRow): CardMasterStatus {
 
 function StatusPill({ status }: { status: CardMasterStatus }) {
   const map: Record<CardMasterStatus, { color: string; bg: string }> = {
-    Created: { color: "#306FC7", bg: "#E7EFFA" },
+    Created: { color: "#6B7280", bg: "#F1F2F4" },
+    "Handed Over": { color: "#306FC7", bg: "#E7EFFA" },
+    Received: { color: "#4F46E5", bg: "#EEF0FD" },
     Active: { color: GREEN, bg: "#E6F2F1" },
     Suspended: { color: "#8A6400", bg: "#FDF3D8" },
-    Cancelled: { color: "#6B7280", bg: "#F1F2F4" },
-    Expired: { color: RED, bg: "#FBE7E6" },
+    Cancelled: { color: RED, bg: "#FBE7E6" },
+    Expired: { color: "#6B7280", bg: "#F1F2F4" },
   };
   const s = map[status];
   return (
@@ -127,6 +131,9 @@ export default function CardManagementList() {
       active: rows.filter((r) => effectiveStatus(r) === "Active").length,
       suspended: rows.filter((r) => effectiveStatus(r) === "Suspended").length,
       expiring: rows.filter((r) => isExpiringSoon(r)).length,
+      pendingActivation: rows.filter((r) =>
+        ["Created", "Handed Over", "Received"].includes(effectiveStatus(r)),
+      ).length,
     };
   }, [rows]);
 
@@ -254,6 +261,15 @@ export default function CardManagementList() {
       },
     },
     {
+      label: "Pending Activation",
+      value: stats.pendingActivation,
+      color: "#306FC7",
+      onClick: () => {
+        clearAll();
+        setStatus("Created");
+      },
+    },
+    {
       label: "Expiring Soon (within 90 days)",
       value: stats.expiring,
       color: RED,
@@ -279,7 +295,7 @@ export default function CardManagementList() {
         </div>
       </div>
 
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+      <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
         {statCards.map((s) => (
           <button key={s.label} type="button" onClick={s.onClick} className="text-left">
             <Card className="rounded-2xl p-4 hover:shadow-sm transition-shadow">
