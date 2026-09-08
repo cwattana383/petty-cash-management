@@ -105,6 +105,7 @@ const adminMenu = [
       { key: "employees", label: "Employee Profiles", icon: Users },
       { key: "roles", label: "Roles & Permissions", icon: Shield },
       { key: "card-management", label: "Card Management", icon: CreditCardIcon },
+      { key: "hris-sync-exceptions", label: "HRIS Sync Exceptions", icon: AlertTriangle, badge: 67 },
     ],
   },
   {
