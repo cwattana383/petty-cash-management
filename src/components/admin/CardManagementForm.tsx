@@ -53,6 +53,7 @@ export interface CardManagementRecord {
   plateNo?: string;
   fuelType?: string;
   usageRules?: string;
+  sgm?: string;
 }
 
 interface Props {
@@ -61,7 +62,7 @@ interface Props {
 
 const bankOptions = ["KBank", "Krungsri"];
 const networkOptions = ["Visa", "Mastercard", "JCB", "UnionPay", "Amex"];
-const statusOptions = ["Created", "Active", "Suspended", "Cancelled", "Expired"];
+const statusOptions = ["Created", "Handed Over", "Received", "Active", "Suspended", "Cancelled", "Expired"];
 const companyOptions = ["CP AXTRA PCL", "Lotus's", "Makro"];
 const currencyOptions = ["THB", "USD", "EUR", "SGD", "CNY"];
 
