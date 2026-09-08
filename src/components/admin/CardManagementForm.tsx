@@ -121,14 +121,24 @@ function FieldLabel({ children, required }: { children: React.ReactNode; require
   );
 }
 
+function ReadOnlyValue({ value }: { value?: string }) {
+  return (
+    <div className="flex h-10 items-center rounded-lg border bg-muted px-3 text-sm text-foreground">
+      {value || "—"}
+    </div>
+  );
+}
+
 function LocationPicker({
   value,
   className,
+  searchLabel = "Search by store code or name",
   onSelect,
 }: {
   value?: string;
   className?: string;
-  onSelect: (loc: { storeCode: string; name: string }) => void;
+  searchLabel?: string;
+  onSelect: (loc: { storeCode: string; name: string; sgm?: string }) => void;
 }) {
   const [open, setOpen] = useState(false);
   return (
@@ -141,13 +151,13 @@ function LocationPicker({
           aria-expanded={open}
           className={`w-full justify-between font-normal ${className ?? ""}`}
         >
-          <span className={value ? "" : "text-muted-foreground"}>{value || "Search by store code or name"}</span>
+          <span className={value ? "" : "text-muted-foreground"}>{value || searchLabel}</span>
           <ChevronDown className="h-4 w-4 opacity-50 shrink-0" />
         </Button>
       </PopoverTrigger>
       <PopoverContent className="p-0 w-[--radix-popover-trigger-width]" align="start">
         <Command>
-          <CommandInput placeholder="Search by store code or name" />
+          <CommandInput placeholder={searchLabel} />
           <CommandList className="max-h-72">
             <CommandEmpty>No locations found</CommandEmpty>
             <CommandGroup>
