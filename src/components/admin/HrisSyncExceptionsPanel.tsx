@@ -28,6 +28,7 @@ import {
   RefreshCw,
   XCircle,
   Flag,
+  CheckCircle2,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Sheet, SheetContent } from "@/components/ui/sheet";
@@ -85,8 +86,11 @@ interface ExceptionRow {
   ageing: number;
 }
 
+const EMPTY_RUN_ID = "RUN-20260828-0600";
+
 const RUNS = [
-  { id: "RUN-20260827-0600", label: "Run: 27/08/2026 06:00 (latest)" },
+  { id: EMPTY_RUN_ID, label: "Run: 28/08/2026 06:00 (latest)" },
+  { id: "RUN-20260827-0600", label: "Run: 27/08/2026 06:00" },
   { id: "RUN-20260826-0600", label: "Run: 26/08/2026 06:00" },
   { id: "RUN-20260825-0600", label: "Run: 25/08/2026 06:00" },
 ];
@@ -161,6 +165,7 @@ export default function HrisSyncExceptionsPanel() {
   const [type, setType] = useState("all");
   const [selected, setSelected] = useState<string[]>([]);
   const [detailOpen, setDetailOpen] = useState(false);
+  const isEmptyRun = run === EMPTY_RUN_ID;
 
   const filtered = useMemo(
     () =>
@@ -203,7 +208,7 @@ export default function HrisSyncExceptionsPanel() {
               ))}
             </SelectContent>
           </Select>
-          <Button variant="outline">
+          <Button variant="outline" disabled={isEmptyRun}>
             <Download className="h-4 w-4 mr-2" />
             Export &amp; Send to HRIS
           </Button>
@@ -239,8 +244,18 @@ export default function HrisSyncExceptionsPanel() {
         <StatCard icon={Users} value="8,432" label="Records Received" tone="blue" />
         <StatCard icon={UserPlus} value="7,983" label="Inserted" tone="green" />
         <StatCard icon={RefreshCw} value="429" label="Updated" tone="blue" />
-        <StatCard icon={XCircle} value="20" label="Not Inserted (Rejected)" tone="red" />
-        <StatCard icon={Flag} value="47" label="Flagged (Incomplete)" tone="amber" />
+        <StatCard
+          icon={isEmptyRun ? CheckCircle2 : XCircle}
+          value={isEmptyRun ? "0" : "20"}
+          label="Not Inserted (Rejected)"
+          tone={isEmptyRun ? "green" : "red"}
+        />
+        <StatCard
+          icon={isEmptyRun ? CheckCircle2 : Flag}
+          value={isEmptyRun ? "0" : "47"}
+          label="Flagged (Incomplete)"
+          tone={isEmptyRun ? "green" : "amber"}
+        />
       </div>
 
       {/* Warning banner */}
@@ -299,6 +314,21 @@ export default function HrisSyncExceptionsPanel() {
       </div>
 
       {/* Table */}
+      {isEmptyRun ? (
+        <Card className="rounded-xl p-12 flex flex-col items-center text-center gap-3">
+          <div className="h-14 w-14 rounded-full bg-[#43938F]/10 flex items-center justify-center">
+            <CheckCircle2 className="h-7 w-7 text-[#43938F]" />
+          </div>
+          <h3 className="text-base font-semibold">No exceptions in the latest run</h3>
+          <p className="text-sm text-muted-foreground max-w-md">
+            All records were processed successfully. There is nothing to review or send to the HRIS
+            team.
+          </p>
+          <p className="text-xs text-muted-foreground">
+            Run RUN-20260828-0600 · completed 28/08/2026 06:03
+          </p>
+        </Card>
+      ) : (
       <Card className="rounded-xl">
         <Table>
           <TableHeader>
@@ -398,6 +428,7 @@ export default function HrisSyncExceptionsPanel() {
           </div>
         </div>
       </Card>
+      )}
 
       {/* Legend */}
       <Card className="rounded-xl p-4 space-y-2">
