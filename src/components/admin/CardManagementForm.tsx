@@ -1,6 +1,7 @@
 import { useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { CreditCard, User, DollarSign, Truck, Paperclip, FileText, X } from "lucide-react";
+import { CreditCard, User, DollarSign, Truck, Paperclip, FileText, X, Download } from "lucide-react";
+import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -53,6 +54,7 @@ export interface CardManagementRecord {
   plateNo?: string;
   fuelType?: string;
   usageRules?: string;
+  sgm?: string;
 }
 
 interface Props {
@@ -61,7 +63,7 @@ interface Props {
 
 const bankOptions = ["KBank", "Krungsri"];
 const networkOptions = ["Visa", "Mastercard", "JCB", "UnionPay", "Amex"];
-const statusOptions = ["Created", "Active", "Suspended", "Cancelled", "Expired"];
+const statusOptions = ["Created", "Handed Over", "Received", "Active", "Suspended", "Cancelled", "Expired"];
 const companyOptions = ["CP AXTRA PCL", "Lotus's", "Makro"];
 const currencyOptions = ["THB", "USD", "EUR", "SGD", "CNY"];
 
@@ -120,14 +122,24 @@ function FieldLabel({ children, required }: { children: React.ReactNode; require
   );
 }
 
+function ReadOnlyValue({ value }: { value?: string }) {
+  return (
+    <div className="flex h-10 items-center rounded-lg border bg-muted px-3 text-sm text-foreground">
+      {value || "—"}
+    </div>
+  );
+}
+
 function LocationPicker({
   value,
   className,
+  searchLabel = "Search by store code or name",
   onSelect,
 }: {
   value?: string;
   className?: string;
-  onSelect: (loc: { storeCode: string; name: string }) => void;
+  searchLabel?: string;
+  onSelect: (loc: { storeCode: string; name: string; sgm?: string }) => void;
 }) {
   const [open, setOpen] = useState(false);
   return (
@@ -140,13 +152,13 @@ function LocationPicker({
           aria-expanded={open}
           className={`w-full justify-between font-normal ${className ?? ""}`}
         >
-          <span className={value ? "" : "text-muted-foreground"}>{value || "Search by store code or name"}</span>
+          <span className={value ? "" : "text-muted-foreground"}>{value || searchLabel}</span>
           <ChevronDown className="h-4 w-4 opacity-50 shrink-0" />
         </Button>
       </PopoverTrigger>
       <PopoverContent className="p-0 w-[--radix-popover-trigger-width]" align="start">
         <Command>
-          <CommandInput placeholder="Search by store code or name" />
+          <CommandInput placeholder={searchLabel} />
           <CommandList className="max-h-72">
             <CommandEmpty>No locations found</CommandEmpty>
             <CommandGroup>
@@ -181,6 +193,7 @@ export default function CardManagementForm({ record }: Props = {}) {
     currency: "THB",
     cardStatus: "Created",
     ...record,
+    sgm: record?.sgm ?? STORE_LOCATIONS.find((s) => s.storeCode === record?.locationCode)?.sgm,
   });
   const [files, setFiles] = useState<{ name: string; size: number }[]>([
     { name: "card-request-form.pdf", size: 120 * 1024 },
@@ -191,6 +204,9 @@ export default function CardManagementForm({ record }: Props = {}) {
   const registerRef = (k: string) => (el: HTMLElement | null) => {
     fieldRefs.current[k] = el;
   };
+
+  const [handoverOpen, setHandoverOpen] = useState(false);
+  const isEdit = !!record?.cardId;
 
   const set = (k: keyof CardManagementRecord, v: string) => setForm((p) => ({ ...p, [k]: v }));
   const isFleet = form.cardType === "Fleet Card";
@@ -225,7 +241,7 @@ export default function CardManagementForm({ record }: Props = {}) {
         if (!f.email) return undefined;
         return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(f.email) ? undefined : "Invalid email";
       case "locationCode":
-        if (f.cardType !== "Fleet Card") return undefined;
+        if (f.cardType !== "Fleet Card" && !isEdit) return undefined;
         return f.locationCode ? undefined : "Select a store/location";
       case "perTxnLimit":
         if (isNaN(perTxn) || isNaN(monthly)) return undefined;
@@ -304,9 +320,84 @@ export default function CardManagementForm({ record }: Props = {}) {
           <h2 className="text-xl font-bold text-foreground">Card Management</h2>
           <p className="text-sm text-muted-foreground">Corporate Credit Card &amp; Fleet Card — Card Master</p>
         </div>
+        {isEdit && effectiveStatus === "Created" && (
+          <Button onClick={() => setHandoverOpen(true)} style={{ backgroundColor: RED, color: "#fff" }}>
+            Confirm Handover
+          </Button>
+        )}
       </div>
 
+      <Dialog open={handoverOpen} onOpenChange={setHandoverOpen}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Do you want to confirm Card handover?</DialogTitle>
+          </DialogHeader>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setHandoverOpen(false)}>Cancel</Button>
+            <Button
+              style={{ backgroundColor: RED, color: "#fff" }}
+              onClick={() => {
+                set("cardStatus", "Handed Over");
+                setHandoverOpen(false);
+              }}
+            >
+              Yes
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
       {/* SECTION 1 */}
+      {isEdit ? (
+        <Card className="rounded-2xl p-5">
+          <SectionHeader
+            icon={CreditCard}
+            title="Card Information"
+            badge={
+              <span className="rounded-full px-2.5 py-0.5 text-xs font-medium bg-muted text-muted-foreground">
+                Read-only
+              </span>
+            }
+          />
+          <p className="text-sm text-muted-foreground -mt-2 mb-4">
+            Issued card details are locked and cannot be edited on this page.
+          </p>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="space-y-2">
+              <FieldLabel>Card Type</FieldLabel>
+              <ReadOnlyValue value={form.cardType} />
+            </div>
+            <div className="space-y-2">
+              <FieldLabel>Card Number</FieldLabel>
+              <ReadOnlyValue value={isFleet ? formatCardDigits(form.last4 ?? "") : form.last4} />
+            </div>
+            <div className="space-y-2">
+              <FieldLabel>Card Status</FieldLabel>
+              <ReadOnlyValue value={effectiveStatus} />
+            </div>
+            <div className="space-y-2">
+              <FieldLabel>Issuing Bank</FieldLabel>
+              <ReadOnlyValue value={form.issuingBank} />
+            </div>
+            <div className="space-y-2">
+              <FieldLabel>Issue Date</FieldLabel>
+              <ReadOnlyValue value={form.issueDate ? formatCEDate(form.issueDate) : ""} />
+            </div>
+            <div className="space-y-2">
+              <FieldLabel>Expiry Date (MM/YY)</FieldLabel>
+              <ReadOnlyValue value={form.expiry} />
+            </div>
+            <div className="space-y-2">
+              <FieldLabel>Card Network</FieldLabel>
+              <ReadOnlyValue value={form.cardNetwork} />
+            </div>
+            <div className="space-y-2">
+              <FieldLabel>Cardholder Name</FieldLabel>
+              <ReadOnlyValue value={form.cardholderName} />
+            </div>
+          </div>
+        </Card>
+      ) : (
       <Card className="rounded-2xl p-5">
         <SectionHeader icon={CreditCard} title="Card Information" />
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -414,6 +505,7 @@ export default function CardManagementForm({ record }: Props = {}) {
 
         </div>
       </Card>
+      )}
 
       {/* SECTION 2 */}
       <Card className="rounded-2xl p-5">
@@ -443,30 +535,56 @@ export default function CardManagementForm({ record }: Props = {}) {
           </div>
           <div className="space-y-2">
             <FieldLabel>Position / Role</FieldLabel>
-            <Input className={inputCls} value={form.position ?? ""} onChange={(ev) => set("position", ev.target.value)} />
+            {isEdit ? (
+              <ReadOnlyValue value={form.position} />
+            ) : (
+              <Input className={inputCls} value={form.position ?? ""} onChange={(ev) => set("position", ev.target.value)} />
+            )}
           </div>
 
           <div className="space-y-2">
             <FieldLabel>Email</FieldLabel>
-            <Input ref={registerRef("email") as any} type="email" className={inputCls + errCls("email")} style={errStyle("email")} value={form.email ?? ""} onChange={(ev) => set("email", ev.target.value)} onBlur={() => runBlur("email")} />
-            {errors.email && <p className="text-xs text-destructive">{errors.email}</p>}
+            {isEdit ? (
+              <ReadOnlyValue value={form.email} />
+            ) : (
+              <>
+                <Input ref={registerRef("email") as any} type="email" className={inputCls + errCls("email")} style={errStyle("email")} value={form.email ?? ""} onChange={(ev) => set("email", ev.target.value)} onBlur={() => runBlur("email")} />
+                {errors.email && <p className="text-xs text-destructive">{errors.email}</p>}
+              </>
+            )}
           </div>
           <div className="space-y-2">
             <FieldLabel>Phone</FieldLabel>
-            <Input type="tel" className={inputCls} value={form.phone ?? ""} onChange={(ev) => set("phone", ev.target.value)} />
+            {isEdit ? (
+              <ReadOnlyValue value={form.phone} />
+            ) : (
+              <Input type="tel" className={inputCls} value={form.phone ?? ""} onChange={(ev) => set("phone", ev.target.value)} />
+            )}
           </div>
 
           <div className="space-y-2" ref={registerRef("locationCode") as any}>
-            <FieldLabel required={isFleet}>Store</FieldLabel>
+            <FieldLabel required={isEdit || isFleet}>Store</FieldLabel>
             <LocationPicker
               value={form.locationName}
               className={inputCls + errCls("locationCode")}
+              searchLabel={isEdit ? "Search by Location code or name" : undefined}
               onSelect={(s) =>
-                setForm((p) => ({ ...p, locationCode: s.storeCode, locationName: `${s.storeCode} — ${s.name}` }))
+                setForm((p) => ({ ...p, locationCode: s.storeCode, locationName: `${s.storeCode} — ${s.name}`, sgm: s.sgm }))
               }
             />
             {errors.locationCode && <p className="text-xs text-destructive">{errors.locationCode}</p>}
           </div>
+          {isEdit && (
+            <div className="space-y-2">
+              <div className="flex items-center gap-2">
+                <FieldLabel>SGM (Store General Manager)</FieldLabel>
+                <span className="rounded-full px-2 py-0.5 text-[11px] font-medium bg-muted text-muted-foreground">
+                  Derived from Store · HRIS
+                </span>
+              </div>
+              <ReadOnlyValue value={form.sgm} />
+            </div>
+          )}
         </div>
       </Card>
 
@@ -540,6 +658,14 @@ export default function CardManagementForm({ record }: Props = {}) {
               <span className="text-xs text-muted-foreground">{Math.round(f.size / 1024).toLocaleString()} KB</span>
               <button
                 type="button"
+                aria-label={`Download ${f.name}`}
+                onClick={() => toast({ title: `Downloading ${f.name}` })}
+                className="text-muted-foreground hover:text-foreground"
+              >
+                <Download className="h-3.5 w-3.5" />
+              </button>
+              <button
+                type="button"
                 aria-label={`Remove ${f.name}`}
                 onClick={() => setFiles((p) => p.filter((_, idx) => idx !== i))}
                 className="opacity-0 group-hover:opacity-100 transition-opacity text-muted-foreground hover:text-destructive"
@@ -572,7 +698,7 @@ export default function CardManagementForm({ record }: Props = {}) {
         )}
         <div className="flex justify-end gap-2">
           <Button variant="outline">Cancel</Button>
-          <Button onClick={handleSave} style={{ backgroundColor: RED, color: "#fff" }}>Save Card</Button>
+          <Button onClick={handleSave} style={{ backgroundColor: RED, color: "#fff" }}>{isEdit ? "Save Changes" : "Save Card"}</Button>
         </div>
       </div>
     </div>
