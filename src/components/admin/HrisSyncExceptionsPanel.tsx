@@ -303,6 +303,21 @@ export default function HrisSyncExceptionsPanel() {
       </div>
 
       {/* Table */}
+      {isEmptyRun ? (
+        <Card className="rounded-xl p-12 flex flex-col items-center text-center gap-3">
+          <div className="h-14 w-14 rounded-full bg-[#43938F]/10 flex items-center justify-center">
+            <CheckCircle2 className="h-7 w-7 text-[#43938F]" />
+          </div>
+          <h3 className="text-base font-semibold">No exceptions in the latest run</h3>
+          <p className="text-sm text-muted-foreground max-w-md">
+            All records were processed successfully. There is nothing to review or send to the HRIS
+            team.
+          </p>
+          <p className="text-xs text-muted-foreground">
+            Run RUN-20260828-0600 · completed 28/08/2026 06:03
+          </p>
+        </Card>
+      ) : (
       <Card className="rounded-xl">
         <Table>
           <TableHeader>
