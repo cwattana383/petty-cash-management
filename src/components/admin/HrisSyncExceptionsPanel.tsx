@@ -30,6 +30,49 @@ import {
   Flag,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { Sheet, SheetContent } from "@/components/ui/sheet";
+import { Separator } from "@/components/ui/separator";
+import { X } from "lucide-react";
+
+const DETAIL = {
+  code: "00007899",
+  subtitle: "Suda Chaiyo · Finance · Bangkok",
+  ageing: "Outstanding for 3 consecutive runs",
+  firstSeen: "first seen 25/08/2026",
+  reasons: [
+    {
+      chip: "E-EMAIL",
+      title: "Missing email",
+      text: "Corporate email address is empty in the submitted row.",
+    },
+    {
+      chip: "E-REQ",
+      title: "Required field missing",
+      text: "Division is blank and is required for an active employee.",
+    },
+  ],
+  submitted: [
+    { label: "Emp_ID", value: "00007899" },
+    { label: "Prefix", value: "Ms." },
+    { label: "Name", value: "Suda" },
+    { label: "Surname", value: "Chaiyo" },
+    { label: "Email", value: "—", invalid: true },
+    { label: "Company", value: "CPAXTRA" },
+    { label: "Department", value: "Finance" },
+    { label: "Division", value: "—", invalid: true },
+    { label: "Position", value: "Finance Officer" },
+    { label: "Supervisor Level", value: "3" },
+    { label: "Approval_1", value: "00012044" },
+    { label: "Approval_2", value: "00013877" },
+  ],
+  sourceFile: "EMP_FULL_20260827.csv",
+  runId: "RUN-20260827-0600",
+  runs: [
+    { label: "27/08/2026 06:00", note: "This run" },
+    { label: "26/08/2026 06:00", note: "Same reasons" },
+    { label: "25/08/2026 06:00", note: "First seen" },
+  ],
+};
 
 interface ExceptionRow {
   id: string;
