@@ -193,6 +193,7 @@ export default function CardManagementForm({ record }: Props = {}) {
     currency: "THB",
     cardStatus: "Created",
     ...record,
+    sgm: record?.sgm ?? STORE_LOCATIONS.find((s) => s.storeCode === record?.locationCode)?.sgm,
   });
   const [files, setFiles] = useState<{ name: string; size: number }[]>([
     { name: "card-request-form.pdf", size: 120 * 1024 },
@@ -240,7 +241,7 @@ export default function CardManagementForm({ record }: Props = {}) {
         if (!f.email) return undefined;
         return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(f.email) ? undefined : "Invalid email";
       case "locationCode":
-        if (f.cardType !== "Fleet Card") return undefined;
+        if (f.cardType !== "Fleet Card" && !isEdit) return undefined;
         return f.locationCode ? undefined : "Select a store/location";
       case "perTxnLimit":
         if (isNaN(perTxn) || isNaN(monthly)) return undefined;
@@ -562,7 +563,7 @@ export default function CardManagementForm({ record }: Props = {}) {
           </div>
 
           <div className="space-y-2" ref={registerRef("locationCode") as any}>
-            <FieldLabel required>Store</FieldLabel>
+            <FieldLabel required={isEdit || isFleet}>Store</FieldLabel>
             <LocationPicker
               value={form.locationName}
               className={inputCls + errCls("locationCode")}
@@ -657,6 +658,14 @@ export default function CardManagementForm({ record }: Props = {}) {
               <span className="text-xs text-muted-foreground">{Math.round(f.size / 1024).toLocaleString()} KB</span>
               <button
                 type="button"
+                aria-label={`Download ${f.name}`}
+                onClick={() => toast({ title: `Downloading ${f.name}` })}
+                className="text-muted-foreground hover:text-foreground"
+              >
+                <Download className="h-3.5 w-3.5" />
+              </button>
+              <button
+                type="button"
                 aria-label={`Remove ${f.name}`}
                 onClick={() => setFiles((p) => p.filter((_, idx) => idx !== i))}
                 className="opacity-0 group-hover:opacity-100 transition-opacity text-muted-foreground hover:text-destructive"
@@ -689,7 +698,7 @@ export default function CardManagementForm({ record }: Props = {}) {
         )}
         <div className="flex justify-end gap-2">
           <Button variant="outline">Cancel</Button>
-          <Button onClick={handleSave} style={{ backgroundColor: RED, color: "#fff" }}>Save Card</Button>
+          <Button onClick={handleSave} style={{ backgroundColor: RED, color: "#fff" }}>{isEdit ? "Save Changes" : "Save Card"}</Button>
         </div>
       </div>
     </div>
