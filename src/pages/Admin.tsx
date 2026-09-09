@@ -106,7 +106,7 @@ const adminMenu = [
       { key: "employees", label: "Employee Profiles", icon: Users },
       { key: "roles", label: "Roles & Permissions", icon: Shield },
       { key: "card-management", label: "Card Management", icon: CreditCardIcon },
-      { key: "hris-sync-exceptions", label: "HRIS Sync Exceptions", icon: AlertTriangle, badge: 67 },
+      { key: "hris-sync-exceptions", label: "HRIS Sync Exceptions", icon: AlertTriangle },
     ],
   },
   {
@@ -1685,7 +1685,7 @@ export default function Admin() {
                             : "bg-primary text-primary-foreground"
                         )}
                       >
-                        {item.badge}
+                        {String(item.badge)}
                       </span>
                     ) : null}
                   </button>

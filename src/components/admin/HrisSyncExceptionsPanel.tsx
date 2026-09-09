@@ -395,33 +395,6 @@ export default function HrisSyncExceptionsPanel() {
       </Card>
       )}
 
-      {/* Legend */}
-      <Card className="rounded-xl p-4 space-y-2">
-        <div className="flex flex-wrap items-center gap-x-8 gap-y-2 text-sm">
-          <div className="flex items-center gap-2">
-            <Badge className="rounded-full border-red-200 bg-red-50 text-red-700 hover:bg-red-50">
-              Rejected
-            </Badge>
-            <span className="text-muted-foreground">Record was not inserted into the portal</span>
-          </div>
-          <div className="flex items-center gap-2">
-            <Badge className="rounded-full border-[#F6C24A] bg-[#F6C24A]/15 text-[#B98407] hover:bg-[#F6C24A]/15">
-              Flagged
-            </Badge>
-            <span className="text-muted-foreground">Record was created but data is incomplete</span>
-          </div>
-          <div className="flex items-center gap-2">
-            <Badge className="rounded-full border-red-200 bg-red-50 text-red-700 hover:bg-red-50">
-              2+ runs
-            </Badge>
-            <span className="text-muted-foreground">Exception repeated across consecutive runs</span>
-          </div>
-        </div>
-        <p className="text-xs text-muted-foreground">
-          Corrected records clear automatically on the next successful run · Bank account is never
-          stored or shown
-        </p>
-      </Card>
 
       <Sheet open={detailOpen} onOpenChange={setDetailOpen}>
         <SheetContent className="w-[480px] sm:max-w-[480px] p-0 flex flex-col gap-0">
