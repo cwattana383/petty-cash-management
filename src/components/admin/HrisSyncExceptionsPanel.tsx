@@ -321,9 +321,7 @@ export default function HrisSyncExceptionsPanel() {
               <TableHead>Employee Code</TableHead>
               <TableHead>Name</TableHead>
               <TableHead>Type</TableHead>
-              <TableHead>Reason</TableHead>
-              <TableHead>Source File</TableHead>
-              <TableHead>Ageing</TableHead>
+              <TableHead className="w-full">Reason</TableHead>
               <TableHead className="text-right">Action</TableHead>
             </TableRow>
           </TableHeader>
