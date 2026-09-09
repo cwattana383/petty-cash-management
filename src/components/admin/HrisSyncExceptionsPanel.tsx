@@ -364,7 +364,7 @@ export default function HrisSyncExceptionsPanel() {
             ))}
             {filtered.length === 0 && (
               <TableRow>
-                <TableCell colSpan={8} className="text-center text-muted-foreground py-8">
+                <TableCell colSpan={6} className="text-center text-muted-foreground py-8">
                   No exceptions found
                 </TableCell>
               </TableRow>
