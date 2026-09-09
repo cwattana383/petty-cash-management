@@ -344,7 +344,6 @@ export default function HrisSyncExceptionsPanel() {
               <TableHead>Name</TableHead>
               <TableHead>Type</TableHead>
               <TableHead className="w-full">Reason</TableHead>
-              <TableHead className="text-right">Action</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -367,16 +366,11 @@ export default function HrisSyncExceptionsPanel() {
                   <span className="font-medium">{r.category}</span>
                   <span className="text-muted-foreground"> — {r.detail}</span>
                 </TableCell>
-                <TableCell className="text-right">
-                  <Button size="sm" variant="ghost" title="View" onClick={() => setDetailOpen(true)}>
-                    <Eye className="h-4 w-4" />
-                  </Button>
-                </TableCell>
               </TableRow>
             ))}
             {filtered.length === 0 && (
               <TableRow>
-                <TableCell colSpan={5} className="text-center text-muted-foreground py-8">
+                <TableCell colSpan={4} className="text-center text-muted-foreground py-8">
                   No exceptions found
                 </TableCell>
               </TableRow>
