@@ -355,16 +355,6 @@ export default function HrisSyncExceptionsPanel() {
                   <span className="font-medium">{r.category}</span>
                   <span className="text-muted-foreground"> — {r.detail}</span>
                 </TableCell>
-                <TableCell className="text-sm">{r.file}</TableCell>
-                <TableCell>
-                  {r.ageing >= 2 ? (
-                    <Badge className="rounded-full border-red-200 bg-red-50 text-red-700 hover:bg-red-50">
-                      {r.ageing} runs
-                    </Badge>
-                  ) : (
-                    <span className="text-sm text-muted-foreground">1 run</span>
-                  )}
-                </TableCell>
                 <TableCell className="text-right">
                   <Button size="sm" variant="ghost" title="View" onClick={() => setDetailOpen(true)}>
                     <Eye className="h-4 w-4" />
