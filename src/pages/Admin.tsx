@@ -1685,7 +1685,7 @@ export default function Admin() {
                             : "bg-primary text-primary-foreground"
                         )}
                       >
-                        {item.badge}
+                        {String(item.badge)}
                       </span>
                     ) : null}
                   </button>
