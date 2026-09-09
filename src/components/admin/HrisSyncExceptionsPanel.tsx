@@ -258,8 +258,8 @@ export default function HrisSyncExceptionsPanel() {
             </Badge>
           </div>
           <div>
-            <div className="text-xs text-muted-foreground">Files processed</div>
-            <div className="text-sm font-medium">3 (EMP_FULL, EMP_DELTA, EMP_STORE)</div>
+            <div className="text-xs text-muted-foreground">File name</div>
+            <div className="text-sm font-medium">{`EMPEXP4550045 (4).TXT_${dateKey}`}</div>
           </div>
         </div>
       </Card>
