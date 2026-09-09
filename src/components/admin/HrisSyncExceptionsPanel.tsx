@@ -344,7 +344,6 @@ export default function HrisSyncExceptionsPanel() {
               <TableHead>Name</TableHead>
               <TableHead>Type</TableHead>
               <TableHead className="w-full">Reason</TableHead>
-              <TableHead className="text-right">Action</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
