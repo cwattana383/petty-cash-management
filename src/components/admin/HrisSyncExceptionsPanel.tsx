@@ -183,7 +183,7 @@ export default function HrisSyncExceptionsPanel() {
   const [selected, setSelected] = useState<string[]>([]);
   const [detailOpen, setDetailOpen] = useState(false);
   const dateKey = toDateKey(runDate);
-  const run = RUN_BY_DATE[dateKey] ?? EMPTY_RUN_ID;
+  const run = RUN_BY_DATE[dateKey] ?? "RUN-20260827-0600";
   const isEmptyRun = run === EMPTY_RUN_ID;
 
   const filtered = useMemo(
