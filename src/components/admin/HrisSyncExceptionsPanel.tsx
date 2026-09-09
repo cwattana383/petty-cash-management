@@ -157,14 +157,29 @@ function StatCard({
   );
 }
 
+function toDateKey(d: Date) {
+  return `${d.getFullYear()}${String(d.getMonth() + 1).padStart(2, "0")}${String(
+    d.getDate()
+  ).padStart(2, "0")}`;
+}
+
+const RUN_BY_DATE: Record<string, string> = {
+  "20260828": EMPTY_RUN_ID,
+  "20260827": "RUN-20260827-0600",
+  "20260826": "RUN-20260826-0600",
+  "20260825": "RUN-20260825-0600",
+};
+
 export default function HrisSyncExceptionsPanel() {
-  const [run, setRun] = useState(RUNS[0].id);
+  const [runDate, setRunDate] = useState<Date>(new Date());
   const [search, setSearch] = useState("");
   const [category, setCategory] = useState("all");
   const [file, setFile] = useState("all");
   const [type, setType] = useState("all");
   const [selected, setSelected] = useState<string[]>([]);
   const [detailOpen, setDetailOpen] = useState(false);
+  const dateKey = toDateKey(runDate);
+  const run = RUN_BY_DATE[dateKey] ?? EMPTY_RUN_ID;
   const isEmptyRun = run === EMPTY_RUN_ID;
 
   const filtered = useMemo(
@@ -196,24 +211,30 @@ export default function HrisSyncExceptionsPanel() {
           </p>
         </div>
         <div className="flex items-center gap-2 shrink-0">
-          <Select value={run} onValueChange={setRun}>
-            <SelectTrigger className="w-[260px]">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              {RUNS.map((r) => (
-                <SelectItem key={r.id} value={r.id}>
-                  {r.label}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+          <Popover>
+            <PopoverTrigger asChild>
+              <Button variant="outline" className="w-[260px] justify-start text-left font-normal">
+                <CalendarIcon className="h-4 w-4 mr-2" />
+                {format(runDate, "dd/MM/yyyy")}
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent className="w-auto p-0" align="end">
+              <Calendar
+                mode="single"
+                selected={runDate}
+                onSelect={(d) => d && setRunDate(d)}
+                initialFocus
+                className={cn("p-3 pointer-events-auto")}
+              />
+            </PopoverContent>
+          </Popover>
           <Button variant="outline" disabled={isEmptyRun}>
             <Download className="h-4 w-4 mr-2" />
-            Export &amp; Send to HRIS
+            Export
           </Button>
         </div>
       </div>
+
 
       {/* Run context bar */}
       <Card className="rounded-xl p-4">
