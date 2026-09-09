@@ -182,6 +182,12 @@ export default function HrisSyncExceptionsPanel() {
   const [type, setType] = useState("all");
   
   const [detailOpen, setDetailOpen] = useState(false);
+  const [page, setPage] = useState(1);
+  const pageSize = 20;
+  const totalExceptions = 67;
+  const totalPages = Math.ceil(totalExceptions / pageSize);
+  const rangeStart = (page - 1) * pageSize + 1;
+  const rangeEnd = Math.min(page * pageSize, totalExceptions);
   const dateKey = toDateKey(runDate);
   const run = RUN_BY_DATE[dateKey] ?? "RUN-20260827-0600";
   const isEmptyRun = run === EMPTY_RUN_ID;
@@ -379,21 +385,33 @@ export default function HrisSyncExceptionsPanel() {
         </Table>
 
         <div className="flex items-center justify-between border-t border-border px-4 py-3">
-          <span className="text-sm text-muted-foreground">Showing 1–10 of 67 exceptions</span>
+          <span className="text-sm text-muted-foreground">{`Showing ${rangeStart}–${rangeEnd} of ${totalExceptions} exceptions`}</span>
           <div className="flex items-center gap-1">
-            <Button size="sm" variant="outline" disabled>
+            <Button
+              size="sm"
+              variant="outline"
+              disabled={page === 1}
+              onClick={() => setPage((p) => Math.max(1, p - 1))}
+            >
               Previous
             </Button>
-            <Button size="sm" className="bg-primary text-primary-foreground hover:bg-primary/90">
-              1
-            </Button>
-            <Button size="sm" variant="outline">
-              2
-            </Button>
-            <Button size="sm" variant="outline">
-              3
-            </Button>
-            <Button size="sm" variant="outline">
+            {Array.from({ length: totalPages }, (_, i) => i + 1).map((p) => (
+              <Button
+                key={p}
+                size="sm"
+                variant={p === page ? "default" : "outline"}
+                className={p === page ? "bg-primary text-primary-foreground hover:bg-primary/90" : undefined}
+                onClick={() => setPage(p)}
+              >
+                {p}
+              </Button>
+            ))}
+            <Button
+              size="sm"
+              variant="outline"
+              disabled={page === totalPages}
+              onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+            >
               Next
             </Button>
           </div>
