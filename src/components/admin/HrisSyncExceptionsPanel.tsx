@@ -258,25 +258,15 @@ export default function HrisSyncExceptionsPanel() {
         />
       </div>
 
-      {/* Warning banner */}
-      <div className="rounded-xl border border-[#F6C24A] bg-[#F6C24A]/10 p-4 flex items-start gap-3">
-        <AlertTriangle className="h-5 w-5 text-[#B98407] shrink-0 mt-0.5" />
-        <p className="text-sm text-foreground">
-          File-level exception: EMP_STORE_20260827.csv contained headers only (0 data rows). No
-          employees were deactivated by the leaver rule. A system alert was raised.
-        </p>
-      </div>
-
       {/* Filters */}
-      <div className="flex flex-wrap items-center gap-3">
+      <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
         <Input
           placeholder="Search by Employee Code or Name"
           value={search}
           onChange={(e) => setSearch(e.target.value)}
-          className="max-w-xs"
         />
         <Select value={category} onValueChange={setCategory}>
-          <SelectTrigger className="w-[220px]">
+          <SelectTrigger className="w-full">
             <SelectValue placeholder="Category" />
           </SelectTrigger>
           <SelectContent>
@@ -288,21 +278,8 @@ export default function HrisSyncExceptionsPanel() {
             ))}
           </SelectContent>
         </Select>
-        <Select value={file} onValueChange={setFile}>
-          <SelectTrigger className="w-[220px]">
-            <SelectValue placeholder="Source File" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">All Source Files</SelectItem>
-            {FILES.map((f) => (
-              <SelectItem key={f} value={f}>
-                {f}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
         <Select value={type} onValueChange={setType}>
-          <SelectTrigger className="w-[160px]">
+          <SelectTrigger className="w-full">
             <SelectValue placeholder="Type" />
           </SelectTrigger>
           <SelectContent>
@@ -344,9 +321,7 @@ export default function HrisSyncExceptionsPanel() {
               <TableHead>Employee Code</TableHead>
               <TableHead>Name</TableHead>
               <TableHead>Type</TableHead>
-              <TableHead>Reason</TableHead>
-              <TableHead>Source File</TableHead>
-              <TableHead>Ageing</TableHead>
+              <TableHead className="w-full">Reason</TableHead>
               <TableHead className="text-right">Action</TableHead>
             </TableRow>
           </TableHeader>
@@ -380,16 +355,6 @@ export default function HrisSyncExceptionsPanel() {
                   <span className="font-medium">{r.category}</span>
                   <span className="text-muted-foreground"> — {r.detail}</span>
                 </TableCell>
-                <TableCell className="text-sm">{r.file}</TableCell>
-                <TableCell>
-                  {r.ageing >= 2 ? (
-                    <Badge className="rounded-full border-red-200 bg-red-50 text-red-700 hover:bg-red-50">
-                      {r.ageing} runs
-                    </Badge>
-                  ) : (
-                    <span className="text-sm text-muted-foreground">1 run</span>
-                  )}
-                </TableCell>
                 <TableCell className="text-right">
                   <Button size="sm" variant="ghost" title="View" onClick={() => setDetailOpen(true)}>
                     <Eye className="h-4 w-4" />
@@ -399,7 +364,7 @@ export default function HrisSyncExceptionsPanel() {
             ))}
             {filtered.length === 0 && (
               <TableRow>
-                <TableCell colSpan={8} className="text-center text-muted-foreground py-8">
+                <TableCell colSpan={6} className="text-center text-muted-foreground py-8">
                   No exceptions found
                 </TableCell>
               </TableRow>
