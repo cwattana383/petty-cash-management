@@ -3,7 +3,7 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-import { Checkbox } from "@/components/ui/checkbox";
+
 import {
   Select,
   SelectContent,
@@ -180,7 +180,7 @@ export default function HrisSyncExceptionsPanel() {
   const [category, setCategory] = useState("all");
   const [file, setFile] = useState("all");
   const [type, setType] = useState("all");
-  const [selected, setSelected] = useState<string[]>([]);
+  
   const [detailOpen, setDetailOpen] = useState(false);
   const dateKey = toDateKey(runDate);
   const run = RUN_BY_DATE[dateKey] ?? "RUN-20260827-0600";
@@ -202,7 +202,6 @@ export default function HrisSyncExceptionsPanel() {
     [search, category, file, type]
   );
 
-  const allChecked = filtered.length > 0 && filtered.every((r) => selected.includes(r.id));
 
   return (
     <div className="space-y-4">
@@ -335,14 +334,6 @@ export default function HrisSyncExceptionsPanel() {
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead className="w-10">
-                <Checkbox
-                  checked={allChecked}
-                  onCheckedChange={(v) =>
-                    setSelected(v ? filtered.map((r) => r.id) : [])
-                  }
-                />
-              </TableHead>
               <TableHead>Employee Code</TableHead>
               <TableHead>Name</TableHead>
               <TableHead>Type</TableHead>
@@ -353,16 +344,6 @@ export default function HrisSyncExceptionsPanel() {
           <TableBody>
             {filtered.map((r) => (
               <TableRow key={r.id}>
-                <TableCell>
-                  <Checkbox
-                    checked={selected.includes(r.id)}
-                    onCheckedChange={(v) =>
-                      setSelected((prev) =>
-                        v ? [...prev, r.id] : prev.filter((x) => x !== r.id)
-                      )
-                    }
-                  />
-                </TableCell>
                 <TableCell className="font-mono text-sm">{r.code}</TableCell>
                 <TableCell>{r.name || <span className="text-muted-foreground">—</span>}</TableCell>
                 <TableCell>
@@ -389,7 +370,7 @@ export default function HrisSyncExceptionsPanel() {
             ))}
             {filtered.length === 0 && (
               <TableRow>
-                <TableCell colSpan={6} className="text-center text-muted-foreground py-8">
+                <TableCell colSpan={5} className="text-center text-muted-foreground py-8">
                   No exceptions found
                 </TableCell>
               </TableRow>
