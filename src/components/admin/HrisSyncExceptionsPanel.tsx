@@ -258,25 +258,15 @@ export default function HrisSyncExceptionsPanel() {
         />
       </div>
 
-      {/* Warning banner */}
-      <div className="rounded-xl border border-[#F6C24A] bg-[#F6C24A]/10 p-4 flex items-start gap-3">
-        <AlertTriangle className="h-5 w-5 text-[#B98407] shrink-0 mt-0.5" />
-        <p className="text-sm text-foreground">
-          File-level exception: EMP_STORE_20260827.csv contained headers only (0 data rows). No
-          employees were deactivated by the leaver rule. A system alert was raised.
-        </p>
-      </div>
-
       {/* Filters */}
-      <div className="flex flex-wrap items-center gap-3">
+      <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
         <Input
           placeholder="Search by Employee Code or Name"
           value={search}
           onChange={(e) => setSearch(e.target.value)}
-          className="max-w-xs"
         />
         <Select value={category} onValueChange={setCategory}>
-          <SelectTrigger className="w-[220px]">
+          <SelectTrigger className="w-full">
             <SelectValue placeholder="Category" />
           </SelectTrigger>
           <SelectContent>
@@ -288,21 +278,8 @@ export default function HrisSyncExceptionsPanel() {
             ))}
           </SelectContent>
         </Select>
-        <Select value={file} onValueChange={setFile}>
-          <SelectTrigger className="w-[220px]">
-            <SelectValue placeholder="Source File" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">All Source Files</SelectItem>
-            {FILES.map((f) => (
-              <SelectItem key={f} value={f}>
-                {f}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
         <Select value={type} onValueChange={setType}>
-          <SelectTrigger className="w-[160px]">
+          <SelectTrigger className="w-full">
             <SelectValue placeholder="Type" />
           </SelectTrigger>
           <SelectContent>
