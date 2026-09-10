@@ -15,6 +15,7 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command";
 import { ChevronDown } from "lucide-react";
 import { STORE_LOCATIONS } from "@/lib/card-request-types";
+import CardAuditTrail, { buildCardAuditEvents } from "@/components/admin/CardAuditTrail";
 function formatCEDate(v: string) {
   const d = new Date(v);
   if (isNaN(d.getTime())) return v;
@@ -689,6 +690,15 @@ export default function CardManagementForm({ record }: Props = {}) {
           </label>
         </div>
       </Card>
+
+      {/* SECTION 6 */}
+      <CardAuditTrail
+        events={buildCardAuditEvents({
+          cardType: form.cardType,
+          last4: form.last4,
+          cardholderName: form.cardholderName || form.employeeName,
+        })}
+      />
 
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         {audit && (
