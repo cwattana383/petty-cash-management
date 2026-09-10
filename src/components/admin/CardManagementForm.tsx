@@ -690,6 +690,15 @@ export default function CardManagementForm({ record }: Props = {}) {
         </div>
       </Card>
 
+      {/* SECTION 6 */}
+      <CardAuditTrail
+        events={buildCardAuditEvents({
+          cardType: form.cardType,
+          last4: form.last4,
+          cardholderName: form.cardholderName || form.employeeName,
+        })}
+      />
+
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         {audit && (
           <p className="text-xs text-muted-foreground">
