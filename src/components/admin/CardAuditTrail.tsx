@@ -74,7 +74,7 @@ export function buildCardAuditEvents(opts: {
       badge: "ASSIGNED",
       performer: "Marry Lee",
       timestamp: "09/09/2026 16:40",
-      detail: `Assigned to ${holder} for store ST001 – Makro Sukhumvit.`,
+      detail: `Assigned to ${holder} for Store 010001 บมจ.ซีพี แอ็กซ์ตร้า สาขาลาดพร้าว`,
     },
     {
       id: "ca-3",
