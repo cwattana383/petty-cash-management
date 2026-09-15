@@ -437,7 +437,7 @@ export default function HrisSyncExceptionsPanel() {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {filtered.map((r) => (
+            {pageRows.map((r) => (
               <TableRow key={r.id}>
                 <TableCell className="font-mono text-sm">{r.code}</TableCell>
                 <TableCell>{r.name || <span className="text-muted-foreground">—</span>}</TableCell>
