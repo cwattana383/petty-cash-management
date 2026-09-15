@@ -474,8 +474,8 @@ export default function HrisSyncExceptionsPanel() {
             <Button
               size="sm"
               variant="outline"
-              disabled={page === 1}
-              onClick={() => setPage((p) => Math.max(1, p - 1))}
+              disabled={currentPage === 1}
+              onClick={() => setPage(Math.max(1, currentPage - 1))}
             >
               Previous
             </Button>
@@ -483,8 +483,8 @@ export default function HrisSyncExceptionsPanel() {
               <Button
                 key={p}
                 size="sm"
-                variant={p === page ? "default" : "outline"}
-                className={p === page ? "bg-primary text-primary-foreground hover:bg-primary/90" : undefined}
+                variant={p === currentPage ? "default" : "outline"}
+                className={p === currentPage ? "bg-primary text-primary-foreground hover:bg-primary/90" : undefined}
                 onClick={() => setPage(p)}
               >
                 {p}
@@ -493,8 +493,8 @@ export default function HrisSyncExceptionsPanel() {
             <Button
               size="sm"
               variant="outline"
-              disabled={page === totalPages}
-              onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+              disabled={currentPage === totalPages}
+              onClick={() => setPage(Math.min(totalPages, currentPage + 1))}
             >
               Next
             </Button>
