@@ -247,7 +247,7 @@ const RUN_BY_DATE: Record<string, string> = {
 };
 
 export default function HrisSyncExceptionsPanel() {
-  const [runDate, setRunDate] = useState<Date>(new Date());
+  const [runDate, setRunDate] = useState<Date>(new Date(2026, 8, 15));
   const [search, setSearch] = useState("");
   const [category, setCategory] = useState("all");
   const [file, setFile] = useState("all");
@@ -256,10 +256,6 @@ export default function HrisSyncExceptionsPanel() {
   const [detailOpen, setDetailOpen] = useState(false);
   const [page, setPage] = useState(1);
   const pageSize = 20;
-  const totalExceptions = 67;
-  const totalPages = Math.ceil(totalExceptions / pageSize);
-  const rangeStart = (page - 1) * pageSize + 1;
-  const rangeEnd = Math.min(page * pageSize, totalExceptions);
   const dateKey = toDateKey(runDate);
   const run = RUN_BY_DATE[dateKey] ?? "RUN-20260827-0600";
   const isEmptyRun = run === EMPTY_RUN_ID;
@@ -279,6 +275,28 @@ export default function HrisSyncExceptionsPanel() {
       }),
     [search, category, file, type]
   );
+
+  const totalExceptions = filtered.length;
+  const totalPages = Math.max(1, Math.ceil(totalExceptions / pageSize));
+  const currentPage = Math.min(page, totalPages);
+  const rangeStart = totalExceptions === 0 ? 0 : (currentPage - 1) * pageSize + 1;
+  const rangeEnd = Math.min(currentPage * pageSize, totalExceptions);
+  const pageRows = filtered.slice((currentPage - 1) * pageSize, currentPage * pageSize);
+
+  const handleExport = () => {
+    const header = ["Employee Code", "Name", "Type", "Category", "Reason Detail"];
+    const lines = [header, ...filtered.map((r) => [r.code, r.name || "—", r.type, r.category, r.detail])]
+      .map((cols) => cols.map((c) => `"${String(c).replace(/"/g, '""')}"`).join(","))
+      .join("\n");
+    const blob = new Blob(["\uFEFF" + lines], { type: "text/csv;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `hris-sync-exceptions-${dateKey}.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
+  };
+
 
 
   return (
