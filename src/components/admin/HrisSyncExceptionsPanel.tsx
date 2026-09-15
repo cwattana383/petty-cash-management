@@ -327,7 +327,7 @@ export default function HrisSyncExceptionsPanel() {
               />
             </PopoverContent>
           </Popover>
-          <Button variant="outline" disabled={isEmptyRun}>
+          <Button variant="outline" disabled={isEmptyRun} onClick={handleExport}>
             <Download className="h-4 w-4 mr-2" />
             Export
           </Button>
