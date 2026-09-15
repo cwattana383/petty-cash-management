@@ -99,30 +99,102 @@ const RUNS = [
   { id: "RUN-20260825-0600", label: "Run: 25/08/2026 06:00" },
 ];
 
-const ROWS: ExceptionRow[] = [
-  { id: "1", code: "00000899", name: "สมชาย ใจดี", type: "Rejected", category: "No primary approver", detail: "Approval_1 (00012044) not in file", file: "EMP_FULL_20260827.csv", ageing: 3 },
-  { id: "2", code: "00012044", name: "", type: "Rejected", category: "Missing employee name", detail: "First name and last name are blank", file: "EMP_FULL_20260827.csv", ageing: 2 },
-  { id: "3", code: "00013877", name: "ปรินทร์ สวัสดี", type: "Flagged", category: "Incomplete cost centre", detail: "Cost centre CC-000 not found in master", file: "EMP_FULL_20260827.csv", ageing: 1 },
-  { id: "4", code: "00014520", name: "กนกวรรณ ชัยพร", type: "Flagged", category: "Missing email", detail: "Corporate email address is empty", file: "EMP_DELTA_20260827.csv", ageing: 1 },
-  { id: "5", code: "00015002", name: "ณัฐพงษ์ ศรีสุข", type: "Rejected", category: "Duplicate employee code", detail: "Code appears twice in the same file", file: "EMP_DELTA_20260827.csv", ageing: 4 },
-  { id: "6", code: "00015338", name: "ศิริพร วงศ์ชัย", type: "Flagged", category: "Invalid position code", detail: "Position POS-9981 not in position master", file: "EMP_FULL_20260827.csv", ageing: 2 },
-  { id: "7", code: "00016104", name: "", type: "Flagged", category: "Missing employee name", detail: "Last name is blank", file: "EMP_DELTA_20260827.csv", ageing: 1 },
-  { id: "8", code: "00016730", name: "ธนกร พิมพ์ชัย", type: "Rejected", category: "Invalid store code", detail: "Store 9052 does not exist", file: "EMP_FULL_20260827.csv", ageing: 1 },
-  { id: "9", code: "00017245", name: "พรทิพย์ รัตนกุล", type: "Flagged", category: "Incomplete cost centre", detail: "Cost centre blank for active employee", file: "EMP_DELTA_20260827.csv", ageing: 1 },
-  { id: "10", code: "00017988", name: "วิชัย บุญมี", type: "Rejected", category: "No primary approver", detail: "Approval_1 (00019001) is inactive", file: "EMP_FULL_20260827.csv", ageing: 5 },
-];
-
 const CATEGORIES = [
-  "No primary approver",
-  "Missing employee name",
-  "Incomplete cost centre",
-  "Missing email",
-  "Duplicate employee code",
-  "Invalid position code",
-  "Invalid store code",
+  "Invalid Employee ID",
+  "Duplicate Employee Code",
+  "Missing Employee Name",
+  "Missing Email",
+  "Invalid Email Format",
+  "Missing Bank Account",
+  "No Primary Approver",
+  "Approver Not Found in File",
 ];
 
-const FILES = ["EMP_FULL_20260827.csv", "EMP_DELTA_20260827.csv"];
+const CATEGORY_TYPE: Record<string, "Rejected" | "Flagged"> = {
+  "Invalid Employee ID": "Rejected",
+  "Duplicate Employee Code": "Rejected",
+  "Missing Employee Name": "Flagged",
+  "Missing Email": "Flagged",
+  "Invalid Email Format": "Flagged",
+  "Missing Bank Account": "Flagged",
+  "No Primary Approver": "Flagged",
+  "Approver Not Found in File": "Flagged",
+};
+
+const CATEGORY_DETAILS: Record<string, string[]> = {
+  "Invalid Employee ID": ["Employee ID must be exactly 8 digits", "Employee ID is not numeric"],
+  "Duplicate Employee Code": ["Employee code appears twice in the same file"],
+  "Missing Employee Name": ["First name and last name are blank"],
+  "Missing Email": ["Corporate email address is empty"],
+  "Invalid Email Format": ["Email format is invalid"],
+  "Missing Bank Account": ["Bank account is missing — employee is not payable"],
+  "No Primary Approver": ["Approval_1 is blank"],
+  "Approver Not Found in File": [
+    "Approval_1 (00012044) not in file",
+    "Approval_1 (00019001) not in file",
+  ],
+};
+
+const THAI_NAMES = [
+  "สมชาย ใจดี",
+  "ปรินทร์ สวัสดี",
+  "กนกวรรณ ชัยพร",
+  "ณัฐพงษ์ ศรีสุข",
+  "ศิริพร วงศ์ชัย",
+  "ธนกร พิมพ์ชัย",
+  "พรทิพย์ รัตนกุล",
+  "วิชัย บุญมี",
+  "สุดา ชัยโย",
+  "อนันต์ แสงทอง",
+  "ปิยะดา นวลจันทร์",
+  "เกรียงไกร ทองสุข",
+  "มานพ เจริญพร",
+  "อรพรรณ สุขใจ",
+  "ชลธิชา พงษ์ศิริ",
+  "ภาณุพงศ์ อินทร์แก้ว",
+  "รัตนา มีสุข",
+  "สุริยา คำแสน",
+  "จิราพร ดวงแก้ว",
+  "นพดล ศรีวิไล",
+];
+
+function buildRows(): ExceptionRow[] {
+  const rows: ExceptionRow[] = [];
+  const plan: { category: string; count: number }[] = [
+    { category: "Invalid Employee ID", count: 11 },
+    { category: "Duplicate Employee Code", count: 9 },
+    { category: "Missing Employee Name", count: 8 },
+    { category: "Missing Email", count: 9 },
+    { category: "Invalid Email Format", count: 7 },
+    { category: "Missing Bank Account", count: 8 },
+    { category: "No Primary Approver", count: 8 },
+    { category: "Approver Not Found in File", count: 7 },
+  ];
+  let seq = 899;
+  let i = 0;
+  plan.forEach(({ category, count }) => {
+    const details = CATEGORY_DETAILS[category];
+    for (let n = 0; n < count; n++) {
+      seq += 137;
+      const blankName = category === "Missing Employee Name";
+      rows.push({
+        id: String(i + 1),
+        code: String(seq).padStart(8, "0"),
+        name: blankName ? "" : THAI_NAMES[i % THAI_NAMES.length],
+        type: CATEGORY_TYPE[category],
+        category,
+        detail: details[n % details.length],
+        file: "EMPEXP4550045 (4).TXT",
+        ageing: 1,
+      });
+      i++;
+    }
+  });
+  return rows;
+}
+
+const ROWS: ExceptionRow[] = buildRows();
+
 
 function StatCard({
   icon: Icon,
@@ -175,7 +247,7 @@ const RUN_BY_DATE: Record<string, string> = {
 };
 
 export default function HrisSyncExceptionsPanel() {
-  const [runDate, setRunDate] = useState<Date>(new Date());
+  const [runDate, setRunDate] = useState<Date>(new Date(2026, 8, 15));
   const [search, setSearch] = useState("");
   const [category, setCategory] = useState("all");
   const [file, setFile] = useState("all");
@@ -184,10 +256,6 @@ export default function HrisSyncExceptionsPanel() {
   const [detailOpen, setDetailOpen] = useState(false);
   const [page, setPage] = useState(1);
   const pageSize = 20;
-  const totalExceptions = 67;
-  const totalPages = Math.ceil(totalExceptions / pageSize);
-  const rangeStart = (page - 1) * pageSize + 1;
-  const rangeEnd = Math.min(page * pageSize, totalExceptions);
   const dateKey = toDateKey(runDate);
   const run = RUN_BY_DATE[dateKey] ?? "RUN-20260827-0600";
   const isEmptyRun = run === EMPTY_RUN_ID;
@@ -207,6 +275,28 @@ export default function HrisSyncExceptionsPanel() {
       }),
     [search, category, file, type]
   );
+
+  const totalExceptions = filtered.length;
+  const totalPages = Math.max(1, Math.ceil(totalExceptions / pageSize));
+  const currentPage = Math.min(page, totalPages);
+  const rangeStart = totalExceptions === 0 ? 0 : (currentPage - 1) * pageSize + 1;
+  const rangeEnd = Math.min(currentPage * pageSize, totalExceptions);
+  const pageRows = filtered.slice((currentPage - 1) * pageSize, currentPage * pageSize);
+
+  const handleExport = () => {
+    const header = ["Employee Code", "Name", "Type", "Category", "Reason Detail"];
+    const lines = [header, ...filtered.map((r) => [r.code, r.name || "—", r.type, r.category, r.detail])]
+      .map((cols) => cols.map((c) => `"${String(c).replace(/"/g, '""')}"`).join(","))
+      .join("\n");
+    const blob = new Blob(["\uFEFF" + lines], { type: "text/csv;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `hris-sync-exceptions-${dateKey}.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
+  };
+
 
 
   return (
@@ -237,7 +327,7 @@ export default function HrisSyncExceptionsPanel() {
               />
             </PopoverContent>
           </Popover>
-          <Button variant="outline" disabled={isEmptyRun}>
+          <Button variant="outline" disabled={isEmptyRun} onClick={handleExport}>
             <Download className="h-4 w-4 mr-2" />
             Export
           </Button>
@@ -347,7 +437,7 @@ export default function HrisSyncExceptionsPanel() {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {filtered.map((r) => (
+            {pageRows.map((r) => (
               <TableRow key={r.id}>
                 <TableCell className="font-mono text-sm">{r.code}</TableCell>
                 <TableCell>{r.name || <span className="text-muted-foreground">—</span>}</TableCell>
@@ -371,7 +461,7 @@ export default function HrisSyncExceptionsPanel() {
             {filtered.length === 0 && (
               <TableRow>
                 <TableCell colSpan={4} className="text-center text-muted-foreground py-8">
-                  No exceptions found
+                  No exceptions match your search
                 </TableCell>
               </TableRow>
             )}
@@ -384,8 +474,8 @@ export default function HrisSyncExceptionsPanel() {
             <Button
               size="sm"
               variant="outline"
-              disabled={page === 1}
-              onClick={() => setPage((p) => Math.max(1, p - 1))}
+              disabled={currentPage === 1}
+              onClick={() => setPage(Math.max(1, currentPage - 1))}
             >
               Previous
             </Button>
@@ -393,8 +483,8 @@ export default function HrisSyncExceptionsPanel() {
               <Button
                 key={p}
                 size="sm"
-                variant={p === page ? "default" : "outline"}
-                className={p === page ? "bg-primary text-primary-foreground hover:bg-primary/90" : undefined}
+                variant={p === currentPage ? "default" : "outline"}
+                className={p === currentPage ? "bg-primary text-primary-foreground hover:bg-primary/90" : undefined}
                 onClick={() => setPage(p)}
               >
                 {p}
@@ -403,8 +493,8 @@ export default function HrisSyncExceptionsPanel() {
             <Button
               size="sm"
               variant="outline"
-              disabled={page === totalPages}
-              onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+              disabled={currentPage === totalPages}
+              onClick={() => setPage(Math.min(totalPages, currentPage + 1))}
             >
               Next
             </Button>
