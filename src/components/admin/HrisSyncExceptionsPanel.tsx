@@ -461,7 +461,7 @@ export default function HrisSyncExceptionsPanel() {
             {filtered.length === 0 && (
               <TableRow>
                 <TableCell colSpan={4} className="text-center text-muted-foreground py-8">
-                  No exceptions found
+                  No exceptions match your search
                 </TableCell>
               </TableRow>
             )}
