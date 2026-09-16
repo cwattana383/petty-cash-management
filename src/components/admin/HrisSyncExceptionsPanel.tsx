@@ -38,6 +38,25 @@ import { Calendar as CalendarIcon } from "lucide-react";
 import { format } from "date-fns";
 import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import {
+  Dialog,
+  DialogContent,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
+import { FileUp, Loader2, FileText } from "lucide-react";
+import { toast } from "sonner";
 
 const DETAIL = {
   code: "00007899",
@@ -255,6 +274,42 @@ export default function HrisSyncExceptionsPanel() {
   
   const [detailOpen, setDetailOpen] = useState(false);
   const [page, setPage] = useState(1);
+  const [importOpen, setImportOpen] = useState(false);
+  const [importFile, setImportFile] = useState<File | null>(null);
+  const [importError, setImportError] = useState<string | null>(null);
+  const [isImporting, setIsImporting] = useState(false);
+  const [confirmImportOpen, setConfirmImportOpen] = useState(false);
+
+  const pickImportFile = (f: File) => {
+    const ok = /\.(txt|csv)$/i.test(f.name);
+    if (!ok) {
+      setImportFile(null);
+      setImportError("Invalid file type. Only .txt and .csv HRIS files are accepted.");
+      return;
+    }
+    setImportError(null);
+    setImportFile(f);
+  };
+
+  const runImport = async (e?: { preventDefault?: () => void }) => {
+    e?.preventDefault?.();
+    if (!importFile) return;
+    setIsImporting(true);
+    setImportError(null);
+    try {
+      await new Promise((r) => setTimeout(r, 1200));
+      setConfirmImportOpen(false);
+      setImportOpen(false);
+      setImportFile(null);
+      setRunDate(new Date(2026, 8, 15));
+      setPage(1);
+      toast.success("HRIS file imported successfully");
+    } catch {
+      setImportError("Import failed. Please check the file and try again.");
+    } finally {
+      setIsImporting(false);
+    }
+  };
   const pageSize = 20;
   const dateKey = toDateKey(runDate);
   const run = RUN_BY_DATE[dateKey] ?? "RUN-20260827-0600";
@@ -327,12 +382,129 @@ export default function HrisSyncExceptionsPanel() {
               />
             </PopoverContent>
           </Popover>
+          <Button variant="outline" onClick={() => setImportOpen(true)}>
+            <FileUp className="h-4 w-4 mr-2" />
+            Manual Import HRIS File
+          </Button>
           <Button variant="outline" disabled={isEmptyRun} onClick={handleExport}>
             <Download className="h-4 w-4 mr-2" />
             Export
           </Button>
         </div>
       </div>
+
+      <Dialog
+        open={importOpen}
+        onOpenChange={(o) => {
+          if (isImporting) return;
+          setImportOpen(o);
+          if (!o) {
+            setImportFile(null);
+            setImportError(null);
+          }
+        }}
+      >
+        <DialogContent className="sm:max-w-[520px]">
+          <DialogHeader>
+            <DialogTitle>Manual Import HRIS File</DialogTitle>
+          </DialogHeader>
+          <div
+            onDragOver={(e) => e.preventDefault()}
+            onDrop={(e) => {
+              e.preventDefault();
+              if (isImporting) return;
+              const f = e.dataTransfer.files?.[0];
+              if (f) pickImportFile(f);
+            }}
+            className="border-2 border-dashed border-border rounded-xl p-8 flex flex-col items-center justify-center text-center"
+          >
+            <FileUp className="h-8 w-8 text-muted-foreground mb-3" />
+            <div className="text-sm text-muted-foreground mb-3">Drag and drop a .txt or .csv file here</div>
+            <input
+              id="hris-import-input"
+              type="file"
+              accept=".txt,.csv"
+              className="hidden"
+              onChange={(e) => {
+                const f = e.target.files?.[0];
+                if (f) pickImportFile(f);
+                e.target.value = "";
+              }}
+            />
+            <Button
+              variant="outline"
+              disabled={isImporting}
+              onClick={() => document.getElementById("hris-import-input")?.click()}
+            >
+              Browse file
+            </Button>
+          </div>
+
+          {importFile && (
+            <div className="flex items-center gap-3 rounded-lg border border-border p-3">
+              <FileText className="h-4 w-4 text-primary" />
+              <div className="flex-1 min-w-0">
+                <div className="text-sm truncate">{importFile.name}</div>
+                <div className="text-xs text-muted-foreground">{(importFile.size / 1024).toFixed(0)} KB</div>
+              </div>
+              <Button
+                variant="ghost"
+                size="icon"
+                className="h-7 w-7"
+                disabled={isImporting}
+                onClick={() => setImportFile(null)}
+              >
+                <X className="h-4 w-4" />
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                disabled={isImporting}
+                onClick={() => document.getElementById("hris-import-input")?.click()}
+              >
+                Replace
+              </Button>
+            </div>
+          )}
+
+          {importError && <div className="text-sm text-destructive">{importError}</div>}
+
+          <DialogFooter>
+            <Button
+              variant="outline"
+              disabled={isImporting}
+              onClick={() => {
+                setImportOpen(false);
+                setImportFile(null);
+                setImportError(null);
+              }}
+            >
+              Cancel
+            </Button>
+            <Button disabled={!importFile || isImporting} onClick={() => setConfirmImportOpen(true)}>
+              {isImporting && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
+              Import File
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      <AlertDialog open={confirmImportOpen} onOpenChange={setConfirmImportOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Import HRIS File</AlertDialogTitle>
+            <AlertDialogDescription>
+              This import will update employee data. Do you want to continue?
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={isImporting}>Cancel</AlertDialogCancel>
+            <AlertDialogAction disabled={isImporting} onClick={runImport}>
+              Confirm
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
 
 
       {/* Run context bar */}
