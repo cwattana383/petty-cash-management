@@ -274,6 +274,42 @@ export default function HrisSyncExceptionsPanel() {
   
   const [detailOpen, setDetailOpen] = useState(false);
   const [page, setPage] = useState(1);
+  const [importOpen, setImportOpen] = useState(false);
+  const [importFile, setImportFile] = useState<File | null>(null);
+  const [importError, setImportError] = useState<string | null>(null);
+  const [isImporting, setIsImporting] = useState(false);
+  const [confirmImportOpen, setConfirmImportOpen] = useState(false);
+
+  const pickImportFile = (f: File) => {
+    const ok = /\.(txt|csv)$/i.test(f.name);
+    if (!ok) {
+      setImportFile(null);
+      setImportError("Invalid file type. Only .txt and .csv HRIS files are accepted.");
+      return;
+    }
+    setImportError(null);
+    setImportFile(f);
+  };
+
+  const runImport = async (e?: { preventDefault?: () => void }) => {
+    e?.preventDefault?.();
+    if (!importFile) return;
+    setIsImporting(true);
+    setImportError(null);
+    try {
+      await new Promise((r) => setTimeout(r, 1200));
+      setConfirmImportOpen(false);
+      setImportOpen(false);
+      setImportFile(null);
+      setRunDate(new Date(2026, 8, 15));
+      setPage(1);
+      toast.success("HRIS file imported successfully");
+    } catch {
+      setImportError("Import failed. Please check the file and try again.");
+    } finally {
+      setIsImporting(false);
+    }
+  };
   const pageSize = 20;
   const dateKey = toDateKey(runDate);
   const run = RUN_BY_DATE[dateKey] ?? "RUN-20260827-0600";
