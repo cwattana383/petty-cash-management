@@ -629,15 +629,40 @@ export default function CardManagementForm({ record }: Props = {}) {
           </div>
 
           <div className="space-y-2">
-            <FieldLabel>Email</FieldLabel>
-            {isEdit ? (
-              <ReadOnlyValue value={form.email} />
-            ) : (
-              <>
-                <Input ref={registerRef("email") as any} type="email" className={inputCls + errCls("email")} style={errStyle("email")} value={form.email ?? ""} onChange={(ev) => set("email", ev.target.value)} onBlur={() => runBlur("email")} />
-                {errors.email && <p className="text-xs text-destructive">{errors.email}</p>}
-              </>
-            )}
+            <div className="flex items-center gap-2">
+              <FieldLabel>Email</FieldLabel>
+              <span
+                className={`rounded-full px-2 py-0.5 text-[11px] font-medium ${EMAIL_BADGE[emailState].className}`}
+                style={EMAIL_BADGE[emailState].style}
+              >
+                {EMAIL_BADGE[emailState].label}
+              </span>
+              {emailReason && <span className="text-[11px] text-muted-foreground">{emailReason}</span>}
+            </div>
+            <div className="flex items-center gap-2">
+              <div className="flex-1">
+                {isEdit ? (
+                  <ReadOnlyValue value={form.email} />
+                ) : (
+                  <>
+                    <Input ref={registerRef("email") as any} type="email" className={inputCls + errCls("email")} style={errStyle("email")} value={form.email ?? ""} onChange={(ev) => setEmailValue(ev.target.value)} onBlur={() => runBlur("email")} />
+                    {errors.email && <p className="text-xs text-destructive">{errors.email}</p>}
+                  </>
+                )}
+              </div>
+              {(emailState === "FAILED" || emailState === "NOT_SENT") && (
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  disabled={!canResend || resending}
+                  onClick={handleResendEmail}
+                >
+                  <RefreshCw className="h-3.5 w-3.5 mr-1.5" />
+                  Resend Email
+                </Button>
+              )}
+            </div>
           </div>
           <div className="space-y-2">
             <FieldLabel>Phone</FieldLabel>
