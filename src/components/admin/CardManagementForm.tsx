@@ -647,7 +647,7 @@ export default function CardManagementForm({ record }: Props = {}) {
               >
                 {EMAIL_BADGE[emailState].label}
               </span>
-              {emailReason && <span className="text-[11px] text-muted-foreground">{emailReason}</span>}
+              
             </div>
             <div className="flex items-center gap-2">
               <div className="flex-1">
