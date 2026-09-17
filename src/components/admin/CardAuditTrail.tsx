@@ -10,7 +10,10 @@ type CardAuditBadge =
   | "HANDOVER_CONFIRMED"
   | "RECEIVED"
   | "ACTIVE"
-  | "REASSIGNED";
+  | "REASSIGNED"
+  | "EMAIL_SENT"
+  | "EMAIL_FAILED"
+  | "EMAIL_RESENT";
 
 export interface CardAuditEvent {
   id: string;
