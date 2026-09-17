@@ -214,6 +214,75 @@ export default function CardManagementForm({ record }: Props = {}) {
   const expired = !!form.expiry && expiryIsPast(form.expiry);
   const effectiveStatus = expired ? "Expired" : form.cardStatus;
 
+  // --- Assignment email notification status (separate from Card Status) ---
+  const isValidEmail = (v?: string) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test((v ?? "").trim());
+  const initialEmailState: EmailState = !(record?.email ?? "").trim()
+    ? "NOT_SENT"
+    : isValidEmail(record?.email)
+      ? "SENT"
+      : "FAILED";
+  const [emailState, setEmailState] = useState<EmailState>(initialEmailState);
+  const [resending, setResending] = useState(false);
+  const [emailEvents, setEmailEvents] = useState<CardAuditEvent[]>(() => {
+    if (initialEmailState === "SENT") {
+      return [
+        {
+          id: "mail-1",
+          title: "Assignment Email Sent",
+          badge: "EMAIL_SENT",
+          performer: "System",
+          isSystem: true,
+          timestamp: "10/09/2026 10:46",
+        },
+      ];
+    }
+    return [
+      {
+        id: "mail-1",
+        title: "Email Failed",
+        badge: "EMAIL_FAILED",
+        performer: "System",
+        isSystem: true,
+        timestamp: "10/09/2026 10:46",
+        detail: initialEmailState === "NOT_SENT" ? "missing email" : "invalid address",
+      },
+    ];
+  });
+  const emailReason =
+    emailState === "NOT_SENT" ? "missing email" : emailState === "FAILED" ? "invalid address" : undefined;
+  const canResend = emailState === "FAILED" && isValidEmail(form.email);
+  const showEmailAlert = emailState === "NOT_SENT" || emailState === "FAILED";
+
+  const setEmailValue = (v: string) => {
+    setForm((p) => ({ ...p, email: v }));
+    setEmailState((prev) => {
+      if (prev === "SENT" || prev === "PENDING") return prev;
+      return v.trim() ? "FAILED" : "NOT_SENT";
+    });
+  };
+
+  const handleResendEmail = () => {
+    if (!canResend || resending) return;
+    setResending(true);
+    setEmailState("PENDING");
+    const at = nowStamp();
+    setEmailEvents((p) => [
+      ...p,
+      {
+        id: `mail-resend-${p.length + 1}`,
+        title: "Email Resent",
+        badge: "EMAIL_RESENT",
+        performer: user?.name ?? "Marry Lee",
+        timestamp: at,
+      },
+    ]);
+    window.setTimeout(() => {
+      setEmailState("SENT");
+      setResending(false);
+      toast({ title: "Assignment email resent" });
+    }, 1200);
+  };
+
   const inputCls = "bg-background border rounded-lg";
   const errCls = (k: string) => (errors[k] ? " border-2" : "");
   const errStyle = (k: string) => (errors[k] ? { borderColor: RED } : undefined);
