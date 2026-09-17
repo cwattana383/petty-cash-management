@@ -413,6 +413,16 @@ export default function CardManagementForm({ record }: Props = {}) {
         )}
       </div>
 
+      {showEmailAlert && (
+        <div
+          className="flex items-center gap-2 rounded-lg border px-3 py-2 text-sm"
+          style={{ backgroundColor: "#F6C24A1A", borderColor: "#F6C24A", color: "#8A6100" }}
+        >
+          <AlertTriangle className="h-4 w-4 shrink-0" />
+          <span>Assignment email not sent — missing or invalid email address. Follow-up needed.</span>
+        </div>
+      )}
+
       <Dialog open={handoverOpen} onOpenChange={setHandoverOpen}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
