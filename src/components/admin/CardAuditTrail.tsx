@@ -46,6 +46,9 @@ const DOT_CLASS: Record<CardAuditBadge, string> = {
   RECEIVED: "bg-blue-500",
   ACTIVE: "bg-emerald-500",
   REASSIGNED: "bg-amber-500",
+  EMAIL_SENT: "bg-emerald-500",
+  EMAIL_FAILED: "bg-red-500",
+  EMAIL_RESENT: "bg-blue-500",
 };
 
 const VISIBLE_COUNT = 5;
