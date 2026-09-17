@@ -647,7 +647,7 @@ export default function CardManagementForm({ record }: Props = {}) {
               >
                 {EMAIL_BADGE[emailState].label}
               </span>
-              {emailReason && <span className="text-[11px] text-muted-foreground">{emailReason}</span>}
+              
             </div>
             <div className="flex items-center gap-2">
               <div className="flex-1">
@@ -699,9 +699,6 @@ export default function CardManagementForm({ record }: Props = {}) {
             <div className="space-y-2">
               <div className="flex items-center gap-2">
                 <FieldLabel>SGM (Store General Manager)</FieldLabel>
-                <span className="rounded-full px-2 py-0.5 text-[11px] font-medium bg-muted text-muted-foreground">
-                  Derived from Store · HRIS
-                </span>
               </div>
               <ReadOnlyValue value={form.sgm} />
             </div>
