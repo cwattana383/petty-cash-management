@@ -34,6 +34,9 @@ const BADGE_CLASS: Record<CardAuditBadge, string> = {
   RECEIVED: "bg-blue-50 text-blue-700 border-blue-200",
   ACTIVE: "bg-emerald-50 text-emerald-700 border-emerald-200",
   REASSIGNED: "bg-orange-50 text-orange-700 border-orange-200",
+  EMAIL_SENT: "bg-emerald-50 text-emerald-700 border-emerald-200",
+  EMAIL_FAILED: "bg-red-50 text-red-700 border-red-200",
+  EMAIL_RESENT: "bg-blue-50 text-blue-700 border-blue-200",
 };
 
 const DOT_CLASS: Record<CardAuditBadge, string> = {
