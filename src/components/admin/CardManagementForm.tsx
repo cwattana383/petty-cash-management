@@ -778,11 +778,14 @@ export default function CardManagementForm({ record }: Props = {}) {
 
       {/* SECTION 6 */}
       <CardAuditTrail
-        events={buildCardAuditEvents({
-          cardType: form.cardType,
-          last4: form.last4,
-          cardholderName: form.cardholderName || form.employeeName,
-        })}
+        events={[
+          ...buildCardAuditEvents({
+            cardType: form.cardType,
+            last4: form.last4,
+            cardholderName: form.cardholderName || form.employeeName,
+          }),
+          ...emailEvents,
+        ]}
       />
 
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
