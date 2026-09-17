@@ -15,7 +15,23 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command";
 import { ChevronDown } from "lucide-react";
 import { STORE_LOCATIONS } from "@/lib/card-request-types";
-import CardAuditTrail, { buildCardAuditEvents } from "@/components/admin/CardAuditTrail";
+import CardAuditTrail, { buildCardAuditEvents, type CardAuditEvent } from "@/components/admin/CardAuditTrail";
+import { RefreshCw, AlertTriangle } from "lucide-react";
+
+type EmailState = "SENT" | "NOT_SENT" | "FAILED" | "PENDING";
+
+function nowStamp() {
+  const d = new Date();
+  const p = (n: number) => String(n).padStart(2, "0");
+  return `${p(d.getDate())}/${p(d.getMonth() + 1)}/${d.getFullYear()} ${p(d.getHours())}:${p(d.getMinutes())}`;
+}
+
+const EMAIL_BADGE: Record<EmailState, { label: string; className: string; style?: React.CSSProperties }> = {
+  SENT: { label: "Email Sent", className: "border", style: { backgroundColor: "#43938F1A", color: "#43938F", borderColor: "#43938F66" } },
+  NOT_SENT: { label: "Not Sent", className: "border", style: { backgroundColor: "#F6C24A26", color: "#8A6100", borderColor: "#F6C24A" } },
+  FAILED: { label: "Email Failed", className: "border", style: { backgroundColor: "#DA38321A", color: "#DA3832", borderColor: "#DA383266" } },
+  PENDING: { label: "Pending", className: "border bg-muted text-muted-foreground border-border" },
+};
 function formatCEDate(v: string) {
   const d = new Date(v);
   if (isNaN(d.getTime())) return v;
