@@ -10,7 +10,10 @@ type CardAuditBadge =
   | "HANDOVER_CONFIRMED"
   | "RECEIVED"
   | "ACTIVE"
-  | "REASSIGNED";
+  | "REASSIGNED"
+  | "EMAIL_SENT"
+  | "EMAIL_FAILED"
+  | "EMAIL_RESENT";
 
 export interface CardAuditEvent {
   id: string;
@@ -31,6 +34,9 @@ const BADGE_CLASS: Record<CardAuditBadge, string> = {
   RECEIVED: "bg-blue-50 text-blue-700 border-blue-200",
   ACTIVE: "bg-emerald-50 text-emerald-700 border-emerald-200",
   REASSIGNED: "bg-orange-50 text-orange-700 border-orange-200",
+  EMAIL_SENT: "bg-emerald-50 text-emerald-700 border-emerald-200",
+  EMAIL_FAILED: "bg-red-50 text-red-700 border-red-200",
+  EMAIL_RESENT: "bg-blue-50 text-blue-700 border-blue-200",
 };
 
 const DOT_CLASS: Record<CardAuditBadge, string> = {
@@ -40,6 +46,9 @@ const DOT_CLASS: Record<CardAuditBadge, string> = {
   RECEIVED: "bg-blue-500",
   ACTIVE: "bg-emerald-500",
   REASSIGNED: "bg-amber-500",
+  EMAIL_SENT: "bg-emerald-500",
+  EMAIL_FAILED: "bg-red-500",
+  EMAIL_RESENT: "bg-blue-500",
 };
 
 const VISIBLE_COUNT = 5;

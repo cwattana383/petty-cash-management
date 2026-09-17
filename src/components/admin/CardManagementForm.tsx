@@ -15,7 +15,23 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command";
 import { ChevronDown } from "lucide-react";
 import { STORE_LOCATIONS } from "@/lib/card-request-types";
-import CardAuditTrail, { buildCardAuditEvents } from "@/components/admin/CardAuditTrail";
+import CardAuditTrail, { buildCardAuditEvents, type CardAuditEvent } from "@/components/admin/CardAuditTrail";
+import { RefreshCw, AlertTriangle } from "lucide-react";
+
+type EmailState = "SENT" | "NOT_SENT" | "FAILED" | "PENDING";
+
+function nowStamp() {
+  const d = new Date();
+  const p = (n: number) => String(n).padStart(2, "0");
+  return `${p(d.getDate())}/${p(d.getMonth() + 1)}/${d.getFullYear()} ${p(d.getHours())}:${p(d.getMinutes())}`;
+}
+
+const EMAIL_BADGE: Record<EmailState, { label: string; className: string; style?: React.CSSProperties }> = {
+  SENT: { label: "Email Sent", className: "border", style: { backgroundColor: "#43938F1A", color: "#43938F", borderColor: "#43938F66" } },
+  NOT_SENT: { label: "Not Sent", className: "border", style: { backgroundColor: "#F6C24A26", color: "#8A6100", borderColor: "#F6C24A" } },
+  FAILED: { label: "Email Failed", className: "border", style: { backgroundColor: "#DA38321A", color: "#DA3832", borderColor: "#DA383266" } },
+  PENDING: { label: "Pending", className: "border bg-muted text-muted-foreground border-border" },
+};
 function formatCEDate(v: string) {
   const d = new Date(v);
   if (isNaN(d.getTime())) return v;
@@ -214,6 +230,75 @@ export default function CardManagementForm({ record }: Props = {}) {
   const expired = !!form.expiry && expiryIsPast(form.expiry);
   const effectiveStatus = expired ? "Expired" : form.cardStatus;
 
+  // --- Assignment email notification status (separate from Card Status) ---
+  const isValidEmail = (v?: string) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test((v ?? "").trim());
+  const initialEmailState: EmailState = !(record?.email ?? "").trim()
+    ? "NOT_SENT"
+    : isValidEmail(record?.email)
+      ? "SENT"
+      : "FAILED";
+  const [emailState, setEmailState] = useState<EmailState>(initialEmailState);
+  const [resending, setResending] = useState(false);
+  const [emailEvents, setEmailEvents] = useState<CardAuditEvent[]>(() => {
+    if (initialEmailState === "SENT") {
+      return [
+        {
+          id: "mail-1",
+          title: "Assignment Email Sent",
+          badge: "EMAIL_SENT",
+          performer: "System",
+          isSystem: true,
+          timestamp: "10/09/2026 10:46",
+        },
+      ];
+    }
+    return [
+      {
+        id: "mail-1",
+        title: "Email Failed",
+        badge: "EMAIL_FAILED",
+        performer: "System",
+        isSystem: true,
+        timestamp: "10/09/2026 10:46",
+        detail: initialEmailState === "NOT_SENT" ? "missing email" : "invalid address",
+      },
+    ];
+  });
+  const emailReason =
+    emailState === "NOT_SENT" ? "missing email" : emailState === "FAILED" ? "invalid address" : undefined;
+  const canResend = emailState === "FAILED" && isValidEmail(form.email);
+  const showEmailAlert = emailState === "NOT_SENT" || emailState === "FAILED";
+
+  const setEmailValue = (v: string) => {
+    setForm((p) => ({ ...p, email: v }));
+    setEmailState((prev) => {
+      if (prev === "SENT" || prev === "PENDING") return prev;
+      return v.trim() ? "FAILED" : "NOT_SENT";
+    });
+  };
+
+  const handleResendEmail = () => {
+    if (!canResend || resending) return;
+    setResending(true);
+    setEmailState("PENDING");
+    const at = nowStamp();
+    setEmailEvents((p) => [
+      ...p,
+      {
+        id: `mail-resend-${p.length + 1}`,
+        title: "Email Resent",
+        badge: "EMAIL_RESENT",
+        performer: user?.name ?? "Marry Lee",
+        timestamp: at,
+      },
+    ]);
+    window.setTimeout(() => {
+      setEmailState("SENT");
+      setResending(false);
+      toast({ title: "Assignment email resent" });
+    }, 1200);
+  };
+
   const inputCls = "bg-background border rounded-lg";
   const errCls = (k: string) => (errors[k] ? " border-2" : "");
   const errStyle = (k: string) => (errors[k] ? { borderColor: RED } : undefined);
@@ -327,6 +412,16 @@ export default function CardManagementForm({ record }: Props = {}) {
           </Button>
         )}
       </div>
+
+      {showEmailAlert && (
+        <div
+          className="flex items-center gap-2 rounded-lg border px-3 py-2 text-sm"
+          style={{ backgroundColor: "#F6C24A1A", borderColor: "#F6C24A", color: "#8A6100" }}
+        >
+          <AlertTriangle className="h-4 w-4 shrink-0" />
+          <span>Assignment email not sent — missing or invalid email address. Follow-up needed.</span>
+        </div>
+      )}
 
       <Dialog open={handoverOpen} onOpenChange={setHandoverOpen}>
         <DialogContent className="sm:max-w-md">
@@ -544,15 +639,40 @@ export default function CardManagementForm({ record }: Props = {}) {
           </div>
 
           <div className="space-y-2">
-            <FieldLabel>Email</FieldLabel>
-            {isEdit ? (
-              <ReadOnlyValue value={form.email} />
-            ) : (
-              <>
-                <Input ref={registerRef("email") as any} type="email" className={inputCls + errCls("email")} style={errStyle("email")} value={form.email ?? ""} onChange={(ev) => set("email", ev.target.value)} onBlur={() => runBlur("email")} />
-                {errors.email && <p className="text-xs text-destructive">{errors.email}</p>}
-              </>
-            )}
+            <div className="flex items-center gap-2">
+              <FieldLabel>Email</FieldLabel>
+              <span
+                className={`rounded-full px-2 py-0.5 text-[11px] font-medium ${EMAIL_BADGE[emailState].className}`}
+                style={EMAIL_BADGE[emailState].style}
+              >
+                {EMAIL_BADGE[emailState].label}
+              </span>
+              {emailReason && <span className="text-[11px] text-muted-foreground">{emailReason}</span>}
+            </div>
+            <div className="flex items-center gap-2">
+              <div className="flex-1">
+                {isEdit ? (
+                  <ReadOnlyValue value={form.email} />
+                ) : (
+                  <>
+                    <Input ref={registerRef("email") as any} type="email" className={inputCls + errCls("email")} style={errStyle("email")} value={form.email ?? ""} onChange={(ev) => setEmailValue(ev.target.value)} onBlur={() => runBlur("email")} />
+                    {errors.email && <p className="text-xs text-destructive">{errors.email}</p>}
+                  </>
+                )}
+              </div>
+              {(emailState === "FAILED" || emailState === "NOT_SENT") && (
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  disabled={!canResend || resending}
+                  onClick={handleResendEmail}
+                >
+                  <RefreshCw className="h-3.5 w-3.5 mr-1.5" />
+                  Resend Email
+                </Button>
+              )}
+            </div>
           </div>
           <div className="space-y-2">
             <FieldLabel>Phone</FieldLabel>
@@ -693,11 +813,14 @@ export default function CardManagementForm({ record }: Props = {}) {
 
       {/* SECTION 6 */}
       <CardAuditTrail
-        events={buildCardAuditEvents({
-          cardType: form.cardType,
-          last4: form.last4,
-          cardholderName: form.cardholderName || form.employeeName,
-        })}
+        events={[
+          ...buildCardAuditEvents({
+            cardType: form.cardType,
+            last4: form.last4,
+            cardholderName: form.cardholderName || form.employeeName,
+          }),
+          ...emailEvents,
+        ]}
       />
 
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
