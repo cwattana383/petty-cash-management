@@ -17,6 +17,7 @@ import { MonthEndSummaryPanel } from "./Reports";
 import MonthEndReportNotificationPanel from "@/components/admin/MonthEndReportNotificationPanel";
 import MonthlyCardholderSummaryPanel from "@/components/admin/MonthlyCardholderSummaryPanel";
 import MonthlyApproverSummaryPanel from "@/components/admin/MonthlyApproverSummaryPanel";
+import InputVatReportPanel from "@/components/admin/InputVatReportPanel";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import {
@@ -137,6 +138,7 @@ const adminMenu = [
       { key: "hr-finance-report", label: "HR & Finance Report", icon: Receipt },
       { key: "monthly-cardholder-summary", label: "Monthly Cardholder Summary", icon: Mail },
       { key: "monthly-approver-summary", label: "Monthly Approver Summary", icon: MailPlus },
+      { key: "input-vat-report", label: "Input VAT Report", icon: FileText },
     ],
   },
 ];
@@ -1532,6 +1534,7 @@ const panelMap: Record<string, () => JSX.Element> = {
   "hr-finance-report": MonthEndReportNotificationPanel,
   "monthly-cardholder-summary": MonthlyCardholderSummaryPanel,
   "monthly-approver-summary": MonthlyApproverSummaryPanel,
+  "input-vat-report": InputVatReportPanel,
 };
 
 function KeywordDetectionRulesPanel() {
