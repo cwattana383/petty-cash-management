@@ -49,7 +49,8 @@ const bankLabelEn: Record<string, string> = {
   "กรุงไทย": "Krungthai",
   "ทีทีบี": "TTB",
 };
-const typeOptions = [ALL, "Corporate Credit", "Fleet Card"];
+export const CARD_TYPE_OPTIONS = ["Corporate Credit", "Fleet Card"];
+const typeOptions = [ALL, ...CARD_TYPE_OPTIONS];
 
 function expiryDate(mmYY: string) {
   const m = /^(\d{2})\/(\d{2})$/.exec(mmYY);
