@@ -24,6 +24,8 @@ import {
 } from "@/components/ui/alert-dialog";
 import { toast } from "@/hooks/use-toast";
 import { CARD_MASTER_ROWS, type CardMasterRow, type CardMasterStatus } from "@/lib/card-master-mock-data";
+import { useCardTypeScope, kindKey, cardTypeKey } from "@/hooks/use-card-type-scope";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 
 const RED = "#DA3832";
 const GREEN = "#43938F";
@@ -50,7 +52,6 @@ const bankLabelEn: Record<string, string> = {
   "ทีทีบี": "TTB",
 };
 export const CARD_TYPE_OPTIONS = ["Corporate Credit", "Fleet Card"];
-const typeOptions = [ALL, ...CARD_TYPE_OPTIONS];
 
 function expiryDate(mmYY: string) {
   const m = /^(\d{2})\/(\d{2})$/.exec(mmYY);
@@ -113,7 +114,14 @@ export default function CardManagementList() {
   const [sortDir, setSortDir] = useState<"asc" | "desc">("desc");
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(20);
-  const [rows, setRows] = useState<CardMasterRow[]>(CARD_MASTER_ROWS);
+  const [allRows, setRows] = useState<CardMasterRow[]>(CARD_MASTER_ROWS);
+  const scope = useCardTypeScope();
+  const rows = useMemo(() => allRows.filter((r) => scope.inScope(kindKey(r.kind))), [allRows, scope]);
+  const scopedTypeOptions = scope.allowedLabels.length === 1 ? scope.allowedLabels : [ALL, ...scope.allowedLabels];
+  const typeLocked = scope.allowedLabels.length === 1;
+  useEffect(() => {
+    if (typeLocked) setType(scope.allowedLabels[0]);
+  }, [typeLocked, scope.allowedLabels]);
   const [confirm, setConfirm] = useState<{ row: CardMasterRow; action: "Suspend" | "Cancel" } | null>(null);
 
   useEffect(() => {
@@ -175,7 +183,7 @@ export default function CardManagementList() {
 
   const chips: { label: string; clear: () => void }[] = [];
   if (debounced) chips.push({ label: `Search: ${debounced}`, clear: () => setSearch("") });
-  if (type !== ALL) chips.push({ label: `Card Type: ${type}`, clear: () => setType(ALL) });
+  if (type !== ALL && !typeLocked) chips.push({ label: `Card Type: ${type}`, clear: () => setType(ALL) });
   if (bank !== ALL) chips.push({ label: `Bank: ${bankLabelEn[bank] ?? bank}`, clear: () => setBank(ALL) });
   if (status !== ALL) chips.push({ label: `Status: ${statusLabelTh[status] ?? status}`, clear: () => setStatus(ALL) });
   if (expiringOnly) chips.push({ label: "Expiring Soon", clear: () => setExpiringOnly(false) });
@@ -183,7 +191,7 @@ export default function CardManagementList() {
 
   const clearAll = () => {
     setSearch("");
-    setType(ALL);
+    setType(typeLocked ? scope.allowedLabels[0] : ALL);
     setBank(ALL);
     setStatus(ALL);
     setExpiringOnly(false);
@@ -315,10 +323,24 @@ export default function CardManagementList() {
             value={search}
             onChange={(e) => setSearch(e.target.value)}
           />
-          <Select value={type} onValueChange={setType}>
-            <SelectTrigger className="flex-1 min-w-[150px] bg-background rounded-lg"><SelectValue /></SelectTrigger>
-            <SelectContent>{typeOptions.map((o) => <SelectItem key={o} value={o}>{o === ALL ? "Card Type: All" : o}</SelectItem>)}</SelectContent>
-          </Select>
+          {typeLocked ? (
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <div className="flex-1 min-w-[150px]">
+                  <Select value={type} onValueChange={setType} disabled>
+                    <SelectTrigger className="w-full bg-background rounded-lg"><SelectValue /></SelectTrigger>
+                    <SelectContent>{scopedTypeOptions.map((o) => <SelectItem key={o} value={o}>{o}</SelectItem>)}</SelectContent>
+                  </Select>
+                </div>
+              </TooltipTrigger>
+              <TooltipContent>Restricted by your role</TooltipContent>
+            </Tooltip>
+          ) : (
+            <Select value={type} onValueChange={setType}>
+              <SelectTrigger className="flex-1 min-w-[150px] bg-background rounded-lg"><SelectValue /></SelectTrigger>
+              <SelectContent>{scopedTypeOptions.map((o) => <SelectItem key={o} value={o}>{o === ALL ? "Card Type: All" : o}</SelectItem>)}</SelectContent>
+            </Select>
+          )}
           <Select value={bank} onValueChange={setBank}>
             <SelectTrigger className="flex-1 min-w-[150px] bg-background rounded-lg"><SelectValue /></SelectTrigger>
             <SelectContent>{bankOptions.map((o) => <SelectItem key={o} value={o}>{o === ALL ? "Bank: All" : bankLabelEn[o] ?? o}</SelectItem>)}</SelectContent>
@@ -344,6 +366,12 @@ export default function CardManagementList() {
           </div>
         )}
       </Card>
+
+      {scope.isRestricted && (
+        <div className="rounded-lg border px-3 py-2 text-xs" style={{ backgroundColor: "rgba(48,111,199,0.08)", color: "#306FC7", borderColor: "rgba(48,111,199,0.25)" }}>
+          Showing: {scope.allowedLabels.map((l) => (/credit/i.test(l) ? "Credit Card" : l)).join(", ")}{scope.allowedLabels.length === 1 ? " only" : ""} (based on your role)
+        </div>
+      )}
 
       <Card className="rounded-2xl overflow-hidden">
         <div className="overflow-x-auto">
@@ -446,7 +474,9 @@ export default function CardManagementList() {
                           </DropdownMenuTrigger>
                           <DropdownMenuContent align="end">
                             <DropdownMenuItem onClick={() => navigate(`/admin/card-management/${r.cardId}`)}>View details</DropdownMenuItem>
-                            <DropdownMenuItem onClick={() => navigate(`/admin/card-management/${r.cardId}`)}>Edit</DropdownMenuItem>
+                            {scope.canEdit(kindKey(r.kind)) && (
+                              <DropdownMenuItem onClick={() => navigate(`/admin/card-management/${r.cardId}`)}>Edit</DropdownMenuItem>
+                            )}
                             <DropdownMenuItem onClick={() => setConfirm({ row: r, action: "Suspend" })}>Suspend card</DropdownMenuItem>
                             <DropdownMenuItem onClick={() => setConfirm({ row: r, action: "Cancel" })}>Cancel card</DropdownMenuItem>
                           </DropdownMenuContent>

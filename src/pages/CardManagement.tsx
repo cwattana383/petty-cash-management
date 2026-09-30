@@ -2,14 +2,27 @@ import { useNavigate, useParams } from "react-router-dom";
 import CardManagementForm from "@/components/admin/CardManagementForm";
 import CardManagementList from "@/components/admin/CardManagementList";
 import { CARD_MASTER_ROWS } from "@/lib/card-master-mock-data";
+import { useCardTypeScope, kindKey } from "@/hooks/use-card-type-scope";
 
 export default function CardManagement() {
   const { cardId } = useParams();
   const navigate = useNavigate();
+  const scope = useCardTypeScope();
 
   if (!cardId) return <CardManagementList />;
 
   const row = cardId === "new" ? undefined : CARD_MASTER_ROWS.find((r) => r.cardId === cardId);
+
+  if (row && !scope.inScope(kindKey(row.kind))) {
+    return (
+      <div className="space-y-3">
+        <button type="button" onClick={() => navigate("/admin/card-management")} className="text-sm font-medium" style={{ color: "#306FC7" }}>
+          ← Back to card list
+        </button>
+        <p className="text-sm text-muted-foreground">Card not found</p>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-3">
