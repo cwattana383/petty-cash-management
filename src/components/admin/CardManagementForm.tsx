@@ -17,6 +17,7 @@ import { ChevronDown } from "lucide-react";
 import { STORE_LOCATIONS } from "@/lib/card-request-types";
 import CardAuditTrail, { buildCardAuditEvents, type CardAuditEvent } from "@/components/admin/CardAuditTrail";
 import { RefreshCw, AlertTriangle } from "lucide-react";
+import { useCardTypeScope } from "@/hooks/use-card-type-scope";
 
 type EmailState = "SENT" | "NOT_SENT" | "FAILED" | "PENDING";
 
@@ -204,9 +205,14 @@ function LocationPicker({
 export default function CardManagementForm({ record }: Props = {}) {
   const navigate = useNavigate();
   const { user } = useAuth();
+  const cardScope = useCardTypeScope();
+  const newCardTypes = [
+    ...(cardScope.inScope("credit_card") ? ["Corporate Credit Card"] : []),
+    ...(cardScope.inScope("fleet_card") ? ["Fleet Card"] : []),
+  ];
   const [cardId, setCardId] = useState(() => record?.cardId ?? "");
   const [form, setForm] = useState<CardManagementRecord>({
-    cardType: "Corporate Credit Card",
+    cardType: newCardTypes[0] ?? "Corporate Credit Card",
     currency: "THB",
     cardStatus: "Created",
     ...record,
@@ -508,8 +514,9 @@ export default function CardManagementForm({ record }: Props = {}) {
             >
               <SelectTrigger className={inputCls}><SelectValue /></SelectTrigger>
               <SelectContent>
-                <SelectItem value="Corporate Credit Card">Corporate Credit Card</SelectItem>
-                <SelectItem value="Fleet Card">Fleet Card</SelectItem>
+                {newCardTypes.map((t) => (
+                  <SelectItem key={t} value={t}>{t}</SelectItem>
+                ))}
               </SelectContent>
             </Select>
           </div>
