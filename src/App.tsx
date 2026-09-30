@@ -43,6 +43,11 @@ const CardInformationRedirect = () => {
   return <Navigate to={`/admin/card-management/${cardId}`} replace />;
 };
 
+const DataScopeRedirect = () => {
+  const role = new URLSearchParams(window.location.search).get("role");
+  return <Navigate to={`/admin?tab=data-scope${role ? `&role=${encodeURIComponent(role)}` : ""}`} replace />;
+};
+
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
@@ -73,6 +78,7 @@ const App = () => (
                             <Route path="/bank-transactions" element={<RoleGuard allowedRoles={["Admin"]}><BankTransactions /></RoleGuard>} />
                             <Route path="/policy-management" element={<RoleGuard allowedRoles={["Admin"]}><PolicyManagement /></RoleGuard>} />
                             <Route path="/admin" element={<RoleGuard allowedRoles={["Admin"]}><Admin /></RoleGuard>} />
+                            <Route path="/admin/data-scope" element={<RoleGuard allowedRoles={["Admin"]}><DataScopeRedirect /></RoleGuard>} />
                             <Route path="/admin/card-management" element={<RoleGuard allowedRoles={["Admin"]}><CardManagement /></RoleGuard>} />
                             <Route path="/admin/card-management/:cardId" element={<RoleGuard allowedRoles={["Admin"]}><CardManagement /></RoleGuard>} />
                             <Route path="/admin/card-information" element={<Navigate to="/admin/card-management" replace />} />
