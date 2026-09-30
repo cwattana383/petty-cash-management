@@ -50,6 +50,8 @@ const bankLabelEn: Record<string, string> = {
   "ทีทีบี": "TTB",
 };
 const typeOptions = [ALL, "Corporate Credit", "Fleet Card"];
+// eslint-disable-next-line react-refresh/only-export-components
+export const CARD_TYPE_OPTIONS = typeOptions.filter((t) => t !== ALL);
 
 function expiryDate(mmYY: string) {
   const m = /^(\d{2})\/(\d{2})$/.exec(mmYY);
