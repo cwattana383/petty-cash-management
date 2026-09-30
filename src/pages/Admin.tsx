@@ -1,5 +1,5 @@
 import { useState, useCallback, useEffect, useRef } from "react";
-import { useNavigate, useSearchParams, useLocation } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 
 import PolicyManagement from "./PolicyManagement";
 import PendingInvoiceNotificationPanel from "@/components/admin/PendingInvoiceNotificationPanel";
@@ -18,7 +18,6 @@ import MonthEndReportNotificationPanel from "@/components/admin/MonthEndReportNo
 import MonthlyCardholderSummaryPanel from "@/components/admin/MonthlyCardholderSummaryPanel";
 import MonthlyApproverSummaryPanel from "@/components/admin/MonthlyApproverSummaryPanel";
 import InputVatReportPanel from "@/components/admin/InputVatReportPanel";
-import DataScopePanel, { isDataScopeDirty } from "@/components/admin/DataScopePanel";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import {
@@ -60,7 +59,6 @@ import {
   BarChart3,
   FileSpreadsheet,
   CreditCard as CreditCardIcon,
-  ScanEye,
 } from "lucide-react";
 import EntityDrawer from "@/components/admin/EntityDrawer";
 import InviteUserDialog from "@/components/admin/InviteUserDialog";
@@ -108,7 +106,6 @@ const adminMenu = [
     items: [
       { key: "employees", label: "Employee Profiles", icon: Users },
       { key: "roles", label: "Roles & Permissions", icon: Shield },
-      { key: "data-scope", label: "Data Scope", icon: ScanEye },
       { key: "card-management", label: "Card Management", icon: CreditCardIcon },
       { key: "hris-sync-exceptions", label: "HRIS Sync Exceptions", icon: AlertTriangle },
     ],
@@ -1538,7 +1535,6 @@ const panelMap: Record<string, () => JSX.Element> = {
   "monthly-cardholder-summary": MonthlyCardholderSummaryPanel,
   "monthly-approver-summary": MonthlyApproverSummaryPanel,
   "input-vat-report": InputVatReportPanel,
-  "data-scope": DataScopePanel,
 };
 
 function KeywordDetectionRulesPanel() {
@@ -1621,15 +1617,7 @@ function KeywordDetectionRulesPanel() {
 
 export default function Admin() {
   const [searchParams, setSearchParams] = useSearchParams();
-  const location = useLocation();
-  const [activeKey, setActiveKeyState] = useState(() =>
-    location.pathname === "/admin/data-scope" ? "data-scope" : searchParams.get("tab") || "employees"
-  );
-  const setActiveKey = (key: string) => {
-    if (key !== activeKey && activeKey === "data-scope" && isDataScopeDirty() &&
-      !window.confirm("You have unsaved changes. Leave this page?")) return;
-    setActiveKeyState(key);
-  };
+  const [activeKey, setActiveKey] = useState(() => searchParams.get("tab") || "employees");
   const ActivePanel = panelMap[activeKey] || (() => <div className="p-8 text-muted-foreground">Panel not found</div>);
   const [adminSidebarOpen, setAdminSidebarOpen] = useState(true);
 
