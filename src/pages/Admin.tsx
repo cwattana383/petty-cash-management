@@ -59,7 +59,9 @@ import {
   BarChart3,
   FileSpreadsheet,
   CreditCard as CreditCardIcon,
+  ScanEye,
 } from "lucide-react";
+import DataScopePanel from "@/components/admin/DataScopePanel";
 import EntityDrawer from "@/components/admin/EntityDrawer";
 import InviteUserDialog from "@/components/admin/InviteUserDialog";
 import { CompanyIdentity } from "@/components/admin/EntityTypes";
@@ -106,6 +108,7 @@ const adminMenu = [
     items: [
       { key: "employees", label: "Employee Profiles", icon: Users },
       { key: "roles", label: "Roles & Permissions", icon: Shield },
+      { key: "data-scope", label: "Data Scope", icon: ScanEye },
       { key: "card-management", label: "Card Management", icon: CreditCardIcon },
       { key: "hris-sync-exceptions", label: "HRIS Sync Exceptions", icon: AlertTriangle },
     ],
@@ -1508,6 +1511,7 @@ const panelMap: Record<string, () => JSX.Element> = {
   branches: BranchesPanel,
   employees: EmployeesPanel,
   roles: RolesPanel,
+  "data-scope": DataScopePanel,
   costcenters: CostCentersPanel,
   "approval-levels": ApprovalLevelsPanel,
   "approval-limits": ApprovalLimitsPanel,
