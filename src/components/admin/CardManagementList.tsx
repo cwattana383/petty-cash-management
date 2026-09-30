@@ -24,6 +24,8 @@ import {
 } from "@/components/ui/alert-dialog";
 import { toast } from "@/hooks/use-toast";
 import { CARD_MASTER_ROWS, type CardMasterRow, type CardMasterStatus } from "@/lib/card-master-mock-data";
+import { useCardTypeScope, kindKey, cardTypeKey } from "@/hooks/use-card-type-scope";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 
 const RED = "#DA3832";
 const GREEN = "#43938F";
@@ -113,7 +115,14 @@ export default function CardManagementList() {
   const [sortDir, setSortDir] = useState<"asc" | "desc">("desc");
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(20);
-  const [rows, setRows] = useState<CardMasterRow[]>(CARD_MASTER_ROWS);
+  const [allRows, setRows] = useState<CardMasterRow[]>(CARD_MASTER_ROWS);
+  const scope = useCardTypeScope();
+  const rows = useMemo(() => allRows.filter((r) => scope.inScope(kindKey(r.kind))), [allRows, scope]);
+  const scopedTypeOptions = scope.allowedLabels.length === 1 ? scope.allowedLabels : [ALL, ...scope.allowedLabels];
+  const typeLocked = scope.allowedLabels.length === 1;
+  useEffect(() => {
+    if (typeLocked) setType(scope.allowedLabels[0]);
+  }, [typeLocked, scope.allowedLabels]);
   const [confirm, setConfirm] = useState<{ row: CardMasterRow; action: "Suspend" | "Cancel" } | null>(null);
 
   useEffect(() => {
@@ -315,10 +324,24 @@ export default function CardManagementList() {
             value={search}
             onChange={(e) => setSearch(e.target.value)}
           />
-          <Select value={type} onValueChange={setType}>
-            <SelectTrigger className="flex-1 min-w-[150px] bg-background rounded-lg"><SelectValue /></SelectTrigger>
-            <SelectContent>{typeOptions.map((o) => <SelectItem key={o} value={o}>{o === ALL ? "Card Type: All" : o}</SelectItem>)}</SelectContent>
-          </Select>
+          {typeLocked ? (
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <div className="flex-1 min-w-[150px]">
+                  <Select value={type} onValueChange={setType} disabled>
+                    <SelectTrigger className="w-full bg-background rounded-lg"><SelectValue /></SelectTrigger>
+                    <SelectContent>{scopedTypeOptions.map((o) => <SelectItem key={o} value={o}>{o}</SelectItem>)}</SelectContent>
+                  </Select>
+                </div>
+              </TooltipTrigger>
+              <TooltipContent>Restricted by your role</TooltipContent>
+            </Tooltip>
+          ) : (
+            <Select value={type} onValueChange={setType}>
+              <SelectTrigger className="flex-1 min-w-[150px] bg-background rounded-lg"><SelectValue /></SelectTrigger>
+              <SelectContent>{scopedTypeOptions.map((o) => <SelectItem key={o} value={o}>{o === ALL ? "Card Type: All" : o}</SelectItem>)}</SelectContent>
+            </Select>
+          )}
           <Select value={bank} onValueChange={setBank}>
             <SelectTrigger className="flex-1 min-w-[150px] bg-background rounded-lg"><SelectValue /></SelectTrigger>
             <SelectContent>{bankOptions.map((o) => <SelectItem key={o} value={o}>{o === ALL ? "Bank: All" : bankLabelEn[o] ?? o}</SelectItem>)}</SelectContent>
@@ -446,7 +469,9 @@ export default function CardManagementList() {
                           </DropdownMenuTrigger>
                           <DropdownMenuContent align="end">
                             <DropdownMenuItem onClick={() => navigate(`/admin/card-management/${r.cardId}`)}>View details</DropdownMenuItem>
-                            <DropdownMenuItem onClick={() => navigate(`/admin/card-management/${r.cardId}`)}>Edit</DropdownMenuItem>
+                            {scope.canEdit(kindKey(r.kind)) && (
+                              <DropdownMenuItem onClick={() => navigate(`/admin/card-management/${r.cardId}`)}>Edit</DropdownMenuItem>
+                            )}
                             <DropdownMenuItem onClick={() => setConfirm({ row: r, action: "Suspend" })}>Suspend card</DropdownMenuItem>
                             <DropdownMenuItem onClick={() => setConfirm({ row: r, action: "Cancel" })}>Cancel card</DropdownMenuItem>
                           </DropdownMenuContent>
