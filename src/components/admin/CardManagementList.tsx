@@ -150,7 +150,7 @@ export default function CardManagementList() {
     const q = debounced.trim().toLowerCase();
     let list = rows.filter((r) => {
       if (q) {
-        const hay = [r.cardId, r.cardholderName ?? "", r.last4, r.plateNo ?? ""].join(" ").toLowerCase();
+        const hay = [r.cardId, r.cardholderName ?? "", r.last4].join(" ").toLowerCase();
         if (!hay.includes(q)) return false;
       }
       if (type !== ALL) {
@@ -213,7 +213,7 @@ export default function CardManagementList() {
         r.kind === "corporate" ? "Corporate Credit" : "Fleet Card",
         bankLabelEn[r.bankTh] ?? r.bankTh,
         r.last4,
-        r.kind === "corporate" ? `Employee · ${r.cardholderName ?? ""}` : `Vehicle · ${r.plateNo ?? ""}`,
+        r.cardholderName || "Unassigned",
         String(r.creditLimit),
         expiryBE(r.expiry),
         statusLabelTh[effectiveStatus(r)] ?? effectiveStatus(r),
@@ -319,7 +319,7 @@ export default function CardManagementList() {
         <div className="flex flex-wrap items-center gap-2">
           <Input
             className="flex-1 min-w-[240px] bg-background rounded-lg"
-            placeholder="Search Card ID, cardholder name, last 4 digits, plate no."
+            placeholder="Search Card ID, cardholder name, last 4 digits"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
           />
@@ -442,14 +442,16 @@ export default function CardManagementList() {
                           ? `•••• •••• •••• ${r.last4.slice(-4)}`
                           : `•••• ${r.last4.slice(-4)}`}
                       </td>
-                      <td className="px-4 py-3">
-                        {r.kind === "corporate" ? (
-                          <div>
-                            <div>Employee</div>
-                            <div className="text-xs text-muted-foreground">{r.cardholderName}</div>
-                          </div>
+                      <td className="px-4 py-3 max-w-[200px] w-[200px]">
+                        {r.cardholderName ? (
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <div className="truncate">{r.cardholderName}</div>
+                            </TooltipTrigger>
+                            <TooltipContent>{r.cardholderName}</TooltipContent>
+                          </Tooltip>
                         ) : (
-                          <span>Vehicle · {r.plateNo}</span>
+                          <span className="italic text-muted-foreground">Unassigned</span>
                         )}
                       </td>
                       <td className="px-4 py-3 text-right font-bold">{r.creditLimit.toLocaleString("en-US")}</td>
