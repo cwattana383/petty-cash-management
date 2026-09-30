@@ -52,7 +52,6 @@ const bankLabelEn: Record<string, string> = {
   "ทีทีบี": "TTB",
 };
 export const CARD_TYPE_OPTIONS = ["Corporate Credit", "Fleet Card"];
-const typeOptions = [ALL, ...CARD_TYPE_OPTIONS];
 
 function expiryDate(mmYY: string) {
   const m = /^(\d{2})\/(\d{2})$/.exec(mmYY);
@@ -184,7 +183,7 @@ export default function CardManagementList() {
 
   const chips: { label: string; clear: () => void }[] = [];
   if (debounced) chips.push({ label: `Search: ${debounced}`, clear: () => setSearch("") });
-  if (type !== ALL) chips.push({ label: `Card Type: ${type}`, clear: () => setType(ALL) });
+  if (type !== ALL && !typeLocked) chips.push({ label: `Card Type: ${type}`, clear: () => setType(ALL) });
   if (bank !== ALL) chips.push({ label: `Bank: ${bankLabelEn[bank] ?? bank}`, clear: () => setBank(ALL) });
   if (status !== ALL) chips.push({ label: `Status: ${statusLabelTh[status] ?? status}`, clear: () => setStatus(ALL) });
   if (expiringOnly) chips.push({ label: "Expiring Soon", clear: () => setExpiringOnly(false) });
@@ -192,7 +191,7 @@ export default function CardManagementList() {
 
   const clearAll = () => {
     setSearch("");
-    setType(ALL);
+    setType(typeLocked ? scope.allowedLabels[0] : ALL);
     setBank(ALL);
     setStatus(ALL);
     setExpiringOnly(false);
@@ -367,6 +366,12 @@ export default function CardManagementList() {
           </div>
         )}
       </Card>
+
+      {scope.isRestricted && (
+        <div className="rounded-lg border px-3 py-2 text-xs" style={{ backgroundColor: "rgba(48,111,199,0.08)", color: "#306FC7", borderColor: "rgba(48,111,199,0.25)" }}>
+          Showing: {scope.allowedLabels.map((l) => (/credit/i.test(l) ? "Credit Card" : l)).join(", ")}{scope.allowedLabels.length === 1 ? " only" : ""} (based on your role)
+        </div>
+      )}
 
       <Card className="rounded-2xl overflow-hidden">
         <div className="overflow-x-auto">
