@@ -1,10 +1,11 @@
 import PdfViewer from "@/components/common/PdfViewer";
 import SampleETaxInvoice from "@/components/admin/SampleETaxInvoice";
 import { useMemo, useRef, useState } from "react";
-import { Upload, FileText, Download, X, AlertTriangle } from "lucide-react";
+import { Upload, FileText, Search, Download, X, AlertTriangle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
@@ -17,6 +18,12 @@ const RED = "#DA3832";
 const GREEN = "#43938F";
 const BLUE = "#306FC7";
 const YELLOW = "#F6C24A";
+
+// TODO: add more statuses here when available.
+const STATUS_OPTIONS = [
+  { value: "all", label: "All Status" },
+  { value: "Uploaded", label: "Uploaded" },
+];
 
 function UploadedPill({ label = "Uploaded" }: { label?: string }) {
   return (
@@ -35,7 +42,9 @@ export default function FleetEtaxUploadPanel() {
 
   const [fromInput, setFromInput] = useState("");
   const [toInput, setToInput] = useState("");
-  const [applied, setApplied] = useState<{ from: string; to: string }>({ from: "", to: "" });
+  const [nameInput, setNameInput] = useState("");
+  const [statusInput, setStatusInput] = useState("all");
+  const [applied, setApplied] = useState<{ from: string; to: string; name: string; status: string }>({ from: "", to: "", name: "", status: "all" });
   const [dateError, setDateError] = useState("");
   const [page, setPage] = useState(1);
 
@@ -46,7 +55,12 @@ export default function FleetEtaxUploadPanel() {
 
   const [preview, setPreview] = useState<FleetEtaxFile | null>(null);
 
-  const rows = useMemo(() => listFiles(applied.from, applied.to), [listFiles, applied]);
+  const rows = useMemo(() => {
+    const q = applied.name.trim().toLowerCase();
+    return listFiles(applied.from, applied.to).filter(
+      (f) => (!q || f.fileName.toLowerCase().includes(q)) && (applied.status === "all" || f.status === applied.status),
+    );
+  }, [listFiles, applied]);
   const totalPages = Math.max(1, Math.ceil(rows.length / PAGE_SIZE));
   const currentPage = Math.min(page, totalPages);
   const pageRows = rows.slice((currentPage - 1) * PAGE_SIZE, currentPage * PAGE_SIZE);
@@ -59,15 +73,17 @@ export default function FleetEtaxUploadPanel() {
       return;
     }
     setDateError("");
-    setApplied({ from: fromInput, to: toInput });
+    setApplied({ from: fromInput, to: toInput, name: nameInput, status: statusInput });
     setPage(1);
   };
 
   const handleReset = () => {
     setFromInput("");
     setToInput("");
+    setNameInput("");
+    setStatusInput("all");
     setDateError("");
-    setApplied({ from: "", to: "" });
+    setApplied({ from: "", to: "", name: "", status: "all" });
     setPage(1);
   };
 
@@ -97,8 +113,8 @@ export default function FleetEtaxUploadPanel() {
     if (readyFiles.length === 0) return;
     const n = uploadFiles(readyFiles);
     closeUpload(false);
-    setFromInput(""); setToInput(""); setDateError("");
-    setApplied({ from: "", to: "" });
+    setFromInput(""); setToInput(""); setNameInput(""); setStatusInput("all"); setDateError("");
+    setApplied({ from: "", to: "", name: "", status: "all" });
     setPage(1);
     toast({ title: `${n} files uploaded` });
   };
@@ -117,6 +133,13 @@ export default function FleetEtaxUploadPanel() {
       <div className="rounded-xl border bg-card p-4">
         <div className="flex flex-wrap items-end gap-3">
           <div className="space-y-1">
+            <Label htmlFor="etax-name">File Name</Label>
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" aria-hidden />
+              <Input id="etax-name" value={nameInput} onChange={(e) => setNameInput(e.target.value)} onKeyDown={(e) => { if (e.key === "Enter") handleSearch(); }} placeholder="Search by file name" className="w-56 pl-9" />
+            </div>
+          </div>
+          <div className="space-y-1">
             <Label htmlFor="etax-from">From Date</Label>
             <Input id="etax-from" type="date" value={fromInput} onChange={(e) => setFromInput(e.target.value)} className="w-44" />
           </div>
@@ -124,8 +147,21 @@ export default function FleetEtaxUploadPanel() {
             <Label htmlFor="etax-to">To Date</Label>
             <Input id="etax-to" type="date" value={toInput} onChange={(e) => setToInput(e.target.value)} className="w-44" />
           </div>
-          <Button onClick={handleSearch}>Search</Button>
-          <Button variant="outline" onClick={handleReset}>Reset</Button>
+          <div className="space-y-1">
+            <Label htmlFor="etax-status">Status</Label>
+            <Select value={statusInput} onValueChange={setStatusInput}>
+              <SelectTrigger id="etax-status" className="w-36"><SelectValue placeholder="Status" /></SelectTrigger>
+              <SelectContent>
+                {STATUS_OPTIONS.map((o) => (
+                  <SelectItem key={o.value} value={o.value}>{o.label}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+          <div className="flex gap-3">
+            <Button onClick={handleSearch}>Search</Button>
+            <Button variant="outline" onClick={handleReset}>Reset</Button>
+          </div>
           <div className="ml-auto text-sm text-muted-foreground">
             Files available: <span className="font-semibold text-foreground">{rows.length}</span>
           </div>
