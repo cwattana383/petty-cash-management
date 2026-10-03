@@ -294,8 +294,6 @@ export default function FleetEtaxUploadPanel() {
           )}
         </DialogContent>
       </Dialog>
-
-      </Dialog>
     </div>
   );
 }
