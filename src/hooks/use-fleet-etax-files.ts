@@ -29,7 +29,7 @@ function todayIso() {
 }
 
 // In-memory data layer. Replace each function with real API calls later.
-// TODO: listFiles, uploadFiles, downloadFile, deleteFiles -> backend endpoints
+// TODO: listFiles, uploadFiles, downloadFile -> backend endpoints
 let store: FleetEtaxFile[] = seed();
 
 export function useFleetEtaxFiles() {
@@ -65,13 +65,7 @@ export function useFleetEtaxFiles() {
     return file.fileName;
   }, []);
 
-  const deleteFiles = useCallback((ids: string[]) => {
-    store = store.filter((f) => !ids.includes(f.id));
-    setFiles(store);
-    return ids.length;
-  }, []);
-
-  return { listFiles, uploadFiles, downloadFile, deleteFiles };
+  return { listFiles, uploadFiles, downloadFile };
 }
 
 export function formatFileSize(bytes: number) {
