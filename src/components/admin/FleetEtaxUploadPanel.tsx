@@ -1,5 +1,5 @@
 import { useMemo, useRef, useState } from "react";
-import { Upload, Info, FileText, Download, Trash2, X, AlertTriangle } from "lucide-react";
+import { Upload, FileText, Download, Trash2, X, AlertTriangle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -137,12 +137,6 @@ export default function FleetEtaxUploadPanel() {
         <Button onClick={() => setUploadOpen(true)}>
           <Upload className="h-4 w-4 mr-2" />Upload Files
         </Button>
-      </div>
-
-      {/* Info banner */}
-      <div className="flex items-start gap-2 rounded-xl border px-4 py-3 text-sm" style={{ borderColor: `${BLUE}40`, backgroundColor: `${BLUE}0D`, color: BLUE }}>
-        <Info className="h-4 w-4 mt-0.5 shrink-0" aria-hidden />
-        <p>Upload the e-Tax invoice files downloaded from the bank. Only PDF files are accepted. Uploaded files are matched to transactions by the nightly job. Select a file name to view its details, or use the download icon to save a copy.</p>
       </div>
 
       {/* Filters */}
