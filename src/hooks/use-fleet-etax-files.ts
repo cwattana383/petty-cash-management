@@ -1,0 +1,81 @@
+import { useCallback, useState } from "react";
+
+export interface FleetEtaxFile {
+  id: string;
+  fileName: string;
+  uploadDate: string; // yyyy-mm-dd
+  uploadedBy: string;
+  status: "Uploaded";
+  size: number; // bytes
+}
+
+const DATES = ["2026-10-02", "2026-10-01", "2026-09-30", "2026-09-29"];
+const COUNTS = [4, 4, 3, 3];
+
+function seed(): FleetEtaxFile[] {
+  const rows: FleetEtaxFile[] = [];
+  DATES.forEach((d, di) => {
+    for (let i = 1; i <= COUNTS[di]; i++) {
+      const name = `Invoice_${d.replace(/-/g, "")}_${String(i).padStart(3, "0")}.pdf`;
+      rows.push({ id: name, fileName: name, uploadDate: d, uploadedBy: "RPA user", status: "Uploaded", size: 120_000 + di * 15_000 + i * 7_300 });
+    }
+  });
+  return rows;
+}
+
+function todayIso() {
+  const d = new Date();
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+}
+
+// In-memory data layer. Replace each function with real API calls later.
+// TODO: listFiles, uploadFiles, downloadFile, deleteFiles -> backend endpoints
+let store: FleetEtaxFile[] = seed();
+
+export function useFleetEtaxFiles() {
+  const [files, setFiles] = useState<FleetEtaxFile[]>(store);
+
+  const listFiles = useCallback((from?: string, to?: string) => {
+    return files
+      .filter((f) => (!from || f.uploadDate >= from) && (!to || f.uploadDate <= to))
+      .sort((a, b) => (a.uploadDate < b.uploadDate ? 1 : a.uploadDate > b.uploadDate ? -1 : a.fileName < b.fileName ? 1 : -1));
+  }, [files]);
+
+  const uploadFiles = useCallback((input: File[]) => {
+    // TODO: duplicate file name / one-file-per-transaction rules (not decided)
+    // TODO: file size / count limits (not decided)
+    // TODO: specific error messages for failed uploads (not decided)
+    // Matching to transactions is done by a separate nightly job.
+    const date = todayIso();
+    const added = input.map((f, i) => ({
+      id: `${f.name}-${Date.now()}-${i}`,
+      fileName: f.name,
+      uploadDate: date,
+      uploadedBy: "RPA user",
+      status: "Uploaded" as const,
+      size: f.size,
+    }));
+    store = [...added, ...store];
+    setFiles(store);
+    return added.length;
+  }, []);
+
+  const downloadFile = useCallback((file: FleetEtaxFile) => {
+    // TODO: connect the real file URL here (e.g. window.open(signedUrl))
+    return file.fileName;
+  }, []);
+
+  const deleteFiles = useCallback((ids: string[]) => {
+    store = store.filter((f) => !ids.includes(f.id));
+    setFiles(store);
+    return ids.length;
+  }, []);
+
+  return { listFiles, uploadFiles, downloadFile, deleteFiles };
+}
+
+export function formatFileSize(bytes: number) {
+  if (bytes < 1024) return `${bytes} B`;
+  if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
+  return `${(bytes / 1024 / 1024).toFixed(2)} MB`;
+}

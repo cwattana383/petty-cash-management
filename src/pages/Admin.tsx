@@ -18,6 +18,8 @@ import MonthEndReportNotificationPanel from "@/components/admin/MonthEndReportNo
 import MonthlyCardholderSummaryPanel from "@/components/admin/MonthlyCardholderSummaryPanel";
 import MonthlyApproverSummaryPanel from "@/components/admin/MonthlyApproverSummaryPanel";
 import InputVatReportPanel from "@/components/admin/InputVatReportPanel";
+import FleetEtaxUploadPanel from "@/components/admin/FleetEtaxUploadPanel";
+import { useAuth } from "@/lib/auth-context";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import {
@@ -121,6 +123,7 @@ const adminMenu = [
       { key: "expense-type", label: "Expense Type", icon: Layers },
       { key: "project", label: "Project", icon: FileText },
       { key: "mcc-policy", label: "Policy Management", icon: Shield },
+      { key: "fleet-etax-upload", label: "Upload Fleet Card E Tax Invoice", icon: Upload, isNew: true, roles: ["RPA Upload", "Admin"] },
     ],
   },
   {
@@ -1539,6 +1542,7 @@ const panelMap: Record<string, () => JSX.Element> = {
   "monthly-cardholder-summary": MonthlyCardholderSummaryPanel,
   "monthly-approver-summary": MonthlyApproverSummaryPanel,
   "input-vat-report": InputVatReportPanel,
+  "fleet-etax-upload": FleetEtaxUploadPanel,
 };
 
 function KeywordDetectionRulesPanel() {
@@ -1624,6 +1628,8 @@ export default function Admin() {
   const [activeKey, setActiveKey] = useState(() => searchParams.get("tab") || "employees");
   const ActivePanel = panelMap[activeKey] || (() => <div className="p-8 text-muted-foreground">Panel not found</div>);
   const [adminSidebarOpen, setAdminSidebarOpen] = useState(true);
+  const { user: authUser } = useAuth();
+  const userRoles = authUser?.roles ?? [];
 
   // Auto-collapse main sidebar on Admin page to maximize table space
   const { open: sidebarOpen, setOpen: setSidebarOpen } = useSidebar();
@@ -1670,7 +1676,7 @@ export default function Admin() {
                 </span>
               </div>
               <div className="space-y-0.5">
-                {group.items.map((item) => (
+                {group.items.filter((item) => !("roles" in item) || (item.roles as string[]).some((r) => userRoles.includes(r))).map((item) => (
                   <button
                     key={item.key}
                     onClick={() => setActiveKey(item.key)}
@@ -1683,6 +1689,9 @@ export default function Admin() {
                   >
                     <item.icon className="h-4 w-4 shrink-0" />
                     <span className="flex-1">{item.label}</span>
+                    {"isNew" in item && item.isNew ? (
+                      <span className="ml-auto rounded px-1.5 py-0.5 text-[10px] font-bold text-foreground" style={{ backgroundColor: "#F6C24A" }}>New</span>
+                    ) : null}
                     {"badge" in item && item.badge ? (
                       <span
                         className={cn(
