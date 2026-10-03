@@ -1,13 +1,12 @@
 import PdfViewer from "@/components/common/PdfViewer";
 import SampleETaxInvoice from "@/components/admin/SampleETaxInvoice";
 import { useMemo, useRef, useState } from "react";
-import { Upload, FileText, Download, Trash2, X, AlertTriangle } from "lucide-react";
+import { Upload, FileText, Download, X, AlertTriangle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Checkbox } from "@/components/ui/checkbox";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { toast } from "@/hooks/use-toast";
 import { cn } from "@/lib/utils";
@@ -32,14 +31,13 @@ function PdfIcon() {
 }
 
 export default function FleetEtaxUploadPanel() {
-  const { listFiles, uploadFiles, downloadFile, deleteFiles } = useFleetEtaxFiles();
+  const { listFiles, uploadFiles, downloadFile } = useFleetEtaxFiles();
 
   const [fromInput, setFromInput] = useState("");
   const [toInput, setToInput] = useState("");
   const [applied, setApplied] = useState<{ from: string; to: string }>({ from: "", to: "" });
   const [dateError, setDateError] = useState("");
   const [page, setPage] = useState(1);
-  const [selected, setSelected] = useState<Set<string>>(new Set());
 
   const [uploadOpen, setUploadOpen] = useState(false);
   const [pending, setPending] = useState<File[]>([]);
@@ -47,7 +45,6 @@ export default function FleetEtaxUploadPanel() {
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const [preview, setPreview] = useState<FleetEtaxFile | null>(null);
-  const [deleteTargets, setDeleteTargets] = useState<FleetEtaxFile[] | null>(null);
 
   const rows = useMemo(() => listFiles(applied.from, applied.to), [listFiles, applied]);
   const totalPages = Math.max(1, Math.ceil(rows.length / PAGE_SIZE));
@@ -55,8 +52,6 @@ export default function FleetEtaxUploadPanel() {
   const pageRows = rows.slice((currentPage - 1) * PAGE_SIZE, currentPage * PAGE_SIZE);
   const startIdx = rows.length === 0 ? 0 : (currentPage - 1) * PAGE_SIZE + 1;
   const endIdx = Math.min(currentPage * PAGE_SIZE, rows.length);
-
-  const allOnPageSelected = pageRows.length > 0 && pageRows.every((r) => selected.has(r.id));
 
   const handleSearch = () => {
     if (fromInput && toInput && fromInput > toInput) {
@@ -66,7 +61,6 @@ export default function FleetEtaxUploadPanel() {
     setDateError("");
     setApplied({ from: fromInput, to: toInput });
     setPage(1);
-    setSelected(new Set());
   };
 
   const handleReset = () => {
@@ -75,35 +69,14 @@ export default function FleetEtaxUploadPanel() {
     setDateError("");
     setApplied({ from: "", to: "" });
     setPage(1);
-    setSelected(new Set());
   };
 
-  const toggleAllOnPage = (checked: boolean) => {
-    const next = new Set(selected);
-    pageRows.forEach((r) => (checked ? next.add(r.id) : next.delete(r.id)));
-    setSelected(next);
-  };
-
-  const toggleRow = (id: string, checked: boolean) => {
-    const next = new Set(selected);
-    if (checked) next.add(id); else next.delete(id);
-    setSelected(next);
-  };
 
   const handleDownload = (f: FleetEtaxFile) => {
     const name = downloadFile(f);
     toast({ title: `Download started: ${name}` });
   };
 
-  const confirmDelete = () => {
-    if (!deleteTargets) return;
-    const n = deleteFiles(deleteTargets.map((f) => f.id));
-    const next = new Set(selected);
-    deleteTargets.forEach((f) => next.delete(f.id));
-    setSelected(next);
-    setDeleteTargets(null);
-    toast({ title: `${n} file(s) deleted` });
-  };
 
   // Upload dialog
   const isPdf = (f: File) => f.type === "application/pdf" || f.name.toLowerCase().endsWith(".pdf");
@@ -127,7 +100,6 @@ export default function FleetEtaxUploadPanel() {
     setFromInput(""); setToInput(""); setDateError("");
     setApplied({ from: "", to: "" });
     setPage(1);
-    setSelected(new Set());
     toast({ title: `${n} files uploaded` });
   };
 
@@ -161,15 +133,6 @@ export default function FleetEtaxUploadPanel() {
         {dateError && <p className="mt-2 text-sm" style={{ color: RED }}>{dateError}</p>}
       </div>
 
-      {/* Selection bar */}
-      {selected.size > 0 && (
-        <div className="flex items-center justify-between rounded-xl border px-4 py-2" style={{ borderColor: `${RED}33`, backgroundColor: `${RED}0D` }}>
-          <span className="text-sm font-medium">{selected.size} selected</span>
-          <Button size="sm" variant="destructive" onClick={() => setDeleteTargets(rows.filter((r) => selected.has(r.id)))}>
-            <Trash2 className="h-3.5 w-3.5 mr-1" />Delete selected
-          </Button>
-        </div>
-      )}
 
       {/* Table */}
       <div className="rounded-xl border bg-card overflow-hidden">
@@ -184,22 +147,16 @@ export default function FleetEtaxUploadPanel() {
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead className="w-10">
-                    <Checkbox checked={allOnPageSelected} onCheckedChange={(c) => toggleAllOnPage(!!c)} aria-label="Select all rows on this page" />
-                  </TableHead>
                   <TableHead>File Name</TableHead>
                   <TableHead>Upload Date</TableHead>
                   <TableHead>Uploaded By</TableHead>
                   <TableHead>Status</TableHead>
-                  <TableHead className="text-right">Action</TableHead>
+                  <TableHead className="w-20 text-right">Action</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {pageRows.map((f) => (
                   <TableRow key={f.id}>
-                    <TableCell>
-                      <Checkbox checked={selected.has(f.id)} onCheckedChange={(c) => toggleRow(f.id, !!c)} aria-label={`Select ${f.fileName}`} />
-                    </TableCell>
                     <TableCell>
                       <div className="flex items-center gap-2">
                         <PdfIcon />
@@ -212,7 +169,7 @@ export default function FleetEtaxUploadPanel() {
                     <TableCell className="text-sm">{f.uploadedBy}</TableCell>
                     <TableCell><UploadedPill /></TableCell>
                     <TableCell className="text-right">
-                      <div className="flex justify-end gap-1">
+                      <div className="flex justify-end">
                         <Tooltip>
                           <TooltipTrigger asChild>
                             <Button size="icon" variant="ghost" className="h-8 w-8" aria-label={`Download ${f.fileName}`} onClick={() => handleDownload(f)}>
@@ -220,14 +177,6 @@ export default function FleetEtaxUploadPanel() {
                             </Button>
                           </TooltipTrigger>
                           <TooltipContent>Download</TooltipContent>
-                        </Tooltip>
-                        <Tooltip>
-                          <TooltipTrigger asChild>
-                            <Button size="icon" variant="ghost" className="h-8 w-8" aria-label={`Delete ${f.fileName}`} onClick={() => setDeleteTargets([f])}>
-                              <Trash2 className="h-4 w-4" style={{ color: RED }} />
-                            </Button>
-                          </TooltipTrigger>
-                          <TooltipContent>Delete</TooltipContent>
                         </Tooltip>
                       </div>
                     </TableCell>
@@ -337,36 +286,9 @@ export default function FleetEtaxUploadPanel() {
                   />
                 );
               })()}
-              <DialogFooter className="sm:justify-between">
-                <Button variant="outline" style={{ color: RED, borderColor: RED }} onClick={() => { const f = preview; setPreview(null); setDeleteTargets([f]); }}>
-                  <Trash2 className="h-4 w-4 mr-1" />Delete
-                </Button>
-                <div className="flex gap-2">
-                  <Button variant="outline" onClick={() => setPreview(null)}>Close</Button>
-                  <Button onClick={() => handleDownload(preview)}><Download className="h-4 w-4 mr-1" />Download</Button>
-                </div>
-              </DialogFooter>
-            </>
-          )}
-        </DialogContent>
-      </Dialog>
-
-      {/* Delete confirmation */}
-      <Dialog open={!!deleteTargets} onOpenChange={(o) => !o && setDeleteTargets(null)}>
-        <DialogContent className="max-w-md">
-          {deleteTargets && (
-            <>
-              <DialogHeader>
-                <DialogTitle>{deleteTargets.length > 1 ? `Delete ${deleteTargets.length} files?` : "Delete file?"}</DialogTitle>
-                <DialogDescription>
-                  {deleteTargets.length > 1
-                    ? `The ${deleteTargets.length} selected files will be removed from the uploaded files. This action cannot be undone.`
-                    : `${deleteTargets[0].fileName} will be removed from the uploaded files. This action cannot be undone.`}
-                </DialogDescription>
-              </DialogHeader>
               <DialogFooter>
-                <Button variant="outline" onClick={() => setDeleteTargets(null)}>Cancel</Button>
-                <Button variant="destructive" onClick={confirmDelete}><Trash2 className="h-4 w-4 mr-1" />Delete</Button>
+                <Button variant="outline" onClick={() => setPreview(null)}>Close</Button>
+                <Button onClick={() => handleDownload(preview)}><Download className="h-4 w-4 mr-1" />Download</Button>
               </DialogFooter>
             </>
           )}
