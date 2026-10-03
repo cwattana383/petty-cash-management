@@ -5,9 +5,23 @@ export interface FleetEtaxFile {
   fileName: string;
   uploadDate: string; // yyyy-mm-dd
   uploadedBy: string;
-  status: "Uploaded";
+  status: FleetEtaxStatus;
   size: number; // bytes
 }
+
+// TODO: the real status will be set by the backend daily job.
+export const FLEET_ETAX_STATUSES = ["Uploaded", "Waiting for transaction", "Matched", "Needs review"] as const;
+export type FleetEtaxStatus = (typeof FLEET_ETAX_STATUSES)[number];
+
+// Mock status by position in newest-first order (rows 1-14).
+const MOCK_STATUS_BY_POSITION: FleetEtaxStatus[] = [
+  "Uploaded", "Uploaded", "Uploaded",
+  "Waiting for transaction", "Waiting for transaction", "Waiting for transaction",
+  "Needs review",
+  "Matched", "Matched", "Matched", "Matched", "Matched",
+  "Needs review",
+  "Matched",
+];
 
 const DATES = ["2026-10-02", "2026-10-01", "2026-09-30", "2026-09-29"];
 const COUNTS = [4, 4, 3, 3];
@@ -20,6 +34,10 @@ function seed(): FleetEtaxFile[] {
       rows.push({ id: name, fileName: name, uploadDate: d, uploadedBy: "RPA user", status: "Uploaded", size: 120_000 + di * 15_000 + i * 7_300 });
     }
   });
+  rows
+    .slice()
+    .sort((a, b) => (a.uploadDate < b.uploadDate ? 1 : a.uploadDate > b.uploadDate ? -1 : a.fileName < b.fileName ? 1 : -1))
+    .forEach((r, i) => { r.status = MOCK_STATUS_BY_POSITION[i] ?? "Uploaded"; });
   return rows;
 }
 
@@ -52,7 +70,7 @@ export function useFleetEtaxFiles() {
       fileName: f.name,
       uploadDate: date,
       uploadedBy: "RPA user",
-      status: "Uploaded" as const,
+      status: "Uploaded" as FleetEtaxStatus,
       size: f.size,
     }));
     store = [...added, ...store];
