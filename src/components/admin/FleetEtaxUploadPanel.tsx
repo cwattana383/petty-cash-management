@@ -11,7 +11,7 @@ import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { toast } from "@/hooks/use-toast";
 import { cn } from "@/lib/utils";
-import { useFleetEtaxFiles, formatFileSize, type FleetEtaxFile } from "@/hooks/use-fleet-etax-files";
+import { useFleetEtaxFiles, formatFileSize, FLEET_ETAX_STATUSES, type FleetEtaxFile, type FleetEtaxStatus } from "@/hooks/use-fleet-etax-files";
 
 const PAGE_SIZE = 8;
 const RED = "#DA3832";
@@ -19,11 +19,26 @@ const GREEN = "#43938F";
 const BLUE = "#306FC7";
 const YELLOW = "#F6C24A";
 
-// TODO: add more statuses here when available.
 const STATUS_OPTIONS = [
   { value: "all", label: "All Status" },
-  { value: "Uploaded", label: "Uploaded" },
+  ...FLEET_ETAX_STATUSES.map((s) => ({ value: s, label: s })),
 ];
+
+const STATUS_COLORS: Record<FleetEtaxStatus, { color: string; bg: string }> = {
+  Uploaded: { color: BLUE, bg: `${BLUE}1A` },
+  "Waiting for transaction": { color: "#7A5800", bg: `${YELLOW}40` },
+  Matched: { color: GREEN, bg: `${GREEN}1A` },
+  "Needs review": { color: RED, bg: `${RED}1A` },
+};
+
+function StatusPill({ status }: { status: FleetEtaxStatus }) {
+  const c = STATUS_COLORS[status] ?? STATUS_COLORS.Uploaded;
+  return (
+    <span className="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium" style={{ color: c.color, backgroundColor: c.bg }}>
+      {status}
+    </span>
+  );
+}
 
 function UploadedPill({ label = "Uploaded" }: { label?: string }) {
   return (
@@ -203,7 +218,7 @@ export default function FleetEtaxUploadPanel() {
                     </TableCell>
                     <TableCell className="text-sm">{f.uploadDate}</TableCell>
                     <TableCell className="text-sm">{f.uploadedBy}</TableCell>
-                    <TableCell><UploadedPill /></TableCell>
+                    <TableCell><StatusPill status={f.status} /></TableCell>
                     <TableCell className="text-right">
                       <div className="flex justify-end">
                         <Tooltip>
@@ -302,7 +317,7 @@ export default function FleetEtaxUploadPanel() {
                 <DialogTitle className="flex items-center gap-2 pr-6">
                   <PdfIcon />
                   <span className="truncate">{preview.fileName}</span>
-                  <UploadedPill />
+                  <StatusPill status={preview.status} />
                 </DialogTitle>
                 <p className="text-sm text-muted-foreground">
                   {formatFileSize(preview.size)} · {preview.uploadDate} · {preview.uploadedBy}
