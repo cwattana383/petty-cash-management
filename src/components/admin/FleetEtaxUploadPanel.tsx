@@ -1,3 +1,5 @@
+import PdfViewer from "@/components/common/PdfViewer";
+import SampleETaxInvoice from "@/components/admin/SampleETaxInvoice";
 import { useMemo, useRef, useState } from "react";
 import { Upload, FileText, Download, Trash2, X, AlertTriangle } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -308,7 +310,7 @@ export default function FleetEtaxUploadPanel() {
 
       {/* Preview dialog */}
       <Dialog open={!!preview} onOpenChange={(o) => !o && setPreview(null)}>
-        <DialogContent className="max-w-4xl">
+        <DialogContent className="max-w-6xl max-h-[90vh] flex flex-col">
           {preview && (
             <>
               <DialogHeader>
@@ -317,46 +319,24 @@ export default function FleetEtaxUploadPanel() {
                   <span className="truncate">{preview.fileName}</span>
                   <UploadedPill />
                 </DialogTitle>
+                <p className="text-sm text-muted-foreground">
+                  {formatFileSize(preview.size)} · {preview.uploadDate} · {preview.uploadedBy}
+                </p>
               </DialogHeader>
-              <div className="grid gap-4 md:grid-cols-2">
-                {/* TODO: Replace this placeholder with the real PDF viewer (embed the file URL here). */}
-                <div className="relative min-h-[360px] rounded-xl border bg-card p-6 text-xs text-muted-foreground overflow-hidden">
-                  <p className="text-sm font-bold text-foreground">e-Tax Invoice</p>
-                  <p className="mb-4">Sample document</p>
-                  <div className="space-y-2">
-                    <div className="h-2 w-3/4 rounded bg-muted" />
-                    <div className="h-2 w-1/2 rounded bg-muted" />
-                    <div className="h-2 w-2/3 rounded bg-muted" />
-                    <div className="mt-6 h-2 w-full rounded bg-muted" />
-                    <div className="h-2 w-full rounded bg-muted" />
-                    <div className="h-2 w-5/6 rounded bg-muted" />
-                  </div>
-                  <span className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 -rotate-12 rounded border-4 px-4 py-1 text-3xl font-black tracking-widest opacity-60" style={{ color: RED, borderColor: RED }}>
-                    SAMPLE
-                  </span>
-                </div>
-                <div className="rounded-xl border bg-card p-4">
-                  <p className="font-semibold mb-3">File details</p>
-                  <dl className="space-y-2 text-sm">
-                    {[
-                      ["File name", preview.fileName],
-                      ["File type", "PDF"],
-                      ["File size", formatFileSize(preview.size)],
-                      ["Upload date", preview.uploadDate],
-                      ["Uploaded by", preview.uploadedBy],
-                    ].map(([k, v]) => (
-                      <div key={k} className="flex justify-between gap-4">
-                        <dt className="text-muted-foreground">{k}</dt>
-                        <dd className="text-right break-all">{v}</dd>
-                      </div>
-                    ))}
-                    <div className="flex justify-between gap-4">
-                      <dt className="text-muted-foreground">Status</dt>
-                      <dd><UploadedPill /></dd>
-                    </div>
-                  </dl>
-                </div>
-              </div>
+              {(() => {
+                const idx = Math.max(0, rows.findIndex((r) => r.id === preview.id));
+                const [y, m, d] = preview.uploadDate.split("-");
+                const beDate = `${d}/${m}/${Number(y) + 543}`;
+                const total = idx === 0 ? 500 : [500, 1000, 750.5, 1200, 650.25, 2000, 880, 1500][idx % 8];
+                const invoiceNo = String(116521893610010017n + BigInt(idx * 13));
+                // TODO: pass the real file URL (storage bucket / API) as `src` when available.
+                return (
+                  <PdfViewer
+                    src={undefined}
+                    fallbackPage={<SampleETaxInvoice invoiceNo={invoiceNo} saleDate={beDate} total={total} />}
+                  />
+                );
+              })()}
               <DialogFooter className="sm:justify-between">
                 <Button variant="outline" style={{ color: RED, borderColor: RED }} onClick={() => { const f = preview; setPreview(null); setDeleteTargets([f]); }}>
                   <Trash2 className="h-4 w-4 mr-1" />Delete
