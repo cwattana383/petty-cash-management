@@ -191,7 +191,7 @@ export default function AccountingReview() {
         if (!haystack.includes(q)) return false;
       }
       return true;
-    });
+    }).sort((a, b) => b.date.localeCompare(a.date));
   }, [items, activeTab, searchQuery, dateFrom, dateTo, cardTypeFilter]);
 
   useEffect(() => {
