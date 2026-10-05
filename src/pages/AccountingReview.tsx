@@ -1,4 +1,5 @@
 import { useState, useMemo, useEffect } from "react";
+import { getApprovalStatus, getCardType } from "@/lib/approval-status";
 import { useNavigate } from "react-router-dom";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
