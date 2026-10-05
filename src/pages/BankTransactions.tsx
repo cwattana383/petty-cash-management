@@ -1,3 +1,4 @@
+import { firstDayOfLastMonth } from "@/lib/mock-dates";
 import { useState, useMemo, useCallback, useEffect } from "react";
 import { format, isAfter } from "date-fns";
 import { Calendar as CalendarIcon, Search, Upload, RefreshCw, RotateCcw, Check, ChevronsUpDown } from "lucide-react";
@@ -35,8 +36,8 @@ type SortableField = "transactionDate" | "billingAmount" | "cardholderName" | "m
 
 export default function BankTransactions() {
   // Filter state
-  const [dateFrom, setDateFrom] = useState<Date | undefined>(undefined);
-  const [dateTo, setDateTo] = useState<Date | undefined>(undefined);
+  const [dateFrom, setDateFrom] = useState<Date | undefined>(() => firstDayOfLastMonth());
+  const [dateTo, setDateTo] = useState<Date | undefined>(() => new Date());
   const [cardholder, setCardholder] = useState("all");
   const [mccCode, setMccCode] = useState("all");
   const [policyResult, setPolicyResult] = useState("all");

@@ -1,4 +1,4 @@
-import { rebaseMockDates } from "@/lib/mock-dates";
+import { rebaseMockDates, toIsoDate, firstDayOfLastMonth } from "@/lib/mock-dates";
 import { useState, useMemo, useEffect } from "react";
 import { getApprovalStatus, getCardType } from "@/lib/approval-status";
 import { useNavigate } from "react-router-dom";
@@ -144,11 +144,7 @@ export default function AccountingReview() {
   const [activeTab, setActiveTab] = useState("pending");
   const [searchQuery, setSearchQuery] = useState("");
   const [cardTypeFilter, setCardTypeFilter] = useState<"all" | "Credit Card" | "Fleet Card">("all");
-  const [dateFrom, setDateFrom] = useState(() => {
-    const now = new Date();
-
-    return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}-01`;
-  });
+  const [dateFrom, setDateFrom] = useState(() => toIsoDate(firstDayOfLastMonth()));
   const [dateTo, setDateTo] = useState(() => {
     const now = new Date();
     return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}-${String(now.getDate()).padStart(2, "0")}`;
