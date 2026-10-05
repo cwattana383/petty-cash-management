@@ -1,3 +1,4 @@
+import { firstDayOfLastMonth } from "@/lib/mock-dates";
 import { useState, useMemo, useRef, useCallback, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Search, CalendarIcon, Upload, Loader2 } from "lucide-react";
@@ -79,8 +80,7 @@ export default function MyClaims() {
       const d = new Date(saved);
       if (!isNaN(d.getTime())) return d;
     }
-    const y = new Date().getFullYear();
-    return new Date(y, 0, 1);
+    return firstDayOfLastMonth();
   });
   const [dateTo, setDateTo] = useState<Date>(() => {
     const saved = localStorage.getItem("claims_dateTo");

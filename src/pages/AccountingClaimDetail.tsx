@@ -1,3 +1,4 @@
+import { rebaseMockDates } from "@/lib/mock-dates";
 import { useParams, useNavigate } from "react-router-dom";
 import { getApprovalStatusLabel, getCardType } from "@/lib/approval-status";
 import { Card, CardContent } from "@/components/ui/card";
@@ -65,7 +66,7 @@ interface AccountingItem {
   approvalHistory?: ApprovalHistoryEvent[];
 }
 
-const ACCOUNTING_ITEMS: AccountingItem[] = [
+const ACCOUNTING_ITEMS: AccountingItem[] = rebaseMockDates([
   { id: "TXN2026042700003", merchantName: "EASY PASS TOPUP", description: "Tolls and Bridge Fees", amount: 500, status: "Auto Approved", date: "2026-04-28", fileName: "", docType: "" },
   { id: "TXN2026042700001", merchantName: "STATE RAILWAY OF THAILAND", description: "Passenger Railways", amount: 680, status: "Auto Approved", date: "2026-04-28", fileName: "", docType: "" },
   { id: "TXN2026042800008", merchantName: "STARBUCKS THAILAND", description: "Fast Food Restaurants", amount: 285, status: "Auto Approved", date: "2026-04-28", fileName: "", docType: "" },
@@ -235,7 +236,7 @@ const ACCOUNTING_ITEMS: AccountingItem[] = [
       { id: "evt-008-1", actor: "system", title: "Transaction imported from bank file", statusBadge: "NOT_STARTED", timestamp: "2026-05-08T00:15:00Z" },
     ],
   },
-];
+]);
 
 const GL_ACCOUNT_OPTIONS = [
   { code: "5300-001", name: "Travel - Air Ticket" },

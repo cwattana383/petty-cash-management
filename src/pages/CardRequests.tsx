@@ -1,3 +1,4 @@
+import { firstDayOfLastMonth, toIsoDate } from "@/lib/mock-dates";
 import { useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Search, Inbox, MoreHorizontal } from "lucide-react";
@@ -91,8 +92,8 @@ export default function CardRequests() {
   const navigate = useNavigate();
   const [search, setSearch] = useState("");
   const [cardType, setCardType] = useState<"all" | "corporate" | "fleet">("all");
-  const [dateFrom, setDateFrom] = useState("");
-  const [dateTo, setDateTo] = useState("");
+  const [dateFrom, setDateFrom] = useState(() => toIsoDate(firstDayOfLastMonth()));
+  const [dateTo, setDateTo] = useState(() => toIsoDate(new Date()));
   const [tab, setTab] = useState<string>("Pending Approval");
 
   const rows = useMemo(() => {

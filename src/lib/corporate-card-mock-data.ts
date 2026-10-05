@@ -1,3 +1,4 @@
+import { rebaseMockDates } from "@/lib/mock-dates";
 // Mock data for corporate card module — types inferred
 
 export const mockMccPolicies = [
@@ -28,7 +29,7 @@ export const mockMccPolicies = [
   { mcc_code: "P025", description: "Grocery", category: "Meals & Entertainment", mcc_code_ref: "5411", mcc_code_description: "Grocery Stores/Supermarkets", description_subtype: "Grocery / Supermarket Purchase", policy_type: "REQUIRES_APPROVAL", threshold_amount: null, currency: "THB", active_flag: true, updated_at: "2026-02-15T14:00:00Z" },
 ];
 
-export const mockBankTransactions = [
+export const mockBankTransactions = rebaseMockDates([
   {
     id: "bt-001", file_id: "file-001", transaction_id: "TXN-2026022801",
     cardholder_employee_id: "EMP001", cardholder_name: "Somchai Jaidee",
@@ -117,7 +118,7 @@ export const mockBankTransactions = [
     policy_result: "AUTO_APPROVED", policy_reason: "Amount within fuel threshold 2,000",
     processing_status: "PROCESSED", created_at: "2026-02-23T13:00:00Z",
   },
-];
+]);
 
 export const mockCardholders = [
   { employee_id: "EMP001", name: "Somchai Jaidee" },
