@@ -1,3 +1,4 @@
+import { rebaseMockDates } from "@/lib/mock-dates";
 import { useState, useMemo, useEffect } from "react";
 import { getApprovalStatus, getCardType } from "@/lib/approval-status";
 import { useNavigate } from "react-router-dom";
@@ -85,7 +86,7 @@ interface MockItem {
   date: string;
 }
 
-const initialMockItems: MockItem[] = [
+const initialMockItems: MockItem[] = rebaseMockDates([
   { id: "TXN2026050100001", date: "2026-05-01", merchantName: "Somchai Jaidee", description: "Client meeting transport", amount: "฿500.00", status: "MANAGER_APPROVED", documentStatus: "Validated", deductionPeriod: "—", attachedFiles: [] },
   { id: "TXN2026050200002", date: "2026-05-02", merchantName: "Anong Srisuk", description: "Team lunch", amount: "฿1,250.00", status: "MANAGER_APPROVED", documentStatus: "Validated", deductionPeriod: "—", attachedFiles: [] },
   { id: "TXN2026050300003", date: "2026-05-03", merchantName: "Wirat Phongsri", description: "Office supplies", amount: "฿680.00", status: "MANAGER_APPROVED", documentStatus: "Validated", deductionPeriod: "—", attachedFiles: [] },
@@ -113,7 +114,7 @@ const initialMockItems: MockItem[] = [
   { id: "TXN2026051500025", date: "2026-05-15", merchantName: "Rungnapa Sripong", description: "Internal lunch meeting", amount: "฿890.00", status: "ACCOUNTING_REVIEW", documentStatus: "Validated", deductionPeriod: "—", attachedFiles: [] },
   { id: "TXN2026051600040", date: "2026-05-16", merchantName: "Wilasinee Pratyawongchai", description: "Client dinner with vendor partners", amount: "฿8,500.00", status: "MANAGER_APPROVED", documentStatus: "Validated", deductionPeriod: "—", attachedFiles: [] },
   { id: "TXN2026051700041", date: "2026-05-17", merchantName: "Anong Srisuk", description: "Office snacks for team meeting", amount: "฿320.00", status: "AUTO_APPROVED", documentStatus: "Validated", deductionPeriod: "—", attachedFiles: [] },
-];
+]);
 
 const DOC_TYPE_COLORS: Record<string, string> = {
   "Tax Invoice": "bg-blue-100 text-blue-800 border-blue-300",

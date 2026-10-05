@@ -1,3 +1,4 @@
+import { rebaseMockDates } from "@/lib/mock-dates";
 import { ClaimHeader, User, BankTransaction } from "./types";
 
 export const currentUser: User = {
@@ -32,7 +33,7 @@ export const demoAccounts = [
   { email: "thana@company.com", password: "demo", userId: "u5", label: "Admin" },
 ];
 
-export const mockClaims: ClaimHeader[] = [
+export const mockClaims: ClaimHeader[] = rebaseMockDates([
   {
     id: "c1", claimNo: "TXN20250129001", requesterId: "u1", requesterName: "Somchai Jaidee",
     company: "ABC Co., Ltd.", branch: "Bangkok", department: "9993010460 Finance and Accounting", costCenter: "CC-SALES-01",
@@ -327,13 +328,13 @@ export const mockClaims: ClaimHeader[] = [
     resubmitCountMgr: 1,
     cardholderNote: "Bought a notebook for client meeting prep. Vendor refused to issue a corrected invoice.",
   },
-];
-export const mockBankTransactions: BankTransaction[] = [
+]);
+export const mockBankTransactions: BankTransaction[] = rebaseMockDates([
   { id: "TXN-001", txnDate: "2025-02-01", amount: 15200, merchant: "Thai Airways", cardholderName: "Somchai Jaidee", reference: "REF-001", status: "Matched", linkedClaimId: "c1" },
   { id: "TXN-002", txnDate: "2025-02-03", amount: 850, merchant: "Starbucks Siam", cardholderName: "Somying Kaewsai", reference: "REF-002", status: "Unmatched", linkedClaimId: null },
   { id: "TXN-003", txnDate: "2025-02-05", amount: 12000, merchant: "Amazon Web Services", cardholderName: "Wichai Charoen", reference: "REF-003", status: "Partially Matched", linkedClaimId: "c6" },
   { id: "TXN-004", txnDate: "2025-02-06", amount: 320, merchant: "Grab Transport", cardholderName: "Napa Jamsai", reference: "REF-004", status: "Exception", linkedClaimId: null },
-];
+]);
 
 export const branches = ["Bangkok", "Chiang Mai", "Phuket", "Khon Kaen"];
 export const departments = ["Sales", "Marketing", "Engineering", "HR", "Finance", "Management", "Operations", "IT"];
