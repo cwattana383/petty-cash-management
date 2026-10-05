@@ -1,4 +1,5 @@
 import { useParams, useNavigate } from "react-router-dom";
+import { getApprovalStatusLabel, getCardType } from "@/lib/approval-status";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -92,7 +93,7 @@ const ACCOUNTING_ITEMS: AccountingItem[] = [
   { id: "TXN20260227021", merchantName: "Siam Amazing Park", description: "Amusement Parks", amount: 7900, status: "Auto Reject", date: "2026-02-27", fileName: "", docType: "" },
   { id: "TXN20260227002", merchantName: "Tiger Kingdom", description: "Tourist Attractions", amount: 4500, status: "Auto Reject", date: "2026-02-27", fileName: "", docType: "" },
   { id: "TXN20260227053", merchantName: "The Street", description: "Dance Halls", amount: 2500, status: "Auto Reject", date: "2026-02-27", fileName: "", docType: "" },
-  { id: "TXN2026050100001", merchantName: "Grab Taxi", description: "Client meeting transport", amount: 500.00, status: "Accounting Review", date: "2026-05-01", fileName: "GrabTaxi_Receipt_20260501.pdf", docType: "Receipt", approvalStatus: "Manager Approved", approvalStatusTone: "success", documentStatus: "Validated", documentStatusTone: "success", approvalHistory: [
+  { id: "TXN2026050100001", merchantName: "Grab Taxi", description: "Client meeting transport", amount: 500.00, status: "Accounting Review", date: "2026-05-01", fileName: "GrabTaxi_Receipt_20260501.pdf", docType: "Receipt", approvalStatus: "Auto Approved", approvalStatusTone: "success", documentStatus: "Validated", documentStatusTone: "success", approvalHistory: [
     { id: "evt-001-8", actor: "manager", actorName: "Theem Veokeki", title: "Manager approved", statusBadge: "MANAGER_APPROVED", timestamp: "2026-05-02T10:30:00Z", isCurrent: true },
     { id: "evt-001-7", actor: "cardholder", actorName: "Somchai Jaidee", title: "Resubmitted for manager approval", statusBadge: "RESUBMITTED", message: "Client meeting at Marriott Hotel Sukhumvit with vendor partners — discussed Q3 partnership terms.", timestamp: "2026-05-02T09:15:00Z" },
     { id: "evt-001-6", actor: "manager", actorName: "Theem Veokeki", title: "Manager requested more information", statusBadge: "REQUEST_MORE_INFO", message: "Please clarify the business purpose of this trip and who you were meeting.", timestamp: "2026-05-01T16:45:00Z" },
@@ -325,7 +326,7 @@ export default function AccountingClaimDetail() {
                 <Row label="Merchant" value={item.merchantName} className="md:col-start-1 md:row-start-2" />
                 <Row label="Amount" value={`${fmt(item.amount)} THB`} className="md:col-start-2 md:row-start-2" />
                 <Row label="MCC Description" value={item.description} className="sm:col-span-2 md:col-start-1 md:col-end-3 md:row-start-3" />
-                <StatusBadgeField label="Approval Status" value={item.approvalStatus ?? "Pending Approval"} tone={toneMap(item.approvalStatusTone)} className="md:col-start-3 md:row-start-1" />
+                <StatusBadgeField label="Approval Status" value={getApprovalStatusLabel(item.id, item.approvalStatus ?? "Pending Approval")} tone={getCardType(item.id) === "Fleet Card" ? toneMap("success") : toneMap(item.approvalStatusTone)} className="md:col-start-3 md:row-start-1" />
                 <StatusBadgeField label="Document Status" value={item.documentStatus ?? "Incomplete"} tone={toneMap(item.documentStatusTone)} className="md:col-start-3 md:row-start-2" />
               </div>
             </CardContent>

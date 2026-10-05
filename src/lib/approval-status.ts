@@ -1,0 +1,29 @@
+// Shared Approval Status rule: Fleet Card transactions never go through
+// manager approval, so they always show Auto Approved.
+
+export const FLEET_CARD_TXN_IDS = new Set([
+  "TXN2026050100001",
+  "TXN2026050400004",
+  "TXN2026050600007",
+  "TXN2026050800009",
+  "TXN2026051000013",
+  "TXN2026051200016",
+  "TXN2026051400020",
+  "TXN2026051500023",
+  "TXN2026051600040",
+]);
+
+export type CardTypeLabel = "Credit Card" | "Fleet Card";
+
+export const getCardType = (id: string): CardTypeLabel =>
+  FLEET_CARD_TXN_IDS.has(id) ? "Fleet Card" : "Credit Card";
+
+/** Returns "AUTO_APPROVED" for Fleet Card, otherwise the stored status. */
+export function getApprovalStatus<T extends string>(txn: { id: string; status: T }): T | "AUTO_APPROVED" {
+  return getCardType(txn.id) === "Fleet Card" ? "AUTO_APPROVED" : txn.status;
+}
+
+/** Label variant for screens that store a display label. */
+export function getApprovalStatusLabel(id: string, stored: string): string {
+  return getCardType(id) === "Fleet Card" ? "Auto Approved" : stored;
+}
