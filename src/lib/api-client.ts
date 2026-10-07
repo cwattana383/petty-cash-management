@@ -1,3 +1,5 @@
+import { FLEET_CARD_TXN_IDS } from "./approval-status";
+import { FLEET_DEFAULT_EXPENSE_TYPE_ID, FLEET_DEFAULT_SUB_EXPENSE_TYPE_ID, getFleetVatTypeId } from "./fleet-business-defaults";
 import { rebaseMockDates } from "@/lib/mock-dates";
 /**
  * Mock API client for lovable demo.
@@ -118,6 +120,10 @@ const documentTypesStore: Record<string, unknown>[] = [
 
 // Expense Types
 const expenseTypesStore: Record<string, unknown>[] = [
+  // FAT-909 — Fleet Card default Expense Type / Sub-Expense Type
+  { id: "et-forklift-refueling", expenseType: "Forklift Refueling", active: true, subtypes: [
+    { id: "set-forklift-refueling", subExpenseType: "Forklift Refueling", accountNameEn: "Forklift Refueling", accountCode: "", active: true, updatedAt: "2026-10-07", documentTypes: [] },
+  ], updatedAt: "2026-10-07" },
   { id: "et-1", expenseType: "Local Travelling", active: true, subtypes: [
     { id: "set-1", subExpenseType: "Train / Inter-city Bus", accountNameEn: "Local Travelling", accountCode: "6190130001", active: true, updatedAt: "2026-04-22", documentTypes: [{ documentType: { id: "dt-14", documentName: "Train ticket / Bus ticket", isSupportDocument: false } }, { documentType: { id: "dt-16", documentName: "Travelling Expenses Claim Details", isSupportDocument: false } }] },
     { id: "set-2", subExpenseType: "Personal Car — Mileage", accountNameEn: "Local Travelling", accountCode: "6190130001", active: true, updatedAt: "2026-04-22", documentTypes: [{ documentType: { id: "dt-5", documentName: "Fuel Receipt (with vehicle license plate)", isSupportDocument: false } }] },
@@ -566,6 +572,9 @@ async function handleGet(path: string): Promise<any> {
         totalAmount: txn.amount,
         totalVat: 0,
         status: txn.status === 'AUTO_APPROVED' ? 'AUTO_APPROVED' : txn.status === 'AUTO_REJECTED' ? 'AUTO_REJECTED' : 'PENDING_DOCUMENTS',
+        ...(FLEET_CARD_TXN_IDS.has(txn.bankTransactionId as string)
+          ? { expenseTypeId: FLEET_DEFAULT_EXPENSE_TYPE_ID, subExpenseTypeId: FLEET_DEFAULT_SUB_EXPENSE_TYPE_ID, vatTypeId: getFleetVatTypeId(txn.bankTransactionId as string) }
+          : {}),
         accountingStatus: "PENDING_REVIEW",
         createdDate: txn.createdAt,
         submittedDate: null,
