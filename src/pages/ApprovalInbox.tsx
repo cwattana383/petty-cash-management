@@ -133,7 +133,9 @@ export default function ApprovalInbox() {
   const approveMutation = useApproveClaimInbox();
   const rejectMutation = useRejectClaimInbox();
 
-  const allClaims = (inboxData?.data ?? []).filter((c) => !isAutoApprovedInboxClaim(c));
+  const allClaims = (inboxData?.data ?? []).filter(
+    (c) => !isAutoApprovedInboxClaim(c) && getInboxCardType(c.claimNo) !== "Fleet Card",
+  );
   const q = searchQuery.trim().toLowerCase();
   const claims = allClaims.filter((c) => {
     if (cardTypeFilter !== "all" && getInboxCardType(c.claimNo) !== cardTypeFilter) return false;
@@ -152,9 +154,12 @@ export default function ApprovalInbox() {
   const summary =
     cardTypeFilter === "all"
       ? {
-          pendingCount: stats?.pendingCount ?? 0,
+          pendingCount: scopedPending.length,
           approvedThisMonth: stats?.approvedThisMonth ?? 0,
-          totalPendingAmount: stats?.totalPendingAmount ?? 0,
+          totalPendingAmount: scopedPending.reduce(
+            (sum, c) => sum + Number(c.totalAmount ?? 0),
+            0,
+          ),
         }
       : {
           pendingCount: scopedPending.length,

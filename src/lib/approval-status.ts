@@ -11,6 +11,11 @@ export const FLEET_CARD_TXN_IDS = new Set([
   "TXN2026051400020",
   "TXN2026051500023",
   "TXN2026051600040",
+  // My Expense Fleet Card rows (bank transaction ids)
+  "bt-8",
+  "bt-15",
+  "bt-19",
+  "bt-23",
 ]);
 
 export type CardTypeLabel = "Credit Card" | "Fleet Card";
