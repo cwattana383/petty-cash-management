@@ -123,8 +123,8 @@ export default function MyClaims() {
   const dateToStr = format(dateTo, "yyyy-MM-dd");
 
   const corpQuery = useCorpCardTransactions({
-    page,
-    limit: PAGE_SIZE,
+    page: 1,
+    limit: 100000,
     dateFrom: dateFromStr,
     dateTo: dateToStr,
     search: search || undefined,
@@ -161,26 +161,24 @@ export default function MyClaims() {
       const portalStatus = toPortalApprovalStatus(txn.status, rawDoc, claim, displayFromClaim);
       if (!portalStatus) return false;
       const docStatus = toDocumentContractStatus(rawDoc);
+      if (activeTab === "approved" || activeTab === "rejected") {
+        const shown = getMyExpenseApprovalText(txn, claim, !!att);
+        if (activeTab === "approved") return shown === "Auto Approved" || shown === "Manager Approved";
+        return shown === "Auto Reject" || shown === "Manager Rejected" || shown === "Final Rejected" || shown === "Reject";
+      }
       return isPortalStatusInTab(portalStatus, activeTab, docStatus, claim);
     });
   }, [rawItems, claimByBankTxnId, attachments, activeTab, cardType]);
 
-  const items = filteredItems;
-  const baseMeta = corpQuery.data?.data?.meta ?? {
-    total: 0,
-    totalAmount: 0,
+  const filteredTotal = filteredItems.length;
+  const meta = {
+    total: filteredTotal,
+    totalAmount: filteredItems.reduce((s, t) => s + (t.amount ?? 0), 0),
     page,
     limit: PAGE_SIZE,
-    totalPages: 1,
+    totalPages: Math.max(1, Math.ceil(filteredTotal / PAGE_SIZE)),
   };
-  const meta =
-    cardType === "all"
-      ? baseMeta
-      : {
-          ...baseMeta,
-          total: filteredItems.length,
-          totalAmount: filteredItems.reduce((s, t) => s + (t.amount ?? 0), 0),
-        };
+  const items = filteredItems.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
 
 
   const stats = statsQuery.data;
