@@ -126,7 +126,7 @@ const documentTypesStore: Record<string, unknown>[] = [
 const expenseTypesStore: Record<string, unknown>[] = [
   // FAT-909 — Fleet Card default Expense Type / Sub-Expense Type
   { id: "et-forklift-refueling", expenseType: "Forklift Refueling", active: true, subtypes: [
-    { id: "set-forklift-refueling", subExpenseType: "Forklift Refueling", accountNameEn: "Forklift Refueling", accountCode: "", active: true, updatedAt: "2026-10-07", documentTypes: [] },
+    { id: "set-forklift-refueling", subExpenseType: "Forklift Refueling", accountNameEn: "Forklift Refueling", accountCode: "", active: true, updatedAt: "2026-10-07", documentTypes: [{ documentType: { id: "dt-12", documentName: "Receipt/ Tax Invoice", isSupportDocument: false } }] },
   ], updatedAt: "2026-10-07" },
   { id: "et-1", expenseType: "Local Travelling", active: true, subtypes: [
     { id: "set-1", subExpenseType: "Train / Inter-city Bus", accountNameEn: "Local Travelling", accountCode: "6190130001", active: true, updatedAt: "2026-04-22", documentTypes: [{ documentType: { id: "dt-14", documentName: "Train ticket / Bus ticket", isSupportDocument: false } }, { documentType: { id: "dt-16", documentName: "Travelling Expenses Claim Details", isSupportDocument: false } }] },
