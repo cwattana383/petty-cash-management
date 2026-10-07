@@ -1,4 +1,3 @@
-import { getApprovalStatusLabel } from "@/lib/approval-status";
 import { firstDayOfLastMonth } from "@/lib/mock-dates";
 import { useState, useMemo, useRef, useCallback, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
@@ -43,6 +42,7 @@ import {
   toPortalApprovalStatus,
   isPortalStatusInTab,
   approvalStatusDisplayText,
+  getMyExpenseApprovalText,
   approvalStatusBadgeClassForDisplay,
   documentStatusBadgeClass,
   documentStatusLabel,
@@ -449,10 +449,7 @@ export default function MyClaims() {
                 const rawDoc = effectiveCorpDocumentStatus(txn, claim);
                 const badgeLabel = toPortalApprovalStatus(txn.status, rawDoc, claim, displayFromClaim);
                 if (!badgeLabel) return [];
-                const approvalText = getApprovalStatusLabel(
-                  txn.bankTransactionId ?? "",
-                  approvalStatusDisplayText(badgeLabel, txn.status, claim, displayFromClaim)
-                ) as ReturnType<typeof approvalStatusDisplayText>;
+                const approvalText = getMyExpenseApprovalText(txn, claim, !!att)!;
                 const badgeClass = approvalStatusBadgeClassForDisplay(approvalText);
                 const documentStatus = toDocumentContractStatus(rawDoc);
                 const dateStr = txn.transactionDate.slice(0, 10);
