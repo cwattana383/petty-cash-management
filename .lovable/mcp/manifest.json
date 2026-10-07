@@ -1,0 +1,165 @@
+{
+  "version": 1,
+  "sdk_version": "3.0.5",
+  "path": "/functions/v1/mcp",
+  "auth": {
+    "type": "oauth",
+    "issuer": "https://zotnosehxoomqrsgeznm.supabase.co/auth/v1",
+    "accepted_audiences": [
+      "authenticated"
+    ]
+  },
+  "mcp": {
+    "server": {
+      "name": "corporate-credit-card",
+      "version": "0.1.0",
+      "title": "Corporate Credit Card"
+    },
+    "tools": [
+      {
+        "name": "get_app_overview",
+        "title": "Get app overview",
+        "description": "Describe the app's modules, pages, roles, statuses, business rules and design conventions.",
+        "annotations": {
+          "readOnlyHint": true,
+          "idempotentHint": true,
+          "openWorldHint": false
+        },
+        "inputSchema": null,
+        "outputSchema": null
+      },
+      {
+        "name": "list_card_transactions",
+        "title": "List card transactions",
+        "description": "List and search sample corporate card transactions by merchant, cardholder or ID.",
+        "annotations": {
+          "readOnlyHint": true,
+          "idempotentHint": true,
+          "openWorldHint": false
+        },
+        "inputSchema": {
+          "$schema": "https://json-schema.org/draft/2020-12/schema",
+          "type": "object",
+          "properties": {
+            "query": {
+              "description": "Text to match against merchant, cardholder or transaction ID.",
+              "type": "string"
+            },
+            "limit": {
+              "description": "Max rows (default 50).",
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 200
+            }
+          },
+          "additionalProperties": false
+        },
+        "outputSchema": null
+      },
+      {
+        "name": "list_expense_claims",
+        "title": "List expense claims",
+        "description": "List sample expense claims with status and totals; optionally filter by text or status.",
+        "annotations": {
+          "readOnlyHint": true,
+          "idempotentHint": true,
+          "openWorldHint": false
+        },
+        "inputSchema": {
+          "$schema": "https://json-schema.org/draft/2020-12/schema",
+          "type": "object",
+          "properties": {
+            "query": {
+              "description": "Text to match against claim no., requester or purpose.",
+              "type": "string"
+            },
+            "status": {
+              "description": "Exact claim status to filter by.",
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
+        "outputSchema": null
+      },
+      {
+        "name": "get_expense_claim",
+        "title": "Get expense claim",
+        "description": "Get full details of one sample expense claim, including lines and approval steps.",
+        "annotations": {
+          "readOnlyHint": true,
+          "idempotentHint": true,
+          "openWorldHint": false
+        },
+        "inputSchema": {
+          "$schema": "https://json-schema.org/draft/2020-12/schema",
+          "type": "object",
+          "properties": {
+            "id": {
+              "type": "string",
+              "minLength": 1,
+              "description": "Claim ID or claim number."
+            }
+          },
+          "required": [
+            "id"
+          ],
+          "additionalProperties": false
+        },
+        "outputSchema": null
+      },
+      {
+        "name": "list_cards",
+        "title": "List cards",
+        "description": "List sample Card Management records (Corporate Credit and Fleet Cards), masked to last 4 digits.",
+        "annotations": {
+          "readOnlyHint": true,
+          "idempotentHint": true,
+          "openWorldHint": false
+        },
+        "inputSchema": {
+          "$schema": "https://json-schema.org/draft/2020-12/schema",
+          "type": "object",
+          "properties": {
+            "cardType": {
+              "description": "Filter by card type.",
+              "type": "string",
+              "enum": [
+                "corporate",
+                "fleet"
+              ]
+            },
+            "query": {
+              "description": "Text to match against card ID or cardholder.",
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
+        "outputSchema": null
+      },
+      {
+        "name": "list_expense_policies",
+        "title": "List expense policies",
+        "description": "List expense types with policy rule, threshold, GL code and required documents.",
+        "annotations": {
+          "readOnlyHint": true,
+          "idempotentHint": true,
+          "openWorldHint": false
+        },
+        "inputSchema": {
+          "$schema": "https://json-schema.org/draft/2020-12/schema",
+          "type": "object",
+          "properties": {
+            "query": {
+              "description": "Text to match against expense type names.",
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
+        "outputSchema": null
+      }
+    ]
+  }
+}
