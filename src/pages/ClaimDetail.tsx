@@ -53,6 +53,9 @@ import {
 } from "@/hooks/use-claim-documents";
 import { isFetchAbortOrTimeout, OCR_TIMEOUT_MESSAGE_TH } from "@/lib/ocr-sla";
 import { toDocumentContractStatus } from "@/lib/corp-document-status";
+import { FLEET_CARD_TXN_IDS } from "@/lib/approval-status";
+import { getCorpTxnDocumentStatus, getFleetTaxInvoiceFileName, submitFleetTaxInvoice } from "@/lib/api-client";
+import { documentStatusLabel as portalDocumentStatusLabel } from "@/lib/portal-claim-row-status";
 import { deriveDocumentStatusLabelFromClaimDocs, toApprovalContractStatus } from "@/lib/claim-approval-contract-status";
 
 /* ─── Types ─── */
@@ -553,6 +556,9 @@ export default function ClaimDetail() {
   /** Primary required slot comes only from expense-type master — no hardcoded fallback. */
   const requiredDocId = requiredDocumentType?.id;
   const documentsQuery = useClaimDocuments(claim?.id);
+  const [fleetTaxInvoiceFile, setFleetTaxInvoiceFile] = useState<File | null>(null);
+  const [, setFleetTick] = useState(0);
+  const fleetTaxInvoiceInputRef = useRef<HTMLInputElement>(null);
 
   // Capture baseline note + doc-ids on first load when claim is in 'Reject' state, for BR4 change-detection.
   useEffect(() => {
@@ -1515,6 +1521,9 @@ export default function ClaimDetail() {
       (d) => !d.documentTypeId || !roKnownTypeIds.has(d.documentTypeId),
     );
     const roCanBucketDocs = roRequiredDocType != null || roOptionalDocTypes.length > 0;
+    const isFleetTxn = FLEET_CARD_TXN_IDS.has(cardTransactionNo);
+    const fleetDocStatus = toDocumentContractStatus(getCorpTxnDocumentStatus(cardTransactionNo));
+    const fleetSubmittedFileName = getFleetTaxInvoiceFileName(cardTransactionNo);
 
     return (
       <div className="pb-20 max-w-5xl mx-auto">
@@ -1553,7 +1562,11 @@ export default function ClaimDetail() {
                   <Row label="Amount" value={`${fmt(cardBillingAmount)} ${cardCurrency}`} className="md:col-start-2 md:row-start-2" />
                   <Row label="MCC Description" value={cardMccDescription} className="sm:col-span-2 md:col-start-1 md:col-end-3 md:row-start-3" />
                   <StatusBadgeField label="Approval Status" value={claim.id === "CLM-TEST-FIN-001" ? "Returned by Finance" : (claim.id === "CLM-BIZ-DEMO-RFI-001" || claim.id === "CLM-BIZ-DEMO-RFI-002") ? "Returned for Info" : claim.status === "Final Rejected" ? "Auto Reject" : "Pending Approval"} tone={claim.id === "CLM-TEST-FIN-001" ? "info" : (claim.id === "CLM-BIZ-DEMO-RFI-001" || claim.id === "CLM-BIZ-DEMO-RFI-002") ? "warning" : claim.status === "Final Rejected" ? "destructive" : "warning"} className="md:col-start-3 md:row-start-1" />
+                  {isFleetTxn ? (
+                    <StatusBadgeField label="Document Status" value={portalDocumentStatusLabel(fleetDocStatus)} tone={fleetDocStatus === "VALIDATED" ? "success" : "warning"} className="md:col-start-3 md:row-start-2" />
+                  ) : (
                   <StatusBadgeField label="Document Status" value={claim.id === "CLM-TEST-FIN-001" ? "Validated" : (claim.id === "CLM-BIZ-DEMO-RFI-001" || claim.id === "CLM-BIZ-DEMO-RFI-002") ? "Validated" : claim.status === "Final Rejected" ? "Validated" : "Incomplete"} tone={claim.id === "CLM-TEST-FIN-001" ? "success" : (claim.id === "CLM-BIZ-DEMO-RFI-001" || claim.id === "CLM-BIZ-DEMO-RFI-002") ? "success" : claim.status === "Final Rejected" ? "success" : "warning"} className="md:col-start-3 md:row-start-2" />
+                  )}
 
                 </div>
               </CardContent>
@@ -1592,7 +1605,72 @@ export default function ClaimDetail() {
             <SectionDivider num={3} label="Documents" />
             <Card className="border border-border rounded-xl">
               <CardContent className="pt-5 space-y-4">
-                {claim.id === "CLM-TEST-FINAL-001" ? (
+                {isFleetTxn ? (
+                  <div className="space-y-2">
+                    <p className="text-[13px] font-semibold text-red-700 flex items-center gap-1.5">
+                      <span className="h-2.5 w-2.5 rounded-full bg-red-500 inline-block" />
+                      Required — Tax Invoice
+                    </p>
+                    {fleetSubmittedFileName ? (
+                      <div className="flex items-center gap-2 p-2 rounded-lg bg-muted">
+                        <FileText className="h-4 w-4 text-primary shrink-0" />
+                        <p className="text-xs truncate flex-1 min-w-0">{fleetSubmittedFileName}</p>
+                      </div>
+                    ) : (
+                      <>
+                        <input
+                          ref={fleetTaxInvoiceInputRef}
+                          type="file"
+                          accept=".pdf,.jpg,.jpeg,.png"
+                          className="hidden"
+                          onChange={(e) => {
+                            const f = e.target.files?.[0];
+                            if (f) setFleetTaxInvoiceFile(f);
+                            e.target.value = "";
+                          }}
+                        />
+                        {fleetTaxInvoiceFile ? (
+                          <div className="flex items-center gap-2 p-2 rounded-lg bg-muted">
+                            <FileText className="h-4 w-4 text-primary shrink-0" />
+                            <p className="text-xs truncate flex-1 min-w-0">{fleetTaxInvoiceFile.name}</p>
+                            <Button variant="ghost" size="icon" className="h-6 w-6 shrink-0" onClick={() => setFleetTaxInvoiceFile(null)}>
+                              <X className="h-3 w-3" />
+                            </Button>
+                          </div>
+                        ) : (
+                          <div
+                            className="border border-dashed rounded-lg p-4 flex flex-col items-center gap-1.5 cursor-pointer hover:border-primary transition-colors"
+                            onClick={() => fleetTaxInvoiceInputRef.current?.click()}
+                            onDragOver={(e) => e.preventDefault()}
+                            onDrop={(e) => {
+                              e.preventDefault();
+                              const f = e.dataTransfer.files?.[0];
+                              if (f) setFleetTaxInvoiceFile(f);
+                            }}
+                          >
+                            <Upload className="h-5 w-5 text-muted-foreground" />
+                          </div>
+                        )}
+                        <div className="flex justify-end">
+                          <Button
+                            disabled={!fleetTaxInvoiceFile}
+                            onClick={() => {
+                              if (!fleetTaxInvoiceFile) return;
+                              submitFleetTaxInvoice(cardTransactionNo, fleetTaxInvoiceFile.name);
+                              setFleetTaxInvoiceFile(null);
+                              setFleetTick((n) => n + 1);
+                              queryClient.invalidateQueries({ queryKey: ["corp-card-transactions"] });
+                              queryClient.invalidateQueries({ queryKey: ["cardholder-claims"] });
+                              queryClient.invalidateQueries({ queryKey: ["cardholder-claim-detail"] });
+                            }}
+                          >
+                            Submit
+                          </Button>
+                        </div>
+                      </>
+                    )}
+                  </div>
+                ) : claim.id === "CLM-TEST-FINAL-001" ? (
                   <div className="space-y-5">
                     <div className="space-y-2">
                       <p className="text-[13px] font-semibold text-red-700 flex items-center gap-1.5">
