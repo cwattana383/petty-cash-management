@@ -13,6 +13,7 @@ import {
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { formatBEDate, formatBEDateTime } from "@/lib/utils";
 import { VAT_TYPE_CONFIG } from "@/lib/vat-type-config";
+import { FLEET_DEFAULT_EXPENSE_TYPE, FLEET_DEFAULT_SUB_EXPENSE_TYPE, getFleetVatTypeId, saveFleetVatTypeId, isFleetTxnVerified, markFleetTxnVerified } from "@/lib/fleet-business-defaults";
 import OcrVerifyModal from "@/components/claims/OcrVerifyModal";
 import { mockCompanyIdentities } from "@/components/admin/EntityTypes";
 import { useToast } from "@/hooks/use-toast";
@@ -260,7 +261,8 @@ export default function AccountingClaimDetail() {
 
   const item = ACCOUNTING_ITEMS.find((i) => i.id === id);
 
-  const [vatType, setVatType] = useState("claim_100");
+  const isFleetCard = !!item && getCardType(item.id) === "Fleet Card";
+  const [vatType, setVatType] = useState(() => (isFleetCard && item ? getFleetVatTypeId(item.id) : "claim_100"));
   const [glAccount, setGlAccount] = useState("5300-002");
   const [project, setProject] = useState("");
   const [requestInfoOpen, setRequestInfoOpen] = useState(false);
@@ -283,6 +285,7 @@ export default function AccountingClaimDetail() {
     t === 'info' ? 'neutral' : (t ?? 'warning');
 
   const handleApproveERP = () => {
+    if (isFleetCard) markFleetTxnVerified(item.id);
     toast({ title: "Verified", description: `${item.id} has been verified and ready to send to ERP.` });
     navigate("/accounting");
   };
@@ -344,11 +347,31 @@ export default function AccountingClaimDetail() {
                 <p className="text-[13px] text-foreground">{mockPurpose}</p>
               </div>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <ReadOnlyField label="Expense Type" value={item.expenseType ?? "Travel"} />
-                <ReadOnlyField label="Sub Expense Type" value={item.subExpenseType ?? "Taxi / Ride-Hailing"} />
+                <ReadOnlyField label="Expense Type" value={isFleetCard ? FLEET_DEFAULT_EXPENSE_TYPE : (item.expenseType ?? "Travel")} />
+                <ReadOnlyField label="Sub Expense Type" value={isFleetCard ? FLEET_DEFAULT_SUB_EXPENSE_TYPE : (item.subExpenseType ?? "Taxi / Ride-Hailing")} />
 
                 {/* VAT Type — read-only when item provides override, otherwise editable */}
-                {item.vatType ? (
+                {isFleetCard ? (
+                  isFleetTxnVerified(item.id) ? (
+                    <ReadOnlyField label="VAT Type" value={VAT_TYPE_CONFIG.find((v) => v.id === vatType)?.label ?? "—"} />
+                  ) : (
+                    <div className="space-y-1.5">
+                      <Label className="text-[13px] font-semibold text-muted-foreground">VAT Type</Label>
+                      <Select value={vatType} onValueChange={(v) => { setVatType(v); saveFleetVatTypeId(item.id, v); }}>
+                        <SelectTrigger className="text-[13px]">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {VAT_TYPE_CONFIG.map((v) => (
+                            <SelectItem key={v.id} value={v.id} className="text-[13px]">
+                              {v.label}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  )
+                ) : item.vatType ? (
                   <ReadOnlyField label="VAT Type" value={item.vatType} />
                 ) : (
                   <div className="space-y-1.5">
