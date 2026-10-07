@@ -1580,11 +1580,19 @@ export default function ClaimDetail() {
                   <Row label="Merchant" value={cardMerchant} className="md:col-start-1 md:row-start-2" />
                   <Row label="Amount" value={`${fmt(cardBillingAmount)} ${cardCurrency}`} className="md:col-start-2 md:row-start-2" />
                   <Row label="MCC Description" value={cardMccDescription} className="sm:col-span-2 md:col-start-1 md:col-end-3 md:row-start-3" />
-                  <StatusBadgeField label="Approval Status" value={isFleetApproval ? "Auto Approved" : listApprovalText ? listApprovalText : claim.id === "CLM-TEST-FIN-001" ? "Returned by Finance" : (claim.id === "CLM-BIZ-DEMO-RFI-001" || claim.id === "CLM-BIZ-DEMO-RFI-002") ? "Returned for Info" : claim.status === "Final Rejected" ? "Auto Reject" : "Pending Approval"} tone={isFleetApproval ? "success" : listApprovalText ? listApprovalTone : claim.id === "CLM-TEST-FIN-001" ? "info" : (claim.id === "CLM-BIZ-DEMO-RFI-001" || claim.id === "CLM-BIZ-DEMO-RFI-002") ? "warning" : claim.status === "Final Rejected" ? "destructive" : "warning"} className="md:col-start-3 md:row-start-1" />
+                  <div className="md:col-start-3 md:row-start-1">
+                    <p className="text-muted-foreground text-[12px]">Card Type</p>
+                    {(FLEET_CARD_TXN_IDS.has(claim.bankTransactionId ?? "") || FLEET_CARD_TXN_IDS.has(cardTransactionNo)) ? (
+                      <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200 whitespace-nowrap mt-0.5">Fleet Card</Badge>
+                    ) : (
+                      <Badge variant="outline" className="bg-blue-50 text-blue-700 border-blue-200 whitespace-nowrap mt-0.5">Credit Card</Badge>
+                    )}
+                  </div>
+                  <StatusBadgeField label="Approval Status" value={isFleetApproval ? "Auto Approved" : listApprovalText ? listApprovalText : claim.id === "CLM-TEST-FIN-001" ? "Returned by Finance" : (claim.id === "CLM-BIZ-DEMO-RFI-001" || claim.id === "CLM-BIZ-DEMO-RFI-002") ? "Returned for Info" : claim.status === "Final Rejected" ? "Auto Reject" : "Pending Approval"} tone={isFleetApproval ? "success" : listApprovalText ? listApprovalTone : claim.id === "CLM-TEST-FIN-001" ? "info" : (claim.id === "CLM-BIZ-DEMO-RFI-001" || claim.id === "CLM-BIZ-DEMO-RFI-002") ? "warning" : claim.status === "Final Rejected" ? "destructive" : "warning"} className="md:col-start-3 md:row-start-2" />
                   {isFleetTxn ? (
-                    <StatusBadgeField label="Document Status" value={portalDocumentStatusLabel(fleetDocStatus)} tone={fleetDocStatus === "VALIDATED" ? "success" : "warning"} className="md:col-start-3 md:row-start-2" />
+                    <StatusBadgeField label="Document Status" value={portalDocumentStatusLabel(fleetDocStatus)} tone={fleetDocStatus === "VALIDATED" ? "success" : "warning"} className="md:col-start-3 md:row-start-3" />
                   ) : (
-                  <StatusBadgeField label="Document Status" value={claim.id === "CLM-TEST-FIN-001" ? "Validated" : (claim.id === "CLM-BIZ-DEMO-RFI-001" || claim.id === "CLM-BIZ-DEMO-RFI-002") ? "Validated" : claim.status === "Final Rejected" ? "Validated" : "Incomplete"} tone={claim.id === "CLM-TEST-FIN-001" ? "success" : (claim.id === "CLM-BIZ-DEMO-RFI-001" || claim.id === "CLM-BIZ-DEMO-RFI-002") ? "success" : claim.status === "Final Rejected" ? "success" : "warning"} className="md:col-start-3 md:row-start-2" />
+                  <StatusBadgeField label="Document Status" value={claim.id === "CLM-TEST-FIN-001" ? "Validated" : (claim.id === "CLM-BIZ-DEMO-RFI-001" || claim.id === "CLM-BIZ-DEMO-RFI-002") ? "Validated" : claim.status === "Final Rejected" ? "Validated" : "Incomplete"} tone={claim.id === "CLM-TEST-FIN-001" ? "success" : (claim.id === "CLM-BIZ-DEMO-RFI-001" || claim.id === "CLM-BIZ-DEMO-RFI-002") ? "success" : claim.status === "Final Rejected" ? "success" : "warning"} className="md:col-start-3 md:row-start-3" />
                   )}
 
                 </div>
@@ -1942,8 +1950,16 @@ export default function ClaimDetail() {
                   <Row label="Merchant" value={cardMerchant} className="md:col-start-1 md:row-start-2" />
                   <Row label="Amount" value={`${fmt(cardBillingAmount)} ${cardCurrency}`} className="md:col-start-2 md:row-start-2" />
                   <Row label="MCC Description" value={cardMccDescription} className="sm:col-span-2 md:col-start-1 md:col-end-3 md:row-start-3" />
-                  <StatusBadgeField label="Approval Status" value={isFleetApproval ? "Auto Approved" : listApprovalText ? listApprovalText : claim.id === "CLM-TEST-FIN-001" ? "Returned by Finance" : (claim.id === "CLM-BIZ-DEMO-RFI-001" || claim.id === "CLM-BIZ-DEMO-RFI-002") ? "Returned for Info" : claim.status === "Final Rejected" ? "Auto Reject" : "Pending Approval"} tone={isFleetApproval ? "success" : listApprovalText ? listApprovalTone : claim.id === "CLM-TEST-FIN-001" ? "info" : (claim.id === "CLM-BIZ-DEMO-RFI-001" || claim.id === "CLM-BIZ-DEMO-RFI-002") ? "warning" : claim.status === "Final Rejected" ? "destructive" : "warning"} className="md:col-start-3 md:row-start-1" />
-                  <StatusBadgeField label="Document Status" value={claim.id === "CLM-TEST-FIN-001" ? "Validated" : (claim.id === "CLM-BIZ-DEMO-RFI-001" || claim.id === "CLM-BIZ-DEMO-RFI-002") ? "Validated" : claim.status === "Final Rejected" ? "Validated" : "Incomplete"} tone={claim.id === "CLM-TEST-FIN-001" ? "success" : (claim.id === "CLM-BIZ-DEMO-RFI-001" || claim.id === "CLM-BIZ-DEMO-RFI-002") ? "success" : claim.status === "Final Rejected" ? "success" : "warning"} className="md:col-start-3 md:row-start-2" />
+                  <div className="md:col-start-3 md:row-start-1">
+                    <p className="text-muted-foreground text-[12px]">Card Type</p>
+                    {(FLEET_CARD_TXN_IDS.has(claim.bankTransactionId ?? "") || FLEET_CARD_TXN_IDS.has(cardTransactionNo)) ? (
+                      <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200 whitespace-nowrap mt-0.5">Fleet Card</Badge>
+                    ) : (
+                      <Badge variant="outline" className="bg-blue-50 text-blue-700 border-blue-200 whitespace-nowrap mt-0.5">Credit Card</Badge>
+                    )}
+                  </div>
+                  <StatusBadgeField label="Approval Status" value={isFleetApproval ? "Auto Approved" : listApprovalText ? listApprovalText : claim.id === "CLM-TEST-FIN-001" ? "Returned by Finance" : (claim.id === "CLM-BIZ-DEMO-RFI-001" || claim.id === "CLM-BIZ-DEMO-RFI-002") ? "Returned for Info" : claim.status === "Final Rejected" ? "Auto Reject" : "Pending Approval"} tone={isFleetApproval ? "success" : listApprovalText ? listApprovalTone : claim.id === "CLM-TEST-FIN-001" ? "info" : (claim.id === "CLM-BIZ-DEMO-RFI-001" || claim.id === "CLM-BIZ-DEMO-RFI-002") ? "warning" : claim.status === "Final Rejected" ? "destructive" : "warning"} className="md:col-start-3 md:row-start-2" />
+                  <StatusBadgeField label="Document Status" value={claim.id === "CLM-TEST-FIN-001" ? "Validated" : (claim.id === "CLM-BIZ-DEMO-RFI-001" || claim.id === "CLM-BIZ-DEMO-RFI-002") ? "Validated" : claim.status === "Final Rejected" ? "Validated" : "Incomplete"} tone={claim.id === "CLM-TEST-FIN-001" ? "success" : (claim.id === "CLM-BIZ-DEMO-RFI-001" || claim.id === "CLM-BIZ-DEMO-RFI-002") ? "success" : claim.status === "Final Rejected" ? "success" : "warning"} className="md:col-start-3 md:row-start-3" />
 
                 </div>
               </CardContent>
@@ -2243,8 +2259,16 @@ export default function ClaimDetail() {
                 <Row label="Merchant" value={cardMerchant} className="md:col-start-1 md:row-start-2" />
                 <Row label="Amount" value={`${fmt(cardBillingAmount)} ${cardCurrency}`} className="md:col-start-2 md:row-start-2" />
                 <Row label="MCC Description" value={cardMccDescription} className="sm:col-span-2 md:col-start-1 md:col-end-3 md:row-start-3" />
-                <StatusBadgeField label="Approval Status" value={isFleetApproval ? "Auto Approved" : listApprovalText ? listApprovalText : claim.id === "CLM-TEST-FIN-001" ? "Returned by Finance" : (claim.id === "CLM-BIZ-DEMO-RFI-001" || claim.id === "CLM-BIZ-DEMO-RFI-002") ? "Returned for Info" : "Pending Approval"} tone={isFleetApproval ? "success" : listApprovalText ? listApprovalTone : claim.id === "CLM-TEST-FIN-001" ? "info" : "warning"} className="md:col-start-3 md:row-start-1" />
-                <StatusBadgeField label="Document Status" value={(claim.id === "CLM-TEST-FIN-001" || claim.id === "CLM-BIZ-DEMO-RFI-001" || claim.id === "CLM-BIZ-DEMO-RFI-002") ? "Validated" : "Incomplete"} tone={(claim.id === "CLM-TEST-FIN-001" || claim.id === "CLM-BIZ-DEMO-RFI-001" || claim.id === "CLM-BIZ-DEMO-RFI-002") ? "success" : "warning"} className="md:col-start-3 md:row-start-2" />
+                <div className="md:col-start-3 md:row-start-1">
+                  <p className="text-muted-foreground text-[12px]">Card Type</p>
+                  {(FLEET_CARD_TXN_IDS.has(claim.bankTransactionId ?? "") || FLEET_CARD_TXN_IDS.has(cardTransactionNo)) ? (
+                    <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200 whitespace-nowrap mt-0.5">Fleet Card</Badge>
+                  ) : (
+                    <Badge variant="outline" className="bg-blue-50 text-blue-700 border-blue-200 whitespace-nowrap mt-0.5">Credit Card</Badge>
+                  )}
+                </div>
+                <StatusBadgeField label="Approval Status" value={isFleetApproval ? "Auto Approved" : listApprovalText ? listApprovalText : claim.id === "CLM-TEST-FIN-001" ? "Returned by Finance" : (claim.id === "CLM-BIZ-DEMO-RFI-001" || claim.id === "CLM-BIZ-DEMO-RFI-002") ? "Returned for Info" : "Pending Approval"} tone={isFleetApproval ? "success" : listApprovalText ? listApprovalTone : claim.id === "CLM-TEST-FIN-001" ? "info" : "warning"} className="md:col-start-3 md:row-start-2" />
+                <StatusBadgeField label="Document Status" value={(claim.id === "CLM-TEST-FIN-001" || claim.id === "CLM-BIZ-DEMO-RFI-001" || claim.id === "CLM-BIZ-DEMO-RFI-002") ? "Validated" : "Incomplete"} tone={(claim.id === "CLM-TEST-FIN-001" || claim.id === "CLM-BIZ-DEMO-RFI-001" || claim.id === "CLM-BIZ-DEMO-RFI-002") ? "success" : "warning"} className="md:col-start-3 md:row-start-3" />
               </div>
             </CardContent>
           </Card>
