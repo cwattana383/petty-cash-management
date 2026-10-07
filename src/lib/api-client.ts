@@ -68,6 +68,10 @@ const corpCardTransactionsStore: Record<string, unknown>[] = rebaseMockDates([
 // FAT-871 — Fleet Card Tax Invoice uploaded on the transaction (one per transaction, in-memory)
 const fleetTaxInvoiceByTxn: Record<string, string> = {};
 
+export function getCorpTxnByBankTxnId(bankTransactionId: string): any | undefined {
+  return corpCardTransactionsStore.find((x) => x.bankTransactionId === bankTransactionId);
+}
+
 export function getCorpTxnDocumentStatus(bankTransactionId: string): string | undefined {
   const t = corpCardTransactionsStore.find((x) => x.bankTransactionId === bankTransactionId);
   return t ? (t.documentStatus as string) : undefined;

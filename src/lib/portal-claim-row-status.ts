@@ -1,3 +1,4 @@
+import { getApprovalStatusLabel } from "@/lib/approval-status";
 import { addMonths } from "date-fns";
 import type { ClaimHeader, ClaimStatus, ClaimDisplayStatus } from "@/lib/types";
 import { toDocumentContractStatus, type PortalDocumentStatus } from "@/lib/corp-document-status";
@@ -310,4 +311,23 @@ export function documentStatusLabel(status: PortalDocumentStatus): string {
   if (status === "VALIDATED") return "Validated";
   if (status === "SUBMITTED") return "Submitted";
   return "Pending Documents";
+}
+
+/**
+ * One shared Approval Status text for a My Expense transaction — used by the
+ * My Expense list and the transaction detail page so the two never differ.
+ */
+export function getMyExpenseApprovalText(
+  txn: { status: CorpCardTxnStatus; documentStatus?: string; bankTransactionId?: string | null },
+  claim: ClaimHeader | undefined,
+  hasAttachment: boolean
+): ApprovalStatusUiText | null {
+  const displayFromClaim = claim ? toDisplayStatus(claim.status, hasAttachment, claim.statusDisplay) : null;
+  const rawDoc = effectiveCorpDocumentStatus(txn, claim);
+  const portal = toPortalApprovalStatus(txn.status, rawDoc, claim, displayFromClaim);
+  if (!portal) return null;
+  return getApprovalStatusLabel(
+    txn.bankTransactionId ?? "",
+    approvalStatusDisplayText(portal, txn.status, claim, displayFromClaim)
+  ) as ApprovalStatusUiText;
 }

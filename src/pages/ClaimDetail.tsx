@@ -54,6 +54,8 @@ import {
 import { isFetchAbortOrTimeout, OCR_TIMEOUT_MESSAGE_TH } from "@/lib/ocr-sla";
 import { toDocumentContractStatus } from "@/lib/corp-document-status";
 import { FLEET_CARD_TXN_IDS, getApprovalStatusLabel } from "@/lib/approval-status";
+import { getMyExpenseApprovalText } from "@/lib/portal-claim-row-status";
+import { getCorpTxnByBankTxnId } from "@/lib/api-client";
 import { getCorpTxnDocumentStatus, getFleetTaxInvoiceFileName, submitFleetTaxInvoice } from "@/lib/api-client";
 import { documentStatusLabel as portalDocumentStatusLabel } from "@/lib/portal-claim-row-status";
 import { deriveDocumentStatusLabelFromClaimDocs, toApprovalContractStatus } from "@/lib/claim-approval-contract-status";
@@ -1263,6 +1265,20 @@ export default function ClaimDetail() {
   const isFleetApproval = [cardTransactionNo, claim.bankTransactionId, id].some(
     (k) => !!k && getApprovalStatusLabel(k, "") === "Auto Approved",
   );
+  const listCorpTxn = [claim.bankTransactionId, id]
+    .map((k) => (k ? getCorpTxnByBankTxnId(k) : undefined))
+    .find(Boolean);
+  const listApprovalText = listCorpTxn
+    ? getMyExpenseApprovalText(listCorpTxn, claim as any, false)
+    : null;
+  const listApprovalTone =
+    listApprovalText === "Auto Approved" || listApprovalText === "Manager Approved"
+      ? "success"
+      : listApprovalText === "Accounting Review" || listApprovalText === "Returned by Finance"
+        ? "info"
+        : listApprovalText === "Auto Reject" || listApprovalText === "Reject" || listApprovalText === "Final Rejected" || listApprovalText === "Manager Rejected"
+          ? "destructive"
+          : "warning";
   const cardTxnDateStr =
     card?.transactionDate && String(card.transactionDate).trim() !== ""
       ? card.transactionDate
@@ -1564,7 +1580,7 @@ export default function ClaimDetail() {
                   <Row label="Merchant" value={cardMerchant} className="md:col-start-1 md:row-start-2" />
                   <Row label="Amount" value={`${fmt(cardBillingAmount)} ${cardCurrency}`} className="md:col-start-2 md:row-start-2" />
                   <Row label="MCC Description" value={cardMccDescription} className="sm:col-span-2 md:col-start-1 md:col-end-3 md:row-start-3" />
-                  <StatusBadgeField label="Approval Status" value={isFleetApproval ? "Auto Approved" : claim.id === "CLM-TEST-FIN-001" ? "Returned by Finance" : (claim.id === "CLM-BIZ-DEMO-RFI-001" || claim.id === "CLM-BIZ-DEMO-RFI-002") ? "Returned for Info" : claim.status === "Final Rejected" ? "Auto Reject" : "Pending Approval"} tone={isFleetApproval ? "success" : claim.id === "CLM-TEST-FIN-001" ? "info" : (claim.id === "CLM-BIZ-DEMO-RFI-001" || claim.id === "CLM-BIZ-DEMO-RFI-002") ? "warning" : claim.status === "Final Rejected" ? "destructive" : "warning"} className="md:col-start-3 md:row-start-1" />
+                  <StatusBadgeField label="Approval Status" value={isFleetApproval ? "Auto Approved" : listApprovalText ? listApprovalText : claim.id === "CLM-TEST-FIN-001" ? "Returned by Finance" : (claim.id === "CLM-BIZ-DEMO-RFI-001" || claim.id === "CLM-BIZ-DEMO-RFI-002") ? "Returned for Info" : claim.status === "Final Rejected" ? "Auto Reject" : "Pending Approval"} tone={isFleetApproval ? "success" : listApprovalText ? listApprovalTone : claim.id === "CLM-TEST-FIN-001" ? "info" : (claim.id === "CLM-BIZ-DEMO-RFI-001" || claim.id === "CLM-BIZ-DEMO-RFI-002") ? "warning" : claim.status === "Final Rejected" ? "destructive" : "warning"} className="md:col-start-3 md:row-start-1" />
                   {isFleetTxn ? (
                     <StatusBadgeField label="Document Status" value={portalDocumentStatusLabel(fleetDocStatus)} tone={fleetDocStatus === "VALIDATED" ? "success" : "warning"} className="md:col-start-3 md:row-start-2" />
                   ) : (
@@ -1926,7 +1942,7 @@ export default function ClaimDetail() {
                   <Row label="Merchant" value={cardMerchant} className="md:col-start-1 md:row-start-2" />
                   <Row label="Amount" value={`${fmt(cardBillingAmount)} ${cardCurrency}`} className="md:col-start-2 md:row-start-2" />
                   <Row label="MCC Description" value={cardMccDescription} className="sm:col-span-2 md:col-start-1 md:col-end-3 md:row-start-3" />
-                  <StatusBadgeField label="Approval Status" value={isFleetApproval ? "Auto Approved" : claim.id === "CLM-TEST-FIN-001" ? "Returned by Finance" : (claim.id === "CLM-BIZ-DEMO-RFI-001" || claim.id === "CLM-BIZ-DEMO-RFI-002") ? "Returned for Info" : claim.status === "Final Rejected" ? "Auto Reject" : "Pending Approval"} tone={isFleetApproval ? "success" : claim.id === "CLM-TEST-FIN-001" ? "info" : (claim.id === "CLM-BIZ-DEMO-RFI-001" || claim.id === "CLM-BIZ-DEMO-RFI-002") ? "warning" : claim.status === "Final Rejected" ? "destructive" : "warning"} className="md:col-start-3 md:row-start-1" />
+                  <StatusBadgeField label="Approval Status" value={isFleetApproval ? "Auto Approved" : listApprovalText ? listApprovalText : claim.id === "CLM-TEST-FIN-001" ? "Returned by Finance" : (claim.id === "CLM-BIZ-DEMO-RFI-001" || claim.id === "CLM-BIZ-DEMO-RFI-002") ? "Returned for Info" : claim.status === "Final Rejected" ? "Auto Reject" : "Pending Approval"} tone={isFleetApproval ? "success" : listApprovalText ? listApprovalTone : claim.id === "CLM-TEST-FIN-001" ? "info" : (claim.id === "CLM-BIZ-DEMO-RFI-001" || claim.id === "CLM-BIZ-DEMO-RFI-002") ? "warning" : claim.status === "Final Rejected" ? "destructive" : "warning"} className="md:col-start-3 md:row-start-1" />
                   <StatusBadgeField label="Document Status" value={claim.id === "CLM-TEST-FIN-001" ? "Validated" : (claim.id === "CLM-BIZ-DEMO-RFI-001" || claim.id === "CLM-BIZ-DEMO-RFI-002") ? "Validated" : claim.status === "Final Rejected" ? "Validated" : "Incomplete"} tone={claim.id === "CLM-TEST-FIN-001" ? "success" : (claim.id === "CLM-BIZ-DEMO-RFI-001" || claim.id === "CLM-BIZ-DEMO-RFI-002") ? "success" : claim.status === "Final Rejected" ? "success" : "warning"} className="md:col-start-3 md:row-start-2" />
 
                 </div>
@@ -2227,7 +2243,7 @@ export default function ClaimDetail() {
                 <Row label="Merchant" value={cardMerchant} className="md:col-start-1 md:row-start-2" />
                 <Row label="Amount" value={`${fmt(cardBillingAmount)} ${cardCurrency}`} className="md:col-start-2 md:row-start-2" />
                 <Row label="MCC Description" value={cardMccDescription} className="sm:col-span-2 md:col-start-1 md:col-end-3 md:row-start-3" />
-                <StatusBadgeField label="Approval Status" value={isFleetApproval ? "Auto Approved" : claim.id === "CLM-TEST-FIN-001" ? "Returned by Finance" : (claim.id === "CLM-BIZ-DEMO-RFI-001" || claim.id === "CLM-BIZ-DEMO-RFI-002") ? "Returned for Info" : "Pending Approval"} tone={isFleetApproval ? "success" : claim.id === "CLM-TEST-FIN-001" ? "info" : "warning"} className="md:col-start-3 md:row-start-1" />
+                <StatusBadgeField label="Approval Status" value={isFleetApproval ? "Auto Approved" : listApprovalText ? listApprovalText : claim.id === "CLM-TEST-FIN-001" ? "Returned by Finance" : (claim.id === "CLM-BIZ-DEMO-RFI-001" || claim.id === "CLM-BIZ-DEMO-RFI-002") ? "Returned for Info" : "Pending Approval"} tone={isFleetApproval ? "success" : listApprovalText ? listApprovalTone : claim.id === "CLM-TEST-FIN-001" ? "info" : "warning"} className="md:col-start-3 md:row-start-1" />
                 <StatusBadgeField label="Document Status" value={(claim.id === "CLM-TEST-FIN-001" || claim.id === "CLM-BIZ-DEMO-RFI-001" || claim.id === "CLM-BIZ-DEMO-RFI-002") ? "Validated" : "Incomplete"} tone={(claim.id === "CLM-TEST-FIN-001" || claim.id === "CLM-BIZ-DEMO-RFI-001" || claim.id === "CLM-BIZ-DEMO-RFI-002") ? "success" : "warning"} className="md:col-start-3 md:row-start-2" />
               </div>
             </CardContent>
