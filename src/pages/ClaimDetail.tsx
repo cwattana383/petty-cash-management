@@ -1294,7 +1294,7 @@ export default function ClaimDetail() {
     ? cardMccDescription
     : claim.purpose || claim.merchantName || "Taxicabs and Limousines";
 
-  const statusMeta = statusMetaFromApi || (
+  const statusMeta = (isFleetApproval || listApprovalText === "Auto Approved") ? "Auto Approved by Policy" : statusMetaFromApi || (
     statusLabel === "PENDING_APPROVAL"
       ? `Submitted by ${claim.requesterName} · ${claim.department} · Submitted on ${formatBEDate(claim.submittedDate || claim.createdDate)}`
       : statusLabel === "MANAGER_APPROVED" || statusLabel === "AUTO_APPROVED"
