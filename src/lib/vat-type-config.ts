@@ -45,6 +45,15 @@ export const VAT_TYPE_CONFIG: VatTypeConfigItem[] = [
     requiresTaxInvoice: false,
     examples: ["Taxi", "BTS/MRT", "Government fees", "Medical", "Small vendors"],
   },
+  {
+    id: "unclaim_avg",
+    label: "Unclaim AVG",
+    description: "Average VAT not claimable",
+    vatRate: 0.07,
+    calcMethod: "average",
+    requiresTaxInvoice: true,
+    examples: [],
+  },
 ];
 
 export const DEFAULT_VAT_BY_SUBTYPE: Record<string, string> = {
