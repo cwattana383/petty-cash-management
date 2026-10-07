@@ -3,6 +3,8 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Textarea } from "@/components/ui/textarea";
+import { Input } from "@/components/ui/input";
+import { FLEET_DEFAULT_PURPOSE, FLEET_DEFAULT_EXPENSE_TYPE, FLEET_DEFAULT_SUB_EXPENSE_TYPE, FLEET_DEFAULT_VAT_TYPE, FLEET_DEFAULT_GL_ACCOUNT, FLEET_DEFAULT_EXPENSE_TYPE_ID, FLEET_DEFAULT_SUB_EXPENSE_TYPE_ID, FLEET_DEFAULT_VAT_TYPE_ID } from "@/lib/fleet-business-defaults";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
@@ -649,13 +651,17 @@ export default function ClaimDetail() {
   const vatTypeValid = Boolean(vatType && VAT_TYPE_CONFIG.some((v) => v.id === vatType));
   const glAccountValid = Boolean(glAccount && glAccountOptions.some((g) => g.id === glAccount));
 
+  const isFleetBizLocked = !!claim && [claim.linkedBankTransaction?.transactionId, claim.bankTransactionId, id].some(
+    (k) => !!k && FLEET_CARD_TXN_IDS.has(k),
+  );
+
   // Step completion
-  const step2Complete =
+  const step2Complete = isFleetBizLocked || (
     purpose.trim().length > 0 &&
     !!selectedExpenseTypeRow &&
     !!selectedSubExpenseTypeRow &&
     vatTypeValid &&
-    glAccountValid;
+    glAccountValid);
   const step3Complete =
     lineItemsValid && !!selectedSubExpenseTypeRow && (!isAutoReject || corpPolicyAutoRejectNoDoc);
   const step4Complete = docRequirementMet && step2Complete;
@@ -674,7 +680,16 @@ export default function ClaimDetail() {
     setSubExpenseType(claim.subExpenseTypeId ?? "");
     setVatType(claim.vatTypeId ?? "");
     setGlAccount(claim.glAccountId ?? "");
+    if (isFleetBizLocked) {
+      setPurpose(FLEET_DEFAULT_PURPOSE);
+      setExpenseType(FLEET_DEFAULT_EXPENSE_TYPE_ID);
+      setSubExpenseType(FLEET_DEFAULT_SUB_EXPENSE_TYPE_ID);
+      setVatType(FLEET_DEFAULT_VAT_TYPE_ID);
+      setGlAccount(FLEET_DEFAULT_GL_ACCOUNT);
+      setProject("");
+    }
   }, [
+    isFleetBizLocked,
     claimDetailQuery.isLoading,
     claim?.id,
     claim?.purpose,
@@ -1349,24 +1364,26 @@ export default function ClaimDetail() {
   const handleSubmit = async () => {
     if (!canSubmit) return;
     const newErrors: Record<string, string> = {};
-    if (!purpose.trim()) newErrors.purpose = "Purpose is required";
-    if (!expenseType || !selectedExpenseTypeRow) {
-      newErrors.expenseType = expenseType
-        ? "This expense type is no longer available — please select again."
-        : "Expense Type is required";
-    }
-    if (!subExpenseType || !selectedSubExpenseTypeRow) {
-      newErrors.subExpenseType = subExpenseType
-        ? "This sub expense type is no longer available — please select again."
-        : "Sub Expense Type is required";
-    }
-    if (!vatTypeValid) {
-      newErrors.vatType = vatType ? "Invalid VAT type — please select again." : "Please select VAT Type";
-    }
-    if (!glAccountValid) {
-      newErrors.glAccount = glAccount
-        ? "This GL account is not valid for the selected expense type — please select again."
-        : "Please select GL Account";
+    if (!isFleetBizLocked) {
+      if (!purpose.trim()) newErrors.purpose = "Purpose is required";
+      if (!expenseType || !selectedExpenseTypeRow) {
+        newErrors.expenseType = expenseType
+          ? "This expense type is no longer available — please select again."
+          : "Expense Type is required";
+      }
+      if (!subExpenseType || !selectedSubExpenseTypeRow) {
+        newErrors.subExpenseType = subExpenseType
+          ? "This sub expense type is no longer available — please select again."
+          : "Sub Expense Type is required";
+      }
+      if (!vatTypeValid) {
+        newErrors.vatType = vatType ? "Invalid VAT type — please select again." : "Please select VAT Type";
+      }
+      if (!glAccountValid) {
+        newErrors.glAccount = glAccount
+          ? "This GL account is not valid for the selected expense type — please select again."
+          : "Please select GL Account";
+      }
     }
     if (!docRequirementMet) {
       newErrors.documents =
@@ -1606,15 +1623,15 @@ export default function ClaimDetail() {
               <CardContent className="pt-5 space-y-4">
                 <div className="space-y-1.5">
                   <Label className="text-[13px] font-semibold text-muted-foreground">Purpose</Label>
-                  <p className="text-[13px] text-foreground">{claim.purpose || "—"}</p>
+                  <p className="text-[13px] text-foreground">{isFleetBizLocked ? FLEET_DEFAULT_PURPOSE : claim.purpose || "—"}</p>
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <ReadOnlyField label="Expense Type" value={roBiz.expenseType} />
-                  <ReadOnlyField label="Sub Expense Type" value={roBiz.subExpenseType} />
-                  <ReadOnlyField label="VAT Type" value={roBiz.vatType} />
-                  <ReadOnlyField label="GL Account" value={roBiz.glAccount} />
+                  <ReadOnlyField label="Expense Type" value={isFleetBizLocked ? FLEET_DEFAULT_EXPENSE_TYPE : roBiz.expenseType} />
+                  <ReadOnlyField label="Sub Expense Type" value={isFleetBizLocked ? FLEET_DEFAULT_SUB_EXPENSE_TYPE : roBiz.subExpenseType} />
+                  <ReadOnlyField label="VAT Type" value={isFleetBizLocked ? FLEET_DEFAULT_VAT_TYPE : roBiz.vatType} />
+                  <ReadOnlyField label="GL Account" value={isFleetBizLocked ? FLEET_DEFAULT_GL_ACCOUNT : roBiz.glAccount} />
                 </div>
-                <ReadOnlyField label="Project" value={project || "Select project"} />
+                <ReadOnlyField label="Project" value={isFleetBizLocked ? "—" : project || "Select project"} />
 
                 <CardholderNoteField
                   claim={claim}
@@ -2284,12 +2301,16 @@ export default function ClaimDetail() {
                 <Label className="text-[13px] font-semibold text-foreground">
                   Purpose <span className="text-destructive">*</span>
                 </Label>
+                {isFleetBizLocked ? (
+                  <Textarea disabled value={FLEET_DEFAULT_PURPOSE} className="text-[13px] min-h-[80px]" />
+                ) : (
                 <Textarea
                   placeholder="Describe the business purpose"
                   value={purpose}
                   onChange={(e) => { setPurpose(e.target.value); setErrors((p) => ({ ...p, purpose: "" })); }}
                   className="text-[13px] min-h-[80px]"
                 />
+                )}
                 {errors.purpose && <p className="text-xs text-destructive">{errors.purpose}</p>}
               </div>
 
@@ -2299,6 +2320,9 @@ export default function ClaimDetail() {
                   <Label className="text-[13px] font-semibold text-foreground">
                     Expense Type <span className="text-destructive">*</span>
                   </Label>
+                  {isFleetBizLocked ? (
+                    <Input disabled value={FLEET_DEFAULT_EXPENSE_TYPE} className="text-[13px]" />
+                  ) : (
                   <Select value={expenseType} onValueChange={(v) => {
                     setExpenseType(v);
                     setSubExpenseType("");
@@ -2317,6 +2341,7 @@ export default function ClaimDetail() {
                       ))}
                     </SelectContent>
                   </Select>
+                  )}
                   {errors.expenseType && <p className="text-xs text-destructive">{errors.expenseType}</p>}
                 </div>
 
@@ -2325,6 +2350,9 @@ export default function ClaimDetail() {
                   <Label className="text-[13px] font-semibold text-foreground">
                     Sub Expense Type <span className="text-destructive">*</span>
                   </Label>
+                  {isFleetBizLocked ? (
+                    <Input disabled value={FLEET_DEFAULT_SUB_EXPENSE_TYPE} className="text-[13px]" />
+                  ) : (
                   <Select
                     value={subExpenseType}
                     onValueChange={(v) => {
@@ -2346,12 +2374,16 @@ export default function ClaimDetail() {
                       ))}
                     </SelectContent>
                   </Select>
+                  )}
                   {errors.subExpenseType && <p className="text-xs text-destructive">{errors.subExpenseType}</p>}
                 </div>
 
                 {/* VAT Type */}
                 <div className="space-y-1.5">
                   <Label className="text-[13px] font-semibold text-foreground">VAT Type <span className="text-destructive">*</span></Label>
+                  {isFleetBizLocked ? (
+                    <Input disabled value={FLEET_DEFAULT_VAT_TYPE} className="text-[13px]" />
+                  ) : (
                   <Select value={vatType} onValueChange={(v) => { setVatType(v); setErrors((p) => ({ ...p, vatType: "" })); }}>
                     <SelectTrigger className="text-[13px]">
                       <SelectValue placeholder="Select VAT Type" />
@@ -2364,12 +2396,16 @@ export default function ClaimDetail() {
                       ))}
                     </SelectContent>
                   </Select>
+                  )}
                   {errors.vatType && <p className="text-xs text-destructive">{errors.vatType}</p>}
                 </div>
 
                 {/* GL Account */}
                 <div className="space-y-1.5">
                   <Label className="text-[13px] font-semibold text-foreground">GL Account <span className="text-destructive">*</span></Label>
+                  {isFleetBizLocked ? (
+                    <Input disabled value={FLEET_DEFAULT_GL_ACCOUNT} className="text-[13px]" />
+                  ) : (
                   <Select
                     value={glAccount}
                     onValueChange={(v) => { setGlAccount(v); setErrors((p) => ({ ...p, glAccount: "" })); }}
@@ -2388,12 +2424,13 @@ export default function ClaimDetail() {
                       ))}
                     </SelectContent>
                   </Select>
+                  )}
                   {errors.glAccount && <p className="text-xs text-destructive">{errors.glAccount}</p>}
                 </div>
               </div>
               <div className="space-y-1.5">
                 <Label className="text-[13px] font-semibold text-foreground">Project <span className="text-muted-foreground font-normal">(optional)</span></Label>
-                <Select value={project} onValueChange={setProject}>
+                <Select value={project} onValueChange={setProject} disabled={isFleetBizLocked}>
                   <SelectTrigger className="text-[13px]"><SelectValue placeholder="Select project" /></SelectTrigger>
                   <SelectContent>
                     <SelectItem value="HoReCa" className="text-[13px]">HoReCa</SelectItem>
