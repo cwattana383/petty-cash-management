@@ -4,6 +4,9 @@ export const FLEET_DEFAULT_SUB_EXPENSE_TYPE_ID = "set-forklift-refueling";
 export const FLEET_DEFAULT_EXPENSE_TYPE = "Forklift Refueling";
 export const FLEET_DEFAULT_SUB_EXPENSE_TYPE = "Forklift Refueling";
 export const FLEET_DEFAULT_VAT_TYPE_ID = "avg";
+export const FLEET_DEFAULT_VAT_TYPE = "AVG";
+export const FLEET_DEFAULT_PURPOSE = "Forklift Refueling and General Fuel Use";
+export const FLEET_DEFAULT_GL_ACCOUNT = "6190080002";
 
 const savedVatByTxn: Record<string, string> = {};
 
