@@ -10,6 +10,8 @@ import { ClaimsProvider } from "@/lib/claims-context";
 import { RoleProvider } from "@/lib/role-context";
 import { NotificationsProvider } from "@/lib/notifications-provider";
 import Login from "./pages/Login";
+import OAuthConsent from "./pages/OAuthConsent";
+import OAuthLogin from "./pages/OAuthLogin";
 
 import MyClaims from "./pages/MyClaims";
 import CreateClaim from "./pages/CreateClaim";
@@ -59,6 +61,8 @@ const App = () => (
               <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
                 <Routes>
                   <Route path="/login" element={<Login />} />
+                  <Route path="/.lovable/oauth/consent" element={<OAuthConsent />} />
+                  <Route path="/oauth-login" element={<OAuthLogin />} />
                   <Route
                     path="/*"
                     element={
