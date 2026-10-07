@@ -164,7 +164,7 @@ export default function MyClaims() {
       if (activeTab === "approved" || activeTab === "rejected") {
         const shown = getMyExpenseApprovalText(txn, claim, !!att);
         if (activeTab === "approved") return shown === "Auto Approved" || shown === "Manager Approved";
-        return shown === "Auto Reject" || shown === "Manager Rejected" || shown === "Final Rejected" || shown === "Reject";
+        if (shown === "Auto Approved" || shown === "Manager Approved") return false;
       }
       return isPortalStatusInTab(portalStatus, activeTab, docStatus, claim);
     });
