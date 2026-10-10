@@ -16,6 +16,12 @@ export const FLEET_CARD_TXN_IDS = new Set([
   "bt-15",
   "bt-19",
   "bt-23",
+  // November 2026 Fleet Card samples
+  "202611999910072719",
+  "202611999910072720",
+  "202611999910072721",
+  "202611999910072722",
+  "202611999910072723",
 ]);
 
 export type CardTypeLabel = "Credit Card" | "Fleet Card";
