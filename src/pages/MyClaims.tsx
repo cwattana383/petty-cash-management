@@ -147,7 +147,6 @@ export default function MyClaims() {
   const claimsOverlayQuery = useCardholderClaimsCorpOverlay({
     dateFrom: dateFromStr,
     dateTo: dateToStr,
-    search: debouncedSearch || undefined,
   });
   const claimByBankTxnId = useMemo(() => {
     const m = new Map<string, ClaimHeader>();
