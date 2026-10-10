@@ -52,7 +52,7 @@ type UploadFlowState = "dropzone" | "processing" | "result" | "confirmed";
 
 type CardTypeFilter = "all" | "corporate" | "fleet";
 
-const FLEET_CARD_TXN_IDS = new Set(["bt-8", "bt-15", "bt-19", "bt-23"]);
+const FLEET_CARD_TXN_IDS = new Set(["bt-8", "bt-15", "bt-19", "bt-23", "202611999910072719", "202611999910072720", "202611999910072721", "202611999910072722", "202611999910072723"]);
 
 function cardTypeOf(bankTransactionId?: string | null): "corporate" | "fleet" {
   return bankTransactionId && FLEET_CARD_TXN_IDS.has(bankTransactionId) ? "fleet" : "corporate";
