@@ -46,6 +46,7 @@ export interface CorpCardTransaction {
   authorizationCode: string;
   referenceNumber: string;
   cardholderName: string;
+  cardUser?: string;
   transactionAmount: number | null;
   transactionCurrency: string | null;
   fileId: string | null;

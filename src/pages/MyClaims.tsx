@@ -423,6 +423,7 @@ export default function MyClaims() {
               <TableHead className="text-right">Amount</TableHead>
               <TableHead>Approval Status</TableHead>
               <TableHead>Document Status</TableHead>
+              <TableHead>Card User</TableHead>
               {showDeductionCol && <TableHead>Deduction Period</TableHead>}
             </TableRow>
           </TableHeader>
@@ -430,7 +431,7 @@ export default function MyClaims() {
             {items.length === 0 ? (
               <TableRow>
                 <TableCell
-                  colSpan={showDeductionCol ? 9 : 8}
+                  colSpan={showDeductionCol ? 10 : 9}
                   className="text-center text-muted-foreground py-8"
                 >
                   {corpQuery.isFetching ? "Loading…" : "No transactions found for this status."}
@@ -485,6 +486,7 @@ export default function MyClaims() {
                         {documentStatusLabel(documentStatus)}
                       </Badge>
                     </TableCell>
+                    <TableCell>{(txn as any).cardUser || "—"}</TableCell>
                     {showDeductionCol && (
                       <TableCell className="text-sm">
                         {txn.status === "AUTO_REJECTED"
