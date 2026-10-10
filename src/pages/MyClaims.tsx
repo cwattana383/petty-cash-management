@@ -72,6 +72,11 @@ export default function MyClaims() {
   const { roles } = useRoles();
   const isAdminView = roles.includes("Admin");
   const [search, setSearch] = useState("");
+  const [debouncedSearch, setDebouncedSearch] = useState("");
+  useEffect(() => {
+    const t = setTimeout(() => setDebouncedSearch(search.trim()), 300);
+    return () => clearTimeout(t);
+  }, [search]);
   const [activeTab, setActiveTab] = useState<StatusTab>("pending_invoice");
   const [cardType, setCardType] = useState<CardTypeFilter>("all");
   const [page, setPage] = useState(1);
@@ -127,7 +132,7 @@ export default function MyClaims() {
     limit: 100000,
     dateFrom: dateFromStr,
     dateTo: dateToStr,
-    search: search || undefined,
+    search: debouncedSearch || undefined,
     status: TAB_STATUS_FILTER[activeTab].join(","),
     employeeId: isAdminView ? undefined : user?.employeeCode,
   });
@@ -136,13 +141,13 @@ export default function MyClaims() {
 
   useEffect(() => {
     setPage(1);
-  }, [search, activeTab, dateFrom, dateTo, cardType]);
+  }, [debouncedSearch, activeTab, dateFrom, dateTo, cardType]);
 
   const rawItems = useMemo(() => corpQuery.data?.data?.items ?? [], [corpQuery.data?.data?.items]);
   const claimsOverlayQuery = useCardholderClaimsCorpOverlay({
     dateFrom: dateFromStr,
     dateTo: dateToStr,
-    search: search || undefined,
+    search: debouncedSearch || undefined,
   });
   const claimByBankTxnId = useMemo(() => {
     const m = new Map<string, ClaimHeader>();

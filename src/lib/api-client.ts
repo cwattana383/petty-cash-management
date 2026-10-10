@@ -318,7 +318,8 @@ function basePath(path: string): string {
 
 function matchSearch<T>(items: T[], search: string | undefined, fields: string[]): T[] {
   if (!search) return items;
-  const lower = search.toLowerCase();
+  const lower = search.trim().toLowerCase();
+  if (!lower) return items;
   return items.filter(item => fields.some(f => String((item as any)[f] ?? '').toLowerCase().includes(lower)));
 }
 
@@ -368,7 +369,7 @@ async function handleGet(path: string): Promise<any> {
   // Corp card transactions
   if (base === '/corp-card-transactions') {
     let items = [...corpCardTransactionsStore];
-    if (qs.search) items = matchSearch(items, qs.search, ['merchantName', 'mccDescription', 'cardholderName']);
+    if (qs.search) items = matchSearch(items, qs.search, ['merchantName', 'mccDescription', 'cardholderName', 'bankTransactionId', 'taxInvoiceNumber']);
     // Status filtering: if comma-separated, skip — portal-level filtering is done client-side in MyClaims
     if (qs.status && !qs.status.includes(',')) {
       items = items.filter(t => t.status === qs.status);
