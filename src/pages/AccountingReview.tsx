@@ -116,8 +116,8 @@ const initialMockItems: MockItem[] = rebaseMockDates<MockItem[]>([
   { id: "TXN2026051200017", date: "2026-05-12", merchantName: "Boonsong Lerd", description: "Office snacks", amount: "฿650.00", status: "SENT_TO_ERP", documentStatus: "Validated", deductionPeriod: "—", attachedFiles: [] },
   { id: "TXN2026051300018", date: "2026-05-13", merchantName: "Chalita Mongkol", description: "Stationery", amount: "฿420.00", status: "SENT_TO_ERP", documentStatus: "Validated", deductionPeriod: "—", attachedFiles: [] },
   { id: "TXN2026051300019", date: "2026-05-13", merchantName: "Krit Phusawat", description: "Training course", amount: "฿7,800.00", status: "MANAGER_APPROVED", documentStatus: "Validated", deductionPeriod: "—", attachedFiles: [] },
-  { id: "TXN2026051400020", date: "2026-05-14", merchantName: "Lalita Boonchu", description: "Software subscription", amount: "฿1,990.00", status: "MANAGER_APPROVED", documentStatus: "Validated", deductionPeriod: "—", attachedFiles: [] },
-  { id: "TXN2026051400021", date: "2026-05-14", merchantName: "Manop Saksri", description: "Parking fee", amount: "฿120.00", status: "MANAGER_APPROVED", documentStatus: "Validated", deductionPeriod: "—", attachedFiles: [] },
+  { id: "TXN2026051400020", date: "2026-05-14", merchantName: "Lalita Boonchu", description: "Software subscription", amount: "฿1,990.00", status: "MANAGER_APPROVED", documentStatus: "No Attached", deductionPeriod: "—", attachedFiles: [] },
+  { id: "TXN2026051400021", date: "2026-05-14", merchantName: "Manop Saksri", description: "Parking fee", amount: "฿120.00", status: "MANAGER_APPROVED", documentStatus: "No Attached", deductionPeriod: "—", attachedFiles: [] },
   { id: "TXN2026051500022", date: "2026-05-15", merchantName: "Narongsak Yim", description: "Client gift", amount: "฿2,500.00", status: "ACCOUNTING_REVIEW", documentStatus: "Validated", deductionPeriod: "—", attachedFiles: [] },
   { id: "TXN2026051500023", date: "2026-05-15", merchantName: "Orawan Pansri", description: "Toll fee", amount: "฿80.00", status: "AUTO_APPROVED", documentStatus: "Validated", deductionPeriod: "—", attachedFiles: [] },
   { id: "TXN2026051500024", date: "2026-05-15", merchantName: "Prasert Khunsri", description: "Workshop materials", amount: "฿3,400.00", status: "MANAGER_APPROVED", documentStatus: "Validated", deductionPeriod: "—", attachedFiles: [] },
@@ -150,6 +150,7 @@ const DOC_TYPE_COLORS: Record<string, string> = {
 const documentStatusColors: Record<string, string> = {
   "Pending Documents": "bg-yellow-100 text-yellow-800 border-yellow-300",
   "Validated": "bg-green-100 text-green-800 border-green-300",
+  "No Attached": "bg-gray-100 text-gray-600 border-gray-300",
 };
 
 
