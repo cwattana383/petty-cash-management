@@ -96,7 +96,7 @@ const MOCK_LOCATIONS = [
   { locationCode: "1024", branchName: "Makro Bang Na" },
 ];
 
-const initialMockItems: MockItem[] = rebaseMockDates([
+const initialMockItems: MockItem[] = rebaseMockDates<MockItem>([
   { id: "TXN2026050100001", date: "2026-05-01", merchantName: "Somchai Jaidee", description: "Client meeting transport", amount: "฿500.00", status: "MANAGER_APPROVED", documentStatus: "Validated", deductionPeriod: "—", attachedFiles: [] },
   { id: "TXN2026050200002", date: "2026-05-02", merchantName: "Anong Srisuk", description: "Team lunch", amount: "฿1,250.00", status: "MANAGER_APPROVED", documentStatus: "Validated", deductionPeriod: "—", attachedFiles: [] },
   { id: "TXN2026050300003", date: "2026-05-03", merchantName: "Wirat Phongsri", description: "Office supplies", amount: "฿680.00", status: "MANAGER_APPROVED", documentStatus: "Validated", deductionPeriod: "—", attachedFiles: [] },
