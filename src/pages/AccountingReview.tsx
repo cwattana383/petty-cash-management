@@ -5,7 +5,7 @@ import { useNavigate } from "react-router-dom";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Paperclip, FileText, Clock, CheckCircle, BarChart3, ChevronLeft, ChevronRight, X, Send, AlertTriangle, ChevronDown } from "lucide-react";
+import { Paperclip, FileText, Clock, CheckCircle, BarChart3, ChevronLeft, ChevronRight, X, Send, AlertTriangle, ChevronDown, ArrowUp, ArrowDown, ArrowUpDown } from "lucide-react";
 import { formatBEDate } from "@/lib/utils";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -84,7 +84,17 @@ interface MockItem {
   deductionPeriod: string;
   attachedFiles: AttachedDoc[];
   date: string;
+  invoiceType?: "E-Tax" | "Non E-Tax";
+  locationCode?: string;
+  branchName?: string;
 }
+
+const MOCK_LOCATIONS = [
+  { locationCode: "1001", branchName: "Makro Rangsit" },
+  { locationCode: "1007", branchName: "Makro Chiang Mai" },
+  { locationCode: "1015", branchName: "Lotus's Phuket" },
+  { locationCode: "1024", branchName: "Makro Bang Na" },
+];
 
 const initialMockItems: MockItem[] = rebaseMockDates([
   { id: "TXN2026050100001", date: "2026-05-01", merchantName: "Somchai Jaidee", description: "Client meeting transport", amount: "฿500.00", status: "MANAGER_APPROVED", documentStatus: "Validated", deductionPeriod: "—", attachedFiles: [] },
@@ -114,7 +124,19 @@ const initialMockItems: MockItem[] = rebaseMockDates([
   { id: "TXN2026051500025", date: "2026-05-15", merchantName: "Rungnapa Sripong", description: "Internal lunch meeting", amount: "฿890.00", status: "ACCOUNTING_REVIEW", documentStatus: "Validated", deductionPeriod: "—", attachedFiles: [] },
   { id: "TXN2026051600040", date: "2026-05-16", merchantName: "Wilasinee Pratyawongchai", description: "Client dinner with vendor partners", amount: "฿8,500.00", status: "MANAGER_APPROVED", documentStatus: "Validated", deductionPeriod: "—", attachedFiles: [] },
   { id: "TXN2026051700041", date: "2026-05-17", merchantName: "Anong Srisuk", description: "Office snacks for team meeting", amount: "฿320.00", status: "AUTO_APPROVED", documentStatus: "Validated", deductionPeriod: "—", attachedFiles: [] },
-]);
+]).map((item, idx) => ({
+  ...item,
+  invoiceType: (idx % 3 === 2 ? "Non E-Tax" : "E-Tax") as "E-Tax" | "Non E-Tax",
+  ...MOCK_LOCATIONS[idx % MOCK_LOCATIONS.length],
+}));
+
+type SortKey = "id" | "date" | "cardType" | "cardholder" | "purpose" | "amount" | "approval" | "invoiceType" | "documentStatus" | "location";
+
+const invoiceTypeLabel = (t?: string) => (t === "E-Tax" ? "E-Tax" : "None E-Tax");
+const invoiceTypeColors: Record<string, string> = {
+  "E-Tax": "bg-yellow-100 text-yellow-800 border-yellow-300",
+  "None E-Tax": "bg-gray-100 text-gray-600 border-gray-300",
+};
 
 const DOC_TYPE_COLORS: Record<string, string> = {
   "Tax Invoice": "bg-blue-100 text-blue-800 border-blue-300",
@@ -161,6 +183,50 @@ export default function AccountingReview() {
   const { toast } = useToast();
 
   const [page, setPage] = useState(1);
+  const [locationFrom, setLocationFrom] = useState("");
+  const [locationTo, setLocationTo] = useState("");
+  const [sortKey, setSortKey] = useState<SortKey | null>(null);
+  const [sortDir, setSortDir] = useState<"asc" | "desc">("asc");
+
+  const locationOptions = useMemo(() => {
+    const m = new Map<string, string>();
+    items.forEach((i) => { if (i.locationCode) m.set(i.locationCode, i.branchName || ""); });
+    return Array.from(m.entries()).sort((a, b) => a[0].localeCompare(b[0])).map(([code, name]) => ({ code, label: `${code} - ${name}` }));
+  }, [items]);
+
+  const handleSort = (key: SortKey) => {
+    if (sortKey !== key) { setSortKey(key); setSortDir("asc"); }
+    else if (sortDir === "asc") setSortDir("desc");
+    else { setSortKey(null); setSortDir("asc"); }
+  };
+
+  const sortValue = (item: MockItem, key: SortKey): string | number => {
+    switch (key) {
+      case "id": return item.id;
+      case "date": return new Date(item.date + "T12:00:00").getTime();
+      case "cardType": return getCardType(item.id);
+      case "cardholder": return item.merchantName;
+      case "purpose": return item.description;
+      case "amount": return Number(item.amount.replace(/[^0-9.-]/g, "")) || 0;
+      case "approval": return STATUS_LABELS[getApprovalStatus(item)];
+      case "invoiceType": return invoiceTypeLabel(item.invoiceType);
+      case "documentStatus": return item.documentStatus;
+      case "location": return item.locationCode || "";
+    }
+  };
+
+  const SortHead = ({ label, k, className }: { label: string; k: SortKey; className?: string }) => (
+    <TableHead className={className}>
+      <button type="button" onClick={() => handleSort(k)} className={cn("inline-flex items-center gap-1", className?.includes("text-right") && "justify-end w-full")}>
+        {label}
+        {sortKey === k ? (
+          sortDir === "asc" ? <ArrowUp className="h-3.5 w-3.5 text-blue-600" /> : <ArrowDown className="h-3.5 w-3.5 text-blue-600" />
+        ) : (
+          <ArrowUpDown className="h-3.5 w-3.5 text-muted-foreground" />
+        )}
+      </button>
+    </TableHead>
+  );
 
   const filtered = useMemo(() => {
     const allowed = TAB_STATUS_MAP[activeTab];
@@ -176,6 +242,8 @@ export default function AccountingReview() {
       const d = new Date(item.date + "T12:00:00");
       if (from && d < from) return false;
       if (to && d > to) return false;
+      if (locationFrom && (item.locationCode || "") < locationFrom) return false;
+      if (locationTo && (item.locationCode || "") > locationTo) return false;
 
       if (q) {
         const haystack = [
@@ -191,12 +259,18 @@ export default function AccountingReview() {
         if (!haystack.includes(q)) return false;
       }
       return true;
-    }).sort((a, b) => b.date.localeCompare(a.date));
-  }, [items, activeTab, searchQuery, dateFrom, dateTo, cardTypeFilter]);
+    }).sort((a, b) => {
+      if (!sortKey) return b.date.localeCompare(a.date);
+      const va = sortValue(a, sortKey);
+      const vb = sortValue(b, sortKey);
+      const c = typeof va === "number" && typeof vb === "number" ? va - vb : String(va).localeCompare(String(vb));
+      return sortDir === "asc" ? c : -c;
+    });
+  }, [items, activeTab, searchQuery, dateFrom, dateTo, cardTypeFilter, locationFrom, locationTo, sortKey, sortDir]);
 
   useEffect(() => {
     setPage(1);
-  }, [activeTab, searchQuery, dateFrom, dateTo, cardTypeFilter]);
+  }, [activeTab, searchQuery, dateFrom, dateTo, cardTypeFilter, locationFrom, locationTo, sortKey, sortDir]);
 
 
   const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
@@ -286,7 +360,7 @@ export default function AccountingReview() {
             </Tabs>
           </div>
 
-          <div className="flex items-center gap-3">
+          <div className="flex flex-wrap items-center gap-3">
             <Label className="text-sm text-foreground shrink-0">Transaction Date:</Label>
             <Input
               type="date"
@@ -301,6 +375,36 @@ export default function AccountingReview() {
               onChange={(e) => setDateTo(e.target.value)}
               className="w-auto"
             />
+            <div className="flex items-center gap-3 shrink-0">
+              <Label className="text-sm text-foreground shrink-0">Location:</Label>
+              <Select
+                value={locationFrom}
+                onValueChange={(v) => {
+                  setLocationFrom(v);
+                  if (locationTo && locationTo < v) setLocationTo("");
+                }}
+              >
+                <SelectTrigger className="w-[220px]">
+                  <SelectValue placeholder="From code" />
+                </SelectTrigger>
+                <SelectContent>
+                  {locationOptions.map((o) => (
+                    <SelectItem key={o.code} value={o.code}>{o.label}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <span className="text-sm text-muted-foreground">to</span>
+              <Select value={locationTo} onValueChange={setLocationTo}>
+                <SelectTrigger className="w-[220px]">
+                  <SelectValue placeholder="To code" />
+                </SelectTrigger>
+                <SelectContent>
+                  {locationOptions.filter((o) => !locationFrom || o.code >= locationFrom).map((o) => (
+                    <SelectItem key={o.code} value={o.code}>{o.label}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
           </div>
         </div>
 
@@ -322,21 +426,23 @@ export default function AccountingReview() {
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead>Transaction No.</TableHead>
-                  <TableHead>Transaction Date</TableHead>
-                  <TableHead>Card Type</TableHead>
-                  <TableHead>Cardholder Name</TableHead>
+                  <SortHead label="Transaction No." k="id" />
+                  <SortHead label="Transaction Date" k="date" />
+                  <SortHead label="Card Type" k="cardType" />
+                  <SortHead label="Cardholder Name" k="cardholder" />
 
-                  <TableHead>Purpose</TableHead>
-                  <TableHead className="text-right">Amount</TableHead>
-                  <TableHead>Approval Status</TableHead>
-                  <TableHead>Document Status</TableHead>
+                  <SortHead label="Purpose" k="purpose" />
+                  <SortHead label="Amount" k="amount" className="text-right" />
+                  <SortHead label="Approval Status" k="approval" />
+                  <SortHead label="Invoice Type" k="invoiceType" />
+                  <SortHead label="Document Status" k="documentStatus" />
+                  <SortHead label="Location" k="location" />
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {paged.length === 0 ? (
                   <TableRow>
-                    <TableCell colSpan={8} className="text-center text-muted-foreground py-8">
+                    <TableCell colSpan={10} className="text-center text-muted-foreground py-8">
                       No transactions found for the selected filters.
                     </TableCell>
                   </TableRow>
@@ -360,10 +466,16 @@ export default function AccountingReview() {
                         </Badge>
                       </TableCell>
                       <TableCell>
+                        <Badge className={cn("whitespace-nowrap", invoiceTypeColors[invoiceTypeLabel(item.invoiceType)])} variant="outline">
+                          {invoiceTypeLabel(item.invoiceType)}
+                        </Badge>
+                      </TableCell>
+                      <TableCell>
                         <Badge className={documentStatusColors[item.documentStatus] || ""} variant="outline">
                           {item.documentStatus}
                         </Badge>
                       </TableCell>
+                      <TableCell className="whitespace-nowrap">{item.locationCode ? `${item.locationCode} - ${item.branchName}` : ""}</TableCell>
                     </TableRow>
                   ))
                 )}
