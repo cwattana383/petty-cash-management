@@ -16,7 +16,9 @@ import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, 
 import { useToast } from "@/hooks/use-toast";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
-import { Search } from "lucide-react";
+import { Search, Check } from "lucide-react";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Command, CommandEmpty, CommandInput, CommandItem, CommandList } from "@/components/ui/command";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
@@ -90,10 +92,12 @@ interface MockItem {
 }
 
 const MOCK_LOCATIONS = [
-  { locationCode: "1001", branchName: "Makro Rangsit" },
-  { locationCode: "1007", branchName: "Makro Chiang Mai" },
-  { locationCode: "1015", branchName: "Lotus's Phuket" },
-  { locationCode: "1024", branchName: "Makro Bang Na" },
+  { locationCode: "010001", branchName: "บมจ. ซีพี แอ็กซ์ตร้า สาขาลาดพร้าว" },
+  { locationCode: "010002", branchName: "บมจ. ซีพี แอ็กซ์ตร้า สาขาแจ้งวัฒนะ" },
+  { locationCode: "010003", branchName: "บมจ. ซีพี แอ็กซ์ตร้า สาขาศรีนครินทร์" },
+  { locationCode: "010004", branchName: "บมจ. ซีพี แอ็กซ์ตร้า สาขาบางบอน" },
+  { locationCode: "010005", branchName: "บมจ. ซีพี แอ็กซ์ตร้า สาขาชลบุรี" },
+  { locationCode: "010006", branchName: "บมจ. ซีพี แอ็กซ์ตร้า สาขาเชียงใหม่" },
 ];
 
 const initialMockItems: MockItem[] = rebaseMockDates<MockItem[]>([
@@ -198,7 +202,7 @@ export default function AccountingReview() {
   const locationOptions = useMemo(() => {
     const m = new Map<string, string>();
     items.forEach((i) => { if (i.locationCode) m.set(i.locationCode, i.branchName || ""); });
-    return Array.from(m.entries()).sort((a, b) => a[0].localeCompare(b[0])).map(([code, name]) => ({ code, label: `${code} - ${name}` }));
+    return Array.from(m.entries()).sort((a, b) => a[0].localeCompare(b[0])).map(([code, name]) => ({ code, name, label: `${code} - ${name}` }));
   }, [items]);
 
   const handleSort = (key: SortKey) => {
@@ -386,33 +390,22 @@ export default function AccountingReview() {
             />
             <div className="flex items-center gap-3 shrink-0">
               <Label className="text-sm text-foreground shrink-0">Location:</Label>
-              <Select
+              <LocationCombobox
+                placeholder="From code"
                 value={locationFrom}
-                onValueChange={(v) => {
+                options={locationOptions.filter((o) => !locationTo || o.code <= locationTo)}
+                onChange={(v) => {
                   setLocationFrom(v);
-                  if (locationTo && locationTo < v) setLocationTo("");
+                  if (v && locationTo && locationTo < v) setLocationTo("");
                 }}
-              >
-                <SelectTrigger className="w-[220px]">
-                  <SelectValue placeholder="From code" />
-                </SelectTrigger>
-                <SelectContent>
-                  {locationOptions.map((o) => (
-                    <SelectItem key={o.code} value={o.code}>{o.label}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+              />
               <span className="text-sm text-muted-foreground">to</span>
-              <Select value={locationTo} onValueChange={setLocationTo}>
-                <SelectTrigger className="w-[220px]">
-                  <SelectValue placeholder="To code" />
-                </SelectTrigger>
-                <SelectContent>
-                  {locationOptions.filter((o) => !locationFrom || o.code >= locationFrom).map((o) => (
-                    <SelectItem key={o.code} value={o.code}>{o.label}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+              <LocationCombobox
+                placeholder="To code"
+                value={locationTo}
+                options={locationOptions.filter((o) => !locationFrom || o.code >= locationFrom)}
+                onChange={setLocationTo}
+              />
             </div>
           </div>
 
@@ -797,5 +790,61 @@ export default function AccountingReview() {
         </DialogContent>
       </Dialog>
     </div>
+  );
+}
+
+function LocationCombobox({ placeholder, value, options, onChange }: {
+  placeholder: string;
+  value: string;
+  options: { code: string; name: string; label: string }[];
+  onChange: (v: string) => void;
+}) {
+  const [open, setOpen] = useState(false);
+  const [query, setQuery] = useState("");
+  const selected = options.find((o) => o.code === value);
+  const q = query.trim().toLowerCase();
+  const filtered = q ? options.filter((o) => o.code.toLowerCase().includes(q) || o.name.toLowerCase().includes(q)) : options;
+  return (
+    <Popover open={open} onOpenChange={(o) => { setOpen(o); if (!o) setQuery(""); }}>
+      <PopoverTrigger asChild>
+        <Button type="button" variant="outline" role="combobox" aria-expanded={open} className="w-[220px] justify-between font-normal px-3">
+          <span className={cn("truncate", !value && "text-muted-foreground")}>{selected ? selected.label : value || placeholder}</span>
+          <span className="flex items-center gap-1 shrink-0">
+            {value && (
+              <span
+                role="button"
+                aria-label="Clear"
+                onPointerDown={(e) => { e.preventDefault(); e.stopPropagation(); }}
+                onClick={(e) => { e.preventDefault(); e.stopPropagation(); onChange(""); }}
+                className="opacity-60 hover:opacity-100"
+              >
+                <X className="h-3.5 w-3.5" />
+              </span>
+            )}
+            <ChevronDown className="h-4 w-4 opacity-50" />
+          </span>
+        </Button>
+      </PopoverTrigger>
+      <PopoverContent className="p-0 w-[360px]" align="start">
+        <Command shouldFilter={false}>
+          <CommandInput autoFocus placeholder="ค้นหาสาขา..." value={query} onValueChange={setQuery} />
+          <CommandList className="max-h-[216px]">
+            <CommandEmpty>No location found</CommandEmpty>
+            {filtered.map((o) => (
+              <CommandItem
+                key={o.code}
+                value={o.code}
+                onSelect={() => { onChange(o.code); setOpen(false); setQuery(""); }}
+                className="flex items-center gap-3"
+              >
+                <span className="text-muted-foreground w-14 shrink-0">{o.code}</span>
+                <span className="flex-1 text-foreground">{o.name}</span>
+                <Check className={cn("h-4 w-4 shrink-0", value === o.code ? "opacity-100" : "opacity-0")} />
+              </CommandItem>
+            ))}
+          </CommandList>
+        </Command>
+      </PopoverContent>
+    </Popover>
   );
 }
