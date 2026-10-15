@@ -185,6 +185,12 @@ export default function AccountingReview() {
   const [page, setPage] = useState(1);
   const [locationFrom, setLocationFrom] = useState("");
   const [locationTo, setLocationTo] = useState("");
+  const [invoiceTypeFilter, setInvoiceTypeFilter] = useState("all");
+  const [docStatusFilter, setDocStatusFilter] = useState("all");
+  const docStatusOptions = useMemo(
+    () => Array.from(new Set(items.map((i) => i.documentStatus).filter(Boolean))).sort(),
+    [items]
+  );
   const [sortKey, setSortKey] = useState<SortKey | null>(null);
   const [sortDir, setSortDir] = useState<"asc" | "desc">("asc");
 
@@ -244,6 +250,8 @@ export default function AccountingReview() {
       if (to && d > to) return false;
       if (locationFrom && (item.locationCode || "") < locationFrom) return false;
       if (locationTo && (item.locationCode || "") > locationTo) return false;
+      if (invoiceTypeFilter !== "all" && invoiceTypeLabel(item.invoiceType) !== invoiceTypeFilter) return false;
+      if (docStatusFilter !== "all" && item.documentStatus !== docStatusFilter) return false;
 
       if (q) {
         const haystack = [
@@ -266,11 +274,11 @@ export default function AccountingReview() {
       const c = typeof va === "number" && typeof vb === "number" ? va - vb : String(va).localeCompare(String(vb));
       return sortDir === "asc" ? c : -c;
     });
-  }, [items, activeTab, searchQuery, dateFrom, dateTo, cardTypeFilter, locationFrom, locationTo, sortKey, sortDir]);
+  }, [items, activeTab, searchQuery, dateFrom, dateTo, cardTypeFilter, locationFrom, locationTo, invoiceTypeFilter, docStatusFilter, sortKey, sortDir]);
 
   useEffect(() => {
     setPage(1);
-  }, [activeTab, searchQuery, dateFrom, dateTo, cardTypeFilter, locationFrom, locationTo, sortKey, sortDir]);
+  }, [activeTab, searchQuery, dateFrom, dateTo, cardTypeFilter, locationFrom, locationTo, invoiceTypeFilter, docStatusFilter, sortKey, sortDir]);
 
 
   const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
@@ -401,6 +409,36 @@ export default function AccountingReview() {
                 <SelectContent>
                   {locationOptions.filter((o) => !locationFrom || o.code >= locationFrom).map((o) => (
                     <SelectItem key={o.code} value={o.code}>{o.label}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+
+          <div className="flex flex-wrap items-center gap-3">
+            <div className="flex items-center gap-3 shrink-0">
+              <Label className="text-sm text-foreground shrink-0">Invoice Type:</Label>
+              <Select value={invoiceTypeFilter} onValueChange={setInvoiceTypeFilter}>
+                <SelectTrigger className="w-[220px]">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All</SelectItem>
+                  <SelectItem value="E-Tax">E-Tax</SelectItem>
+                  <SelectItem value="None E-Tax">None E-Tax</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="flex items-center gap-3 shrink-0">
+              <Label className="text-sm text-foreground shrink-0">Document Status:</Label>
+              <Select value={docStatusFilter} onValueChange={setDocStatusFilter}>
+                <SelectTrigger className="w-[220px]">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All statuses</SelectItem>
+                  {docStatusOptions.map((s) => (
+                    <SelectItem key={s} value={s}>{s}</SelectItem>
                   ))}
                 </SelectContent>
               </Select>
