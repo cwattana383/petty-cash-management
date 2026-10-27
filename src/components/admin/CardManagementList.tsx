@@ -402,8 +402,8 @@ export default function CardManagementList() {
                 <th className="px-4 py-3"><SortHeader k="kind">TYPE</SortHeader></th>
                 <th className="px-4 py-3"><SortHeader k="bankTh">BANK</SortHeader></th>
                 <th className="px-4 py-3"><SortHeader k="last4">LAST 4</SortHeader></th>
-                <th className="px-4 py-3"><SortHeader k="plateNo">LICENSE PLATE</SortHeader></th>
-                <th className="px-4 py-3"><SortHeader k="locationCode">LOCATION</SortHeader></th>
+                <th className="px-4 py-3 min-w-[140px]"><SortHeader k="plateNo">LICENSE PLATE</SortHeader></th>
+                <th className="px-4 py-3 min-w-[300px]"><SortHeader k="locationCode">LOCATION</SortHeader></th>
                 <th className="px-4 py-3"><SortHeader k="cardholderName">LINKED TO</SortHeader></th>
                 <th className="px-4 py-3"><SortHeader k="creditLimit" align="right">CREDIT LIMIT</SortHeader></th>
                 <th className="px-4 py-3"><SortHeader k="expiry">EXPIRY</SortHeader></th>
@@ -464,8 +464,8 @@ export default function CardManagementList() {
                           ? `•••• •••• •••• ${r.last4.slice(-4)}`
                           : `•••• ${r.last4.slice(-4)}`}
                       </td>
-                      <td className="px-4 py-3">{r.plateNo || "-"}</td>
-                      <td className="px-4 py-3">{r.locationCode ? `${r.locationCode} ${r.locationName ?? ""}`.trim() : "-"}</td>
+                      <td className="px-4 py-3 whitespace-nowrap">{r.plateNo || "-"}</td>
+                      <td className="px-4 py-3 whitespace-nowrap">{r.locationCode ? `${r.locationCode} ${r.locationName ?? ""}`.trim() : "-"}</td>
                       <td className="px-4 py-3 max-w-[200px] w-[200px]">
                         {r.cardholderName ? (
                           <Tooltip>
