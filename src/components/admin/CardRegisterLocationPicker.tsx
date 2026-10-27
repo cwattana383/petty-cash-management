@@ -12,9 +12,11 @@ export default function CardRegisterLocationPicker({ value, onChange, label, ran
   range?: boolean;
 }) {
   const [open, setOpen] = useState(false);
+  const [query, setQuery] = useState("");
   const selected = CARD_REGISTER_LOCATIONS.find((location) => location.code === value);
+  const locations = CARD_REGISTER_LOCATIONS.filter((location) => `${location.code} ${location.name}`.toLowerCase().includes(query.trim().toLowerCase()));
   return (
-    <Popover open={open} onOpenChange={setOpen}>
+    <Popover open={open} onOpenChange={(next) => { setOpen(next); if (!next) setQuery(""); }}>
       <PopoverTrigger asChild>
         <Button type="button" variant="outline" role="combobox" aria-label={label} aria-expanded={open} className="w-full justify-between font-normal bg-background rounded-lg min-w-0">
           <span className="truncate">{selected ? `${selected.code} ${selected.name}` : range ? label : ""}</span>
@@ -22,13 +24,13 @@ export default function CardRegisterLocationPicker({ value, onChange, label, ran
         </Button>
       </PopoverTrigger>
       <PopoverContent className="p-0 w-[--radix-popover-trigger-width] min-w-[300px]" align="start">
-        <Command>
-          <CommandInput aria-label="Search locations" {...(range ? { placeholder: "ค้นหาสาขา..." } : {})} />
+        <Command shouldFilter={false}>
+          <CommandInput aria-label="Search locations" value={query} onValueChange={setQuery} {...(range ? { placeholder: "ค้นหาสาขา..." } : {})} />
           <CommandList className="max-h-60">
             <CommandEmpty>No locations found</CommandEmpty>
             <CommandGroup>
-              {CARD_REGISTER_LOCATIONS.map((location) => (
-                <CommandItem key={location.code} value={`${location.code} ${location.name}`} onSelect={() => { onChange(location.code); setOpen(false); }}>
+              {locations.map((location) => (
+                <CommandItem key={location.code} value={`${location.code} ${location.name}`} onSelect={() => { onChange(location.code); setOpen(false); setQuery(""); }}>
                   {location.code} {location.name}
                 </CommandItem>
               ))}
