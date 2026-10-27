@@ -1,3 +1,4 @@
+// @vitest-environment node
 import { describe, expect, it } from "vitest";
 import { CARD_MASTER_ROWS } from "./card-master-mock-data";
 import { CARD_REGISTER_LOCATIONS, compareCardValues, expirySortValue, locationInRange } from "./card-register-utils";
