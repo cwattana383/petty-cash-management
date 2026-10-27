@@ -215,16 +215,16 @@ export default function CardManagementList() {
   };
 
   const exportExcel = () => {
-    const header = ["CARD ID", "TYPE", "BANK", "LAST 4", "LICENSE PLATE", "LOCATION", "LINKED TO", "CREDIT LIMIT", "EXPIRY", "STATUS"];
+    const header = ["CARD ID", "TYPE", "BANK", "LAST 4", "LINKED TO", "LICENSE PLATE", "LOCATION", "CREDIT LIMIT", "EXPIRY", "STATUS"];
     const lines = filtered.map((r) =>
       [
         r.cardId,
         r.kind === "corporate" ? "Corporate Credit" : "Fleet Card",
         bankLabelEn[r.bankTh] ?? r.bankTh,
         r.last4,
+        r.cardholderName || "Unassigned",
         r.plateNo || "-",
         r.locationCode ? `${r.locationCode} ${r.locationName ?? ""}`.trim() : "-",
-        r.cardholderName || "Unassigned",
         String(r.creditLimit),
         expiryBE(r.expiry),
         statusLabelTh[effectiveStatus(r)] ?? effectiveStatus(r),
@@ -398,13 +398,13 @@ export default function CardManagementList() {
           <table className="w-full text-sm">
             <thead>
               <tr style={{ backgroundColor: "#F5F6F7" }} className="text-left">
-                <th className="px-4 py-3"><SortHeader k="cardId">Card ID</SortHeader></th>
-                <th className="px-4 py-3"><SortHeader k="kind">TYPE</SortHeader></th>
+                <th className="px-4 py-3 whitespace-nowrap"><SortHeader k="cardId">Card ID</SortHeader></th>
+                <th className="px-4 py-3 whitespace-nowrap"><SortHeader k="kind">TYPE</SortHeader></th>
                 <th className="px-4 py-3"><SortHeader k="bankTh">BANK</SortHeader></th>
-                <th className="px-4 py-3"><SortHeader k="last4">LAST 4</SortHeader></th>
+                <th className="px-4 py-3 whitespace-nowrap"><SortHeader k="last4">LAST 4</SortHeader></th>
+                <th className="px-4 py-3"><SortHeader k="cardholderName">LINKED TO</SortHeader></th>
                 <th className="px-4 py-3 min-w-[140px]"><SortHeader k="plateNo">LICENSE PLATE</SortHeader></th>
                 <th className="px-4 py-3 min-w-[300px]"><SortHeader k="locationCode">LOCATION</SortHeader></th>
-                <th className="px-4 py-3"><SortHeader k="cardholderName">LINKED TO</SortHeader></th>
                 <th className="px-4 py-3"><SortHeader k="creditLimit" align="right">CREDIT LIMIT</SortHeader></th>
                 <th className="px-4 py-3"><SortHeader k="expiry">EXPIRY</SortHeader></th>
                 <th className="px-4 py-3"><SortHeader k="status">STATUS</SortHeader></th>
@@ -454,18 +454,16 @@ export default function CardManagementList() {
                       style={{ height: 64 }}
                       onClick={() => navigate(`/admin/card-management/${r.cardId}`)}
                     >
-                      <td className="px-4 py-3 font-mono font-semibold text-foreground">{r.cardId}</td>
-                      <td className="px-4 py-3">
+                      <td className="px-4 py-3 font-mono font-semibold text-foreground whitespace-nowrap">{r.cardId}</td>
+                      <td className="px-4 py-3 whitespace-nowrap">
                         {r.kind === "corporate" ? "Corporate Credit" : "Fleet Card"}
                       </td>
                       <td className="px-4 py-3">{bankLabelEn[r.bankTh] ?? r.bankTh}</td>
-                      <td className="px-4 py-3 font-mono">
+                      <td className="px-4 py-3 font-mono whitespace-nowrap">
                         {r.kind === "fleet"
                           ? `•••• •••• •••• ${r.last4.slice(-4)}`
                           : `•••• ${r.last4.slice(-4)}`}
                       </td>
-                      <td className="px-4 py-3 whitespace-nowrap">{r.plateNo || "-"}</td>
-                      <td className="px-4 py-3 whitespace-nowrap">{r.locationCode ? `${r.locationCode} ${r.locationName ?? ""}`.trim() : "-"}</td>
                       <td className="px-4 py-3 max-w-[200px] w-[200px]">
                         {r.cardholderName ? (
                           <Tooltip>
@@ -478,6 +476,8 @@ export default function CardManagementList() {
                           <span className="italic text-muted-foreground">Unassigned</span>
                         )}
                       </td>
+                      <td className="px-4 py-3 whitespace-nowrap">{r.plateNo || "-"}</td>
+                      <td className="px-4 py-3 whitespace-nowrap">{r.locationCode ? `${r.locationCode} ${r.locationName ?? ""}`.trim() : "-"}</td>
                       <td className="px-4 py-3 text-right font-bold">{r.creditLimit.toLocaleString("en-US")}</td>
                       <td className="px-4 py-3">
                         <span
