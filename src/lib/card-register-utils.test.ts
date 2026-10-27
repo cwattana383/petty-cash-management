@@ -1,7 +1,7 @@
 // @vitest-environment node
 import { describe, expect, it } from "vitest";
 import { CARD_MASTER_ROWS } from "./card-master-mock-data";
-import { CARD_REGISTER_LOCATIONS, compareCardValues, expirySortValue, locationInRange } from "./card-register-utils";
+import { CARD_REGISTER_LOCATIONS, compareCardValues, expirySortValue, matchesCardLocation } from "./card-register-utils";
 
 describe("Card Register location rules", () => {
   it("uses the seven supplied branch codes", () => {
@@ -12,26 +12,25 @@ describe("Card Register location rules", () => {
     expect(CARD_MASTER_ROWS).toHaveLength(16);
     expect(CARD_MASTER_ROWS.every((row) => typeof row.plateNo === "string" && CARD_REGISTER_LOCATIONS.some((location) => location.code === row.locationCode && location.name === row.locationName))).toBe(true);
   });
-  it("includes both range boundaries and excludes codes outside them", () => {
-    expect(["010001", "010002", "010003", "010004", "010005"].filter((code) => locationInRange(code, "010002", "010004"))).toEqual(["010002", "010003", "010004"]);
+  it("matches partial codes including leading zeros", () => {
+    expect(CARD_REGISTER_LOCATIONS.filter((location) => matchesCardLocation(location.code, location.name, "002")).map((location) => location.code)).toEqual(["010002"]);
+    expect(CARD_REGISTER_LOCATIONS.filter((location) => matchesCardLocation(location.code, location.name, "0100"))).toHaveLength(7);
   });
-  it("supports only From code", () => {
-    expect(locationInRange("010001", "010002", "")).toBe(false);
-    expect(locationInRange("010002", "010002", "")).toBe(true);
-    expect(locationInRange("010007", "010002", "")).toBe(true);
+  it("matches branch descriptions and trims surrounding spaces", () => {
+    expect(matchesCardLocation("010001", CARD_REGISTER_LOCATIONS[0].name, " ลาดพร้าว ")).toBe(true);
+    expect(matchesCardLocation("010002", CARD_REGISTER_LOCATIONS[1].name, "ลาดพร้าว")).toBe(false);
   });
-  it("supports only To code", () => {
-    expect(locationInRange("010001", "", "010004")).toBe(true);
-    expect(locationInRange("010004", "", "010004")).toBe(true);
-    expect(locationInRange("010005", "", "010004")).toBe(false);
+  it("matches case-insensitively against full display text", () => {
+    expect(matchesCardLocation("010002", "Branch North", " 002 BRANCH ")).toBe(true);
+    expect(matchesCardLocation("010002", "Branch North", "south")).toBe(false);
   });
-  it("does not apply a reversed range", () => {
-    expect(locationInRange("010001", "010007", "010002")).toBe(true);
-    expect(locationInRange(undefined, "010007", "010002")).toBe(true);
+  it("selects only the exact location code", () => {
+    expect(matchesCardLocation("010002", "Branch", "0100", "010002")).toBe(true);
+    expect(matchesCardLocation("010001", "Branch", "0100", "010002")).toBe(false);
   });
-  it("excludes missing locations only when a valid bound is selected", () => {
-    expect(locationInRange(undefined, "", "")).toBe(true);
-    expect(locationInRange(undefined, "010001", "")).toBe(false);
+  it("shows all locations when empty and excludes missing locations when searching", () => {
+    expect(matchesCardLocation(undefined, undefined, " ")).toBe(true);
+    expect(matchesCardLocation(undefined, undefined, "0100")).toBe(false);
   });
 });
 

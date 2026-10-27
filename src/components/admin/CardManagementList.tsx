@@ -26,8 +26,8 @@ import { toast } from "@/hooks/use-toast";
 import { CARD_MASTER_ROWS, type CardMasterRow, type CardMasterStatus } from "@/lib/card-master-mock-data";
 import { useCardTypeScope, kindKey, cardTypeKey } from "@/hooks/use-card-type-scope";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
-import CardRegisterLocationPicker from "./CardRegisterLocationPicker";
-import { compareCardValues, expirySortValue, locationInRange, type CardRegisterSortKey } from "@/lib/card-register-utils";
+import CardRegisterLocationFilter from "./CardRegisterLocationFilter";
+import { compareCardValues, expirySortValue, matchesCardLocation, type CardRegisterSortKey } from "@/lib/card-register-utils";
 
 const RED = "#DA3832";
 const GREEN = "#43938F";
@@ -111,9 +111,9 @@ export default function CardManagementList() {
   const [type, setType] = useState(ALL);
   const [bank, setBank] = useState(ALL);
   const [status, setStatus] = useState(ALL);
-  const [locationFrom, setLocationFrom] = useState("");
-  const [locationTo, setLocationTo] = useState("");
-  const invalidLocationRange = !!locationFrom && !!locationTo && locationFrom > locationTo;
+  const [locationQuery, setLocationQuery] = useState("");
+  const [selectedLocation, setSelectedLocation] = useState("");
+  const clearLocation = () => { setLocationQuery(""); setSelectedLocation(""); };
   const [expiringOnly, setExpiringOnly] = useState(false);
   const [sortKey, setSortKey] = useState<SortKey>("cardId");
   const [sortDir, setSortDir] = useState<"asc" | "desc">("desc");
@@ -137,9 +137,9 @@ export default function CardManagementList() {
     const t = setTimeout(() => setDebounced(search), 300);
     return () => clearTimeout(t);
   }, [search]);
-  useEffect(() => setPage(1), [debounced, type, bank, status, expiringOnly, pageSize, locationFrom, locationTo]);
+  useEffect(() => setPage(1), [debounced, type, bank, status, expiringOnly, pageSize, locationQuery, selectedLocation]);
 
-  const locationRows = useMemo(() => rows.filter((r) => locationInRange(r.locationCode, locationFrom, locationTo)), [rows, locationFrom, locationTo]);
+  const locationRows = useMemo(() => rows.filter((r) => matchesCardLocation(r.locationCode, r.locationName, locationQuery, selectedLocation)), [rows, locationQuery, selectedLocation]);
 
   const stats = useMemo(() => {
     return {
@@ -202,8 +202,7 @@ export default function CardManagementList() {
     setBank(ALL);
     setStatus(ALL);
     setExpiringOnly(false);
-    setLocationFrom("");
-    setLocationTo("");
+    clearLocation();
   };
 
   const toggleSort = (k: SortKey) => {
@@ -361,18 +360,12 @@ export default function CardManagementList() {
             <SelectTrigger className="flex-1 min-w-[150px] bg-background rounded-lg"><SelectValue /></SelectTrigger>
             <SelectContent>{statusOptions.map((o) => <SelectItem key={o} value={o}>{o === ALL ? "Status: All" : statusLabelTh[o] ?? o}</SelectItem>)}</SelectContent>
           </Select>
-          <div className="flex flex-wrap items-center gap-2">
-            <span className="text-sm">Location</span>
-            <div className="w-[190px]"><CardRegisterLocationPicker value={locationFrom} onChange={setLocationFrom} label="From code" range /></div>
-            <span className="text-sm">to</span>
-            <div className="w-[190px]"><CardRegisterLocationPicker value={locationTo} onChange={setLocationTo} label="To code" range /></div>
-            <Button variant="ghost" onClick={() => { setLocationFrom(""); setLocationTo(""); }}>Clear</Button>
-          </div>
+          <CardRegisterLocationFilter query={locationQuery} selectedCode={selectedLocation} onChange={(query, code) => { setLocationQuery(query); setSelectedLocation(code); }} />
+          <Button variant="ghost" onClick={clearLocation}>Clear</Button>
           {hasFilters && (
             <Button variant="ghost" onClick={clearAll} style={{ color: "#306FC7" }}>Clear filters</Button>
           )}
         </div>
-        {invalidLocationRange && <p className="text-sm text-destructive">From code must not be greater than To code.</p>}
         {hasFilters && (
           <div className="flex flex-wrap gap-2">
             {chips.map((c) => (

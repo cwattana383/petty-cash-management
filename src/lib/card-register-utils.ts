@@ -10,10 +10,9 @@ export const CARD_REGISTER_LOCATIONS = [
 
 export type CardRegisterSortKey = "cardId" | "kind" | "bankTh" | "last4" | "plateNo" | "locationCode" | "cardholderName" | "creditLimit" | "expiry" | "status";
 
-export function locationInRange(code: string | undefined, from: string, to: string) {
-  if (from && to && from > to) return true;
-  if (!from && !to) return true;
-  return !!code && (!from || code >= from) && (!to || code <= to);
+export function matchesCardLocation(code: string | undefined, name: string | undefined, query: string, selectedCode = "") {
+  if (selectedCode) return code === selectedCode;
+  return `${code ?? ""} ${name ?? ""}`.toLowerCase().includes(query.trim().toLowerCase());
 }
 
 export function compareCardValues(a: string | number | undefined, b: string | number | undefined, direction: "asc" | "desc") {

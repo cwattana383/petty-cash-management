@@ -3,3 +3,5 @@
 - [x] Verify rules and Card Management list/New/Edit flows.
 - [x] Move Linked To before License Plate in table/export/forms and prevent wrapping of Card ID, Type and Last 4; forms already have the requested relative order.
 - [x] Verify sorting, export, forms and horizontal table scrolling.
+- [x] Replace only list Location range with single live searchable filter and clear actions.
+- [x] Verify partial/exact matching, combined filters, summary counts and sorting.
