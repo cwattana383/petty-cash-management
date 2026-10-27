@@ -1,5 +1,5 @@
 - [x] Add Card Register license plate/location fields, mock values and export.
 - [x] Add every-column sorting and searchable location range.
 - [x] Verify rules and Card Management list/New/Edit flows.
-- [ ] Move Linked To before License Plate in table/export/forms and prevent wrapping of Card ID, Type and Last 4.
-- [ ] Verify sorting, export, forms and horizontal table scrolling.
+- [x] Move Linked To before License Plate in table/export/forms and prevent wrapping of Card ID, Type and Last 4; forms already have the requested relative order.
+- [x] Verify sorting, export, forms and horizontal table scrolling.
