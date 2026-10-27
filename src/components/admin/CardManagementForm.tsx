@@ -18,6 +18,8 @@ import { STORE_LOCATIONS } from "@/lib/card-request-types";
 import CardAuditTrail, { buildCardAuditEvents, type CardAuditEvent } from "@/components/admin/CardAuditTrail";
 import { RefreshCw, AlertTriangle } from "lucide-react";
 import { useCardTypeScope } from "@/hooks/use-card-type-scope";
+import CardRegisterLocationPicker from "./CardRegisterLocationPicker";
+import { CARD_REGISTER_LOCATIONS } from "@/lib/card-register-utils";
 
 type EmailState = "SENT" | "NOT_SENT" | "FAILED" | "PENDING";
 
@@ -497,6 +499,17 @@ export default function CardManagementForm({ record }: Props = {}) {
               <FieldLabel>Cardholder Name</FieldLabel>
               <ReadOnlyValue value={form.cardholderName} />
             </div>
+            <div className="space-y-2">
+              <FieldLabel>License Plate</FieldLabel>
+              <Input aria-label="License Plate" className={inputCls} value={form.plateNo ?? ""} onChange={(ev) => set("plateNo", ev.target.value)} />
+            </div>
+            <div className="space-y-2">
+              <FieldLabel>Location</FieldLabel>
+              <CardRegisterLocationPicker value={form.locationCode} label="Location" onChange={(code) => {
+                const location = CARD_REGISTER_LOCATIONS.find((item) => item.code === code);
+                setForm((previous) => ({ ...previous, locationCode: code, locationName: location?.name }));
+              }} />
+            </div>
           </div>
         </Card>
       ) : (
@@ -605,6 +618,17 @@ export default function CardManagementForm({ record }: Props = {}) {
             {errors.cardholderName && <p className="text-xs text-destructive">{errors.cardholderName}</p>}
           </div>
 
+            <div className="space-y-2">
+              <FieldLabel>License Plate</FieldLabel>
+              <Input aria-label="License Plate" className={inputCls} value={form.plateNo ?? ""} onChange={(ev) => set("plateNo", ev.target.value)} />
+            </div>
+            <div className="space-y-2">
+              <FieldLabel>Location</FieldLabel>
+              <CardRegisterLocationPicker value={form.locationCode} label="Location" onChange={(code) => {
+                const location = CARD_REGISTER_LOCATIONS.find((item) => item.code === code);
+                setForm((previous) => ({ ...previous, locationCode: code, locationName: location?.name }));
+              }} />
+            </div>
 
         </div>
       </Card>

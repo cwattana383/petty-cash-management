@@ -1274,6 +1274,17 @@ var get_claim_default = defineTool4({
 import { defineTool as defineTool5 } from "npm:@lovable.dev/mcp-js@3.0.5";
 import { z as z4 } from "npm:zod@^4.6.5";
 
+// src/lib/card-register-utils.ts
+var CARD_REGISTER_LOCATIONS = [
+  { code: "010001", name: "\u0E1A\u0E21\u0E08.\u0E0B\u0E35\u0E1E\u0E35 \u0E41\u0E2D\u0E47\u0E01\u0E0B\u0E4C\u0E15\u0E23\u0E49\u0E32 \u0E2A\u0E32\u0E02\u0E32\u0E25\u0E32\u0E14\u0E1E\u0E23\u0E49\u0E32\u0E27" },
+  { code: "010002", name: "\u0E1A\u0E21\u0E08.\u0E0B\u0E35\u0E1E\u0E35 \u0E41\u0E2D\u0E47\u0E01\u0E0B\u0E4C\u0E15\u0E23\u0E49\u0E32 \u0E2A\u0E32\u0E02\u0E32\u0E41\u0E08\u0E49\u0E07\u0E27\u0E31\u0E12\u0E19\u0E30" },
+  { code: "010003", name: "\u0E1A\u0E21\u0E08.\u0E0B\u0E35\u0E1E\u0E35 \u0E41\u0E2D\u0E47\u0E01\u0E0B\u0E4C\u0E15\u0E23\u0E49\u0E32 \u0E2A\u0E32\u0E02\u0E32\u0E28\u0E23\u0E35\u0E19\u0E04\u0E23\u0E34\u0E19\u0E17\u0E23\u0E4C" },
+  { code: "010004", name: "\u0E1A\u0E21\u0E08.\u0E0B\u0E35\u0E1E\u0E35 \u0E41\u0E2D\u0E47\u0E01\u0E0B\u0E4C\u0E15\u0E23\u0E49\u0E32 \u0E2A\u0E32\u0E02\u0E32\u0E1A\u0E32\u0E07\u0E1A\u0E2D\u0E19" },
+  { code: "010005", name: "\u0E1A\u0E21\u0E08.\u0E0B\u0E35\u0E1E\u0E35 \u0E41\u0E2D\u0E47\u0E01\u0E0B\u0E4C\u0E15\u0E23\u0E49\u0E32 \u0E2A\u0E32\u0E02\u0E32\u0E0A\u0E25\u0E1A\u0E38\u0E23\u0E35" },
+  { code: "010006", name: "\u0E1A\u0E21\u0E08.\u0E0B\u0E35\u0E1E\u0E35 \u0E41\u0E2D\u0E47\u0E01\u0E0B\u0E4C\u0E15\u0E23\u0E49\u0E32 \u0E2A\u0E32\u0E02\u0E32\u0E40\u0E0A\u0E35\u0E22\u0E07\u0E43\u0E2B\u0E21\u0E48" },
+  { code: "010007", name: "\u0E1A\u0E21\u0E08.\u0E0B\u0E35\u0E1E\u0E35 \u0E41\u0E2D\u0E47\u0E01\u0E0B\u0E4C\u0E15\u0E23\u0E49\u0E32 \u0E2A\u0E32\u0E02\u0E32\u0E19\u0E04\u0E23\u0E23\u0E32\u0E0A\u0E2A\u0E35\u0E21\u0E32" }
+];
+
 // src/lib/card-master-mock-data.ts
 function mmYY(d) {
   return `${String(d.getMonth() + 1).padStart(2, "0")}/${String(d.getFullYear() % 100).padStart(2, "0")}`;
@@ -1283,6 +1294,8 @@ soon.setDate(soon.getDate() + 45);
 var CARD_MASTER_ROWS = [
   {
     cardId: "FL-2026-00427",
+    locationCode: "010001",
+    locationName: CARD_REGISTER_LOCATIONS[0].name,
     kind: "fleet",
     bankTh: "\u0E01\u0E2A\u0E34\u0E01\u0E23\u0E44\u0E17\u0E22",
     last4: "8841",
@@ -1294,6 +1307,8 @@ var CARD_MASTER_ROWS = [
   },
   {
     cardId: "FL-2026-00431",
+    locationCode: "010002",
+    locationName: CARD_REGISTER_LOCATIONS[1].name,
     kind: "fleet",
     bankTh: "\u0E01\u0E2A\u0E34\u0E01\u0E23\u0E44\u0E17\u0E22",
     last4: "9012",
@@ -1305,6 +1320,8 @@ var CARD_MASTER_ROWS = [
   },
   {
     cardId: "FL-2026-00419",
+    locationCode: "010003",
+    locationName: CARD_REGISTER_LOCATIONS[2].name,
     kind: "fleet",
     bankTh: "\u0E01\u0E23\u0E38\u0E07\u0E28\u0E23\u0E35",
     last4: "7745",
@@ -1316,6 +1333,8 @@ var CARD_MASTER_ROWS = [
   },
   {
     cardId: "FL-2026-00405",
+    locationCode: "010004",
+    locationName: CARD_REGISTER_LOCATIONS[3].name,
     kind: "fleet",
     bankTh: "\u0E01\u0E2A\u0E34\u0E01\u0E23\u0E44\u0E17\u0E22",
     last4: "6623",
@@ -1327,7 +1346,10 @@ var CARD_MASTER_ROWS = [
   },
   {
     cardId: "CC-2026-35775",
+    locationCode: "010005",
+    locationName: CARD_REGISTER_LOCATIONS[4].name,
     kind: "corporate",
+    plateNo: "",
     bankTh: "\u0E01\u0E23\u0E38\u0E07\u0E28\u0E23\u0E35",
     last4: "3577",
     cardholderName: "Somchai Jaidee",
@@ -1339,6 +1361,8 @@ var CARD_MASTER_ROWS = [
   },
   {
     cardId: "FL-2026-00412",
+    locationCode: "010006",
+    locationName: CARD_REGISTER_LOCATIONS[5].name,
     kind: "fleet",
     fuelBrand: "PTT",
     bankTh: "\u0E01\u0E2A\u0E34\u0E01\u0E23\u0E44\u0E17\u0E22",
@@ -1351,7 +1375,10 @@ var CARD_MASTER_ROWS = [
   },
   {
     cardId: "CC-2026-31208",
+    locationCode: "010007",
+    locationName: CARD_REGISTER_LOCATIONS[6].name,
     kind: "corporate",
+    plateNo: "",
     bankTh: "\u0E01\u0E2A\u0E34\u0E01\u0E23\u0E44\u0E17\u0E22",
     last4: "3120",
     cardholderName: "Thanit Boonmee",
@@ -1363,7 +1390,10 @@ var CARD_MASTER_ROWS = [
   },
   {
     cardId: "CC-2026-29944",
+    locationCode: "010001",
+    locationName: CARD_REGISTER_LOCATIONS[0].name,
     kind: "corporate",
+    plateNo: "",
     bankTh: "\u0E01\u0E23\u0E38\u0E07\u0E28\u0E23\u0E35",
     last4: "2994",
     cardholderName: "Naruemon Srisuk",
@@ -1375,6 +1405,8 @@ var CARD_MASTER_ROWS = [
   },
   {
     cardId: "FL-2026-00398",
+    locationCode: "010002",
+    locationName: CARD_REGISTER_LOCATIONS[1].name,
     kind: "fleet",
     fuelBrand: "Bangchak",
     bankTh: "\u0E01\u0E2A\u0E34\u0E01\u0E23\u0E44\u0E17\u0E22",
@@ -1387,7 +1419,10 @@ var CARD_MASTER_ROWS = [
   },
   {
     cardId: "CC-2025-88120",
+    locationCode: "010003",
+    locationName: CARD_REGISTER_LOCATIONS[2].name,
     kind: "corporate",
+    plateNo: "",
     bankTh: "\u0E01\u0E23\u0E38\u0E07\u0E28\u0E23\u0E35",
     last4: "8812",
     cardholderName: "Pornthip Wattana",
@@ -1399,7 +1434,10 @@ var CARD_MASTER_ROWS = [
   },
   {
     cardId: "CC-2025-77341",
+    locationCode: "010004",
+    locationName: CARD_REGISTER_LOCATIONS[3].name,
     kind: "corporate",
+    plateNo: "",
     bankTh: "\u0E01\u0E2A\u0E34\u0E01\u0E23\u0E44\u0E17\u0E22",
     last4: "7734",
     cardholderName: "Anucha Meesuk",
@@ -1411,6 +1449,8 @@ var CARD_MASTER_ROWS = [
   },
   {
     cardId: "FL-2025-00317",
+    locationCode: "010005",
+    locationName: CARD_REGISTER_LOCATIONS[4].name,
     kind: "fleet",
     fuelBrand: "PTT",
     bankTh: "\u0E01\u0E23\u0E38\u0E07\u0E28\u0E23\u0E35",
@@ -1423,7 +1463,10 @@ var CARD_MASTER_ROWS = [
   },
   {
     cardId: "CC-2025-66220",
+    locationCode: "010006",
+    locationName: CARD_REGISTER_LOCATIONS[5].name,
     kind: "corporate",
+    plateNo: "",
     bankTh: "\u0E01\u0E2A\u0E34\u0E01\u0E23\u0E44\u0E17\u0E22",
     last4: "6622",
     cardholderName: "Kanya Phongsri",
@@ -1435,6 +1478,8 @@ var CARD_MASTER_ROWS = [
   },
   {
     cardId: "FL-2025-00288",
+    locationCode: "010007",
+    locationName: CARD_REGISTER_LOCATIONS[6].name,
     kind: "fleet",
     fuelBrand: "Shell",
     bankTh: "\u0E01\u0E23\u0E38\u0E07\u0E28\u0E23\u0E35",
@@ -1447,7 +1492,10 @@ var CARD_MASTER_ROWS = [
   },
   {
     cardId: "CC-2025-55010",
+    locationCode: "010001",
+    locationName: CARD_REGISTER_LOCATIONS[0].name,
     kind: "corporate",
+    plateNo: "",
     bankTh: "\u0E01\u0E2A\u0E34\u0E01\u0E23\u0E44\u0E17\u0E22",
     last4: "5501",
     cardholderName: "Weerachai Tanaka",
@@ -1459,6 +1507,8 @@ var CARD_MASTER_ROWS = [
   },
   {
     cardId: "FL-2025-00201",
+    locationCode: "010002",
+    locationName: CARD_REGISTER_LOCATIONS[1].name,
     kind: "fleet",
     fuelBrand: "Bangchak",
     bankTh: "\u0E01\u0E23\u0E38\u0E07\u0E28\u0E23\u0E35",

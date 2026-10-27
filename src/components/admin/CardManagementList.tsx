@@ -1,6 +1,6 @@
 import { useMemo, useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { CreditCard, MoreHorizontal, ArrowUp, ArrowDown, X } from "lucide-react";
+import { CreditCard, MoreHorizontal, ArrowUp, ArrowDown, ArrowUpDown, X } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -26,6 +26,8 @@ import { toast } from "@/hooks/use-toast";
 import { CARD_MASTER_ROWS, type CardMasterRow, type CardMasterStatus } from "@/lib/card-master-mock-data";
 import { useCardTypeScope, kindKey, cardTypeKey } from "@/hooks/use-card-type-scope";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
+import CardRegisterLocationPicker from "./CardRegisterLocationPicker";
+import { compareCardValues, expirySortValue, locationInRange, type CardRegisterSortKey } from "@/lib/card-register-utils";
 
 const RED = "#DA3832";
 const GREEN = "#43938F";
@@ -99,7 +101,7 @@ function StatusPill({ status }: { status: CardMasterStatus }) {
   );
 }
 
-type SortKey = "cardId" | "creditLimit" | "expiry";
+type SortKey = CardRegisterSortKey;
 
 export default function CardManagementList() {
   const navigate = useNavigate();
@@ -109,6 +111,9 @@ export default function CardManagementList() {
   const [type, setType] = useState(ALL);
   const [bank, setBank] = useState(ALL);
   const [status, setStatus] = useState(ALL);
+  const [locationFrom, setLocationFrom] = useState("");
+  const [locationTo, setLocationTo] = useState("");
+  const invalidLocationRange = !!locationFrom && !!locationTo && locationFrom > locationTo;
   const [expiringOnly, setExpiringOnly] = useState(false);
   const [sortKey, setSortKey] = useState<SortKey>("cardId");
   const [sortDir, setSortDir] = useState<"asc" | "desc">("desc");
@@ -132,23 +137,25 @@ export default function CardManagementList() {
     const t = setTimeout(() => setDebounced(search), 300);
     return () => clearTimeout(t);
   }, [search]);
-  useEffect(() => setPage(1), [debounced, type, bank, status, expiringOnly, pageSize]);
+  useEffect(() => setPage(1), [debounced, type, bank, status, expiringOnly, pageSize, locationFrom, locationTo]);
+
+  const locationRows = useMemo(() => rows.filter((r) => locationInRange(r.locationCode, locationFrom, locationTo)), [rows, locationFrom, locationTo]);
 
   const stats = useMemo(() => {
     return {
-      total: rows.length,
-      active: rows.filter((r) => effectiveStatus(r) === "Active").length,
-      suspended: rows.filter((r) => effectiveStatus(r) === "Suspended").length,
-      expiring: rows.filter((r) => isExpiringSoon(r)).length,
-      pendingActivation: rows.filter((r) =>
+      total: locationRows.length,
+      active: locationRows.filter((r) => effectiveStatus(r) === "Active").length,
+      suspended: locationRows.filter((r) => effectiveStatus(r) === "Suspended").length,
+      expiring: locationRows.filter((r) => isExpiringSoon(r)).length,
+      pendingActivation: locationRows.filter((r) =>
         ["Created", "Handed Over", "Received"].includes(effectiveStatus(r)),
       ).length,
     };
-  }, [rows]);
+  }, [locationRows]);
 
   const filtered = useMemo(() => {
     const q = debounced.trim().toLowerCase();
-    let list = rows.filter((r) => {
+    let list = locationRows.filter((r) => {
       if (q) {
         const hay = [r.cardId, r.cardholderName ?? "", r.last4].join(" ").toLowerCase();
         if (!hay.includes(q)) return false;
@@ -163,18 +170,18 @@ export default function CardManagementList() {
       return true;
     });
     list = [...list].sort((a, b) => {
-      let cmp = 0;
-      if (sortKey === "cardId") cmp = a.cardId.localeCompare(b.cardId);
-      else if (sortKey === "creditLimit") cmp = a.creditLimit - b.creditLimit;
-      else {
-        const da = expiryDate(a.expiry)?.getTime() ?? 0;
-        const db = expiryDate(b.expiry)?.getTime() ?? 0;
-        cmp = da - db;
-      }
-      return sortDir === "asc" ? cmp : -cmp;
+      const value = (row: CardMasterRow) => {
+        if (sortKey === "kind") return row.kind === "corporate" ? "Corporate Credit" : "Fleet Card";
+        if (sortKey === "bankTh") return bankLabelEn[row.bankTh] ?? row.bankTh;
+        if (sortKey === "last4") return row.last4.slice(-4);
+        if (sortKey === "expiry") return expirySortValue(row.expiry);
+        if (sortKey === "status") return statusLabelTh[effectiveStatus(row)] ?? effectiveStatus(row);
+        return row[sortKey];
+      };
+      return compareCardValues(value(a), value(b), sortDir);
     });
     return list;
-  }, [rows, debounced, type, bank, status, expiringOnly, sortKey, sortDir]);
+  }, [locationRows, debounced, type, bank, status, expiringOnly, sortKey, sortDir]);
 
   const totalPages = Math.max(1, Math.ceil(filtered.length / pageSize));
   const current = filtered.slice((page - 1) * pageSize, page * pageSize);
@@ -195,6 +202,8 @@ export default function CardManagementList() {
     setBank(ALL);
     setStatus(ALL);
     setExpiringOnly(false);
+    setLocationFrom("");
+    setLocationTo("");
   };
 
   const toggleSort = (k: SortKey) => {
@@ -206,13 +215,15 @@ export default function CardManagementList() {
   };
 
   const exportExcel = () => {
-    const header = ["CARD ID", "TYPE", "BANK", "LAST 4", "LINKED TO", "CREDIT LIMIT", "EXPIRY", "STATUS"];
+    const header = ["CARD ID", "TYPE", "BANK", "LAST 4", "LICENSE PLATE", "LOCATION", "LINKED TO", "CREDIT LIMIT", "EXPIRY", "STATUS"];
     const lines = filtered.map((r) =>
       [
         r.cardId,
         r.kind === "corporate" ? "Corporate Credit" : "Fleet Card",
         bankLabelEn[r.bankTh] ?? r.bankTh,
         r.last4,
+        r.plateNo || "-",
+        r.locationCode ? `${r.locationCode} ${r.locationName ?? ""}`.trim() : "-",
         r.cardholderName || "Unassigned",
         String(r.creditLimit),
         expiryBE(r.expiry),
@@ -239,14 +250,15 @@ export default function CardManagementList() {
   };
 
   const SortHeader = ({ k, children, align }: { k: SortKey; children: React.ReactNode; align?: "right" }) => (
-    <button
+    <Button
       type="button"
+      variant="ghost"
       onClick={() => toggleSort(k)}
-      className={`flex items-center gap-1 font-bold text-xs tracking-wide text-muted-foreground uppercase ${align === "right" ? "ml-auto" : ""}`}
+      className={`h-auto p-0 hover:bg-transparent flex items-center gap-1 font-bold text-xs tracking-wide text-muted-foreground uppercase ${align === "right" ? "ml-auto" : ""}`}
     >
       {children}
-      {sortKey === k && (sortDir === "asc" ? <ArrowUp className="h-3 w-3" /> : <ArrowDown className="h-3 w-3" />)}
-    </button>
+      {sortKey === k ? (sortDir === "asc" ? <ArrowUp className="h-3 w-3" /> : <ArrowDown className="h-3 w-3" />) : <ArrowUpDown className="h-3 w-3" />}
+    </Button>
   );
 
   const statCards = [
@@ -349,10 +361,18 @@ export default function CardManagementList() {
             <SelectTrigger className="flex-1 min-w-[150px] bg-background rounded-lg"><SelectValue /></SelectTrigger>
             <SelectContent>{statusOptions.map((o) => <SelectItem key={o} value={o}>{o === ALL ? "Status: All" : statusLabelTh[o] ?? o}</SelectItem>)}</SelectContent>
           </Select>
+          <div className="flex flex-wrap items-center gap-2">
+            <span className="text-sm">Location</span>
+            <div className="w-[190px]"><CardRegisterLocationPicker value={locationFrom} onChange={setLocationFrom} label="From code" range /></div>
+            <span className="text-sm">to</span>
+            <div className="w-[190px]"><CardRegisterLocationPicker value={locationTo} onChange={setLocationTo} label="To code" range /></div>
+            <Button variant="ghost" onClick={() => { setLocationFrom(""); setLocationTo(""); }}>Clear</Button>
+          </div>
           {hasFilters && (
             <Button variant="ghost" onClick={clearAll} style={{ color: "#306FC7" }}>Clear filters</Button>
           )}
         </div>
+        {invalidLocationRange && <p className="text-sm text-destructive">From code must not be greater than To code.</p>}
         {hasFilters && (
           <div className="flex flex-wrap gap-2">
             {chips.map((c) => (
@@ -379,13 +399,15 @@ export default function CardManagementList() {
             <thead>
               <tr style={{ backgroundColor: "#F5F6F7" }} className="text-left">
                 <th className="px-4 py-3"><SortHeader k="cardId">Card ID</SortHeader></th>
-                <th className="px-4 py-3 text-xs font-bold uppercase tracking-wide text-muted-foreground">TYPE</th>
-                <th className="px-4 py-3 text-xs font-bold uppercase tracking-wide text-muted-foreground">BANK</th>
-                <th className="px-4 py-3 text-xs font-bold uppercase tracking-wide text-muted-foreground">LAST 4</th>
-                <th className="px-4 py-3 text-xs font-bold uppercase tracking-wide text-muted-foreground">LINKED TO</th>
+                <th className="px-4 py-3"><SortHeader k="kind">TYPE</SortHeader></th>
+                <th className="px-4 py-3"><SortHeader k="bankTh">BANK</SortHeader></th>
+                <th className="px-4 py-3"><SortHeader k="last4">LAST 4</SortHeader></th>
+                <th className="px-4 py-3"><SortHeader k="plateNo">LICENSE PLATE</SortHeader></th>
+                <th className="px-4 py-3"><SortHeader k="locationCode">LOCATION</SortHeader></th>
+                <th className="px-4 py-3"><SortHeader k="cardholderName">LINKED TO</SortHeader></th>
                 <th className="px-4 py-3"><SortHeader k="creditLimit" align="right">CREDIT LIMIT</SortHeader></th>
                 <th className="px-4 py-3"><SortHeader k="expiry">EXPIRY</SortHeader></th>
-                <th className="px-4 py-3 text-xs font-bold uppercase tracking-wide text-muted-foreground">STATUS</th>
+                <th className="px-4 py-3"><SortHeader k="status">STATUS</SortHeader></th>
                 <th className="px-4 py-3 w-10" />
               </tr>
             </thead>
@@ -393,7 +415,7 @@ export default function CardManagementList() {
               {loading &&
                 Array.from({ length: 6 }).map((_, i) => (
                   <tr key={i} className="border-t">
-                    {Array.from({ length: 9 }).map((__, j) => (
+                    {Array.from({ length: 11 }).map((__, j) => (
                       <td key={j} className="px-4 py-5"><Skeleton className="h-4 w-full" /></td>
                     ))}
                   </tr>
@@ -401,7 +423,7 @@ export default function CardManagementList() {
 
               {!loading && filtered.length === 0 && (
                 <tr>
-                  <td colSpan={9} className="py-16 text-center">
+                  <td colSpan={11} className="py-16 text-center">
                     <CreditCard className="mx-auto h-10 w-10 text-muted-foreground" />
                     {rows.length === 0 ? (
                       <>
@@ -442,6 +464,8 @@ export default function CardManagementList() {
                           ? `•••• •••• •••• ${r.last4.slice(-4)}`
                           : `•••• ${r.last4.slice(-4)}`}
                       </td>
+                      <td className="px-4 py-3">{r.plateNo || "-"}</td>
+                      <td className="px-4 py-3">{r.locationCode ? `${r.locationCode} ${r.locationName ?? ""}`.trim() : "-"}</td>
                       <td className="px-4 py-3 max-w-[200px] w-[200px]">
                         {r.cardholderName ? (
                           <Tooltip>
