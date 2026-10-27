@@ -1,3 +1,5 @@
+import { CARD_REGISTER_LOCATIONS } from "./card-register-utils";
+
 export type CardMasterStatus = "Created" | "Handed Over" | "Received" | "Active" | "Suspended" | "Cancelled" | "Expired";
 
 export interface CardMasterRow {
@@ -9,6 +11,8 @@ export interface CardMasterRow {
   cardholderName?: string;
   employeeId?: string;
   plateNo?: string;
+  locationCode?: string;
+  locationName?: string;
   creditLimit: number;
   /** MM/YY */
   expiry: string;
@@ -26,6 +30,8 @@ soon.setDate(soon.getDate() + 45);
 export const CARD_MASTER_ROWS: CardMasterRow[] = [
   {
     cardId: "FL-2026-00427",
+    locationCode: "010001",
+    locationName: CARD_REGISTER_LOCATIONS[0].name,
     kind: "fleet",
     bankTh: "กสิกรไทย",
     last4: "8841",
@@ -37,6 +43,8 @@ export const CARD_MASTER_ROWS: CardMasterRow[] = [
   },
   {
     cardId: "FL-2026-00431",
+    locationCode: "010002",
+    locationName: CARD_REGISTER_LOCATIONS[1].name,
     kind: "fleet",
     bankTh: "กสิกรไทย",
     last4: "9012",
@@ -48,6 +56,8 @@ export const CARD_MASTER_ROWS: CardMasterRow[] = [
   },
   {
     cardId: "FL-2026-00419",
+    locationCode: "010003",
+    locationName: CARD_REGISTER_LOCATIONS[2].name,
     kind: "fleet",
     bankTh: "กรุงศรี",
     last4: "7745",
@@ -59,6 +69,8 @@ export const CARD_MASTER_ROWS: CardMasterRow[] = [
   },
   {
     cardId: "FL-2026-00405",
+    locationCode: "010004",
+    locationName: CARD_REGISTER_LOCATIONS[3].name,
     kind: "fleet",
     bankTh: "กสิกรไทย",
     last4: "6623",
@@ -70,7 +82,10 @@ export const CARD_MASTER_ROWS: CardMasterRow[] = [
   },
   {
     cardId: "CC-2026-35775",
+    locationCode: "010005",
+    locationName: CARD_REGISTER_LOCATIONS[4].name,
     kind: "corporate",
+    plateNo: "",
     bankTh: "กรุงศรี",
     last4: "3577",
     cardholderName: "Somchai Jaidee",
@@ -82,6 +97,8 @@ export const CARD_MASTER_ROWS: CardMasterRow[] = [
   },
   {
     cardId: "FL-2026-00412",
+    locationCode: "010006",
+    locationName: CARD_REGISTER_LOCATIONS[5].name,
     kind: "fleet",
     fuelBrand: "PTT",
     bankTh: "กสิกรไทย",
@@ -94,7 +111,10 @@ export const CARD_MASTER_ROWS: CardMasterRow[] = [
   },
   {
     cardId: "CC-2026-31208",
+    locationCode: "010007",
+    locationName: CARD_REGISTER_LOCATIONS[6].name,
     kind: "corporate",
+    plateNo: "",
     bankTh: "กสิกรไทย",
     last4: "3120",
     cardholderName: "Thanit Boonmee",
@@ -106,7 +126,10 @@ export const CARD_MASTER_ROWS: CardMasterRow[] = [
   },
   {
     cardId: "CC-2026-29944",
+    locationCode: "010001",
+    locationName: CARD_REGISTER_LOCATIONS[0].name,
     kind: "corporate",
+    plateNo: "",
     bankTh: "กรุงศรี",
     last4: "2994",
     cardholderName: "Naruemon Srisuk",
@@ -118,6 +141,8 @@ export const CARD_MASTER_ROWS: CardMasterRow[] = [
   },
   {
     cardId: "FL-2026-00398",
+    locationCode: "010002",
+    locationName: CARD_REGISTER_LOCATIONS[1].name,
     kind: "fleet",
     fuelBrand: "Bangchak",
     bankTh: "กสิกรไทย",
@@ -130,7 +155,10 @@ export const CARD_MASTER_ROWS: CardMasterRow[] = [
   },
   {
     cardId: "CC-2025-88120",
+    locationCode: "010003",
+    locationName: CARD_REGISTER_LOCATIONS[2].name,
     kind: "corporate",
+    plateNo: "",
     bankTh: "กรุงศรี",
     last4: "8812",
     cardholderName: "Pornthip Wattana",
@@ -142,7 +170,10 @@ export const CARD_MASTER_ROWS: CardMasterRow[] = [
   },
   {
     cardId: "CC-2025-77341",
+    locationCode: "010004",
+    locationName: CARD_REGISTER_LOCATIONS[3].name,
     kind: "corporate",
+    plateNo: "",
     bankTh: "กสิกรไทย",
     last4: "7734",
     cardholderName: "Anucha Meesuk",
@@ -154,6 +185,8 @@ export const CARD_MASTER_ROWS: CardMasterRow[] = [
   },
   {
     cardId: "FL-2025-00317",
+    locationCode: "010005",
+    locationName: CARD_REGISTER_LOCATIONS[4].name,
     kind: "fleet",
     fuelBrand: "PTT",
     bankTh: "กรุงศรี",
@@ -166,7 +199,10 @@ export const CARD_MASTER_ROWS: CardMasterRow[] = [
   },
   {
     cardId: "CC-2025-66220",
+    locationCode: "010006",
+    locationName: CARD_REGISTER_LOCATIONS[5].name,
     kind: "corporate",
+    plateNo: "",
     bankTh: "กสิกรไทย",
     last4: "6622",
     cardholderName: "Kanya Phongsri",
@@ -178,6 +214,8 @@ export const CARD_MASTER_ROWS: CardMasterRow[] = [
   },
   {
     cardId: "FL-2025-00288",
+    locationCode: "010007",
+    locationName: CARD_REGISTER_LOCATIONS[6].name,
     kind: "fleet",
     fuelBrand: "Shell",
     bankTh: "กรุงศรี",
@@ -190,7 +228,10 @@ export const CARD_MASTER_ROWS: CardMasterRow[] = [
   },
   {
     cardId: "CC-2025-55010",
+    locationCode: "010001",
+    locationName: CARD_REGISTER_LOCATIONS[0].name,
     kind: "corporate",
+    plateNo: "",
     bankTh: "กสิกรไทย",
     last4: "5501",
     cardholderName: "Weerachai Tanaka",
@@ -202,6 +243,8 @@ export const CARD_MASTER_ROWS: CardMasterRow[] = [
   },
   {
     cardId: "FL-2025-00201",
+    locationCode: "010002",
+    locationName: CARD_REGISTER_LOCATIONS[1].name,
     kind: "fleet",
     fuelBrand: "Bangchak",
     bankTh: "กรุงศรี",

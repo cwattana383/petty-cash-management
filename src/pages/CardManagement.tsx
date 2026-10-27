@@ -49,6 +49,8 @@ export default function CardManagement() {
                 company: row?.company,
                 creditLimit: row?.creditLimit?.toLocaleString("en-US"),
                 plateNo: row?.plateNo,
+                locationCode: row?.locationCode,
+                locationName: row?.locationName,
               }
         }
       />

@@ -1,0 +1,3 @@
+- [x] Add Card Register license plate/location fields, mock values and export.
+- [x] Add every-column sorting and searchable location range.
+- [x] Verify rules and Card Management list/New/Edit flows.
