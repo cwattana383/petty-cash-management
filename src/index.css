@@ -96,3 +96,18 @@ All colors MUST be HSL.
     @apply bg-background text-foreground;
   }
 }
+
+/* Scoped OCR settings tokens; other screens retain their current theme. */
+.ocr-card-type-settings {
+  --primary: 215 61% 48%;
+  --primary-foreground: 0 0% 100%;
+  --accent: 215 61% 96%;
+  --accent-foreground: 215 61% 48%;
+  --ring: 215 61% 48%;
+  --destructive: 2 69% 53%;
+  --ocr-success: 177 37% 42%;
+  --ocr-warning: 42 91% 63%;
+}
+.ocr-configured { background: hsl(var(--ocr-success) / .12); color: hsl(var(--ocr-success)); border-color: hsl(var(--ocr-success) / .3); }
+.ocr-using-default { background: hsl(var(--ocr-warning) / .25); color: hsl(var(--foreground)); border-color: hsl(var(--ocr-warning)); }
+.ocr-save-toast { background: hsl(177 37% 42%); color: hsl(0 0% 100%); border-color: hsl(177 37% 42%); }

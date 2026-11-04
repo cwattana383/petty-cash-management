@@ -5,3 +5,5 @@
 - [x] Verify sorting, export, forms and horizontal table scrolling.
 - [x] Replace only list Location range with single live searchable filter and clear actions.
 - [x] Verify partial/exact matching, combined filters, summary counts and sorting.
+- [x] Add per-card-type OCR settings with mock-master-driven selection, fallback, validation, save/reset and unsaved confirmation; no existing real Card Type master API is available.
+- [x] Verify OCR settings with 13 passing tests and onscreen save/read-back/reset/discard/validation/search/empty-state flows.
