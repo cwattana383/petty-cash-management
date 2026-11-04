@@ -113,3 +113,19 @@ All colors MUST be HSL.
 .ocr-using-default { background: hsl(var(--ocr-warning) / .25); color: hsl(var(--ocr-warning-foreground)); border-color: hsl(var(--ocr-warning)); }
 .ocr-edited-row, .ocr-edited-row:hover { background: hsl(var(--ocr-warning) / .12); }
 .ocr-save-toast { background: hsl(177 37% 42%); color: hsl(0 0% 100%); border-color: hsl(177 37% 42%); }
+
+/* Page-scoped document audit palette; existing screens keep their tokens. */
+.document-library {
+  --primary: 215 61% 48%;
+  --primary-foreground: 0 0% 100%;
+  --accent: 215 61% 96%;
+  --accent-foreground: 215 61% 38%;
+  --ring: 215 61% 48%;
+  --library-credit: 215 61% 48%;
+  --library-credit-text: 215 61% 34%;
+  --library-fleet: 177 37% 42%;
+  --library-fleet-text: 177 37% 28%;
+}
+.library-credit-pill { background: hsl(var(--library-credit) / .12); color: hsl(var(--library-credit-text)); border-color: hsl(var(--library-credit) / .3); }
+.library-fleet-pill { background: hsl(var(--library-fleet) / .12); color: hsl(var(--library-fleet-text)); border-color: hsl(var(--library-fleet) / .3); }
+.dark .document-library { --library-credit-text: 215 70% 78%; --library-fleet-text: 177 45% 72%; }
