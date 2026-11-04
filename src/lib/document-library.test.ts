@@ -1,4 +1,4 @@
-// @vitest-environment node
+// @vitest-environment jsdom
 import { describe, expect, it } from "vitest";
 import { canAccessDocumentLibrary, EMPTY_LIBRARY_FILTERS, filterLibraryDocuments, readLibraryDocuments, sortLibraryDocuments } from "./document-library";
 
@@ -19,7 +19,7 @@ describe("Document Library rules", () => {
   it("matches names and transaction numbers with trimmed case-insensitive contains", async () => {
     const rows = await readLibraryDocuments();
     expect(filterLibraryDocuments(rows, { ...EMPTY_LIBRARY_FILTERS, search: " HOTEL " }).map((row) => row.id)).toEqual(["dl-5", "dl-6"]);
-    expect(filterLibraryDocuments(rows, { ...EMPTY_LIBRARY_FILTERS, search: " BT-23 " }).map((row) => row.id)).toEqual(["dl-4"]);
+    expect(filterLibraryDocuments(rows, { ...EMPTY_LIBRARY_FILTERS, search: " txn2026050600007 " }).map((row) => row.id)).toEqual(["dl-4"]);
   });
   it("AND-combines type, uploader, search and inclusive date ranges", async () => {
     const rows = await readLibraryDocuments();

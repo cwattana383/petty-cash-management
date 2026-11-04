@@ -36,9 +36,9 @@ export function canAccessDocumentLibrary(roles: readonly string[]) {
 // file URLs when connected. Transaction metadata is joined from the shared source.
 const SAMPLE_ATTACHMENTS = [
   { id: "dl-1", transactionNo: "bt-8", name: "fuel-tax-invoice.pdf", uploadedBy: "Somchai Jaidee" },
-  { id: "dl-2", transactionNo: "bt-15", name: "fuel-e-tax-invoice.pdf", uploadedBy: "RPA" },
-  { id: "dl-3", transactionNo: "bt-19", name: "fleet-tax-invoice.pdf", uploadedBy: "Somchai Jaidee" },
-  { id: "dl-4", transactionNo: "bt-23", name: "fleet-e-tax-invoice.pdf", uploadedBy: "RPA" },
+  { id: "dl-2", transactionNo: "TXN2026050100001", name: "fuel-e-tax-invoice.pdf", uploadedBy: "RPA" },
+  { id: "dl-3", transactionNo: "TXN2026050400004", name: "fleet-tax-invoice.pdf", uploadedBy: "Somchai Jaidee" },
+  { id: "dl-4", transactionNo: "TXN2026050600007", name: "fleet-e-tax-invoice.pdf", uploadedBy: "RPA" },
   { id: "dl-5", transactionNo: "bt-1", name: "hotel-booking.pdf", uploadedBy: "Somchai Jaidee" },
   { id: "dl-6", transactionNo: "bt-1", name: "hotel-tax-invoice.pdf", uploadedBy: "Somchai Jaidee" },
   { id: "dl-7", transactionNo: "bt-2", name: "airplane-booking.pdf", uploadedBy: "Somying Kaewsai" },
