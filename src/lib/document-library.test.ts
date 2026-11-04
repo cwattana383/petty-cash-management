@@ -1,4 +1,4 @@
-// @vitest-environment jsdom
+// @vitest-environment node
 import { describe, expect, it } from "vitest";
 import { canAccessDocumentLibrary, EMPTY_LIBRARY_FILTERS, filterLibraryDocuments, readLibraryDocuments, sortLibraryDocuments } from "./document-library";
 
