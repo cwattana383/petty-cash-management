@@ -10,3 +10,5 @@
 - [x] Replace OCR master-detail view with editable table, batch save, reset confirmation and unsaved navigation guard.
 - [x] Verify table rules with 16 tests and onscreen batch save/read-back/reset/search/validation/tab-leave/browser-back flows.
 - [ ] Add requested Manage Card Types link — blocked: no existing Card Type master page or destination exists; no other page/route may be added.
+- [ ] Add read-only Document Library, requested filters/table/downloads and Admin navigation/access.
+- [ ] Verify Document Library rules, downloads, links and narrow-screen layout.
