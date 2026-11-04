@@ -7,5 +7,6 @@
 - [x] Verify partial/exact matching, combined filters, summary counts and sorting.
 - [x] Add per-card-type OCR settings with mock-master-driven selection, fallback, validation, save/reset and unsaved confirmation; no existing real Card Type master API is available.
 - [x] Verify OCR settings with 13 passing tests and onscreen save/read-back/reset/discard/validation/search/empty-state flows.
-- [ ] Replace OCR master-detail view with editable table, batch save, reset confirmation and unsaved navigation guard.
-- [ ] Verify table rules and save/read-back/navigation flows.
+- [x] Replace OCR master-detail view with editable table, batch save, reset confirmation and unsaved navigation guard.
+- [x] Verify table rules with 16 tests and onscreen batch save/read-back/reset/search/validation/tab-leave/browser-back flows.
+- [ ] Add requested Manage Card Types link — blocked: no existing Card Type master page or destination exists; no other page/route may be added.
