@@ -5,3 +5,5 @@
 - [x] Verify sorting, export, forms and horizontal table scrolling.
 - [x] Replace only list Location range with single live searchable filter and clear actions.
 - [x] Verify partial/exact matching, combined filters, summary counts and sorting.
+- [ ] Add per-card-type OCR settings with master-driven selection, fallback, validation, save/reset and unsaved confirmation.
+- [ ] Verify OCR settings rules and onscreen flows without changing other pages.
