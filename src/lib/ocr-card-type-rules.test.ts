@@ -1,6 +1,6 @@
 // @vitest-environment node
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { initialOcrCardRules, ocrToleranceSchema, resolveOcrCardRule, saveOcrCardRule, resetOcrCardRule, readOcrCardRules } from "./ocr-card-type-rules";
+import { initialOcrCardRules, ocrToleranceSchema, resolveOcrCardRule, saveOcrCardRule, resetOcrCardRule, readOcrCardRules, saveOcrCardRules } from "./ocr-card-type-rules";
 import { readCardTypeMaster } from "./card-type-master";
 
 const storage = new Map<string, string>();
@@ -12,6 +12,32 @@ vi.stubGlobal("localStorage", {
 beforeEach(() => localStorage.clear());
 
 describe("per-card-type OCR rules", () => {
+  it("batch saves edited rows with one timestamp while preserving untouched rows", () => {
+    const original = initialOcrCardRules();
+    const next = saveOcrCardRules(original, {
+      "fleet-card": { amountToleranceThb: 2, amountTolerancePct: 0, dateToleranceDays: 0 },
+      "ev-fleet-card": { amountToleranceThb: 3, amountTolerancePct: 1, dateToleranceDays: 2 },
+    }, "Test Admin");
+    expect(next["fleet-card"].amountToleranceThb).toBe(2);
+    expect(next["ev-fleet-card"].amountToleranceThb).toBe(3);
+    expect(next["fleet-card"].updatedAt).toBe(next["ev-fleet-card"].updatedAt);
+    expect(next.default).toEqual(original.default);
+    expect(next["corporate-credit-card"]).toEqual(original["corporate-credit-card"]);
+  });
+  it("an invalid batch writes no rows", () => {
+    expect(() => saveOcrCardRules(initialOcrCardRules(), {
+      "fleet-card": { amountToleranceThb: 2, amountTolerancePct: 0, dateToleranceDays: 0 },
+      "ev-fleet-card": { amountToleranceThb: 3, amountTolerancePct: 101, dateToleranceDays: 2 },
+    }, "Test Admin")).toThrow();
+    expect(localStorage.getItem("ocr-card-type-rules")).toBeNull();
+  });
+  it("batch reset removes a specific rule while retaining default and others", () => {
+    const original = initialOcrCardRules();
+    const next = saveOcrCardRules(original, { "fleet-card": null }, "Test Admin");
+    expect(next["fleet-card"]).toBeUndefined();
+    expect(resolveOcrCardRule(next, "fleet-card")).toEqual(original.default);
+    expect(next["corporate-credit-card"]).toEqual(original["corporate-credit-card"]);
+  });
   it("seeds Default as 1 THB, 1 percent and 0 days", () => {
     expect(initialOcrCardRules().default).toMatchObject({ amountToleranceThb: 1, amountTolerancePct: 1, dateToleranceDays: 0 });
   });
