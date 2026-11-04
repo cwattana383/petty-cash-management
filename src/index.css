@@ -128,4 +128,5 @@ All colors MUST be HSL.
 }
 .library-credit-pill { background: hsl(var(--library-credit) / .12); color: hsl(var(--library-credit-text)); border-color: hsl(var(--library-credit) / .3); }
 .library-fleet-pill { background: hsl(var(--library-fleet) / .12); color: hsl(var(--library-fleet-text)); border-color: hsl(var(--library-fleet) / .3); }
+.document-library .library-selected-count { color: hsl(var(--library-fleet-text)); }
 .dark .document-library { --library-credit-text: 215 70% 78%; --library-fleet-text: 177 45% 72%; }

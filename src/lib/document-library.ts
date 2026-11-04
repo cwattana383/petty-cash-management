@@ -1,4 +1,6 @@
-import { getCorpTxnByBankTxnId } from "./api-client";
+import { apiClient, getCorpTxnByBankTxnId } from "./api-client";
+import type { ExpenseTypeRow } from "@/hooks/use-expense-types";
+import type { DocumentTypeRow } from "@/hooks/use-document-types";
 import { getCardType, type CardTypeLabel } from "./approval-status";
 
 export interface LibraryDocument {
@@ -10,6 +12,12 @@ export interface LibraryDocument {
   uploadedAt: string;
   uploadedBy: string;
   url: string;
+  documentTypeId: string;
+  documentType: string;
+  expenseTypeId: string;
+  expenseType: string;
+  subExpenseTypeId: string;
+  subExpenseType: string;
 }
 
 export interface LibraryFilters {
@@ -20,13 +28,17 @@ export interface LibraryFilters {
   uploadFrom: string;
   uploadTo: string;
   uploadedBy: string;
+  expenseTypeId: string;
+  subExpenseTypeId: string;
+  documentTypeId: string;
 }
 
 export const EMPTY_LIBRARY_FILTERS: LibraryFilters = {
   search: "", cardType: "all", transactionFrom: "", transactionTo: "",
   uploadFrom: "", uploadTo: "", uploadedBy: "all",
+  expenseTypeId: "all", subExpenseTypeId: "all", documentTypeId: "all",
 };
-export type LibrarySortKey = "name" | "transactionDate" | "uploadedAt" | "uploadedBy";
+export type LibrarySortKey = "name" | "documentType" | "expenseType" | "subExpenseType" | "transactionDate" | "uploadedAt" | "uploadedBy";
 export const DOCUMENT_LIBRARY_ROLES = ["Admin"];
 export function canAccessDocumentLibrary(roles: readonly string[]) {
   return roles.some((role) => DOCUMENT_LIBRARY_ROLES.includes(role));
@@ -45,12 +57,45 @@ const SAMPLE_ATTACHMENTS = [
   { id: "dl-8", transactionNo: "bt-3", name: "meal-receipt.pdf", uploadedBy: "Wichai Charoen" },
 ];
 
+// Classification IDs belong to the eight mock document records, not dropdown options.
+const SAMPLE_CLASSIFICATIONS = [
+  { documentTypeId: "dt-12", expenseTypeId: "et-forklift-refueling", subExpenseTypeId: "set-forklift-refueling" },
+  { documentTypeId: "dt-12", expenseTypeId: "et-forklift-refueling", subExpenseTypeId: "set-forklift-refueling" },
+  { documentTypeId: "dt-12", expenseTypeId: "et-forklift-refueling", subExpenseTypeId: "set-forklift-refueling" },
+  { documentTypeId: "dt-12", expenseTypeId: "et-forklift-refueling", subExpenseTypeId: "set-forklift-refueling" },
+  { documentTypeId: "dt-3", expenseTypeId: "et-1", subExpenseTypeId: "set-6" },
+  { documentTypeId: "dt-12", expenseTypeId: "et-1", subExpenseTypeId: "set-6" },
+  { documentTypeId: "dt-4", expenseTypeId: "et-1", subExpenseTypeId: "set-5" },
+  { documentTypeId: "dt-12", expenseTypeId: "et-1", subExpenseTypeId: "set-7" },
+];
+
+export function librarySubtypeOptions(expenses: ExpenseTypeRow[], expenseTypeId: string) {
+  return expenses.filter((expense) => expenseTypeId === "all" || expense.id === expenseTypeId)
+    .flatMap((expense) => expense.subtypes);
+}
+
 export async function readLibraryDocuments(): Promise<LibraryDocument[]> {
+  const [expensesResponse, documentResponse] = await Promise.all([
+    apiClient.get("/expense-types?limit=10000"),
+    apiClient.get("/document-types?limit=10000"),
+  ]);
+  const expenses: ExpenseTypeRow[] = expensesResponse.items ?? [];
+  const documentTypes: DocumentTypeRow[] = documentResponse.items ?? [];
   return SAMPLE_ATTACHMENTS.flatMap((attachment, index) => {
     const transaction = getCorpTxnByBankTxnId(attachment.transactionNo);
     if (!transaction) return [];
+    const classification = SAMPLE_CLASSIFICATIONS[index];
+    const expenseTypeId = transaction.expenseTypeId ?? classification.expenseTypeId;
+    const subExpenseTypeId = transaction.subExpenseTypeId ?? classification.subExpenseTypeId;
+    const expense = expenses.find((item) => item.id === expenseTypeId);
     return [{
       ...attachment,
+      expenseTypeId,
+      subExpenseTypeId,
+      expenseType: expense?.expenseType ?? "",
+      subExpenseType: expense?.subtypes.find((item) => item.id === subExpenseTypeId)?.subExpenseType ?? "",
+      documentTypeId: classification.documentTypeId,
+      documentType: documentTypes.find((item) => item.id === classification.documentTypeId)?.documentName ?? "",
       transactionDate: transaction.transactionDate,
       cardType: getCardType(attachment.transactionNo),
       // Fixture upload timestamp, distinct from transaction time.
@@ -71,7 +116,10 @@ export function filterLibraryDocuments(rows: LibraryDocument[], filters: Library
       && (!filters.transactionTo || date <= filters.transactionTo)
       && (!filters.uploadFrom || upload >= filters.uploadFrom)
       && (!filters.uploadTo || upload <= filters.uploadTo)
-      && (filters.uploadedBy === "all" || row.uploadedBy === filters.uploadedBy);
+      && (filters.uploadedBy === "all" || row.uploadedBy === filters.uploadedBy)
+      && (filters.expenseTypeId === "all" || row.expenseTypeId === filters.expenseTypeId)
+      && (filters.subExpenseTypeId === "all" || row.subExpenseTypeId === filters.subExpenseTypeId)
+      && (filters.documentTypeId === "all" || row.documentTypeId === filters.documentTypeId);
   });
 }
 

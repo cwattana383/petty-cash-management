@@ -14,10 +14,14 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Table, TableHeader, TableHead, TableBody, TableRow, TableCell } from "@/components/ui/table";
 import { LibraryDatePicker } from "@/components/documents/LibraryDatePicker";
 import { formatBEDate } from "@/lib/utils";
-import { EMPTY_LIBRARY_FILTERS, readLibraryDocuments, filterLibraryDocuments, sortLibraryDocuments, downloadLibraryDocuments, type LibrarySortKey } from "@/lib/document-library";
+import { EMPTY_LIBRARY_FILTERS, readLibraryDocuments, filterLibraryDocuments, sortLibraryDocuments, downloadLibraryDocuments, librarySubtypeOptions, type LibrarySortKey } from "@/lib/document-library";
+import { useAllExpenseTypes } from "@/hooks/use-expense-types";
+import { useAllDocumentTypes } from "@/hooks/use-document-types";
 
 export default function DocumentLibrary() {
   const { data: documents = [], isLoading, isError, refetch } = useQuery({ queryKey: ["document-library"], queryFn: readLibraryDocuments });
+  const { data: expenseTypes = [] } = useAllExpenseTypes();
+  const { data: documentTypes = [] } = useAllDocumentTypes();
   const [draft, setDraft] = useState({ ...EMPTY_LIBRARY_FILTERS });
   const [applied, setApplied] = useState({ ...EMPTY_LIBRARY_FILTERS });
   const [selected, setSelected] = useState<Set<string>>(new Set());
@@ -32,6 +36,7 @@ export default function DocumentLibrary() {
   const allPageSelected = rows.length > 0 && rows.every((row) => selected.has(row.id));
   const somePageSelected = rows.some((row) => selected.has(row.id));
   const uploaders = [...new Set(documents.map((row) => row.uploadedBy))].sort();
+  const subtypes = librarySubtypeOptions(expenseTypes, draft.expenseTypeId);
 
   const runSearch = () => { setApplied({ ...draft }); setPage(1); setSelected(new Set()); if (isError) void refetch(); };
   const clear = () => { setDraft({ ...EMPTY_LIBRARY_FILTERS }); setApplied({ ...EMPTY_LIBRARY_FILTERS }); setPage(1); setSelected(new Set()); };
@@ -66,6 +71,7 @@ export default function DocumentLibrary() {
             <TabsList><TabsTrigger value="all">All Cards</TabsTrigger><TabsTrigger value="Credit Card">Credit Card</TabsTrigger><TabsTrigger value="Fleet Card">Fleet Card</TabsTrigger></TabsList>
           </Tabs>
         </div>
+        <div className="flex flex-wrap items-center gap-4">
         <div className="flex flex-wrap items-center gap-3">
           <Label>Transaction Date:</Label>
           <LibraryDatePicker label="Transaction Date from" value={draft.transactionFrom} onChange={(transactionFrom) => setDraft({ ...draft, transactionFrom })} />
@@ -85,27 +91,54 @@ export default function DocumentLibrary() {
             <SelectContent><SelectItem value="all">All users</SelectItem>{uploaders.map((user) => <SelectItem key={user} value={user}>{user}</SelectItem>)}</SelectContent>
           </Select>
         </div>
+        </div>
+        <div className="flex flex-wrap items-center gap-4">
+          <div className="flex items-center gap-3 flex-wrap">
+            <Label htmlFor="library-expense-type">Expense Type:</Label>
+            <Select value={draft.expenseTypeId} onValueChange={(expenseTypeId) => setDraft({ ...draft, expenseTypeId, subExpenseTypeId: "all" })}>
+              <SelectTrigger id="library-expense-type" className="w-[220px]"><SelectValue /></SelectTrigger>
+              <SelectContent><SelectItem value="all">All expense types</SelectItem>{expenseTypes.map((item) => <SelectItem key={item.id} value={item.id}>{item.expenseType}</SelectItem>)}</SelectContent>
+            </Select>
+          </div>
+          <div className="flex items-center gap-3 flex-wrap">
+            <Label htmlFor="library-sub-expense-type">Sub Expense Type:</Label>
+            <Select value={draft.subExpenseTypeId} onValueChange={(subExpenseTypeId) => setDraft({ ...draft, subExpenseTypeId })}>
+              <SelectTrigger id="library-sub-expense-type" className="w-[220px]"><SelectValue /></SelectTrigger>
+              <SelectContent><SelectItem value="all">All sub expense types</SelectItem>{subtypes.map((item) => <SelectItem key={item.id} value={item.id}>{item.subExpenseType}</SelectItem>)}</SelectContent>
+            </Select>
+          </div>
+          <div className="flex items-center gap-3 flex-wrap">
+            <Label htmlFor="library-document-type">Document Type:</Label>
+            <Select value={draft.documentTypeId} onValueChange={(documentTypeId) => setDraft({ ...draft, documentTypeId })}>
+              <SelectTrigger id="library-document-type" className="w-[220px]"><SelectValue /></SelectTrigger>
+              <SelectContent><SelectItem value="all">All document types</SelectItem>{documentTypes.map((item) => <SelectItem key={item.id} value={item.id}>{item.documentName}</SelectItem>)}</SelectContent>
+            </Select>
+          </div>
+        </div>
         <div className="flex justify-end gap-2"><Button type="button" variant="outline" onClick={clear}>Clear</Button><Button type="submit"><Search />Search</Button></div>
       </form>
 
       <div className="flex flex-wrap items-center justify-between gap-3">
-        <span className="text-sm text-muted-foreground" aria-live="polite">{filtered.length} documents found · {selectedRows.length} selected</span>
+        <span className="text-sm text-muted-foreground" aria-live="polite">{filtered.length} documents found · <span className="library-selected-count">{selectedRows.length} selected</span></span>
         <Button disabled={selectedRows.length === 0} onClick={() => downloadLibraryDocuments(selectedRows)}><Download />Download selected ({selectedRows.length})</Button>
       </div>
       <Card>
         <CardContent className="p-0">
           <div className="overflow-x-auto">
-            <Table className="min-w-[1120px]">
+            <Table className="min-w-[1700px]">
               <TableHeader><TableRow>
                 <TableHead className="w-12"><Checkbox aria-label="Select all documents on current page" disabled={rows.length === 0} checked={allPageSelected ? true : somePageSelected ? "indeterminate" : false} onCheckedChange={(checked) => togglePage(checked === true)} /></TableHead>
-                {sortHeader("Document Name", "name")}<TableHead>Transaction No.</TableHead><TableHead>Card Type</TableHead>
+                {sortHeader("Document Name", "name")}{sortHeader("Document Type", "documentType")}{sortHeader("Expense Type", "expenseType")}{sortHeader("Sub Expense Type", "subExpenseType")}<TableHead>Transaction No.</TableHead><TableHead>Card Type</TableHead>
                 {sortHeader("Transaction Date", "transactionDate")}{sortHeader("Upload Date", "uploadedAt")}{sortHeader("Uploaded By", "uploadedBy")}<TableHead className="text-right">Action</TableHead>
               </TableRow></TableHeader>
               <TableBody>
-                {isLoading ? Array.from({ length: 8 }, (_, index) => <TableRow key={index}>{Array.from({ length: 8 }, (_, cell) => <TableCell key={cell}><Skeleton className="h-5 w-full" /></TableCell>)}</TableRow>) : isError ? <TableRow><TableCell colSpan={8} className="h-28 text-center text-destructive" role="alert">Documents could not be loaded</TableCell></TableRow> : rows.length === 0 ? <TableRow><TableCell colSpan={8} className="h-28 text-center text-muted-foreground">No documents match your search</TableCell></TableRow> : rows.map((row) => (
-                  <TableRow key={row.id}>
+                {isLoading ? Array.from({ length: 8 }, (_, index) => <TableRow key={index}>{Array.from({ length: 11 }, (_, cell) => <TableCell key={cell}><Skeleton className="h-5 w-full" /></TableCell>)}</TableRow>) : isError ? <TableRow><TableCell colSpan={11} className="h-28 text-center text-destructive" role="alert">Documents could not be loaded</TableCell></TableRow> : rows.length === 0 ? <TableRow><TableCell colSpan={11} className="h-28 text-center text-muted-foreground">No documents match your search</TableCell></TableRow> : rows.map((row) => (
+                  <TableRow key={row.id} className="even:bg-muted/40">
                     <TableCell><Checkbox aria-label={`Select ${row.name}`} checked={selected.has(row.id)} onCheckedChange={(checked) => toggleRow(row.id, checked === true)} /></TableCell>
                     <TableCell className="font-medium whitespace-nowrap">{row.name}</TableCell>
+                    <TableCell className="whitespace-nowrap">{row.documentType}</TableCell>
+                    <TableCell className="whitespace-nowrap">{row.expenseType}</TableCell>
+                    <TableCell className="whitespace-nowrap">{row.subExpenseType}</TableCell>
                     <TableCell><Link className="text-primary hover:underline whitespace-nowrap" to={`/claims/${encodeURIComponent(row.transactionNo)}`}>{row.transactionNo}</Link></TableCell>
                     <TableCell><Badge variant="outline" className={`whitespace-nowrap ${row.cardType === "Fleet Card" ? "library-fleet-pill" : "library-credit-pill"}`}>{row.cardType}</Badge></TableCell>
                     <TableCell className="whitespace-nowrap">{formatBEDate(row.transactionDate)}</TableCell><TableCell className="whitespace-nowrap">{formatBEDate(row.uploadedAt)}</TableCell>

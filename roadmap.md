@@ -12,3 +12,4 @@
 - [ ] Add requested Manage Card Types link — blocked: no existing Card Type master page or destination exists; no other page/route may be added.
 - [x] Add read-only Document Library, requested filters/table/downloads and confirmed Admin navigation/access using eight sample PDFs; original stored attachments are not connected.
 - [x] Verify Document Library with five rule tests and browser checks for filters, sorting, BE dates, single/eight-file downloads, transaction links, role redirect and narrow-screen scrolling.
+- [x] Update only Document Library with master-backed Expense/Sub Expense/Document Type filters and sortable columns, grouped filter rows, green selected count and zebra striping; verified seven tests, dependent filters and original download/access flows.
