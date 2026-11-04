@@ -18,9 +18,23 @@ export function useOcrUnsavedChanges(dirty: boolean) {
     const push = navigator.push;
     const replace = navigator.replace;
     const go = navigator.go;
-    navigator.push = (...args) => guard(() => push.apply(navigator, args));
-    navigator.replace = (...args) => guard(() => replace.apply(navigator, args));
+    let currentIndex = window.history.state?.idx ?? 0;
+    let restoring = false;
+    let allowedPop = false;
+    navigator.push = (...args) => guard(() => { push.apply(navigator, args); currentIndex = window.history.state?.idx ?? currentIndex; });
+    navigator.replace = (...args) => guard(() => { replace.apply(navigator, args); currentIndex = window.history.state?.idx ?? currentIndex; });
     navigator.go = (...args) => guard(() => go.apply(navigator, args));
+    const pop = (event: PopStateEvent) => {
+      const index = event.state?.idx ?? currentIndex;
+      if (restoring) { restoring = false; event.stopImmediatePropagation(); return; }
+      if (!dirtyRef.current || bypass.current || allowedPop) { allowedPop = false; currentIndex = index; return; }
+      const delta = index - currentIndex;
+      if (delta === 0) return;
+      event.stopImmediatePropagation();
+      restoring = true;
+      window.history.go(-delta);
+      guard(() => { allowedPop = true; window.history.go(delta); });
+    };
     const capture = (event: MouseEvent) => {
       if (!dirtyRef.current || bypass.current || !(event.target instanceof Element)) return;
       const target = event.target.closest<HTMLElement>("nav button, a[href]");
@@ -36,12 +50,14 @@ export function useOcrUnsavedChanges(dirty: boolean) {
     };
     document.addEventListener("click", capture, true);
     window.addEventListener("beforeunload", unload);
+    window.addEventListener("popstate", pop, true);
     return () => {
       navigator.push = push;
       navigator.replace = replace;
       navigator.go = go;
       document.removeEventListener("click", capture, true);
       window.removeEventListener("beforeunload", unload);
+      window.removeEventListener("popstate", pop, true);
     };
   }, [navigator]);
   return {
