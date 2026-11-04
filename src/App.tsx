@@ -18,6 +18,8 @@ import CreateClaim from "./pages/CreateClaim";
 import ClaimDetail from "./pages/ClaimDetail";
 import ApprovalInbox from "./pages/ApprovalInbox";
 import AccountingReview from "./pages/AccountingReview";
+import DocumentLibrary from "./pages/DocumentLibrary";
+import { DOCUMENT_LIBRARY_ROLES } from "@/lib/document-library";
 import AccountingClaimDetail from "./pages/AccountingClaimDetail";
 import Reports from "./pages/Reports";
 
@@ -76,6 +78,7 @@ const App = () => (
                             <Route path="/claims/:id" element={<ClaimDetail />} />
                             <Route path="/approvals" element={<RoleGuard allowedRoles={["Approver", "Admin"]}><ApprovalInbox /></RoleGuard>} />
                             <Route path="/accounting" element={<RoleGuard allowedRoles={["Admin"]}><AccountingReview /></RoleGuard>} />
+                            <Route path="/document-library" element={<RoleGuard allowedRoles={DOCUMENT_LIBRARY_ROLES}><DocumentLibrary /></RoleGuard>} />
                             <Route path="/accounting/:id" element={<RoleGuard allowedRoles={["Admin"]}><AccountingClaimDetail /></RoleGuard>} />
                             <Route path="/reports" element={<RoleGuard allowedRoles={["Admin"]}><Reports /></RoleGuard>} />
 
