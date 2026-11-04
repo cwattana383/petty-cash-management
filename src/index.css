@@ -107,7 +107,9 @@ All colors MUST be HSL.
   --destructive: 2 69% 53%;
   --ocr-success: 177 37% 42%;
   --ocr-warning: 42 91% 63%;
+  --ocr-warning-foreground: 35 67% 25%;
 }
 .ocr-configured { background: hsl(var(--ocr-success) / .12); color: hsl(var(--ocr-success)); border-color: hsl(var(--ocr-success) / .3); }
-.ocr-using-default { background: hsl(var(--ocr-warning) / .25); color: hsl(var(--foreground)); border-color: hsl(var(--ocr-warning)); }
+.ocr-using-default { background: hsl(var(--ocr-warning) / .25); color: hsl(var(--ocr-warning-foreground)); border-color: hsl(var(--ocr-warning)); }
+.ocr-edited-row, .ocr-edited-row:hover { background: hsl(var(--ocr-warning) / .12); }
 .ocr-save-toast { background: hsl(177 37% 42%); color: hsl(0 0% 100%); border-color: hsl(177 37% 42%); }

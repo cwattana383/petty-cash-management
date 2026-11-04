@@ -56,3 +56,18 @@ export function resetOcrCardRule(rules: OcrCardRules, key: string): OcrCardRules
   localStorage.setItem(STORAGE_KEY, JSON.stringify(rulesSchema.parse(next)));
   return next;
 }
+
+export function saveOcrCardRules(rules: OcrCardRules, edits: Record<string, unknown | null>, user: string): OcrCardRules {
+  const next = { ...rules };
+  const updatedAt = new Date().toISOString();
+  for (const [key, input] of Object.entries(edits)) {
+    if (input === null) {
+      if (key !== DEFAULT_OCR_KEY) delete next[key];
+    } else {
+      next[key] = ruleSchema.parse({ ...ocrToleranceSchema.parse(input), updatedAt, updatedBy: user });
+    }
+  }
+  const validated = rulesSchema.parse(next);
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(validated));
+  return validated;
+}
