@@ -8,7 +8,7 @@ export const ocrToleranceSchema = z.object({
 });
 export type OcrTolerance = z.infer<typeof ocrToleranceSchema>;
 const ruleSchema = ocrToleranceSchema.extend({
-  updatedAt: z.string().datetime(),
+  updatedAt: z.string().datetime({ offset: true }),
   updatedBy: z.string().trim().min(1).max(100),
 });
 export type OcrCardRule = z.infer<typeof ruleSchema>;

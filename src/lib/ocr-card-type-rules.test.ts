@@ -1,7 +1,14 @@
-import { beforeEach, describe, expect, it } from "vitest";
+// @vitest-environment node
+import { beforeEach, describe, expect, it, vi } from "vitest";
 import { initialOcrCardRules, ocrToleranceSchema, resolveOcrCardRule, saveOcrCardRule, resetOcrCardRule, readOcrCardRules } from "./ocr-card-type-rules";
 import { readCardTypeMaster } from "./card-type-master";
 
+const storage = new Map<string, string>();
+vi.stubGlobal("localStorage", {
+  getItem: (key: string) => storage.get(key) ?? null,
+  setItem: (key: string, value: string) => storage.set(key, value),
+  clear: () => storage.clear(),
+});
 beforeEach(() => localStorage.clear());
 
 describe("per-card-type OCR rules", () => {
