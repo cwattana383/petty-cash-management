@@ -115,7 +115,7 @@ export default function InputVatReportPanel() {
             {/* Tax Month */}
             <div className="space-y-2">
               <Label>
-                Tax Month (เดือนภาษี) <span className="text-destructive">*</span>
+                Tax Invoice Month (เดือนที่เกิดรายการ) <span className="text-destructive">*</span>
               </Label>
               <Popover open={monthOpen} onOpenChange={setMonthOpen}>
                 <PopoverTrigger asChild>
