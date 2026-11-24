@@ -273,13 +273,10 @@ export default function AvgVatRatePanel() {
                             <span className={`absolute -left-6 top-3 h-3.5 w-3.5 rounded-full border-2 border-background ${idx === 0 ? "bg-amber-400" : "bg-muted-foreground/40"}`} />
                             <div className={`rounded-md p-3 ${idx === 0 ? "border-l-4 border-amber-400 bg-amber-50" : ""}`}>
                               <p className="text-sm font-semibold">{e.type}</p>
-                              {e.type === "Created" && (
-                                <p className="text-sm">{(() => { const v = Object.fromEntries(e.changes.map((c) => [c.field, c.newValue])); return `${v["AVG VAT Rate %"]}% · ${fmtDate(v["Effective Date From"])} – ${fmtDate(v["Effective Date To"])}`; })()}</p>
-                              )}
                               {e.type === "Updated" && e.changes.map((c) => (
                                 <p key={c.field} className="text-sm">{c.field}: {fmtAuditVal(c.field, c.oldValue)} → {fmtAuditVal(c.field, c.newValue)}</p>
                               ))}
-                              <p className="text-xs text-muted-foreground">{[e.actorName, e.actorEmail && e.actorEmail !== e.actorName ? e.actorEmail : "", e.actorEmployeeId ? `(${e.actorEmployeeId})` : ""].filter(Boolean).join(" ")} · {fmtAuditStamp(e.at)}</p>
+                              <p className="text-xs text-muted-foreground">{e.actorName}{[e.actorEmail && e.actorEmail !== e.actorName ? e.actorEmail : "", e.actorEmployeeId || ""].filter(Boolean).length ? ` (${[e.actorEmail && e.actorEmail !== e.actorName ? e.actorEmail : "", e.actorEmployeeId || ""].filter(Boolean).join(", ")})` : ""} · {fmtAuditStamp(e.at)}</p>
                             </div>
                           </div>
                         ))}
