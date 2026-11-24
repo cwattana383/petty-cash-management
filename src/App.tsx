@@ -85,6 +85,7 @@ const App = () => (
                             <Route path="/bank-transactions" element={<RoleGuard allowedRoles={["Admin"]}><BankTransactions /></RoleGuard>} />
                             <Route path="/policy-management" element={<RoleGuard allowedRoles={["Admin"]}><PolicyManagement /></RoleGuard>} />
                             <Route path="/admin" element={<RoleGuard allowedRoles={["Admin"]}><Admin /></RoleGuard>} />
+                            <Route path="/admin/avg-vat-rate" element={<RoleGuard allowedRoles={["Admin"]}><Navigate to="/admin?tab=avg-vat-rate" replace /></RoleGuard>} />
                             <Route path="/admin/data-scope" element={<RoleGuard allowedRoles={["Admin"]}><DataScopeRedirect /></RoleGuard>} />
                             <Route path="/admin/card-management" element={<RoleGuard allowedRoles={["Admin"]}><CardManagement /></RoleGuard>} />
                             <Route path="/admin/card-management/:cardId" element={<RoleGuard allowedRoles={["Admin"]}><CardManagement /></RoleGuard>} />

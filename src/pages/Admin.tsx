@@ -11,6 +11,7 @@ import ExpenseTypePanelImported from "@/components/admin/ExpenseTypePanel";
 import OcrValidationRulesPanel from "@/components/admin/OcrValidationRulesPanel";
 import DocumentTypePanel from "@/components/admin/DocumentTypePanel";
 import ProjectPanel from "@/components/admin/ProjectPanel";
+import AvgVatRatePanel from "@/components/admin/AvgVatRatePanel";
 import HrisSyncExceptionsPanel from "@/components/admin/HrisSyncExceptionsPanel";
 import CardManagementList from "@/components/admin/CardManagementList";
 import { MonthEndSummaryPanel } from "./Reports";
@@ -24,6 +25,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import {
   Plus,
+  Percent,
   Users,
   Shield,
   CircleDollarSign,
@@ -122,6 +124,7 @@ const adminMenu = [
       { key: "documents", label: "Documents", icon: FileText },
       { key: "expense-type", label: "Expense Type", icon: Layers },
       { key: "project", label: "Project", icon: FileText },
+      { key: "avg-vat-rate", label: "AVG VAT Rate %", icon: Percent },
       { key: "mcc-policy", label: "Policy Management", icon: Shield },
       { key: "fleet-etax-upload", label: "Upload Fleet Card E Tax Invoice", icon: Upload, isNew: true, roles: ["RPA Upload", "Admin"] },
     ],
@@ -1542,6 +1545,7 @@ const panelMap: Record<string, () => JSX.Element> = {
   "monthly-cardholder-summary": MonthlyCardholderSummaryPanel,
   "monthly-approver-summary": MonthlyApproverSummaryPanel,
   "input-vat-report": InputVatReportPanel,
+  "avg-vat-rate": AvgVatRatePanel,
   "fleet-etax-upload": FleetEtaxUploadPanel,
 };
 
