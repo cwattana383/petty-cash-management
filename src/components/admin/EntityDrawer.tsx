@@ -12,6 +12,9 @@ import { Separator } from "@/components/ui/separator";
 import { Plus, Trash2, AlertTriangle, Pencil } from "lucide-react";
 import { CompanyIdentity, TaxIdEntry, createEmptyEntity, emptyAddress } from "./EntityTypes";
 import { toast } from "@/hooks/use-toast";
+import { useEntityAudit } from "@/hooks/use-entities";
+
+const fmtAuditStamp = (iso: string) => { const d = new Date(iso); const p = (n: number) => String(n).padStart(2, "0"); return `${p(d.getDate())}/${p(d.getMonth() + 1)}/${d.getFullYear()} ${p(d.getHours())}:${p(d.getMinutes())}`; };
 
 interface EntityDrawerProps {
   open: boolean;
@@ -44,6 +47,7 @@ export default function EntityDrawer({ open, onOpenChange, entity, mode: initial
   }, [entity, initialMode, open]);
 
   const isReadOnly = mode === "view";
+  const { data: auditEvents = [] } = useEntityAudit(entity?.id, open && mode === "view");
 
   const validate = (data: CompanyIdentity): boolean => {
     const errs: Record<string, string> = {};
@@ -516,6 +520,49 @@ export default function EntityDrawer({ open, onOpenChange, entity, mode: initial
                 )}
               </CardContent>
             </Card>
+
+            {/* Section 6: Audit Trail (View mode only) */}
+            {isReadOnly && entity && (
+              <div className="space-y-3">
+                <div className="flex items-center gap-3">
+                  <span className="flex h-6 w-6 items-center justify-center rounded-full bg-primary text-xs font-semibold text-primary-foreground">6</span>
+                  <h3 className="text-sm font-bold">Audit Trail</h3>
+                  <span className="text-xs text-muted-foreground">{auditEvents.length} {auditEvents.length === 1 ? "event" : "events"}</span>
+                  <div className="h-px flex-1 bg-border" />
+                </div>
+                <Card>
+                  <CardContent className="space-y-4 p-4">
+                    <div className="flex gap-8 rounded-md bg-muted/50 p-3">
+                      <div><p className="text-[11px] uppercase tracking-wide text-muted-foreground">Company Code</p><p className="text-sm font-medium">{entity.companyCode}</p></div>
+                      <div><p className="text-[11px] uppercase tracking-wide text-muted-foreground">Legal Entity Name (TH)</p><p className="text-sm font-medium">{entity.legalNameTh}</p></div>
+                    </div>
+                    {auditEvents.length === 0 ? (
+                      <p className="text-xs text-muted-foreground italic">No audit events yet</p>
+                    ) : (
+                      <div className="relative space-y-3 pl-6 before:absolute before:left-[7px] before:top-1 before:bottom-1 before:w-px before:bg-border">
+                        {auditEvents.map((e, idx) => (
+                          <div key={e.id} className="relative">
+                            <span className={`absolute -left-6 top-3 h-3.5 w-3.5 rounded-full border-2 border-background ${idx === 0 ? "bg-amber-400" : "bg-muted-foreground/40"}`} />
+                            <div className={`rounded-md p-3 ${idx === 0 ? "border-l-4 border-amber-400 bg-amber-50" : ""}`}>
+                              <p className="text-sm font-semibold">{e.type}</p>
+                              {e.type === "Created" ? (
+                                <p className="text-sm">Company Code {e.changes[0]?.newValue} created</p>
+                              ) : e.changes.map((c, i) => (
+                                <p key={i} className="text-sm">
+                                  <span className="font-semibold">{c.field}:</span>{" "}
+                                  {c.kind === "added" ? `added ${c.newValue}` : c.kind === "removed" ? `removed ${c.oldValue}` : `${c.oldValue} → ${c.newValue}`}
+                                </p>
+                              ))}
+                              <p className="text-xs text-muted-foreground">{e.actorName}{[e.actorEmail, e.actorEmployeeId].filter(Boolean).length ? ` (${[e.actorEmail, e.actorEmployeeId].filter(Boolean).join(", ")})` : ""} · {fmtAuditStamp(e.at)}</p>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </CardContent>
+                </Card>
+              </div>
+            )}
           </div>
         </ScrollArea>
 

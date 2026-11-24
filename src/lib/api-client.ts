@@ -1,4 +1,5 @@
 import { FLEET_CARD_TXN_IDS } from "./approval-status";
+import { getEntityAudit, recordEntityCreated, recordEntityUpdated } from "./entity-audit";
 import { FLEET_DEFAULT_EXPENSE_TYPE_ID, FLEET_DEFAULT_SUB_EXPENSE_TYPE_ID, getFleetVatTypeId } from "./fleet-business-defaults";
 import { rebaseMockDates } from "@/lib/mock-dates";
 /**
@@ -431,6 +432,11 @@ async function handleGet(path: string): Promise<any> {
     return paginate(items, Number(qs.page) || 1, Number(qs.limit) || 20);
   }
 
+  // Admin entity audit trail (read-only)
+  if (base.match(/^\/admin\/entities\/[\w-]+\/audit$/)) {
+    return { data: getEntityAudit(base.split('/')[3]) };
+  }
+
   // Admin entities
   if (base === '/admin/entities') {
     let items = [...entitiesStore];
@@ -814,6 +820,7 @@ async function handlePost(path: string, body?: unknown): Promise<unknown> {
   if (base === '/admin/entities') {
     const ent = { id: uid(), ...(body as Record<string, unknown>), createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() };
     entitiesStore.push(ent as typeof entitiesStore[0]);
+    recordEntityCreated(ent);
     return ent;
   }
 
@@ -924,6 +931,7 @@ async function handlePatch(path: string, body?: unknown): Promise<unknown> {
   if (base.match(/^\/admin\/entities\/[\w-]+$/)) {
     const id = base.split('/')[3];
     const idx = entitiesStore.findIndex(e => e.id === id);
+    if (idx >= 0) recordEntityUpdated(id, JSON.parse(JSON.stringify(entitiesStore[idx])), body as Record<string, unknown>);
     if (idx >= 0) Object.assign(entitiesStore[idx], body, { updatedAt: new Date().toISOString() });
     return idx >= 0 ? entitiesStore[idx] : null;
   }

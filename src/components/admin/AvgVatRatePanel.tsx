@@ -49,7 +49,7 @@ export default function AvgVatRatePanel() {
   const [trnDate, setTrnDate] = useState("");
   const [audit, setAudit] = useState<AvgVatAuditEvent[]>(() => loadAvgVatAudit());
   const { user } = useAuth();
-  const actor = { actorName: user?.name || "System", actorEmail: user?.email, actorEmployeeId: (user as any)?.employeeId };
+  const actor = { actorName: user?.name || "System", actorEmail: user?.email, actorEmployeeId: user?.employeeCode };
 
   const rows = useMemo(() => sortAvgVatRates(rates.filter((r) => !r.deleted)).filter((r) => {
     const q = search.trim().toLowerCase();

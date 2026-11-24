@@ -262,3 +262,14 @@ export function useBulkEntityAction() {
     },
   });
 }
+
+export function useEntityAudit(entityId: string | undefined, enabled: boolean) {
+  return useQuery<import("@/lib/entity-audit").EntityAuditEvent[]>({
+    queryKey: ["entities", "audit", entityId],
+    enabled: !!entityId && enabled,
+    queryFn: async () => {
+      const json = await apiClient.get(`/admin/entities/${entityId}/audit`);
+      return Array.isArray(json?.data) ? json.data : [];
+    },
+  });
+}
