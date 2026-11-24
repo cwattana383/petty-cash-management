@@ -8,7 +8,10 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from "@/components/ui/sheet";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { CardHeader, CardTitle } from "@/components/ui/card";
+import { useAuth } from "@/lib/auth-context";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 import { Plus, Search, Eye, Pencil, Trash2 } from "lucide-react";
 import { toast } from "sonner";
@@ -17,10 +20,13 @@ import { formatBEDate } from "@/lib/utils";
 import {
   type AvgVatRate, getAvgVatStatus, loadAvgVatRates, saveAvgVatRates, sortAvgVatRates,
   findApplicableRate, validateAvgVatRate,
+  loadAvgVatAudit, appendAvgVatAudit, diffAvgVatRate, type AvgVatAuditEvent,
 } from "@/lib/avg-vat-rate";
 
 const fmtDate = (ymd: string) => formatBEDate(new Date(`${ymd}T00:00:00`));
 const fmtStamp = (iso: string) => { const d = new Date(iso); return `${formatBEDate(d)}, ${format(d, "HH:mm")}`; };
+const fmtAuditStamp = (iso: string) => { const d = new Date(iso); return `${formatBEDate(d)} ${format(d, "HH:mm")}`; };
+const fmtAuditVal = (field: string, v: string) => (field === "AVG VAT Rate %" ? `${v}%` : fmtDate(v));
 
 const statusClass: Record<string, string> = {
   Active: "rounded-full border-green-300 bg-green-50 text-green-700 hover:bg-green-50",
@@ -41,8 +47,11 @@ export default function AvgVatRatePanel() {
   const [gapWarned, setGapWarned] = useState(false);
   const [deleteId, setDeleteId] = useState<string | null>(null);
   const [trnDate, setTrnDate] = useState("");
+  const [audit, setAudit] = useState<AvgVatAuditEvent[]>(() => loadAvgVatAudit());
+  const { user } = useAuth();
+  const actor = { actorName: user?.name || "System", actorEmail: user?.email, actorEmployeeId: (user as any)?.employeeId };
 
-  const rows = useMemo(() => sortAvgVatRates(rates).filter((r) => {
+  const rows = useMemo(() => sortAvgVatRates(rates.filter((r) => !r.deleted)).filter((r) => {
     const q = search.trim().toLowerCase();
     const matchSearch = !q || `${r.rate.toFixed(2)}%`.includes(q) || fmtDate(r.from).includes(q) || fmtDate(r.to).includes(q);
     return matchSearch && (statusFilter === "all" || getAvgVatStatus(r).toLowerCase() === statusFilter);
@@ -69,12 +78,21 @@ export default function AvgVatRatePanel() {
     setError(null);
     if (v.gap && !gapWarned) { setGapWarned(true); return; }
     const entry: AvgVatRate = { id: dialog.id ?? `avg-${Date.now()}`, rate: Math.round(Number(form.rate) * 100) / 100, from: form.from, to: form.to, updatedAt: new Date().toISOString() };
+    const prevEntry = dialog.id ? rates.find((r) => r.id === dialog.id) : undefined;
     persist(dialog.id ? rates.map((r) => (r.id === dialog.id ? entry : r)) : [...rates, entry]);
+    if (prevEntry) {
+      const changes = diffAvgVatRate(prevEntry, entry);
+      if (changes.length) setAudit(appendAvgVatAudit({ rateId: entry.id, type: "Updated", ...actor, at: entry.updatedAt, changes }));
+    } else {
+      setAudit(appendAvgVatAudit({ rateId: entry.id, type: "Created", ...actor, at: entry.updatedAt, changes: diffAvgVatRate({ ...entry, rate: NaN, from: "", to: "" }, entry).map((c) => ({ ...c, oldValue: "" })) }));
+    }
     setDialog(null);
     toast.success("AVG VAT Rate saved");
   };
 
   const readOnly = dialog?.mode === "view";
+  const current = dialog?.id ? rates.find((r) => r.id === dialog.id) : undefined;
+  const currentAudit = current ? audit.filter((e) => e.rateId === current.id).sort((x, y) => y.at.localeCompare(x.at)) : [];
   const bad = (f: string) => (error?.fields.includes(f) ? "border-destructive" : "");
 
   return (
@@ -148,7 +166,7 @@ export default function AvgVatRatePanel() {
                 {rows.length === 0 && (
                   <TableRow>
                     <TableCell colSpan={7} className="text-center text-muted-foreground py-8">
-                      {rates.length === 0 ? "No AVG VAT Rate has been set up yet." : "No results found"}
+                      {rates.filter((r) => !r.deleted).length === 0 ? "No AVG VAT Rate has been set up yet." : "No results found"}
                     </TableCell>
                   </TableRow>
                 )}
@@ -181,17 +199,30 @@ export default function AvgVatRatePanel() {
         </Card>
       </div>
 
-      <Dialog open={!!dialog} onOpenChange={(o) => !o && setDialog(null)}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>{dialog?.mode === "add" ? "Add AVG VAT Rate" : dialog?.mode === "edit" ? "Edit AVG VAT Rate" : "AVG VAT Rate"}</DialogTitle>
-            <DialogDescription>Set the rate and the period it is effective.</DialogDescription>
-          </DialogHeader>
-          <div className="space-y-4">
-            {error && <div className="rounded-md border border-destructive/40 bg-destructive/10 p-3 text-sm text-destructive">{error.msg}</div>}
-            {gapWarned && !error && (
-              <div className="rounded-md border border-amber-300 bg-amber-50 p-3 text-sm text-amber-800">There is a gap between this period and the previous one. Dates in the gap will have no rate.</div>
-            )}
+      <Sheet open={!!dialog} onOpenChange={(o) => !o && setDialog(null)}>
+        <SheetContent side="right" className="!max-w-2xl !w-full p-0 flex flex-col">
+          <SheetHeader className="px-6 pt-6 pb-4 border-b shrink-0">
+            <div className="flex items-center justify-between pr-8">
+              <div>
+                <SheetTitle className="text-lg">{dialog?.mode === "add" ? "Add AVG VAT Rate" : dialog?.mode === "edit" ? "Edit AVG VAT Rate" : `AVG VAT Rate ${current ? current.rate.toFixed(2) : ""}%`}</SheetTitle>
+                {dialog?.mode !== "edit" && <SheetDescription>{readOnly ? "View AVG VAT Rate details" : "Set the rate and the period it is effective."}</SheetDescription>}
+              </div>
+              {readOnly && (
+                <Button size="sm" variant="outline" onClick={() => setDialog((d) => (d ? { ...d, mode: "edit" } : d))}>
+                  <Pencil className="h-3.5 w-3.5 mr-1.5" /> Edit
+                </Button>
+              )}
+            </div>
+          </SheetHeader>
+          <ScrollArea className="flex-1">
+            <div className="p-6 space-y-6">
+              {error && <div className="rounded-md border border-destructive/40 bg-destructive/10 p-3 text-sm text-destructive">{error.msg}</div>}
+              {gapWarned && !error && (
+                <div className="rounded-md border border-amber-300 bg-amber-50 p-3 text-sm text-amber-800">There is a gap between this period and the previous one. Dates in the gap will have no rate.</div>
+              )}
+              <Card>
+                <CardHeader className="pb-3"><CardTitle className="text-sm font-semibold">Rate Information</CardTitle></CardHeader>
+                <CardContent className="space-y-4">
             <div className="space-y-1">
               <Label>AVG VAT Rate % <span className="text-destructive">*</span></Label>
               <div className="relative">
@@ -201,6 +232,12 @@ export default function AvgVatRatePanel() {
                 <span className="absolute right-3 top-1/2 -translate-y-1/2 text-sm text-muted-foreground">%</span>
               </div>
             </div>
+            {readOnly && current && (
+              <div className="space-y-1">
+                <Label>Status <span className="text-destructive">*</span></Label>
+                <div><Badge variant="outline" className={statusClass[getAvgVatStatus(current)]}>{getAvgVatStatus(current)}</Badge></div>
+              </div>
+            )}
             {(["from", "to"] as const).map((k) => (
               <div key={k} className="space-y-1">
                 <Label>{k === "from" ? "Effective Date From" : "Effective Date To"} <span className="text-destructive">*</span></Label>
@@ -214,13 +251,53 @@ export default function AvgVatRatePanel() {
                 )}
               </div>
             ))}
-          </div>
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setDialog(null)}>Cancel</Button>
-            {!readOnly && <Button onClick={onSave}>Save</Button>}
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+                </CardContent>
+              </Card>
+              {readOnly && current && (
+                <div className="space-y-3">
+                  <div className="flex items-center gap-3">
+                    <span className="flex h-6 w-6 items-center justify-center rounded-full bg-primary text-xs font-semibold text-primary-foreground">2</span>
+                    <h3 className="text-sm font-semibold">Audit Trail</h3>
+                    <span className="text-xs text-muted-foreground">{currentAudit.length} {currentAudit.length === 1 ? "event" : "events"}</span>
+                    <div className="h-px flex-1 bg-border" />
+                  </div>
+                  <Card>
+                    <CardContent className="space-y-4 p-4">
+                      <div className="flex gap-8 rounded-md bg-muted/50 p-3">
+                        <div><p className="text-[11px] uppercase tracking-wide text-muted-foreground">AVG VAT Rate</p><p className="text-sm font-medium">{current.rate.toFixed(2)}%</p></div>
+                        <div><p className="text-[11px] uppercase tracking-wide text-muted-foreground">Period</p><p className="text-sm font-medium">{fmtDate(current.from)} – {fmtDate(current.to)}</p></div>
+                      </div>
+                      <div className="relative space-y-3 pl-6 before:absolute before:left-[7px] before:top-1 before:bottom-1 before:w-px before:bg-border">
+                        {currentAudit.map((e, idx) => (
+                          <div key={e.id} className="relative">
+                            <span className={`absolute -left-6 top-3 h-3.5 w-3.5 rounded-full border-2 border-background ${idx === 0 ? "bg-amber-400" : "bg-muted-foreground/40"}`} />
+                            <div className={`rounded-md p-3 ${idx === 0 ? "border-l-4 border-amber-400 bg-amber-50" : ""}`}>
+                              <p className="text-sm font-semibold">{e.type}</p>
+                              {e.type === "Created" && (
+                                <p className="text-sm">{(() => { const v = Object.fromEntries(e.changes.map((c) => [c.field, c.newValue])); return `${v["AVG VAT Rate %"]}% · ${fmtDate(v["Effective Date From"])} – ${fmtDate(v["Effective Date To"])}`; })()}</p>
+                              )}
+                              {e.type === "Updated" && e.changes.map((c) => (
+                                <p key={c.field} className="text-sm">{c.field}: {fmtAuditVal(c.field, c.oldValue)} → {fmtAuditVal(c.field, c.newValue)}</p>
+                              ))}
+                              <p className="text-xs text-muted-foreground">{[e.actorName, e.actorEmail && e.actorEmail !== e.actorName ? e.actorEmail : "", e.actorEmployeeId ? `(${e.actorEmployeeId})` : ""].filter(Boolean).join(" ")} · {fmtAuditStamp(e.at)}</p>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </CardContent>
+                  </Card>
+                </div>
+              )}
+            </div>
+          </ScrollArea>
+          {!readOnly && (
+            <div className="flex justify-end gap-2 border-t px-6 py-4">
+              <Button variant="outline" onClick={() => setDialog(null)}>Cancel</Button>
+              <Button onClick={onSave}>Save</Button>
+            </div>
+          )}
+        </SheetContent>
+      </Sheet>
 
       <AlertDialog open={!!deleteId} onOpenChange={(o) => !o && setDeleteId(null)}>
         <AlertDialogContent>
@@ -228,7 +305,7 @@ export default function AvgVatRatePanel() {
           <AlertDialogFooter>
             <AlertDialogCancel>Cancel</AlertDialogCancel>
             <AlertDialogAction className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
-              onClick={() => { persist(rates.filter((r) => r.id !== deleteId)); setSelected((p) => p.filter((x) => x !== deleteId)); setDeleteId(null); }}>
+              onClick={() => { const at = new Date().toISOString(); persist(rates.map((r) => (r.id === deleteId ? { ...r, deleted: true, updatedAt: at } : r))); if (deleteId) setAudit(appendAvgVatAudit({ rateId: deleteId, type: "Deleted", ...actor, at, changes: [] })); setSelected((p) => p.filter((x) => x !== deleteId)); setDeleteId(null); }}>
               Delete
             </AlertDialogAction>
           </AlertDialogFooter>
